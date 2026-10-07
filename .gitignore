@@ -1,0 +1,15 @@
+# 의존성·빌드 결과
+node_modules/
+dist/
+.vite/
+
+# 테스트 산출물
+coverage/
+playwright-report/
+test-results/
+
+# 환경·로컬 파일
+.env
+.env.*
+.DS_Store
+*.log
