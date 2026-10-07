@@ -1,52 +1,237 @@
-import { useState } from 'react';
-const axes=['전문성','문제해결','소통','협업','자기주도','창의성'];
-const sample=[3,4,5,4,3,2];
-const topics=['UX 리서치','서비스 기획','데이터 분석','창업'];
-const nav=['성장 지도','활동 탐색','진로 상담','활동 아카이브'];
-const sources=['전체','학과 공지','챌린지스퀘어','교내 공지','대외활동'];
-const activities=[
- {id:1,title:'사용자 리서치 워크숍',source:'챌린지스퀘어',topic:'UX 리서치',kind:'워크숍',shape:0,reason:'인터뷰 경험 활용',skill:'소통',effort:'반나절'},
- {id:2,title:'지역 문제해결 프로젝트',source:'학과 공지',topic:'서비스 기획',kind:'프로젝트',shape:1,reason:'문제 정의 경험 확장',skill:'문제해결',effort:'4주'},
- {id:3,title:'서비스 아이디어 공모전',source:'대외활동',topic:'서비스 기획',kind:'공모전',shape:2,reason:'개선안 시험하기',skill:'창의성',effort:'팀 활동'},
- {id:4,title:'데이터 분석 캠프',source:'챌린지스퀘어',topic:'데이터 분석',kind:'캠프',shape:3,reason:'자료 해석 경험 넓히기',skill:'전문성',effort:'2일'},
- {id:5,title:'창업 아이디어톤',source:'교내 공지',topic:'창업',kind:'아이디어톤',shape:4,reason:'새로운 관점 실험',skill:'창의성',effort:'1일'},
- {id:6,title:'학생 UX 사례 발표',source:'대외활동',topic:'UX 리서치',kind:'발표',shape:5,reason:'소통 강점 활용',skill:'소통',effort:'온라인'},
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import './index.css';
+
+type Route = 'home' | 'map' | 'explore' | 'archive' | 'reflection' | 'data';
+type NodeKind = 'experience' | 'artifact' | 'reflection';
+type LinkStatus = 'confirmed' | 'proposed';
+type AnalysisState = '대기' | '진행 중' | '완료';
+
+type Experience = {
+  id: string;
+  title: string;
+  type: string;
+  role: string;
+  action: string;
+  result: string;
+  reflection: string;
+  quote: string;
+  period: string;
+  learn?: string;
+};
+
+type Activity = {
+  id: string;
+  title: string;
+  source: string;
+  interest: string;
+  kind: string;
+  task: string;
+  deliverable: string;
+  prerequisite: string;
+  deadline: string;
+  checked: string;
+  reason: string;
+};
+
+type NodeItem = { id: string; label: string; kind: NodeKind; x: number; y: number; expId?: string };
+type LinkItem = { id: string; from: string; to: string; label: string; status: LinkStatus; question?: string; note?: string };
+
+const routes: { id: Route; label: string; icon: string }[] = [
+  { id: 'home', label: '내 성장 홈', icon: 'home' },
+  { id: 'map', label: '경험 지도', icon: 'map' },
+  { id: 'explore', label: '활동 탐색', icon: 'search' },
+  { id: 'archive', label: '활동 아카이브', icon: 'archive' },
+  { id: 'reflection', label: '회고 도우미', icon: 'chat' },
+  { id: 'data', label: '데이터·분석', icon: 'data' },
 ];
-const initialArchive=[
- {id:101,title:'사용자 인터뷰 프로젝트',type:'프로젝트',status:'완료',shape:0,skills:['소통','문제해결'],role:'인터뷰 진행',action:'질문을 만들고 사용자의 답변을 정리했다.',result:'팀의 초기 가정을 다시 살펴봤다.',learn:'사용자의 실제 행동을 먼저 확인하기',period:'1학기'},
- {id:102,title:'팀 서비스 개선안',type:'교과',status:'완료',shape:1,skills:['협업','창의성'],role:'기획·팀 조율',action:'회의에서 의견을 모아 개선안을 정리했다.',result:'발표용 제안서를 만들었다.',learn:'의견 차이를 문제 정의로 연결하기',period:'1학기'},
- {id:103,title:'리서치 스터디',type:'비교과',status:'진행',shape:3,skills:['자기주도','전문성'],role:'사례 조사',action:'리서치 사례를 읽고 메모했다.',result:'진행 중',learn:'관심 분야를 작게 시험하기',period:'2학기'},
+
+const interests = ['사용자 이해', '서비스 기획', '문제 정리', '팀 협업', '데이터 관찰'];
+const sources = ['전체', '학교 공지', '학과 공지', 'Challenge Square', '외부 활동'];
+
+const seedExperiences: Experience[] = [
+  { id: 'e1', title: '팀 서비스 개선안', type: '교과', role: '기획과 회의 정리', action: '팀원 의견을 모아 사용자가 겪는 불편을 문장으로 정리했다.', result: '발표용 제안서 초안을 만들고 팀 피드백을 반영했다.', reflection: '의견 차이를 바로 결론으로 밀지 않고 문제 문장으로 바꾸는 일이 중요했다.', quote: '서로 다른 의견을 한 문장으로 묶으니 다음 행동이 보였다.', period: '1학기' },
+  { id: 'e2', title: '사용자 인터뷰 과제', type: '프로젝트', role: '질문 작성과 인터뷰 진행', action: '질문지를 만들고 사용자 답변에서 반복되는 표현을 표시했다.', result: '처음 가정과 다른 사용 맥락을 발견했다.', reflection: '내 생각보다 사용자의 실제 말과 행동을 먼저 봐야 했다.', quote: '사용자가 왜 그렇게 했는지 다시 물어보니 가정이 달라졌다.', period: '1학기' },
+  { id: 'e3', title: '리서치 스터디 메모', type: '비교과', role: '사례 조사', action: '서비스 리서치 사례를 읽고 좋은 질문 예시를 모았다.', result: '다음 인터뷰에서 써볼 질문 목록을 만들었다.', reflection: '잘 정리된 사례를 내 상황에 맞게 줄여 쓰는 연습이 필요하다.', quote: '좋은 질문은 답을 유도하지 않고 상황을 떠올리게 했다.', period: '2학기' },
 ];
-function Icon({name,size=22}:{name:string,size?:number}){const paths:Record<string,string>={home:'M4 12 12 4l8 8v8H4z M9 20v-6h6v6',search:'M10 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12 M15 15l5 5',chat:'M4 5h16v11H9l-5 4z M8 9h8 M8 12h5',archive:'M4 5h16v4H4z M6 9v11h12V9 M10 13h4',arrow:'M5 12h14 M13 6l6 6-6 6',plus:'M12 4v16 M4 12h16',bookmark:'M6 4h12v17l-6-4-6 4z',close:'M6 6l12 12 M18 6 6 18',leaf:'M12 21C4 17 1 9 3 4c5 0 7 2 9 6 2-4 4-6 9-6 2 5-1 13-9 17 M12 10v11',data:'M5 5h14v4H5z M5 11h14v4H5z M5 17h14v4H5z',check:'M4 12l5 5L20 6',gear:'M12 3v4 M12 17v4 M3 12h4 M17 12h4 M5.6 5.6l3 3 M15.4 15.4l3 3 M5.6 18.4l3-3 M15.4 8.6l3-3 M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8'};return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]||paths.arrow}/></svg>}
-function Art({n=0}:{n?:number}){return <svg className={'art art-'+n} viewBox="0 0 340 170" aria-hidden="true"><rect width="340" height="170" rx="16" fill="currentColor"/>{n%3===0?<g><circle cx="130" cy="78" r="48" fill="#8DC63F"/><circle cx="195" cy="94" r="48" fill="#E9F2D3" fillOpacity=".8"/><path d="M86 133 130 33l77 108" stroke="#124633" strokeWidth="5" fill="none"/><circle cx="260" cy="36" r="9" fill="#8DC63F"/></g>:n%3===1?<g><rect x="79" y="34" width="85" height="103" rx="3" fill="#E9F2D3" transform="rotate(-13 122 85)"/><rect x="143" y="48" width="106" height="85" fill="#8DC63F" transform="rotate(16 196 90)"/><circle cx="189" cy="83" r="31" fill="none" stroke="#124633" strokeWidth="4"/><path d="M54 120h28 M268 54v28" stroke="#8DC63F" strokeWidth="6"/></g>:<g><path d="M83 131 145 24l63 107z" fill="#8DC63F"/><path d="m163 128 59-95 57 95z" fill="#E9F2D3"/><circle cx="164" cy="90" r="36" stroke="#124633" strokeWidth="4" fill="none"/><path d="m46 63 18 18 18-18" fill="none" stroke="#8DC63F" strokeWidth="4"/></g>}</svg>}
-function Radar({values,onAxis}:{values:(number|null)[],onAxis:(i:number)=>void}){const p=(i:number,s:number)=>{const a=-Math.PI/2+i*Math.PI/3;return [190+Math.cos(a)*102*s,160+Math.sin(a)*102*s]};const poly=(s:number)=>axes.map((_,i)=>p(i,s).join(',')).join(' ');return <svg className="radar" viewBox="0 0 380 325" role="img" aria-label={'6축 역량 예시: '+axes.map((a,i)=>a+' '+(values[i]??'분석 대기')).join(', ')}>{[1,2,3,4,5].map(v=><polygon key={v} points={poly(v/5)} fill="none" stroke="#D6E2CB"/>)}{axes.map((a,i)=>{const [x,y]=p(i,1);const [tx,ty]=p(i,1.4);return <g key={a} onClick={()=>onAxis(i)} className="radar-axis"><line x1="190" y1="160" x2={x} y2={y} stroke="#D6E2CB"/><text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle">{a}</text></g>})}{values.every(v=>v!==null)?<><polygon points={values.map((v,i)=>p(i,(v||0)/5).join(',')).join(' ')} fill="#8DC63F" fillOpacity=".28" stroke="#124633" strokeWidth="3"/>{values.map((v,i)=>{const [x,y]=p(i,(v||0)/5);return <circle key={i} cx={x} cy={y} r="4" fill="#124633"/>})}</>:<text x="190" y="166" textAnchor="middle">분석 대기</text>}</svg>}
-type ArchiveItem=typeof initialArchive[number];
-export default function App(){
- const [screen,setScreen]=useState(0),[topic,setTopic]=useState('전체'),[source,setSource]=useState('전체'),[interests,setInterests]=useState(['UX 리서치','서비스 기획']);
- const [values,setValues]=useState<(number|null)[]>(sample),[axis,setAxis]=useState<number|null>(null),[edit,setEdit]=useState(false),[info,setInfo]=useState(false);
- const [saved,setSaved]=useState<number[]>([]),[detail,setDetail]=useState<typeof activities[number]|null>(null),[archive,setArchive]=useState(initialArchive),[archiveDetail,setArchiveDetail]=useState<ArchiveItem|null>(null),[filter,setFilter]=useState('전체'),[timeline,setTimeline]=useState(false);
- const [step,setStep]=useState(0),[answers,setAnswers]=useState<string[]>([]),[chat,setChat]=useState(''),[messages,setMessages]=useState<string[]>([]),[direction,setDirection]=useState('UX 리서치 탐색'),[newRecord,setNewRecord]=useState(false),[recordTitle,setRecordTitle]=useState(''),[recordRole,setRecordRole]=useState(''),[recordAction,setRecordAction]=useState('');
- const go=(s:number)=>{setScreen(s);window.scrollTo(0,0)};
- const recommend=activities.filter(a=>(source==='전체'||a.source===source)&&(topic==='전체'||a.topic===topic)).sort((a,b)=>Number(interests.includes(b.topic))-Number(interests.includes(a.topic)));
- const choose=(answer:string)=>{setAnswers([...answers.slice(0,step),answer]);if(step<2)setStep(step+1)};
- const send=()=>{if(!chat.trim())return;setMessages([...messages,'나: '+chat,'코치: 그 경험에서 더 해보고 싶은 일은 무엇인가요?']);setChat('')};
- const addArchive=()=>{if(!recordTitle.trim())return;setArchive([...archive,{id:Date.now(),title:recordTitle,type:'프로젝트',status:'진행',shape:archive.length,skills:[],role:recordRole,action:recordAction,result:'직접 기록 예정',learn:'',period:'새 기록'}]);setNewRecord(false);setRecordTitle('');setRecordRole('');setRecordAction('')};
- return <div className="app"><aside className="sidebar"><div className="brand"><Icon name="leaf" size={34}/><span><small>SKKU CONCEPT</small><b>킹고 컴패니언</b></span></div><nav>{nav.map((n,i)=><button key={n} onClick={()=>go(i)} className={screen===i?'active':''}><Icon name={['home','search','chat','archive'][i]}/><span>{n}</span>{screen===i&&<i/>}</button>)}</nav><div className="side-bottom"><button onClick={()=>go(4)} className={screen===4?'active':''}><Icon name="data"/>데이터 흐름</button><button onClick={()=>go(5)} className={screen===5?'active':''}><Icon name="gear"/>관심사 설정</button><div className="mini-user"><span>나</span><div><b>나의 성장 공간</b><small>학생 프로필 · 예시</small></div></div></div></aside>
- <div className="workspace"><header className="topbar"><span className="crumb">MY CAMPUS / {screen<4?nav[screen]:screen===4?'데이터 흐름':'관심사 설정'}</span><div><button className="demo-tag" onClick={()=>setInfo(true)}>예시 데이터 · 연동 전</button><button className="icon-btn" aria-label="설계 및 데이터 안내" onClick={()=>setInfo(true)}>i</button><span className="avatar">나</span></div></header><main>
- {screen===0&&<><div className="page-title"><div><small>GROWTH MAP</small><h1>나의 성장 지도</h1></div><button className="primary" onClick={()=>go(2)}>진로 상담<Icon name="arrow"/></button></div><div className="overview"><section className="panel profile"><div className="panel-title"><h2>6축 역량</h2><button className="small-btn" onClick={()=>setEdit(true)}>수정</button></div><Radar values={values} onAxis={setAxis}/><div className="radar-caption"><span className="green-dot"/>가상 예시 · 5단계<button onClick={()=>setInfo(true)}>평가 기준</button></div></section><section className="panel strengths"><div className="panel-title"><h2>주요 강점 분야</h2><span className="pill">탐색 가설</span></div><div className="strength-orbits"><div className="orbit large"><Icon name="chat" size={33}/><b>UX 리서치</b><small>소통 · 문제해결</small></div><div className="orbit small"><Icon name="leaf" size={29}/><b>서비스 기획</b><small>협업 · 창의성</small></div></div><div className="strength-footer">{['소통','협업'].map(a=><button key={a} onClick={()=>setAxis(axes.indexOf(a))}>{a}<Icon name="arrow" size={16}/></button>)}<button onClick={()=>go(1)}>활동 연결<Icon name="arrow" size={16}/></button></div></section></div><div className="section-heading"><h2>나에게 맞는 활동</h2><button className="text-btn" onClick={()=>go(1)}>전체 보기<Icon name="arrow" size={17}/></button></div><div className="card-grid">{recommend.slice(0,3).map(a=><ActivityCard key={a.id} a={a} saved={saved.includes(a.id)} onSave={()=>setSaved(saved.includes(a.id)?saved.filter(id=>id!==a.id):[...saved,a.id])} onOpen={()=>setDetail(a)}/>)}</div><div className="bottom-strip"><button onClick={()=>go(3)}><Icon name="archive" size={26}/><b>활동 아카이브</b><span>{archive.length}개 · 예시 포함</span><Icon name="arrow"/></button><button onClick={()=>go(2)}><Icon name="chat" size={26}/><b>{direction}</b><span>상담으로 구체화</span><Icon name="arrow"/></button></div></>}
- {screen===1&&<><div className="page-title"><div><small>DISCOVER</small><h1>맞는 활동을 발견해요</h1></div><span className="pill">관심사 기반 · 예시 추천</span></div><div className="filter-row">{['전체',...topics].map(t=><button key={t} onClick={()=>setTopic(t)} className={topic===t?'selected':''}>{t}</button>)}<select aria-label="활동 출처" value={source} onChange={e=>setSource(e.target.value)}>{sources.map(s=><option key={s}>{s}</option>)}</select></div><div className="source-strip">{sources.slice(1).map((s,i)=><button key={s} onClick={()=>setSource(s)} className={source===s?'selected':''}><span>{['학','C','S','외'][i]}</span>{s}</button>)}</div><div className="card-grid">{recommend.map(a=><ActivityCard key={a.id} a={a} saved={saved.includes(a.id)} onSave={()=>setSaved(saved.includes(a.id)?saved.filter(id=>id!==a.id):[...saved,a.id])} onOpen={()=>setDetail(a)}/>)}</div>{recommend.length===0&&<div className="empty"><Icon name="search" size={50}/><h2>조건을 넓혀볼까요?</h2><button onClick={()=>{setTopic('전체');setSource('전체')}}>필터 초기화</button></div>}</>}
- {screen===2&&<><div className="page-title"><div><small>CAREER COMPASS</small><h1>관심을 방향으로</h1></div><span className="pill">데모 상담 · AI 미연결</span></div><div className="counsel-grid"><section className="panel compass"><div className="compass-map"><div className="compass-center"><Icon name="leaf" size={36}/><b>나의 관심</b></div><div className="compass-node node-a">{answers[0]||'좋아하는 일'}</div><div className="compass-node node-b">{answers[1]||'일하는 방식'}</div><div className="compass-node node-c">{answers[2]||'다음 경험'}</div></div><div className="route"><span>관심</span><i/><span>탐색</span><i/><span>경험</span></div><button className="primary full" onClick={()=>{setDirection((answers[0]||'UX 리서치')+' 탐색');setInterests([answers[0]&&topics.includes(answers[0])?answers[0]:'UX 리서치']);go(1)}}>이 방향으로 활동 보기<Icon name="arrow"/></button></section><section className="panel chat-panel"><div className="chat-head"><span className="coach-avatar"><Icon name="leaf"/></span><div><b>킹고 코치</b><small>진로를 함께 구체화해요</small></div><span className="pill">{step+1}/3</span></div><div className="chat-body"><div className="bubble coach">{['어떤 일이 가장 궁금한가요?','어떻게 일할 때 즐거운가요?','다음에 무엇을 해보고 싶나요?'][step]}</div><div className="answer-tiles">{(step===0?topics:step===1?['사람 이해','팀 협업','혼자 몰입','아이디어 실험']:['교내 활동','팀 프로젝트','대외 공모전','직무 탐색']).map((a,i)=><button key={a} onClick={()=>choose(a)}><span className={'tile-shape shape-'+i}/><b>{a}</b></button>)}</div>{answers.map((a,i)=><div className="bubble student" key={i}>{a}</div>)}{messages.map((m,i)=><div className={'bubble '+(i%2?'coach':'student')} key={'m'+i}>{m}</div>)}</div><form className="composer" onSubmit={e=>{e.preventDefault();send()}}><input aria-label="상담 메시지" placeholder="생각을 짧게 남겨요" value={chat} onChange={e=>setChat(e.target.value)}/><button className="icon-btn" type="submit" aria-label="메시지 보내기"><Icon name="arrow"/></button></form></section></div></>}
- {screen===3&&<><div className="page-title"><div><small>MY ACTIVITY COLLECTION</small><h1>경험이 한눈에</h1></div><button className="primary" onClick={()=>setNewRecord(true)}><Icon name="plus"/>활동 추가</button></div><div className="filter-row">{['전체','프로젝트','교과','비교과','대외'].map(t=><button key={t} className={filter===t?'selected':''} onClick={()=>setFilter(t)}>{t}</button>)}<div className="view-switch"><button className={!timeline?'selected':''} onClick={()=>setTimeline(false)}>카드</button><button className={timeline?'selected':''} onClick={()=>setTimeline(true)}>타임라인</button></div></div><div className={timeline?'archive-timeline':'archive-grid'}>{archive.filter(a=>filter==='전체'||a.type===filter).map(a=><button className="archive-card" key={a.id} onClick={()=>setArchiveDetail(a)}><Art n={a.shape}/><div className="archive-card-body"><span className={'status '+(a.status==='완료'?'done':'ongoing')}>{a.status}</span><small>{a.type} · {a.period}</small><h3>{a.title}</h3><div className="skill-dots">{a.skills.map(s=><span key={s}><i/>{s}</span>)}</div></div><Icon name="arrow" size={17}/></button>)}{!timeline&&filter==='전체'&&<button className="add-card" onClick={()=>setNewRecord(true)}><span><Icon name="plus" size={34}/></span><b>새로운 경험</b></button>}</div></>}
- {screen===4&&<><div className="page-title"><div><small>DATA → PERSONALIZED DISCOVERY</small><h1>활동 정보의 흐름</h1></div><span className="pill">구축 설계 · 실행 전</span></div><div className="etl-sources">{sources.slice(1).map((s,i)=><div className="panel" key={s}><span className="source-symbol">{['학','C','S','외'][i]}</span><h3>{s}</h3><small>{i===1?'접근 허용 공고 전체 · 페이지 순회':'출처별 수집기'}</small></div>)}</div><div className="etl-line">{['수집','원본 보관','정규화','중복·변경','검증','맞춤 추천'].map((s,i)=><div className="etl-step" key={s}><span>{i+1}</span><h3>{s}</h3><small>{['크롤러','RAW','ETL','버전 관리','조건·마감','관심·역량'][i]}</small>{i<5&&<Icon name="arrow"/>}</div>)}</div><div className="etl-bottom"><section className="panel"><h2>공통 활동 레코드</h2><div className="schema-pills">{['제목','출처·원문 URL','분야','지원 조건','일정·마감','수집·확인일','변경·마감 상태'].map(v=><span key={v}>{v}</span>)}</div></section><section className="panel"><h2>추천 필터</h2><div className="schema-pills">{['관심사','진로 계획','경험·역량 근거','학과·학년 조건','활동 시간','마감·최신성'].map(v=><span key={v}>{v}</span>)}</div></section></div><details className="etl-note"><summary>수집 범위·운영 원칙</summary><p>챌린지스퀘어는 접근이 허용된 공개 공고 전체를 페이지 순회·증분 수집하는 것이 목표입니다. 학과·학교 공지와 주요 대외활동 사이트는 약관, robots 정책, 접근 권한, 요청 빈도를 확인한 뒤 연결합니다. 로그인·비공개 자료는 권한 없이 수집하지 않습니다. 중복 제거, 변경 이력, 마감 제외, 원문 URL과 수집·확인일을 보존합니다. 이 시안에서는 실제 크롤링·ETL·AI가 실행되지 않습니다.</p></details></>}
- {screen===5&&<><div className="page-title"><div><small>MY PREFERENCES</small><h1>나의 관심사</h1></div><span className="pill">직접 선택</span></div><div className="preference-grid">{topics.map((t,i)=><button className={'preference-card '+(interests.includes(t)?'selected':'')} key={t} onClick={()=>setInterests(interests.includes(t)?interests.filter(v=>v!==t):[...interests,t])}><Art n={i}/><b>{t}</b>{interests.includes(t)&&<Icon name="check"/>}</button>)}</div><button className="primary" onClick={()=>{setTopic('전체');go(1)}}>추천에 반영<Icon name="arrow"/></button></>}
- </main></div>
- {info&&<Modal title="시안·데이터 안내" onClose={()=>setInfo(false)}><p>가상 예시만 사용하는 UI 프로토타입입니다. 실제 학생 평가, 공식 학교 역량 체계, 실제 모집 공고가 아닙니다.</p><p>6축 점수는 화면 확인용 예시입니다. 강점 분야는 탐색 가설이며, 실제 서비스에서는 경험 근거와 학생 확인이 필요합니다. 데이터가 없으면 0점이 아닌 분석 대기입니다.</p><p>학교 데이터·크롤러·ETL·AI는 미연결입니다. 추가 활동과 상담 입력은 현재 브라우저의 데모 상태에서만 사용됩니다.</p></Modal>}
- {edit&&<Modal title="역량 예시 수정" onClose={()=>setEdit(false)}>{axes.map((a,i)=><label className="range-row" key={a}>{a}<input aria-label={a+' 예시 값'} type="range" min="1" max="5" value={values[i]??3} onChange={e=>setValues(values.map((v,j)=>j===i?Number(e.target.value):v))}/><b>{values[i]??'대기'}</b></label>)}<div className="modal-actions"><button onClick={()=>setValues(axes.map(()=>null))}>분석 대기</button><button onClick={()=>setValues(sample)}>예시 복원</button><button className="primary" onClick={()=>setEdit(false)}>완료</button></div></Modal>}
- {axis!==null&&<Modal title={axes[axis]+' · 경험 근거'} onClose={()=>setAxis(null)}><div className="axis-value">{values[axis]??'대기'}<small>/ 5 · 가상 예시</small></div>{archive.filter(a=>a.skills.includes(axes[axis])).map(a=><button className="evidence-card" key={a.id} onClick={()=>{setAxis(null);setArchiveDetail(a)}}><Art n={a.shape}/><b>{a.title}</b><Icon name="arrow"/></button>)}<p className="muted">연결된 예시 기록을 보여줍니다. 점수의 실제 산출·검증 근거는 아닙니다.</p><button className="primary full" onClick={()=>{setAxis(null);go(1)}}>이 역량을 키울 활동</button></Modal>}
- {detail&&<Modal title={detail.title} onClose={()=>setDetail(null)}><Art n={detail.shape}/><div className="detail-tags"><span>{detail.source}</span><span>{detail.topic}</span><span>{detail.kind}</span></div><dl><div><dt>추천 이유</dt><dd>{detail.reason} · {detail.skill}</dd></div><div><dt>참여 조건</dt><dd>미확인 · 예시 활동</dd></div><div><dt>마감·확인일</dt><dd>미확인 · 실제 수집 전</dd></div><div><dt>소요</dt><dd>{detail.effort} · 예시</dd></div></dl><div className="modal-actions"><button disabled>원문 미연결</button><button className="primary" onClick={()=>{if(!saved.includes(detail.id))setSaved([...saved,detail.id]);setDetail(null)}}>관심 활동 저장</button></div></Modal>}
- {archiveDetail&&<Modal title={archiveDetail.title} onClose={()=>setArchiveDetail(null)}><Art n={archiveDetail.shape}/><div className="detail-tags"><span>{archiveDetail.type}</span><span>{archiveDetail.status}</span></div><div className="experience-fields">{(['role','action','result','learn'] as const).map((k,i)=><label key={k}>{['역할','행동','결과','배운 점'][i]}<textarea aria-label={['역할','행동','결과','배운 점'][i]} value={archiveDetail[k]} onChange={e=>setArchiveDetail({...archiveDetail,[k]:e.target.value})}/></label>)}</div><button className="primary full" onClick={()=>{setArchive(archive.map(a=>a.id===archiveDetail.id?archiveDetail:a));setArchiveDetail(null)}}>경험 카드 저장</button></Modal>}
- {newRecord&&<Modal title="활동 기록 추가" onClose={()=>setNewRecord(false)}><div className="experience-fields"><label>활동명<input aria-label="활동명" value={recordTitle} onChange={e=>setRecordTitle(e.target.value)}/></label><label>내 역할<input aria-label="내 역할" value={recordRole} onChange={e=>setRecordRole(e.target.value)}/></label><label>내가 한 일<textarea aria-label="내가 한 일" value={recordAction} onChange={e=>setRecordAction(e.target.value)}/></label></div><button className="primary full" disabled={!recordTitle.trim()} onClick={addArchive}>아카이브에 저장</button></Modal>}
- </div>
+
+const initialActivities: Activity[] = [
+  { id: 'a1', title: '사용자 이야기 정리 워크숍', source: 'Challenge Square', interest: '사용자 이해', kind: '워크숍', task: '인터뷰 기록에서 반복되는 표현을 묶어보기', deliverable: '질문 목록과 인사이트 메모', prerequisite: '초보 가능, 개인 노트북', deadline: '예시 마감 2026.10.30', checked: '예시 확인일 2026.10.07', reason: '사용자 답변을 표시했던 경험과 연결된 예시입니다.' },
+  { id: 'a2', title: '학과 서비스 문제정의 프로젝트', source: '학과 공지', interest: '문제 정리', kind: '프로젝트', task: '교내 불편을 관찰하고 문제 문장으로 정리하기', deliverable: '문제정의 1쪽 문서', prerequisite: '팀 활동 가능 시간', deadline: '예시 마감 2026.11.04', checked: '예시 확인일 2026.10.07', reason: '의견을 모아 문제를 정리한 경험과 연결된 예시입니다.' },
+  { id: 'a3', title: '교내 서비스 기획 발표회', source: '학교 공지', interest: '서비스 기획', kind: '발표', task: '기획 배경과 사용자 근거를 짧게 발표하기', deliverable: '5분 발표 자료', prerequisite: '초안 아이디어', deadline: '예시 마감 2026.11.18', checked: '예시 확인일 2026.10.07', reason: '발표용 제안서 초안을 만든 경험을 확장하는 예시입니다.' },
+  { id: 'a4', title: '데이터 관찰 미니 캠프', source: 'Challenge Square', interest: '데이터 관찰', kind: '캠프', task: '작은 표본을 보고 질문 만들기', deliverable: '관찰 메모와 후속 질문', prerequisite: '기초 스프레드시트', deadline: '예시 마감 2026.12.01', checked: '예시 확인일 2026.10.07', reason: '리서치 메모를 정량 자료와 함께 보는 실험입니다.' },
+  { id: 'a5', title: '외부 문제해결 아이디어톤', source: '외부 활동', interest: '팀 협업', kind: '아이디어톤', task: '팀과 가설을 세우고 작은 해결안을 설명하기', deliverable: '아이디어 보드', prerequisite: '주말 참여 가능', deadline: '예시 마감 2026.12.12', checked: '예시 확인일 2026.10.07', reason: '팀 의견을 정리한 경험을 다른 맥락에서 써보는 예시입니다.' },
+];
+
+const baseNodes: NodeItem[] = [
+  { id: 'n1', label: '팀 서비스 개선안', kind: 'experience', x: 18, y: 26, expId: 'e1' },
+  { id: 'n2', label: '문제정의 메모', kind: 'artifact', x: 46, y: 18, expId: 'e1' },
+  { id: 'n3', label: '사용자 인터뷰 과제', kind: 'experience', x: 70, y: 34, expId: 'e2' },
+  { id: 'n4', label: '질문지 초안', kind: 'artifact', x: 52, y: 58, expId: 'e2' },
+  { id: 'n5', label: '리서치 스터디 메모', kind: 'experience', x: 23, y: 70, expId: 'e3' },
+  { id: 'n6', label: '회고 문장', kind: 'reflection', x: 78, y: 74, expId: 'e3' },
+];
+
+const initialLinks: LinkItem[] = [
+  { id: 'l1', from: 'n1', to: 'n2', label: 'CONFIRMED 근거', status: 'confirmed' },
+  { id: 'l2', from: 'n3', to: 'n4', label: 'CONFIRMED 산출물', status: 'confirmed' },
+  { id: 'l3', from: 'n4', to: 'n5', label: 'PROPOSED 같은 기법', status: 'proposed', question: '질문지 초안과 리서치 메모가 같은 질문 정리 기법을 쓴 경험인가요?' },
+  { id: 'l4', from: 'n1', to: 'n3', label: 'PROPOSED 사용자 관심', status: 'proposed', question: '팀 개선안과 인터뷰 과제가 모두 사용자 이야기에 관심을 둔 경험인가요?' },
+  { id: 'l5', from: 'n5', to: 'n6', label: 'CONFIRMED 회고', status: 'confirmed' },
+];
+
+const hypotheses = [
+  { title: '의견을 모아 문제를 정리한 경험', note: '팀 회의 기록과 문제정의 메모에서 반복되는 패턴입니다.', links: ['팀 서비스 개선안', '문제정의 메모'] },
+  { title: '사용자 이야기에 관심을 표현함', note: '인터뷰 과제와 질문지 초안에서 보이는 샘플 가설입니다.', links: ['사용자 인터뷰 과제', '질문지 초안'] },
+  { title: '사례를 내 상황에 맞게 줄여보려 함', note: '리서치 스터디 메모 기반의 임시 해석입니다.', links: ['리서치 스터디 메모'] },
+];
+
+function Icon({ name, size = 21 }: { name: string; size?: number }) {
+  const paths: Record<string, string> = {
+    home: 'M4 11.5 12 4l8 7.5V20H5v-8.5', map: 'M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2V6z M9 4v14 M15 6v14', search: 'M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13z M15.5 15.5 20 20', archive: 'M4 5h16v4H4z M6 9v11h12V9 M10 13h4', chat: 'M4 5h16v11H9l-5 4V5z M8 9h8 M8 12h5', data: 'M5 18V8 M12 18V4 M19 18v-6 M4 20h16', plus: 'M12 5v14 M5 12h14', close: 'M6 6l12 12 M18 6 6 18', arrow: 'M5 12h14 M13 6l6 6-6 6', bookmark: 'M6 4h12v17l-6-4-6 4V4z', reset: 'M5 7v5h5 M19 17a7 7 0 0 1-12-5 M19 17v-5h-5 M5 7a7 7 0 0 1 12 5', check: 'M4 12l5 5L20 6', leaf: 'M12 21C5 17 2 10 4 4c5 .5 7 3 8 7 1-4 4-6 8-7 2 6-1 13-8 17z M12 11v10', trash: 'M5 7h14 M9 7V5h6v2 M8 10v8 M16 10v8 M7 7l1 14h8l1-14', edit: 'M4 20h4L19 9l-4-4L4 16v4z M13 7l4 4'
+  };
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name] || paths.arrow} /></svg>;
 }
-function ActivityCard({a,saved,onSave,onOpen}:{a:typeof activities[number],saved:boolean,onSave:()=>void,onOpen:()=>void}){return <article className="activity-card"><button className="art-button" onClick={onOpen} aria-label={a.title+' 상세 보기'}><Art n={a.shape}/><span className="sample-label">예시</span></button><button className={'bookmark '+(saved?'saved':'')} onClick={onSave} aria-label={a.title+(saved?' 저장 취소':' 저장')} aria-pressed={saved}><Icon name="bookmark" size={19}/></button><div className="activity-body"><div className="card-meta"><span>{a.source}</span><small>{a.kind}</small></div><button className="card-title" onClick={onOpen}>{a.title}</button><div className="card-tags"><span>{a.topic}</span><span>{a.skill}</span></div><div className="card-bottom"><span>{a.reason}</span><button onClick={onOpen} aria-label={a.title+' 추천 이유 보기'}><Icon name="arrow" size={17}/></button></div></div></article>}
-function Modal({title,onClose,children}:{title:string,onClose:()=>void,children:React.ReactNode}){return <div className="modal-backdrop" onMouseDown={onClose}><section className="modal" role="dialog" aria-modal="true" aria-label={title} onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><h2>{title}</h2><button className="icon-btn" onClick={onClose} aria-label="닫기"><Icon name="close"/></button></div>{children}</section></div>}
+
+function Thumb({ tone = 0 }: { tone?: number }) {
+  return <svg className={`thumb tone-${tone % 6}`} viewBox="0 0 320 170" role="img" aria-label="추상 활동 썸네일"><rect width="320" height="170" rx="18" fill="currentColor" />{tone % 3 === 0 ? <g><circle cx="108" cy="82" r="42" fill="#8DC63F" /><rect x="145" y="48" width="86" height="78" rx="13" fill="#EFF5E4" /><path d="M70 126c37-54 72-71 132-28" stroke="#124633" strokeWidth="6" fill="none" /></g> : tone % 3 === 1 ? <g><path d="M73 126l54-84 58 84z" fill="#8DC63F" /><circle cx="203" cy="83" r="43" fill="#EFF5E4" /><path d="M96 77h126 M160 42v89" stroke="#124633" strokeWidth="5" /></g> : <g><rect x="76" y="43" width="76" height="76" rx="16" fill="#EFF5E4" /><rect x="163" y="43" width="76" height="76" rx="38" fill="#8DC63F" /><path d="M95 132c42-30 88-30 130 0" stroke="#124633" strokeWidth="5" fill="none" /></g>}</svg>;
+}
+
+
+const kindLabels: Record<NodeKind,string> = { experience:'활동', artifact:'결과물', reflection:'회고' };
+const linkLabel = (l: LinkItem) => l.label.replace(/^(CONFIRMED|PROPOSED)\s*/, '');
+
+export default function App() {
+  const [route,setRoute] = useState<Route>('home');
+  const [experiences,setExperiences] = useState<Experience[]>(seedExperiences);
+  const [bookmarks,setBookmarks] = useState<string[]>([]);
+  const [source,setSource] = useState('전체');
+  const [interest,setInterest] = useState('전체');
+  const [chosenInterests,setChosenInterests] = useState(['사용자 이해','문제 정리']);
+  const [links,setLinks] = useState<LinkItem[]>(initialLinks);
+  const [selectedNode,setSelectedNode] = useState<NodeItem|null>(null);
+  const [selectedLink,setSelectedLink] = useState<LinkItem|null>(null);
+  const [connectionText,setConnectionText] = useState('');
+  const [connectionNote,setConnectionNote] = useState('');
+  const [detailActivity,setDetailActivity] = useState<Activity|null>(null);
+  const [editor,setEditor] = useState<Experience|null>(null);
+  const [interestsOpen,setInterestsOpen] = useState(false);
+  const [info,setInfo] = useState(false);
+  const [analysis,setAnalysis] = useState<AnalysisState>('완료');
+  const [queued,setQueued] = useState('새 비공개 분석 대기 없음');
+  const [reflectId,setReflectId] = useState('e2');
+  const [cacheLabel,setCacheLabel] = useState('예시 프로필 v0.2 · 실제 분석 미수행');
+  const nodes = useMemo<NodeItem[]>(() => {
+    const base = baseNodes.filter(n => experiences.some(e => e.id === n.expId)).map(n => ({...n,label:n.kind==='experience' ? (experiences.find(e=>e.id===n.expId)?.title || n.label) : n.label}));
+    const extra = experiences.filter(e => !baseNodes.some(n => n.expId===e.id)).map((e,i):NodeItem=>({id:'n-'+e.id,label:e.title,kind:'experience',expId:e.id,x:12+(i%4)*24,y:89+Math.floor(i/4)*17}));
+    return [...base,...extra];
+  },[experiences]);
+  const activeLinks = links.filter(l=>nodes.some(n=>n.id===l.from)&&nodes.some(n=>n.id===l.to));
+  const currentExp = experiences.find(e=>e.id===reflectId)||experiences[0];
+  const go = (r:Route) => {setRoute(r);window.scrollTo({top:0,behavior:'smooth'});};
+  const queue = (label:string) => {setAnalysis('대기');setQueued(label+' · 비공개 분석 대기 (시뮬레이션)');};
+  const toggleBookmark = (id:string) => setBookmarks(b=>b.includes(id)?b.filter(x=>x!==id):[...b,id]);
+  const openConnection = (l:LinkItem) => {setSelectedLink(l);setConnectionText(linkLabel(l).replace(/\?$/,''));setConnectionNote(l.note||'');};
+  const openReflection = (id:string) => {setReflectId(id);setSelectedNode(null);go('reflection');};
+  const saveExperience = (e:Experience) => {
+    const saved = {...e,title:e.title.trim(),id:e.id||'e-'+Date.now().toString(36),quote:e.quote||e.learn||e.reflection||e.action||''};
+    setExperiences(old=>e.id?old.map(x=>x.id===e.id?saved:x):[...old,saved]);
+    queue(saved.title+' 저장');setEditor(null);
+  };
+  const removeExperience = (id:string) => {setExperiences(old=>old.filter(e=>e.id!==id));queue('경험 삭제 전파 예시');};
+  const finishAnalysis = () => {setAnalysis('완료');setQueued('새 비공개 분석 대기 없음');setCacheLabel('완료 상태 예시 · 실제 분석 미수행');};
+  const reset = () => {setRoute('home');setExperiences(seedExperiences);setBookmarks([]);setSource('전체');setInterest('전체');setChosenInterests(['사용자 이해','문제 정리']);setLinks(initialLinks);setSelectedNode(null);setSelectedLink(null);setDetailActivity(null);setEditor(null);setInterestsOpen(false);setInfo(false);setAnalysis('완료');setQueued('새 비공개 분석 대기 없음');setReflectId('e2');setCacheLabel('예시 프로필 v0.2 · 실제 분석 미수행');};
+  const homeActivities = [...initialActivities].sort((a,b)=>Number(chosenInterests.includes(b.interest))-Number(chosenInterests.includes(a.interest)));
+  const filtered = initialActivities.filter(a=>(source==='전체'||source===a.source)&&(interest==='전체'||interest===a.interest));
+
+  return <div className="app">
+    <aside className="sidebar" aria-label="화면 이동"><div className="brand"><Icon name="leaf" size={34}/><span><small>SKKU · COMPANION</small><b>킹고 컴패니언</b></span></div><nav>{routes.map(r=><button key={r.id} className={route===r.id?'active':''} aria-current={route===r.id?'page':undefined} onClick={()=>go(r.id)}><Icon name={r.icon}/><span>{r.label}</span>{route===r.id&&<i/>}</button>)}</nav><div className="side-actions"><button onClick={()=>setInterestsOpen(true)}>관심사 설정</button><button onClick={()=>setInfo(true)}>데모 안내</button></div><div className="side-version">와이어프레임 v0.4 · 예시 데이터</div></aside>
+    <div className="workspace"><header className="topbar"><span>예시 데이터 · 실제 AI 미연결 · 새로고침 시 초기화</span><div><button className="ghost" onClick={()=>setInterestsOpen(true)}>관심사</button><button className="ghost" onClick={()=>setInfo(true)}>정보</button><button className="ghost" onClick={reset}><Icon name="reset"/>초기화</button></div></header><main>
+      {route==='home'&&<Home go={go} patterns={hypotheses} activities={homeActivities} bookmarks={bookmarks} toggleBookmark={toggleBookmark} openActivity={setDetailActivity} chosen={chosenInterests} cacheLabel={cacheLabel} queued={queued}/>}
+      {route==='map'&&<MapScreen nodes={nodes} links={activeLinks} experiences={experiences} openNode={setSelectedNode} openLink={openConnection} go={go}/>}
+      {route==='explore'&&<Explore activities={filtered} bookmarks={bookmarks} toggleBookmark={toggleBookmark} openActivity={setDetailActivity} source={source} setSource={setSource} interest={interest} setInterest={setInterest} chosen={chosenInterests}/>}
+      {route==='archive'&&<Archive experiences={experiences} edit={setEditor} remove={removeExperience} reflect={openReflection}/>}
+      {route==='reflection'&&(currentExp?<Reflection key={currentExp.id} experience={currentExp} experiences={experiences} select={setReflectId} save={saveExperience}/>:<Empty title="회고할 경험이 아직 없어요" text="경험을 먼저 추가하면 사실을 바탕으로 회고할 수 있어요." action={()=>go('archive')} label="경험 추가하러 가기"/>)}
+      {route==='data'&&<DataAnalysis analysis={analysis} queued={queued} start={()=>setAnalysis('진행 중')} finish={finishAnalysis}/>}
+    </main></div>
+    {selectedNode&&<Modal title={selectedNode.label} close={()=>setSelectedNode(null)}><NodeDetail node={selectedNode} experience={experiences.find(e=>e.id===selectedNode.expId)} reflect={openReflection}/></Modal>}
+    {selectedLink&&<Modal title={selectedLink.status==='proposed'?'제안된 연결 확인':'확인된 연결 편집'} close={()=>setSelectedLink(null)}><div className="tag-row"><span>{selectedLink.status==='proposed'?'확인 전 가설':'확인된 관계 · 샘플'}</span><span>학생이 수정·제거 가능</span></div><p style={{marginTop:18}}>{selectedLink.question||'기록에 맞게 연결 설명과 근거를 수정할 수 있어요.'}</p><p className="muted">같은 관심으로 참여했는지, 팀의 필요로 맡았는지도 구분해 주세요. 제안 자체가 능력의 증거는 아닙니다.</p><label className="field">연결 내용<input value={connectionText} onChange={e=>setConnectionText(e.target.value)}/></label><label className="field">근거·수정 메모<textarea value={connectionNote} onChange={e=>setConnectionNote(e.target.value)} placeholder="실제로 연결된 이유나 다른 해석을 적어주세요."/></label><div className="modal-actions"><button onClick={()=>{setLinks(old=>old.filter(l=>l.id!==selectedLink.id));queue('연결 제거');setSelectedLink(null);}}>연결 제거</button><button className="primary" disabled={!connectionText.trim()} onClick={()=>{setLinks(old=>old.map(l=>l.id===selectedLink.id?{...l,status:'confirmed',label:connectionText.trim(),note:connectionNote}:l));queue('학생이 확인한 연결');setSelectedLink(null);}}>{selectedLink.status==='proposed'?'확인하고 연결 반영':'수정 사항 반영'}</button></div></Modal>}
+    {detailActivity&&<Modal title={detailActivity.title} close={()=>setDetailActivity(null)}><ActivityDetail activity={detailActivity} saved={bookmarks.includes(detailActivity.id)} toggle={()=>toggleBookmark(detailActivity.id)}/></Modal>}
+    {editor&&<ExperienceEditor experience={editor} close={()=>setEditor(null)} save={saveExperience}/>}
+    {interestsOpen&&<Modal title="관심사 설정" close={()=>setInterestsOpen(false)}><p className="muted">관심을 바꿔보며 다음에 탐색할 경험을 골라요. 확정된 성향 판정이 아닙니다.</p><div className="choice-grid">{interests.map(i=><button key={i} className={chosenInterests.includes(i)?'selected':''} aria-pressed={chosenInterests.includes(i)} onClick={()=>setChosenInterests(old=>old.includes(i)?old.filter(x=>x!==i):[...old,i])}>{i}{chosenInterests.includes(i)&&<Icon name="check"/>}</button>)}</div><p className="muted">홈의 활동 예시를 관심 태그로 묶습니다. 실제 추천 엔진은 미선정이며 메모리 상태만 바뀝니다.</p><button className="primary full" onClick={()=>setInterestsOpen(false)}>관심사 반영</button></Modal>}
+    {info&&<Modal title="데모와 데이터 안내" close={()=>setInfo(false)}><p>6개 화면은 가상 경험·공고와 React 메모리 상태로 구성했습니다. 실제 AI, 학교 계정, 외부 API, 크롤러, 데이터베이스, 영구 저장은 연결하지 않았습니다.</p><p>회고 답변은 예시 질문이며 분석 버튼은 상태만 바꿉니다. 홈 방문이나 일반 클릭으로 모델을 호출하지 않습니다.</p><p>공통 공고 분석과 개인 비공개 분석을 분리하는 설계입니다. 개인 원문·프로필·임베딩은 공통 데이터로 공유하지 않습니다.</p><p>역량 점수·순위·성격·직업 적합성 판정은 제공하지 않습니다. 연결과 패턴은 근거를 확인할 수 있는 가설입니다.</p><p className="subtle-warning">새로고침 또는 초기화하면 저장한 예시 기록·관심 활동·연결 변경이 사라집니다.</p><div className="modal-actions"><button onClick={reset}>데모 초기화</button><button className="primary" onClick={()=>setInfo(false)}>확인</button></div></Modal>}
+  </div>;
+}
+
+function Home({go,patterns,activities,bookmarks,toggleBookmark,openActivity,chosen,cacheLabel,queued}:{go:(r:Route)=>void;patterns:typeof hypotheses;activities:Activity[];bookmarks:string[];toggleBookmark:(id:string)=>void;openActivity:(a:Activity)=>void;chosen:string[];cacheLabel:string;queued:string}) {
+  return <><PageTitle eyebrow="GROWTH HOME" title="내 경험에서 다음을 발견해요" subtitle="무엇에 몰입했고 어떤 역할을 맡았는지, 근거부터 살펴봐요." action={<button className="primary" onClick={()=>go('map')}>경험 지도 보기<Icon name="arrow"/></button>}/><section className="hero-grid"><div className="panel"><div className="panel-head"><h2>근거 기반 패턴 가설</h2><span className="pill">예시 해석 · 학생 확인 전</span></div><div className="hypothesis-list">{patterns.map(p=><article key={p.title}><b>{p.title}</b><p>{p.note}</p><div>{p.links.map(l=><button key={l} onClick={()=>go('map')}>{l}<Icon name="arrow" size={12}/></button>)}</div></article>)}</div></div><div className="panel mini-map"><MiniGraph/><button onClick={()=>go('map')}>경험과 결과물 연결 보기<Icon name="arrow"/></button><small>실선은 확인, 점선은 연결 제안</small></div></section><div className="section-head"><h2>다음에 탐색할 활동 예시</h2><button onClick={()=>go('explore')}>전체 활동 보기<Icon name="arrow" size={15}/></button></div><div className="interest-tags">{chosen.length?chosen.map(i=><span key={i}>{i}</span>):<span>관심 미확인 · 탐색 중</span>}<span>관심 태그 데모 · 추천 방식 미선정</span></div><div className="cards three">{activities.slice(0,3).map((a,i)=><ActivityCard key={a.id} activity={a} saved={bookmarks.includes(a.id)} open={()=>openActivity(a)} toggle={()=>toggleBookmark(a.id)} tone={i}/>)}</div><section className="status-grid"><div className="panel"><small>마지막 완료 분석</small><h3>{cacheLabel}</h3><p>저장된 예시 해석을 조회하며 홈 방문은 모델을 호출하지 않습니다.</p></div><div className="panel"><small>새 기록의 비공개 분석</small><h3>{queued}</h3><p>기존 해석과 새 분석 대기를 나누어 보여줍니다.</p></div></section></>;
+}
+
+function MapScreen({nodes,links,experiences,openNode,openLink,go}:{nodes:NodeItem[];links:LinkItem[];experiences:Experience[];openNode:(n:NodeItem)=>void;openLink:(l:LinkItem)=>void;go:(r:Route)=>void}) {
+  const [kind,setKind]=useState<NodeKind|'전체'>('전체');
+  const visible=nodes.filter(n=>kind==='전체'||n.kind===kind);
+  const visibleIds=new Set(visible.map(n=>n.id));
+  const lookup=Object.fromEntries(nodes.map(n=>[n.id,n]));
+  const shownLinks=links.filter(l=>visibleIds.has(l.from)&&visibleIds.has(l.to));
+  const height=Math.max(520,...nodes.map(n=>n.y*5.2+65));
+  const activate=(e:React.KeyboardEvent,action:()=>void)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();action();}};
+  return <><PageTitle eyebrow="EXPERIENCE GRAPH" title="경험과 근거의 연결" subtitle="활동 이름이 아닌, 직접 한 행동과 남긴 결과물을 연결해요." action={<button className="primary" onClick={()=>go('archive')}><Icon name="plus"/>경험 관리</button>}/><div className="filter-row">{(['전체','experience','artifact','reflection'] as const).map(k=><button key={k} className={kind===k?'selected':''} aria-pressed={kind===k} onClick={()=>setKind(k)}>{k==='전체'?'전체':kindLabels[k]}</button>)}<span className="legend"><i className="solid"/>확인된 관계</span><span className="legend"><i className="dashed"/>연결 제안</span><span className="pill">예시 경험 지도</span></div><section className="graph-panel" aria-label="경험 관계 지도"><svg viewBox={'0 0 1000 '+height} role="group" aria-label="노드와 연결을 선택해 근거 확인">{shownLinks.map(l=>{const a=lookup[l.from],b=lookup[l.to];return <g key={l.id} className={'edge '+l.status} role="button" tabIndex={0} aria-label={'연결 편집: '+linkLabel(l)} onClick={()=>openLink(l)} onKeyDown={e=>activate(e,()=>openLink(l))}><line className="edge-hit" x1={a.x*10} y1={a.y*5.2} x2={b.x*10} y2={b.y*5.2}/><line x1={a.x*10} y1={a.y*5.2} x2={b.x*10} y2={b.y*5.2}/><text textAnchor="middle" x={(a.x+b.x)*5} y={(a.y+b.y)*2.6-12}>{linkLabel(l)}</text></g>;})}{visible.map(n=><g key={n.id} className={'node '+n.kind} role="button" tabIndex={0} aria-label={'근거 보기: '+n.label} onClick={()=>openNode(n)} onKeyDown={e=>activate(e,()=>openNode(n))}>{n.kind==='artifact'?<rect x={n.x*10-29} y={n.y*5.2-29} width="58" height="58" rx="14"/>:<circle cx={n.x*10} cy={n.y*5.2} r="29"/>}<text textAnchor="middle" x={n.x*10} y={n.y*5.2+5} style={{fontSize:11,stroke:'none'}}>{kindLabels[n.kind]}</text><text textAnchor="middle" x={n.x*10} y={n.y*5.2+51}>{n.label}</text></g>)}</svg></section><div className="relation-list" aria-label="연결 목록">{links.map(l=><button key={l.id} className={l.status} onClick={()=>openLink(l)}><i/><span>{linkLabel(l)}</span><small>{l.status==='confirmed'?'확인됨 · 편집':'제안됨 · 확인'}</small></button>)}</div><div className="section-head"><h2>연결을 뒷받침하는 기록</h2><span className="muted">없는 기록은 낮은 능력이 아니라 미확인</span></div><div className="cards three">{experiences.map((e,i)=><article className="panel evidence" key={e.id}><Thumb tone={i}/><small>{e.type} · {e.period}</small><h3>{e.title}</h3><blockquote>{e.quote||'근거 문장 미확인'}</blockquote><button onClick={()=>{const n=nodes.find(n=>n.expId===e.id);if(n)openNode(n);}}>개인 역할·행동 보기</button></article>)}</div>{experiences.length===0&&<Empty title="아직 경험이 없어요" action={()=>go('archive')} label="경험 추가"/>}<p className="muted">확인 상태도 샘플 데이터입니다. 연결 개수·노드 크기·활동 수를 능력 점수로 사용하지 않습니다.</p></>;
+}
+
+function Explore({activities,bookmarks,toggleBookmark,openActivity,source,setSource,interest,setInterest,chosen}:{activities:Activity[];bookmarks:string[];toggleBookmark:(id:string)=>void;openActivity:(a:Activity)=>void;source:string;setSource:(s:string)=>void;interest:string;setInterest:(s:string)=>void;chosen:string[]}) {
+  return <><PageTitle eyebrow="ACTIVITY DISCOVERY" title="활동 탐색" subtitle="지원 조건과 원문을 먼저 확인하고, 다음에 해볼 경험을 골라요." action={<span className="pill">추천 엔진 미선정 · 비교 예정</span>}/><div className="filter-row">{['전체',...interests].map(i=><button key={i} className={interest===i?'selected':''} aria-pressed={interest===i} onClick={()=>setInterest(i)}>{i}</button>)}<select aria-label="출처 필터" value={source} onChange={e=>setSource(e.target.value)}>{sources.map(s=><option key={s}>{s}</option>)}</select></div><p className="muted">선택 관심사: {chosen.join(', ')||'아직 미확인'}. 가상 공고이며 실제 지원 조건·마감 검증은 연결하지 않았습니다.</p><div className="cards three">{activities.map((a,i)=><ActivityCard key={a.id} activity={a} saved={bookmarks.includes(a.id)} open={()=>openActivity(a)} toggle={()=>toggleBookmark(a.id)} tone={i}/>)}</div>{activities.length===0&&<Empty title="조건에 맞는 예시가 없어요" action={()=>{setSource('전체');setInterest('전체');}} label="필터 초기화"/>}</>;
+}
+
+function Archive({experiences,edit,remove,reflect}:{experiences:Experience[];edit:(e:Experience)=>void;remove:(id:string)=>void;reflect:(id:string)=>void}) {
+  const [filter,setFilter]=useState('전체');
+  const [view,setView]=useState<'gallery'|'timeline'>('gallery');
+  const filtered=experiences.filter(e=>filter==='전체'||e.type===filter);
+  const newExperience:Experience={id:'',title:'',type:'프로젝트',role:'',action:'',result:'',reflection:'',quote:'',period:'새 기록'};
+  return <><PageTitle eyebrow="ACTIVITY ARCHIVE" title="활동 아카이브" subtitle="잘된 일뿐 아니라 어려웠던 경험과 배움도 남겨요." action={<button className="primary" onClick={()=>edit(newExperience)}><Icon name="plus"/>경험 추가</button>}/><div className="filter-row">{['전체','교과','프로젝트','비교과'].map(f=><button key={f} className={filter===f?'selected':''} aria-pressed={filter===f} onClick={()=>setFilter(f)}>{f}</button>)}<span className="pill">내 기록 {experiences.length}개</span><button className={view==='gallery'?'selected':''} aria-pressed={view==='gallery'} onClick={()=>setView('gallery')}>갤러리</button><button className={view==='timeline'?'selected':''} aria-pressed={view==='timeline'} onClick={()=>setView('timeline')}>타임라인</button></div><div className={view==='gallery'?'archive-grid':'timeline'}>{filtered.map((e,i)=><article className="archive-card" key={e.id}><Thumb tone={i}/><div><small>{e.type} · {e.period}</small><h3>{e.title}</h3><p>{e.action||'직접 한 행동 미확인'}</p><blockquote>{e.learn||e.reflection||'아직 회고를 남기지 않았어요.'}</blockquote><div className="card-actions"><button onClick={()=>edit(e)}><Icon name="edit"/>편집</button><button onClick={()=>reflect(e.id)}><Icon name="chat"/>회고 작성</button><button onClick={()=>remove(e.id)}><Icon name="trash"/>삭제</button></div></div></article>)}</div>{filtered.length===0&&<Empty title="이 유형의 기록이 없어요" action={()=>edit(newExperience)} label="경험 추가"/>}<p className="muted" style={{marginTop:20}}>메모리 저장 데모입니다. 수정·삭제는 지도에도 반영되고 개인 분석 대기 상태를 갱신합니다.</p></>;
+}
+
+type ReflectionFacts={role:string;action:string;result:string;learn:string};
+function Reflection({experience,experiences,select,save}:{experience:Experience;experiences:Experience[];select:(id:string)=>void;save:(e:Experience)=>void}) {
+  const [step,setStep]=useState(0);
+  const [facts,setFacts]=useState<ReflectionFacts>({role:experience.role,action:experience.action,result:experience.result,learn:experience.learn||experience.reflection});
+  const [ready,setReady]=useState(false);
+  const [draft,setDraft]=useState('');
+  const [saved,setSaved]=useState(false);
+  const prompts=['어떤 역할을 직접 맡았나요? 이미 적은 내용이 맞는지 확인해 주세요.','실제로 한 행동과 결과를 나누어 적어주세요. 결과가 없으면 비워둘 수 있어요.','무엇을 배웠고 다음에는 무엇을 바꾸고 싶나요? 사실에 맞는 한 문장을 남겨요.'];
+  const update=(k:keyof ReflectionFacts,v:string)=>{setFacts(f=>({...f,[k]:v}));setReady(false);setSaved(false);setDraft('');};
+  const next=()=>{if(step<2)setStep(s=>s+1);else{setDraft([facts.role&&'역할: '+facts.role,facts.action&&'행동: '+facts.action,facts.result&&'결과: '+facts.result,facts.learn&&'배운 점: '+facts.learn].filter(Boolean).join('\n'));setReady(true);}};
+  const valid=step===0?facts.role.trim():step===1?facts.action.trim():facts.learn.trim();
+  return <><PageTitle eyebrow="REFLECTION HELPER" title="회고 도우미" subtitle="짧은 질문으로 사실을 확인하고, 내가 고친 회고를 저장해요." action={<span className="pill">경량 모델 역할 모사 · 실제 AI 미연결</span>}/><section className="reflection-grid"><div className="panel"><label className="field">회고할 경험<select value={experience.id} onChange={e=>select(e.target.value)}>{experiences.map(e=><option key={e.id} value={e.id}>{e.title}</option>)}</select></label><Thumb tone={2}/><h3>{experience.title}</h3><p>{experience.action||'직접 한 행동은 아직 미확인입니다.'}</p><blockquote>{experience.quote||'근거 문장 미확인'}</blockquote><p className="muted">기존 예시 기록을 불러왔습니다. AI가 새 사실을 만든 것이 아닙니다.</p></div><div className="panel helper"><div className="stepper">{['역할','행동·결과','배운 점'].map((l,i)=><span key={l} className={step===i?'current':''}><b>{i+1}</b>{l}</span>)}</div><div className="messages"><p className="bubble">{prompts[step]}</p></div><label className="field">맡은 역할<textarea value={facts.role} onChange={e=>update('role',e.target.value)} placeholder="내가 직접 맡은 역할"/></label><label className="field">직접 한 행동<textarea disabled={step<1} value={facts.action} onChange={e=>update('action',e.target.value)} placeholder="팀 전체가 아닌 나의 행동"/></label><label className="field">결과 또는 피드백<textarea disabled={step<1} value={facts.result} onChange={e=>update('result',e.target.value)} placeholder="없거나 아직 모르면 비워두세요"/></label><label className="field">배운 점<textarea disabled={step<2} value={facts.learn} onChange={e=>update('learn',e.target.value)} placeholder="다음 경험에 가져갈 한 가지"/></label><button className="primary" disabled={!valid||ready} onClick={next}>{step===2?(ready?'초안 생성됨':'회고 초안 만들기'):'다음 질문'}</button></div></section><section className="panel"><div className="panel-head"><h2>편집 가능한 회고 초안</h2><span className="pill">입력한 사실만 조합</span></div><textarea className="draft-editor" aria-label="회고 초안" disabled={!ready} value={draft} onChange={e=>{setDraft(e.target.value);setSaved(false);}} placeholder="세 단계의 질문을 확인하면 초안이 여기에 나타나요."/><p className="muted">구조화된 사실과 직접 수정한 회고를 함께 저장합니다. 경험을 바꾸거나 화면을 이동하면 미저장 입력은 초기화됩니다.</p><button className="primary" disabled={!ready||!draft.trim()} onClick={()=>{save({...experience,...facts,reflection:draft,quote:facts.learn||experience.quote});setSaved(true);}}>확인하고 회고 저장</button>{saved&&<p className="saved-note">회고 저장됨 · 개인 비공개 분석 대기 상태가 갱신되었습니다. 실제 모델은 호출하지 않았습니다.</p>}</section></>;
+}
+
+function DataAnalysis({analysis,queued,start,finish}:{analysis:AnalysisState;queued:string;start:()=>void;finish:()=>void}) {
+  const publicSteps=['허용된 전체 공고 수집','원문·출처·접근 범위 보관','정규화·중복 제거','대형 모델 비동기 분석','근거·조건·마감 검증','공통 DB·임베딩·캐시 저장','신규·내용/분석 버전 변경만 갱신'];
+  const privateSteps=['확인된 경험·회고 저장','동의 확인·사용자별 격리','변경을 묶어 비공개 분석 큐','대형 모델로 패턴·관계 분석','근거·불확실성·버전 저장','개인 캐시 조회·추천에 재사용','정정·삭제·철회 파생 데이터에 전파'];
+  return <><PageTitle eyebrow="DATA AND ANALYSIS" title="데이터·분석 설계" subtitle="공통 공고는 재사용하고, 학생의 분석과 임베딩은 비공개로 분리해요." action={<span className="pill">설계 예시 · 운영 API 미연결</span>}/><section className="panel"><div className="panel-head"><h2>개인 분석 상태 예시</h2><span className="pill">{analysis}</span></div><p className="muted">{queued}</p><div className="analysis-control"><button disabled={analysis!=='대기'} onClick={start}>분석 시작 시뮬레이션</button><button className="primary" disabled={analysis!=='진행 중'} onClick={finish}>분석 완료 시뮬레이션</button></div><p className="muted" style={{margin:'14px 0 0'}}>버튼은 상태만 바꿉니다. 실제 분석·프로필 생성·모델 호출·비용 측정은 수행하지 않습니다.</p></section><section className="lanes"><div className="panel lane"><h2>공통 모집글 ETL</h2>{publicSteps.map((s,i)=><div className="lane-step" key={s}><span>{i+1}</span><b>{s}</b><small>{i===6?'최초 전수 분석 뒤 증분 갱신':'공개 또는 동일한 접근 권한 범위에서만 공유'}</small></div>)}</div><div className="panel lane private"><h2>학생별 비공개 분석</h2>{privateSteps.map((s,i)=><div className="lane-step" key={s}><span>{i+1}</span><b>{s}</b><small>개인 원문·프로필·임베딩·추천 이력은 사용자별 분리</small></div>)}</div></section><div className="cards four">{sources.slice(1).map((s,i)=><article className="panel source-card" key={s}><span>{['학','과','C','외'][i]}</span><h3>{s}</h3><p>원문 URL·지원 조건·마감·확인일·출처를 검증한 뒤 연결 예정</p></article>)}</div><section className="panel"><div className="panel-head"><h2>추천 방식 비교 후보</h2><span className="pill">미선정 · 비교 예정 · 미실측</span></div><div className="cards four compact">{['규칙·태그·BM25','임베딩 유사도','하이브리드 검색','경량 LLM 재정렬'].map(s=><article key={s}><h3>{s}</h3><p>정제 데이터에 대한 품질·비용·지연·운영 난이도 비교</p></article>)}</div><div className="engine-note">조건·마감·취소 필터 우선 → 관련 후보 검색 → 선택적 재정렬 → 근거 설명. Recall@K·NDCG@K와 조건 위반, 설명의 사실성, p95 지연·요청당 비용을 나누어 평가합니다.</div><p className="muted" style={{margin:'16px 0 0'}}>회고 3B/8B 후보·대형 분석 모델·GPU/API 환경·평가셋·예산은 미확정입니다. 비동기 자체가 저비용을 보장하지 않으며 최초 전수와 증분 운영 비용을 구분합니다.</p></section><details className="panel details"><summary>동의·삭제·공통 데이터의 범위</summary><p>목적별 동의·최소 수집·열람·정정·삭제·철회를 적용합니다. 개인 분석을 다른 학생·교수·운영자에게 기본 공개하지 않습니다.</p><p>학생 기록이 삭제되면 개인 분석·임베딩·관계·캐시에도 전파하는 설계입니다. 교내 제한 공고를 공개 인덱스에 섞지 않습니다. 실제 삭제 작업은 연결하지 않았습니다.</p></details></>;
+}
+
+function ActivityCard({activity,saved,open,toggle,tone}:{activity:Activity;saved:boolean;open:()=>void;toggle:()=>void;tone:number}) {
+  return <article className="activity-card"><button className="thumb-btn" aria-label={activity.title+' 상세 보기'} onClick={open}><Thumb tone={tone}/><span>가상 공고 · 실제 연동 전</span></button><button className={'bookmark '+(saved?'saved':'')} aria-label={(saved?'저장 취소: ':'관심 활동 저장: ')+activity.title} aria-pressed={saved} onClick={toggle}><Icon name="bookmark"/></button><div><small>{activity.source} · {activity.kind}</small><h3><button onClick={open}>{activity.title}</button></h3><p>{activity.reason}</p><div className="tag-row"><span>{activity.interest}</span><span>추정 · 성과 보장 아님</span></div></div></article>;
+}
+
+function ActivityDetail({activity,saved,toggle}:{activity:Activity;saved:boolean;toggle:()=>void}) {
+  return <><Thumb tone={1}/><div className="tag-row"><span>{activity.source}</span><span>{activity.interest}</span><span>가상 공고</span></div><dl className="detail-list"><div><dt>실제 과업 예시</dt><dd>{activity.task}</dd></div><div><dt>남길 결과물</dt><dd>{activity.deliverable}</dd></div><div><dt>필요한 준비</dt><dd>{activity.prerequisite} · 실제 지원 자격 미검증</dd></div><div><dt>마감</dt><dd>{activity.deadline}</dd></div><div><dt>출처·확인일</dt><dd>{activity.source} · {activity.checked}</dd></div><div><dt>원문 URL</dt><dd>가상 공고이므로 실제 원문 URL이 없습니다.</dd></div><div><dt>연결 이유</dt><dd>{activity.reason}</dd></div></dl><p className="muted">기대 배움은 경험 기반 추정입니다. 합격·성과·역량 획득을 보장하지 않습니다. 실제 추천 방식은 실험 후 선정합니다.</p><button className="primary full" onClick={toggle}>{saved?'관심 활동 저장 취소':'관심 활동 저장'}</button></>;
+}
+
+function NodeDetail({node,experience,reflect}:{node:NodeItem;experience?:Experience;reflect:(id:string)=>void}) {
+  return <><div className="tag-row"><span>{kindLabels[node.kind]}</span><span>예시 근거 기록</span></div>{experience?<><h3 style={{marginTop:18}}>{experience.title}</h3><blockquote>{experience.quote||'근거 문장 미확인'}</blockquote><dl className="detail-list"><div><dt>개인 역할</dt><dd>{experience.role||'미확인'}</dd></div><div><dt>직접 한 행동</dt><dd>{experience.action||'미확인'}</dd></div><div><dt>결과·피드백</dt><dd>{experience.result||'미확인'}</dd></div><div><dt>배운 점</dt><dd>{experience.learn||experience.reflection||'미확인'}</dd></div></dl><p className="muted">팀 결과를 개인 능력으로 그대로 해석하지 않습니다. 실제 파일 업로드나 모델 판정은 연결하지 않았습니다.</p><button className="primary full" onClick={()=>reflect(experience.id)}>이 경험으로 회고 작성</button></>:<p>연결된 원문이 없어 미확인 상태입니다.</p>}</>;
+}
+
+function ExperienceEditor({experience,close,save}:{experience:Experience;close:()=>void;save:(e:Experience)=>void}) {
+  const [draft,setDraft]=useState({...experience});
+  const update=(k:keyof Experience,v:string)=>setDraft(e=>({...e,[k]:v}));
+  return <Modal title={experience.id?'경험 편집':'경험 추가'} close={close}><div className="editor-grid"><label className="field">제목<input value={draft.title} onChange={e=>update('title',e.target.value)} placeholder="내가 참여한 경험"/></label><label className="field">유형<select value={draft.type} onChange={e=>update('type',e.target.value)}><option>교과</option><option>프로젝트</option><option>비교과</option></select></label><label className="field">기간<input value={draft.period} onChange={e=>update('period',e.target.value)}/></label><label className="field">개인 역할<input value={draft.role} onChange={e=>update('role',e.target.value)}/></label><label className="field">직접 한 행동<textarea value={draft.action} onChange={e=>update('action',e.target.value)}/></label><label className="field">결과·피드백<textarea value={draft.result} onChange={e=>update('result',e.target.value)}/></label><label className="field">회고<textarea value={draft.reflection} onChange={e=>update('reflection',e.target.value)}/></label><label className="field">근거 문장<textarea value={draft.quote} onChange={e=>update('quote',e.target.value)} placeholder="직접 작성한 문장 또는 확인할 원문 발췌"/></label></div><p className="muted">모르는 사실은 비워둘 수 있어요. 새 기록은 연결을 자동 확정하지 않습니다.</p><button className="primary full" disabled={!draft.title.trim()} onClick={()=>save(draft)}>확인하고 경험 저장</button></Modal>;
+}
+
+function PageTitle({eyebrow,title,subtitle,action}:{eyebrow:string;title:string;subtitle?:string;action?:ReactNode}) {return <div className="page-title"><div><small>{eyebrow}</small><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</div>{action}</div>;}
+function Empty({title,text,action,label}:{title:string;text?:string;action:()=>void;label:string}) {return <div className="empty"><Icon name="archive" size={42}/><h2>{title}</h2>{text&&<p>{text}</p>}<button onClick={action}>{label}</button></div>;}
+function MiniGraph(){return <svg className="mini-graph" viewBox="0 0 260 170" role="img" aria-label="활동·결과물·회고의 연결 요약"><path d="M53 48 130 82 203 45M130 82 74 130" stroke="#124633" strokeWidth="2.5" fill="none"/><path d="M130 82l72 44" stroke="#889e7d" strokeWidth="2.5" strokeDasharray="7 7" fill="none"/><circle cx="53" cy="48" r="23"/><circle cx="130" cy="82" r="28"/><circle cx="203" cy="45" r="20"/><circle cx="74" cy="130" r="18"/><circle cx="202" cy="126" r="18"/></svg>;}
+function Modal({title,close,children}:{title:string;close:()=>void;children:ReactNode}) {
+  const ref=useRef<HTMLElement>(null);
+  useEffect(()=>{const previous=document.activeElement as HTMLElement|null;ref.current?.querySelector<HTMLElement>('button,input,textarea,select')?.focus();const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();close();}if(e.key==='Tab'){const all=Array.from(ref.current?.querySelectorAll<HTMLElement>('button,input,textarea,select,a,[tabindex="0"]')||[]).filter(el=>!el.hasAttribute('disabled'));const first=all[0],last=all[all.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};document.addEventListener('keydown',key);return()=>{document.removeEventListener('keydown',key);previous?.focus();};},[]);
+  return <div className="modal-backdrop" onMouseDown={close}><section ref={ref} className="modal" role="dialog" aria-modal="true" aria-label={title} onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><h2>{title}</h2><button className="icon-btn" aria-label="닫기" onClick={close}><Icon name="close"/></button></div>{children}</section></div>;
+}
