@@ -1,0 +1,213 @@
+{
+  "version": "0.5",
+  "checkedAt": "2026-10-08T03:12:15.991Z",
+  "build": {
+    "typescript": "passed",
+    "vite": "passed"
+  },
+  "local": [
+    {
+      "test": "pattern-highlights-related-experiences",
+      "result": [
+        {
+          "label": "근거 선택: 팀 서비스 개선안",
+          "highlighted": "true",
+          "className": "graph-node experience lit"
+        },
+        {
+          "label": "근거 선택: 사용자 인터뷰 과제",
+          "highlighted": "false",
+          "className": "graph-node experience dim"
+        },
+        {
+          "label": "근거 선택: 리서치 스터디",
+          "highlighted": "false",
+          "className": "graph-node experience dim"
+        },
+        {
+          "label": "근거 선택: 교내 디자인 해커톤",
+          "highlighted": "true",
+          "className": "graph-node experience lit"
+        },
+        {
+          "label": "근거 선택: 동아리 캠페인 기획",
+          "highlighted": "false",
+          "className": "graph-node experience dim"
+        },
+        {
+          "label": "근거 선택: 서비스 사용성 테스트",
+          "highlighted": "true",
+          "className": "graph-node experience lit"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "test": "axis-highlights-four-experiences",
+      "result": [
+        "근거 선택: 팀 서비스 개선안",
+        "근거 선택: 사용자 인터뷰 과제",
+        "근거 선택: 교내 디자인 해커톤",
+        "근거 선택: 서비스 사용성 테스트"
+      ],
+      "pass": true
+    },
+    {
+      "test": "unsaved-draft-survives-route-navigation",
+      "pass": true
+    },
+    {
+      "test": "reflection-saves-in-archive-version-1",
+      "pass": true
+    },
+    {
+      "test": "reflection-does-not-overwrite-original-quote",
+      "pass": true
+    },
+    {
+      "test": "saved-reflection-opens-expanded-graph-node",
+      "pass": true
+    },
+    {
+      "test": "reflection-node-shows-separated-interpretation-and-original",
+      "pass": true
+    },
+    {
+      "test": "delete-removes-experience-and-saved-reflection",
+      "pass": true
+    },
+    {
+      "test": "deletion-updates-graph-axes-and-insufficient-pattern",
+      "pass": true
+    },
+    {
+      "test": "insufficient-evidence-prevents-strength-confirmation",
+      "pass": true
+    },
+    {
+      "test": "deletion-propagates-counts-to-private-analysis",
+      "pass": true
+    },
+    {
+      "test": "mock-analysis-pending-running-complete",
+      "pass": true
+    }
+  ],
+  "figma": [
+    {
+      "test": "Figma-pattern-highlight",
+      "pass": true,
+      "states": [
+        {
+          "ref": "f7e112",
+          "pressed": "true"
+        },
+        {
+          "ref": "f7e113",
+          "pressed": "false"
+        },
+        {
+          "ref": "f7e114",
+          "pressed": "false"
+        },
+        {
+          "ref": "f7e115",
+          "pressed": "true"
+        },
+        {
+          "ref": "f7e116",
+          "pressed": "false"
+        },
+        {
+          "ref": "f7e117",
+          "pressed": "true"
+        }
+      ]
+    },
+    {
+      "test": "Figma-hex-axis-highlight",
+      "pass": true,
+      "states": [
+        {
+          "ref": "f7e112",
+          "pressed": "true"
+        },
+        {
+          "ref": "f7e113",
+          "pressed": "true"
+        },
+        {
+          "ref": "f7e114",
+          "pressed": "false"
+        },
+        {
+          "ref": "f7e115",
+          "pressed": "true"
+        },
+        {
+          "ref": "f7e116",
+          "pressed": "false"
+        },
+        {
+          "ref": "f7e117",
+          "pressed": "true"
+        }
+      ]
+    },
+    {
+      "test": "Figma-activity-bridge-and-unverified-conditions",
+      "pass": true
+    },
+    {
+      "test": "Figma-bookmark",
+      "pass": true
+    },
+    {
+      "test": "Figma-activity-rationale-highlights-specific-records",
+      "pass": true
+    },
+    {
+      "test": "Figma-source-persists-after-full-reload",
+      "pass": true
+    },
+    {
+      "test": "Figma-reflection-integrated-in-archive",
+      "pass": true
+    }
+  ],
+  "boundaries": {
+    "realAI": false,
+    "schoolAPI": false,
+    "crawler": false,
+    "database": false,
+    "persistentStorage": false,
+    "benchmarksMeasured": false
+  },
+  "links": {
+    "figma": "https://www.figma.com/make/rnkDR5P0nNTAK9t6QVcRsC",
+    "notion": "https://app.notion.com/p/a67e17a37aeb4c8a8d6cf801e67aa1c3"
+  },
+  "preservation": {
+    "v2BlocksUnchanged": true,
+    "v4AppUnchanged": true,
+    "v4CSSUnchanged": true,
+    "hubOldOrderPreserved": true,
+    "productOldOrderPreserved": true
+  },
+  "notion": {
+    "title": "킹고 컴패니언 기획서 v0.3 · 연결 성장 UX",
+    "blockCount": 121,
+    "status": [
+      [
+        "완료"
+      ]
+    ],
+    "tags": [
+      [
+        "컴패니언,기획,UX,데이터,개인정보"
+      ]
+    ],
+    "hubLinked": true,
+    "productLinked": true
+  }
+}
