@@ -1,213 +1,319 @@
 {
-  "version": "0.5",
-  "checkedAt": "2026-10-08T03:12:15.991Z",
-  "build": {
-    "typescript": "passed",
-    "vite": "passed"
+  "version": "0.7.0",
+  "checkedAt": "2026-10-08T07:34:51.516Z",
+  "environment": "로컬 정적 빌드(127.0.0.1:5188) 1440×900 + 390×844 iframe, Figma Make 미리보기",
+  "baselineV06": {
+    "measuredAt": "2026-10-08T06:36:51.050Z",
+    "method": "로컬 v0.6 빌드(dist)를 1440x900에서 열고 보이는 버튼·링크·입력·탭 요소와 main innerText 길이를 계산",
+    "screens": [
+      {
+        "label": "v0.6 내 성장(첫 화면)",
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "interactiveTotal": 52,
+        "interactiveAboveFold": 19,
+        "mainTextChars": 2498,
+        "mainWords": 685,
+        "h2Sections": 5,
+        "h3Items": 4,
+        "cautionTerms": {
+          "미확인": 2,
+          "예시": 7,
+          "아님_않습니다": 5,
+          "판정": 0
+        },
+        "scrollHeight": 2664
+      },
+      {
+        "label": "v0.6 활동 탐색(기본)",
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "interactiveTotal": 20,
+        "interactiveAboveFold": 20,
+        "mainTextChars": 525,
+        "mainWords": 135,
+        "h2Sections": 0,
+        "h3Items": 5,
+        "cautionTerms": {
+          "미확인": 0,
+          "예시": 5,
+          "아님_않습니다": 0,
+          "판정": 0
+        },
+        "scrollHeight": 1051
+      },
+      {
+        "label": "v0.6 채용 공고 상세",
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "interactiveTotal": 45,
+        "interactiveAboveFold": 11,
+        "mainTextChars": 2934,
+        "mainWords": 737,
+        "h2Sections": 1,
+        "h3Items": 6,
+        "cautionTerms": {
+          "미확인": 7,
+          "예시": 2,
+          "아님_않습니다": 10,
+          "판정": 4
+        },
+        "scrollHeight": 3533
+      },
+      {
+        "label": "v0.6 경험 아카이브",
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "interactiveTotal": 29,
+        "interactiveAboveFold": 23,
+        "mainTextChars": 714,
+        "mainWords": 193,
+        "h2Sections": 0,
+        "h3Items": 6,
+        "cautionTerms": {
+          "미확인": 0,
+          "예시": 1,
+          "아님_않습니다": 0,
+          "판정": 0
+        },
+        "scrollHeight": 1159
+      }
+    ]
   },
-  "local": [
+  "v07Metrics": {
+    "home": {
+      "label": "v0.7 이번 주(첫 화면)",
+      "viewport": {
+        "w": 1470,
+        "h": 847
+      },
+      "interactiveTotal": 9,
+      "interactiveAboveFold": 9,
+      "mainTextChars": 319,
+      "mainWords": 85,
+      "h2Sections": 1,
+      "h3Items": 0,
+      "cautionTerms": {
+        "미확인": 0,
+        "예시": 0,
+        "아님_않습니다": 0,
+        "판정": 0
+      },
+      "scrollHeight": 953
+    },
+    "me": {
+      "label": "v0.7 나",
+      "viewport": {
+        "w": 950,
+        "h": 847
+      },
+      "interactiveTotal": 19,
+      "interactiveAboveFold": 12,
+      "mainTextChars": 526,
+      "mainWords": 144,
+      "h2Sections": 2,
+      "h3Items": 4,
+      "cautionTerms": {
+        "미확인": 0,
+        "예시": 0,
+        "아님_않습니다": 0,
+        "판정": 0
+      },
+      "scrollHeight": 1758
+    },
+    "mobile": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "cta": {
+        "ctaTop": 627,
+        "ctaBottom": 681,
+        "ctaHeight": 54,
+        "viewportH": 844,
+        "tabbarTop": 775,
+        "targetsUnder24px": []
+      }
+    }
+  },
+  "localQA": [
     {
-      "test": "pattern-highlights-related-experiences",
-      "result": [
-        {
-          "label": "근거 선택: 팀 서비스 개선안",
-          "highlighted": "true",
-          "className": "graph-node experience lit"
-        },
-        {
-          "label": "근거 선택: 사용자 인터뷰 과제",
-          "highlighted": "false",
-          "className": "graph-node experience dim"
-        },
-        {
-          "label": "근거 선택: 리서치 스터디",
-          "highlighted": "false",
-          "className": "graph-node experience dim"
-        },
-        {
-          "label": "근거 선택: 교내 디자인 해커톤",
-          "highlighted": "true",
-          "className": "graph-node experience lit"
-        },
-        {
-          "label": "근거 선택: 동아리 캠페인 기획",
-          "highlighted": "false",
-          "className": "graph-node experience dim"
-        },
-        {
-          "label": "근거 선택: 서비스 사용성 테스트",
-          "highlighted": "true",
-          "className": "graph-node experience lit"
-        }
-      ],
-      "pass": true
+      "test": "onboarding_3steps_to_recommendation",
+      "pass": true,
+      "evidence": "관심 2개→시간→방식→추천 1개 표시"
     },
     {
-      "test": "axis-highlights-four-experiences",
-      "result": [
-        "근거 선택: 팀 서비스 개선안",
-        "근거 선택: 사용자 인터뷰 과제",
-        "근거 선택: 교내 디자인 해커톤",
-        "근거 선택: 서비스 사용성 테스트"
-      ],
-      "pass": true
+      "test": "home_cognitive_load",
+      "pass": true,
+      "evidence": "조작 요소 9개, 본문 319자 (v0.6: 52개, 2498자)"
     },
     {
-      "test": "unsaved-draft-survives-route-navigation",
-      "pass": true
+      "test": "why_sheet_evidence_and_checks",
+      "pass": true,
+      "evidence": "근거 3종(기록·진로·관심)+미리 확인 5항목(대상·시간·마감·정원·중복)"
     },
     {
-      "test": "reflection-saves-in-archive-version-1",
-      "pass": true
+      "test": "esc_closes_and_returns_focus",
+      "pass": true,
+      "evidence": "Esc 후 포커스: 왜 이 활동인가요"
     },
     {
-      "test": "reflection-does-not-overwrite-original-quote",
-      "pass": true
+      "test": "alternatives_show_only_difference",
+      "pass": true,
+      "evidence": "대안 2개를 차이 라벨로만 비교, 전체 목록은 챌린지스퀘어로"
     },
     {
-      "test": "saved-reflection-opens-expanded-graph-node",
-      "pass": true
+      "test": "focus_trap_in_sheet",
+      "pass": true,
+      "evidence": "마지막 요소에서 Tab → '닫기' (요소 5개 안에서 순환)"
     },
     {
-      "test": "reflection-node-shows-separated-interpretation-and-original",
-      "pass": true
+      "test": "swap_and_undo",
+      "pass": true,
+      "evidence": "대안으로 교체 후 되돌리기로 원래 추천 복구"
     },
     {
-      "test": "delete-removes-experience-and-saved-reflection",
-      "pass": true
+      "test": "commit_then_apply_handoff",
+      "pass": true,
+      "evidence": "예정 카드(남은 일 1개) + 가상 활동은 실제 링크 대신 안내"
     },
     {
-      "test": "deletion-updates-graph-axes-and-insufficient-pattern",
-      "pass": true
+      "test": "checkin_prompt_and_badge",
+      "pass": true,
+      "evidence": "탭 배지 + 다음 날 회고 카드"
     },
     {
-      "test": "insufficient-evidence-prevents-strength-confirmation",
-      "pass": true
+      "test": "reflection_in_3_taps_with_closure",
+      "pass": true,
+      "evidence": "탭 3번, 완료 화면에 기록·발견·진로·다음 4줄"
     },
     {
-      "test": "deletion-propagates-counts-to-private-analysis",
-      "pass": true
+      "test": "next_week_adapts_to_reflection",
+      "pass": true,
+      "evidence": "같은 분야 연속을 피하고 진로 공백(데이터)을 채우는 추천으로 전환"
     },
     {
-      "test": "mock-analysis-pending-running-complete",
-      "pass": true
+      "test": "confirm_discovery_narrows_recommendation",
+      "pass": true,
+      "evidence": "발견 확인 → 좁혀 가는 중 → 추천이 듣기형 활동으로 바뀜"
+    },
+    {
+      "test": "focus_reason_explained",
+      "pass": true,
+      "evidence": "왜 시트에 확인한 발견 근거 표시"
+    },
+    {
+      "test": "edit_resets_confirmation",
+      "pass": true,
+      "evidence": "에너지 수정 → 확인 해제, 모드 복귀"
+    },
+    {
+      "test": "delete_propagates_and_undo",
+      "pass": true,
+      "evidence": "삭제 시 에너지 발견→역할 발견으로 재계산, 되돌리기로 복구"
+    },
+    {
+      "test": "privacy_toggle_stops_reflection_use",
+      "pass": true,
+      "evidence": "발견 끄기 → 나 화면 안내, 추천 이유에서 회고 근거 제외"
+    },
+    {
+      "test": "manual_record_add",
+      "pass": true,
+      "evidence": "추천 밖 활동도 같은 칩 방식으로 기록"
+    },
+    {
+      "test": "axis_lens_collapsed_by_default",
+      "pass": true,
+      "evidence": "6축은 접어 두고 펼치면 표시: 6축 기록 분포. 전문성 4개, 문제해결 4개, 소통 6개, 협업 3개, 자기주도 3개, 창의성 2개. 전체 기록 8개."
+    },
+    {
+      "test": "design_memo_lists_principles",
+      "pass": true,
+      "evidence": "HCI 원리 7개와 적용 위치"
+    },
+    {
+      "test": "skip_and_missed_paths",
+      "pass": true,
+      "evidence": "쉬기는 언제든 가능, 못 간 활동은 기록하지 않고 다음 주로"
+    },
+    {
+      "test": "dislike_reranks_immediately",
+      "pass": true,
+      "evidence": "별로예요(어려움) → 'UX 리서치 입문 스터디'에서 '지역 아동센터 학습 멘토링'로 즉시 교체"
+    },
+    {
+      "test": "reset_returns_to_onboarding",
+      "pass": true,
+      "evidence": "데모 초기화 → 온보딩"
+    },
+    {
+      "test": "mobile_390_no_overflow_cta_above_fold",
+      "pass": true,
+      "evidence": "390×844: 가로 넘침 없음, '이걸로 할게요' 627–681px(높이 54px)로 탭바(775px) 위, 24px 미만 터치 대상 0개"
+    },
+    {
+      "test": "stale_undo_toast_cleared_on_step_change",
+      "pass": true,
+      "evidence": "예정 알림 표시 true → 다음 날 이동 후 false → 시트 안 false"
     }
   ],
-  "figma": [
+  "figmaQA": [
     {
-      "test": "Figma-pattern-highlight",
+      "test": "figma_onboarding_to_recommendation",
       "pass": true,
-      "states": [
-        {
-          "ref": "f7e112",
-          "pressed": "true"
-        },
-        {
-          "ref": "f7e113",
-          "pressed": "false"
-        },
-        {
-          "ref": "f7e114",
-          "pressed": "false"
-        },
-        {
-          "ref": "f7e115",
-          "pressed": "true"
-        },
-        {
-          "ref": "f7e116",
-          "pressed": "false"
-        },
-        {
-          "ref": "f7e117",
-          "pressed": "true"
-        }
-      ]
+      "evidence": "Figma 미리보기에서 3단계 후 추천 1개"
     },
     {
-      "test": "Figma-hex-axis-highlight",
+      "test": "figma_why_sheet",
       "pass": true,
-      "states": [
-        {
-          "ref": "f7e112",
-          "pressed": "true"
-        },
-        {
-          "ref": "f7e113",
-          "pressed": "true"
-        },
-        {
-          "ref": "f7e114",
-          "pressed": "false"
-        },
-        {
-          "ref": "f7e115",
-          "pressed": "true"
-        },
-        {
-          "ref": "f7e116",
-          "pressed": "false"
-        },
-        {
-          "ref": "f7e117",
-          "pressed": "true"
-        }
-      ]
+      "evidence": "왜 시트: 기록·진로·관심 근거와 확인 항목"
     },
     {
-      "test": "Figma-activity-bridge-and-unverified-conditions",
-      "pass": true
+      "test": "figma_reflection_closure",
+      "pass": true,
+      "evidence": "3탭 회고 → 기록·발견·진로·다음 4줄 정리"
     },
     {
-      "test": "Figma-bookmark",
-      "pass": true
+      "test": "figma_next_week_adapts",
+      "pass": true,
+      "evidence": "다음 주 추천이 회고·진로 공백을 반영"
     },
     {
-      "test": "Figma-activity-rationale-highlights-specific-records",
-      "pass": true
+      "test": "figma_me_discoveries",
+      "pass": true,
+      "evidence": "나: 발견 2개 + 진로 방향 2개"
     },
     {
-      "test": "Figma-source-persists-after-full-reload",
-      "pass": true
+      "test": "figma_persists_after_reload",
+      "pass": true,
+      "evidence": "전체 새로고침 후 v0.7 온보딩 화면 유지"
     },
     {
-      "test": "Figma-reflection-integrated-in-archive",
-      "pass": true
+      "test": "figma_team_folder_access",
+      "pass": true,
+      "evidence": "공유: Anyone in SSA · 킹고 컴패니언 can edit / People from Team folder can access / Community 미공개"
     }
   ],
-  "boundaries": {
-    "realAI": false,
-    "schoolAPI": false,
-    "crawler": false,
-    "database": false,
-    "persistentStorage": false,
-    "benchmarksMeasured": false
+  "summary": {
+    "localPass": 24,
+    "localTotal": 24,
+    "figmaPass": 7,
+    "figmaTotal": 7
   },
   "links": {
-    "figma": "https://www.figma.com/make/rnkDR5P0nNTAK9t6QVcRsC",
-    "notion": "https://app.notion.com/p/a67e17a37aeb4c8a8d6cf801e67aa1c3"
+    "figmaV07": "https://www.figma.com/make/DHknzG1sIEnxBdn1Pzevci",
+    "notionV05": "https://app.notion.com/p/155ce4d2588241b8a725aa8f29f9cb82"
   },
-  "preservation": {
-    "v2BlocksUnchanged": true,
-    "v4AppUnchanged": true,
-    "v4CSSUnchanged": true,
-    "hubOldOrderPreserved": true,
-    "productOldOrderPreserved": true
-  },
-  "notion": {
-    "title": "킹고 컴패니언 기획서 v0.3 · 연결 성장 UX",
-    "blockCount": 121,
-    "status": [
-      [
-        "완료"
-      ]
-    ],
-    "tags": [
-      [
-        "컴패니언,기획,UX,데이터,개인정보"
-      ]
-    ],
-    "hubLinked": true,
-    "productLinked": true
-  }
+  "notTested": [
+    "실제 사용자 테스트(SUS·NASA-TLX)",
+    "스크린리더 실기기 낭독",
+    "prefers-reduced-motion 실제 설정 전환(CSS만 확인)"
+  ]
 }
