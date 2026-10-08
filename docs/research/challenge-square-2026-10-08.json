@@ -1,0 +1,434 @@
+{
+  "meta": {
+    "title": "챌린지스퀘어(chsquare.skku.edu) 사실 조사 - 킹고 컴패니언 차별화 근거",
+    "checked_at": "2026-10-08 15:35~15:43 KST",
+    "method": "직접 관찰(로그인 전 화면만) + 공개 2차 자료(학생성공센터 2026-08-28 학생용 매뉴얼 PDF, success.skku.edu 공지, skku.edu 도전학기 페이지, studentsuccess.oopy.io). 로그인·신청·찜·설문·설정 변경 없음. 개인 기록 미수집.",
+    "evidence_levels": {
+      "direct": "직접 관찰",
+      "manual_2026_08": "공개 학생용 매뉴얼(2026-08-28 게시) 캡처 기준, 실제 화면 직접 검증은 로그인 장벽으로 미확인",
+      "notice": "공개 공지 기준(게시일 표기)",
+      "unverified": "미확인"
+    },
+    "robots_txt": {
+      "url": "https://chsquare.skku.edu/robots.txt",
+      "status": 404,
+      "note": "robots.txt 없음(빈 404). 그래도 공개 화면 몇 개만 열람, 반복 호출 없음."
+    }
+  },
+  "q1_access_scope": {
+    "without_login": {
+      "fact": "로그인 화면만 보임. 프로그램 목록/메뉴/공지 등 게스트 열람 영역 없음.",
+      "ui_labels_pc": [
+        "System Login",
+        "한글",
+        "English",
+        "(아이디 입력칸, 라벨 없음)",
+        "패스워드",
+        "로그인",
+        "Challenge Square"
+      ],
+      "ui_labels_mobile": [
+        "로그인",
+        "한글",
+        "English",
+        "패스워드",
+        "챌린지스퀘어",
+        "COPYRIGHTⓒ 2020 SUNGKYUNKWAN UNIVERSITY ALL RIGHTS RESERVED"
+      ],
+      "redirects": [
+        "https://chsquare.skku.edu/ -> 302 -> /challenge/nxui/index.html",
+        "https://chsquare.skku.edu/challenge/ -> meta refresh -> ./nxui/index.html",
+        "https://chsquarem.skku.edu/ -> 302 -> /challengeM/nxuiM/index.html"
+      ],
+      "page_self_calls": "로드시 sessionLogin.do(세션 확인) 후 LOGIN 폼만 로드. 공개 목록 응답 호출 없음.",
+      "no_signup_or_find_id_links_visible": true,
+      "evidence": "direct",
+      "urls": [
+        "https://chsquare.skku.edu/challenge/nxui/index.html",
+        "https://chsquarem.skku.edu/challengeM/nxuiM/index.html"
+      ]
+    },
+    "login_required": {
+      "fact": "비교과 검색·신청, 이수내역, 역량진단, 대시보드, e-포트폴리오 등 전 기능이 킹고ID 로그인 뒤에 있음.",
+      "evidence": "manual_2026_08 p.3 ('킹고ID와 패스워드를 이용하여 챌린지스퀘어에 접속하신 후')"
+    },
+    "public_outside_platform": [
+      {
+        "what": "도전학기 비교과 운영계획 표(23개, 프로그램명/학생성공역량/교강사/수강정원/수업유형/운영기간/운영시간/3품인정(시간)/수강대상)",
+        "url": "https://www.skku.edu/skku/edu/challenge/challenge_04.do"
+      },
+      {
+        "what": "학생성공센터 공지(프로그램별 신청 안내, '챌린지스퀘어에서 검색 ...' 형태)",
+        "url": "https://success.skku.edu/success/notice.do"
+      },
+      {
+        "what": "SKKU 비교과 가이드(oopy/노션): 역량별·시기별·유형별 색인, '[참여 가능한 프로그램] 학부 61 / 대학원 28 / 외국인 6' (2026-10-08 15:40 KST 확인), 별도 '비교과 프로그램 참여 후기(보기/남기기)'",
+        "url": "https://studentsuccess.oopy.io/"
+      },
+      {
+        "what": "2026 챌린지스퀘어 학생용 안내자료 PDF(17p, 이미지형)",
+        "url": "https://success.skku.edu/success/notice.do?mode=view&articleNo=66252"
+      }
+    ]
+  },
+  "q2_information_architecture": {
+    "top_menu_2026": {
+      "labels": [
+        "☆(즐겨찾기)",
+        "비교과프로그램",
+        "학생성공대시보드",
+        "역량진단",
+        "3품인증",
+        "취업/창업활동",
+        "학생활동",
+        "국제교류",
+        "외국인유학생",
+        "상담영역",
+        "e-포트폴리오"
+      ],
+      "count_excluding_star": 10,
+      "evidence": "manual_2026_08 p.4, p.7"
+    },
+    "ui_shell": "넥사크로 MDI형: 좌측 ≡ 버튼 + 연 메뉴가 탭('비교과 수강신청 ×')으로 쌓임, 브레드크럼 표시. 매뉴얼 캡처 우상단에 '학생 검색' 버튼이 보임(캡처 계정 권한 관련일 수 있음, 학생 화면 여부 미확인).",
+    "mega_menu_비교과프로그램": {
+      "비교과 수강관리": [
+        "학생성공 가이드 조회",
+        "비교과 수강신청",
+        "나의 수강신청 내역",
+        "교외이수비교과승인신청"
+      ],
+      "비교과 이수관리": [
+        "이수내역조회",
+        "이수증명서발급"
+      ],
+      "디지털 배지관리": [
+        "디지털 배지 Wallet",
+        "디지털 배지 My Page",
+        "디지털 배지 정보"
+      ],
+      "note": "2024-12 공지에서 '비교과프로그램 > 프로그램 캘린더'(월/주/일 보기) 신설 안내. 2026 매뉴얼 메뉴 캡처에는 캘린더 항목이 안 보임 → 현재 존재 여부 미확인.",
+      "evidence": "manual_2026_08 p.7; notice 2024-12-06 articleNo=52494"
+    },
+    "features": {
+      "program_search_apply": {
+        "status": "있음",
+        "path": "비교과프로그램 > 비교과 수강관리 > 비교과 수강신청",
+        "evidence": "manual_2026_08 p.3-6; skku.edu 도전학기 페이지"
+      },
+      "competency_diagnosis": {
+        "status": "있음",
+        "path": "역량진단 > 학생성공역량진단(SSCA) > SSCA검사실시",
+        "detail": "객관식 약 5분, 개인별 피드백리포트, 동료 대비 상대적 위치, 챌린지스퀘어에서 결과조회 (2021 공지 기준)",
+        "url": "https://cihe.skku.edu/cop/bbs/selectBoardArticle.do?bbsId=BBSMSTR_000000000131&nttId=1658&menuId=257"
+      },
+      "portfolio_records": {
+        "status": "있음",
+        "detail": "e-포트폴리오 메뉴(2023-04 신설): 교과 성과, 비교과 이력, 교환학생/장학금수혜/CO-OP/URP 경력 데이터를 첨부해 기록. 이수내역조회·이수증명서발급(선택 프로그램만 골라 '비교과프로그램 이수 증명서' 발급). 디지털 배지 Wallet(2024-06, SNS/이력서 링크 가능).",
+        "urls": [
+          "https://success.skku.edu/success/notice.do?mode=view&articleNo=38904",
+          "https://success.skku.edu/success/notice.do?mode=view&articleNo=48998"
+        ]
+      },
+      "mileage_points_scholarship": {
+        "status": "마일리지/포인트 라벨은 미확인",
+        "detail": "대신 '3품인증'(인정시간, 예: 창의/AI/인턴십), '인정시간', 이수내역의 '장학인정여부/인정시간' 열, 2024 캘린더 표의 '장학인정여부' 열, '나의 장학금 현황 확인'(2021 영문 서비스 안내) 확인.",
+        "evidence": "manual_2026_08 p.12; notice 27872; skku.edu 도전학기"
+      },
+      "counseling": {
+        "status": "메뉴 존재('상담영역')",
+        "detail": "세부 기능 미확인",
+        "evidence": "manual_2026_08 p.7"
+      },
+      "notifications": {
+        "status": "미확인",
+        "detail": "알림/푸시/메일 알림 관련 라벨을 공개 자료에서 찾지 못함. 신청 안내는 외부 공지에서 이뤄짐."
+      },
+      "my_page": {
+        "status": "'마이페이지' 라벨 미확인",
+        "detail": "개인 영역은 '나의 수강신청 내역', '나의 스크랩 보기', '디지털 배지 My Page', 'e-포트폴리오'로 분산"
+      },
+      "dashboard": {
+        "status": "있음('학생성공대시보드')",
+        "detail": "2022 시범 '우리학과 진로현황 분석(챌스선배)': 과목추천서비스, 선배들의 진로, 선배들의 복수전공, 진로별 선배이력",
+        "url": "https://success.skku.edu/success/notice.do?mode=view&articleNo=33025"
+      },
+      "personalization_recommendation": {
+        "status": "비교과 개인화 추천: 미확인(공개 매뉴얼의 목록/상세 화면에 추천 영역·추천 이유 표시 없음)",
+        "what_exists": [
+          "교과목 추천: '과목추천서비스'(학생성공대시보드, 2022 시범) / 'Subject Recommendation'(2021 영문 안내)",
+          "운영자가 공지 본문에 자유서술로 쓰는 추천 문구 예: '1학기 미수강 학생에게 추천'",
+          "2020 오픈 기사: 동일학과·동일학년 비교, 희망 직군 취업 선배 대비 비교, 장학금 수혜 가능성 사전 진단 계획"
+        ],
+        "reason_explanation": "미확인(추천 이유 설명 UI 근거 없음)",
+        "urls": [
+          "https://success.skku.edu/success/notice.do?mode=view&articleNo=27872",
+          "https://www.epnc.co.kr/news/articleView.html?idxno=103349"
+        ]
+      },
+      "reviews": {
+        "status": "있음(2026-08 신규 '수강후기')",
+        "detail": "이수내역조회에서 1년 이내 수강 프로그램 후기 작성, 담당자 확인 후 게시 확정, 확정 후 수정·삭제 불가. 상세 팝업 '수강후기' 탭: 후기 N건, 평균만족도 x/5, 정렬 최신순/평점순, 별점+제목+본문(작성자 마스킹·학과).",
+        "evidence": "manual_2026_08 p.12-13"
+      }
+    }
+  },
+  "q3_program_list": {
+    "url_or_path": "비교과프로그램 > 비교과 수강관리 > 비교과 수강신청 (넥사크로 화면, 고유 URL 없음)",
+    "counts": {
+      "live_recruiting_or_total": "미확인(로그인 필요)",
+      "manual_capture": "페이지네이션 1~10 + 다음/끝 버튼 → 최소 10페이지 이상(캡처 시점 2026-08 말)",
+      "related_public_count": "oopy 비교과 가이드 '[참여 가능한 프로그램] 학부 61 / 대학원 28 / 외국인 6' (2026-10-08 15:40 KST, 챌린지스퀘어 자체 수치 아님)",
+      "guide_menu_capture": "'학생성공 가이드 조회' Total 1 / 62 (매뉴얼 캡처, 연간 개설 예정 목록)"
+    },
+    "search": {
+      "label": "비교과 프로그램 검색( , 로 여러 키워드 입력 가능)",
+      "scope_dropdown_default": "전체",
+      "buttons": [
+        "새로고침(↻ 아이콘)",
+        "상세필터(슬라이더 아이콘, 내용 미확인)",
+        "조회"
+      ]
+    },
+    "filters": {
+      "count_visible": 4,
+      "names": [
+        "디지털배지여부",
+        "도전학기",
+        "나의 스크랩 보기",
+        "3품인증대상"
+      ],
+      "plus": "상세필터 아이콘 1개(세부 항목 미확인)"
+    },
+    "sort": {
+      "count": 3,
+      "names": [
+        "신청 마감순(기본 선택)",
+        "최신 등록순",
+        "스크랩순"
+      ]
+    },
+    "view_modes": [
+      "카드보기(기본)",
+      "테이블보기"
+    ],
+    "items_per_page": "미확인(캡처에서 한 줄에 카드 4개 보임)",
+    "card_fields": [
+      "모집상태 배지(모집중/모집마감)",
+      "D-day 배지(예: D-19)",
+      "포스터 이미지",
+      "스크랩 ☆",
+      "운영부서(예: 학생성공센터행정실)",
+      "제목",
+      "스크랩수/조회수",
+      "문의처(전화/이메일)",
+      "5대 역량 칩(글로벌·자기주도성·시민의식·융합·기업가정신 전부 표시, 해당 역량만 음영)",
+      "신청기간(YYYY/MM/DD HH:MM~)",
+      "운영기간",
+      "운영/인정시간(예: 4/4)",
+      "+ 버튼(상세 팝업)"
+    ],
+    "evidence": "manual_2026_08 p.4-5"
+  },
+  "q4_detail": {
+    "container": "팝업 '(신)비교과수강신청(학생용)'",
+    "header_fields": [
+      "모집상태(모집중/모집마감)",
+      "운영부서(도전학기면 '· 도전학기' 병기)",
+      "스크랩수/조회수",
+      "스크랩 ☆",
+      "제목",
+      "신청기간",
+      "운영기간 [총 시간]",
+      "인정시간",
+      "운영장소",
+      "3품인증",
+      "캠퍼스구분",
+      "디지털배지",
+      "신청 N 명",
+      "신청하기 +"
+    ],
+    "tabs": [
+      "공지내용(프로그램 내용 / 공지사항 + 바로가기)",
+      "기본정보(내용 미확인)",
+      "수업시간/계획서",
+      "수강후기"
+    ],
+    "not_seen_in_header": [
+      "정원(2024 캘린더 표에는 '신청/정원' 열 있음, 상세 팝업 헤더에는 없음, 기본정보 탭 여부 미확인)",
+      "대상(예시에서는 공지사항 자유서술 '강의 대상: 자유전공계열 재학생'에 포함)",
+      "역량 태그(카드에만 표시)",
+      "마일리지(라벨 없음)"
+    ],
+    "closed_state_text": "* 현재 상태는 수강신청불가 입니다.",
+    "apply_button_repeated": "'신청 N 명 | 신청하기 +' 버튼이 팝업 상단·하단에 2번 표시",
+    "clicks_landing_to_apply_button": {
+      "after_login_min": "3~4클릭: (1)상단 '비교과프로그램' (2)'비교과 수강신청' (3)카드 '+' (4)팝업 '신청하기 +' 위치 도달(누르지 않음)",
+      "to_find_specific_program": "+ 키워드 입력 + '조회' 1클릭(공지들이 '검색 \"제40회\"', '검색 \"교수멘토링\"'처럼 안내)",
+      "before_login": "로그인 1단계(ID·PW 입력 + '로그인'); 공지 경로는 '학교 홈페이지 킹고 ID 로그인 > 챌린지스퀘어 > ...'",
+      "evidence": "manual_2026_08 p.3-6; notice 67073, 66963 (직접 클릭 검증은 미확인)"
+    },
+    "post_apply_status": {
+      "menu": "나의 수강신청 내역",
+      "columns_seen": [
+        "신청일",
+        "수강상태",
+        "수강취소"
+      ],
+      "states": [
+        "신청완료",
+        "수강확정",
+        "수강완료"
+      ],
+      "rule": "'신청완료'일 때만 수강취소 버튼, '수강확정' 후에는 주관부서 문의. 교수멘토링 공지: \"'수강확정'이 된 분만 참여 가능(신청완료x)\"",
+      "evidence": "manual_2026_08 p.7-10; notice 66963"
+    }
+  },
+  "q5_student_burden_observations": [
+    {
+      "item": "자격/대상",
+      "fact": "상세 팝업 헤더에 '대상' 전용 필드 없음. 예시에서 대상은 공지사항 자유서술 안에 있음. 도전학기 표는 '학사/대학원/공통'만 표기.",
+      "evidence": "manual p.6; skku.edu 도전학기"
+    },
+    {
+      "item": "일정 충돌",
+      "fact": "신청·운영기간은 보이지만 내 시간표/기존 신청과의 충돌 표시는 공개 자료에서 미확인. 2024 캘린더는 수강신청 시작(START)/종료(END) 표시 중심.",
+      "evidence": "manual p.4-6; notice 52494"
+    },
+    {
+      "item": "마감",
+      "fact": "카드 D-day 배지와 '신청 마감순' 기본 정렬로 지원. 선착순 마감 공지 다수(예: 제40회 특강 '선착순 마감!').",
+      "evidence": "manual p.4; notice 67073"
+    },
+    {
+      "item": "내게 맞는지",
+      "fact": "적합도/추천 이유 표시 없음. 5대 역량 칩이 모든 카드에 동일하게 5개 나열되고 해당 역량만 음영.",
+      "evidence": "manual p.4-5"
+    },
+    {
+      "item": "상태 재확인",
+      "fact": "신청 후 '수강확정'으로 바뀌었는지 학생이 다시 확인해야 참여 가능.",
+      "evidence": "manual p.9; notice 66963"
+    },
+    {
+      "item": "필터·정렬 수",
+      "fact": "키워드 1 + 범위 드롭다운 1 + 체크박스 4 + 상세필터 아이콘 1 + 정렬 3 + 보기 2",
+      "evidence": "manual p.4"
+    },
+    {
+      "item": "텍스트 밀도/반복",
+      "fact": "카드당 약 12~13개 정보 요소. 같은 특강이 날짜별로 별도 카드('(09.16)…', '(09.22)…', '(09.23)…')로 반복. 상세 팝업은 필드 8개 + 탭 4개, 신청 버튼 2회 노출. 공지 본문에 이미 헤더 정보(신청기간 등)가 다시 반복.",
+      "evidence": "manual p.4-6"
+    },
+    {
+      "item": "출처 간 불일치 예",
+      "fact": "도전학기 표의 '중급 TOEIC' 운영기간 8.4.~8.28. vs 매뉴얼 팝업 '중급 토익' 2026/07/13~2026/08/06 [32시간] (원인 미확인, skku.edu도 '세부 내용이 변경될 수 있으니 챌린지스퀘어 확인' 안내)",
+      "evidence": "skku.edu 도전학기; manual p.13"
+    },
+    {
+      "item": "탐색 채널 분산",
+      "fact": "발견은 외부 공지·oopy 가이드·도전학기 표, 신청은 챌린지스퀘어, 후기는 oopy 별도 게시판 + 챌린지스퀘어 수강후기로 나뉨.",
+      "evidence": "studentsuccess.oopy.io; success.skku.edu"
+    }
+  ],
+  "q6_example_programs_public": [
+    {
+      "title": "(09.16)자유전공계열 대상 학생성공센터와 나의 대학 생활 길잡이 특강",
+      "dept": "학생성공센터행정실",
+      "apply_period": "2026/08/24(월) 09:00 ~ 2026/09/16(수) 23:50",
+      "run_period": "2026/09/16(수) [1시간]",
+      "target": "자유전공계열 재학생(공지사항 본문)",
+      "tags": [
+        "역량: 자기주도성(카드 음영)",
+        "3품인증: 창의",
+        "캠퍼스: 자과캠",
+        "운영장소: E센터 36103호",
+        "디지털배지: 미적용",
+        "인정시간 1시간"
+      ],
+      "source": "2026 학생용 매뉴얼 p.4-6"
+    },
+    {
+      "title": "2026 대학원 AI 프롬프트 및 바이브 코딩 워크숍",
+      "dept": "학생성공센터행정실",
+      "apply_period": "2026/08/25 13:00 ~ 2026/09/15 23:00",
+      "run_period": "2026/09/16(수)",
+      "target": "대학원생(제목 기준, 상세 미확인)",
+      "tags": [
+        "역량: 자기주도성·융합(카드 음영)",
+        "운영/인정시간 4/4"
+      ],
+      "source": "2026 학생용 매뉴얼 p.4"
+    },
+    {
+      "title": "중급 토익 (Intermediate TOEIC)",
+      "dept": "학부대학/사범대학행정실 · 도전학기",
+      "apply_period": "2026/07/06(월) 10:00 ~ 2026/07/11(토) 23:00",
+      "run_period": "2026/07/13(월)~2026/08/06(월) [32시간] (도전학기 표는 8.4.~8.28.로 상이)",
+      "target": "공통(도전학기 표), 정원 100(도전학기 표)",
+      "tags": [
+        "역량: 글로벌(도전학기 표)",
+        "3품인증: 창의(인정 30시간)",
+        "캠퍼스: 인사+자과캠",
+        "온라인",
+        "디지털배지: 미적용"
+      ],
+      "source": "매뉴얼 p.13 + https://www.skku.edu/skku/edu/challenge/challenge_04.do"
+    },
+    {
+      "title": "제40회 학생성공스토리 특강: 규제정책과 정치의 효능",
+      "dept": "학생성공센터",
+      "apply_period": "~2026-11-03 09:00 (선착순 마감)",
+      "run_period": "2026-11-04(수) 14:00~15:30 (+사전신청자 커피챗 15:30~16:30)",
+      "target": "공지상 학부(말머리 [Only 특강]/[커피챗] 중 택1, 중복신청 불가)",
+      "tags": [
+        "oopy 가이드 태그: 자기주도성·시민의식·특강",
+        "장소: 국제관 R&E 라운지"
+      ],
+      "source": "https://success.skku.edu/success/notice.do?mode=view&articleNo=67073"
+    },
+    {
+      "title": "2026 학생성공 교수멘토링",
+      "dept": "학생성공센터",
+      "apply_period": "10월 1일 ~ 멘토링 시행 1주 전까지(교수별 선착순)",
+      "run_period": "2026년 11월 초 ~ 12월 초(캠퍼스별 상이, 챌린지스퀘어에서 개별 확인)",
+      "target": "공지상 학부",
+      "tags": [
+        "oopy 가이드 태그: 자기주도성·멘토링",
+        "'수강확정'자만 참여, 노쇼 시 참여 제한 가능"
+      ],
+      "source": "https://success.skku.edu/success/notice.do?mode=view&articleNo=66963"
+    }
+  ],
+  "differentiation_observations": [
+    "로그인 장벽: PC·모바일 모두 루트부터 로그인 화면만 보임. 게스트 탐색이 불가능해 발견은 외부 공지/oopy 가이드/도전학기 표로 흩어짐 → 컴패니언은 흩어진 공개 출처를 한곳에서 '나에게 맞는 이유'와 함께 제시할 여지.",
+    "비교과 개인화 추천·추천 이유 UI 근거 없음: 정렬은 신청 마감순/최신 등록순/스크랩순, 필터는 속성 체크박스 4개. 추천은 교과목(과목추천서비스)과 운영자 자유서술('~학생에게 추천')에 그침 → 설명 가능한 매칭이 핵심 차별점.",
+    "적합성 판단 부담이 학생에게 있음: 대상은 본문 자유서술, 일정 충돌 확인 미확인, 신청 후 '수강확정' 재확인 필요, 날짜별 중복 카드 → 자격·충돌·마감·확정상태를 에이전트가 대신 점검.",
+    "활동 이후는 '증빙·평가' 중심: 이수내역/이수증명서/디지털 배지/e-포트폴리오 첨부 + 2026-08 신설 수강후기(별점·텍스트, 담당자 승인 후 수정 불가, 타인 참고용). 개인 회고→자기이해로 잇는 프롬프트는 공개 자료에서 미확인(학생성공센터는 노션 템플릿·특강 등 플랫폼 밖에서 지원).",
+    "역량 체계는 있으나 목록과 연결 안 됨: 5대 역량 진단(SSCA, 약 5분, 피드백리포트)이 별도 메뉴에 있고, 목록 카드엔 5개 역량 칩이 똑같이 나열될 뿐 내 진단 결과와 연결된 표시는 미확인 → 진단 결과 기반 다음 활동 제안 + 활동 후 변화 회고."
+  ],
+  "screenshots": {
+    "landing_live_pc": "chsquare-landing-nxui-login.webp (직접 캡처, 2026-10-08 15:36 KST)",
+    "landing_live_mobile": "chsquare-mobile-login.webp (직접 캡처, 2026-10-08 15:42 KST)",
+    "list_from_public_manual": "chsquare-list-from-manual-2026-08.webp (공개 학생용 매뉴얼 p.4 크롭, 실화면 아님)",
+    "detail_from_public_manual": "chsquare-detail-from-manual-2026-08.webp (매뉴얼 p.6 크롭)",
+    "detail_reviews_from_public_manual": "chsquare-detail-reviews-from-manual-2026-08.webp (매뉴얼 p.13 크롭)",
+    "manual_pdf": "chsquare-2026-student-manual.pdf (공개 첨부 원본)"
+  },
+  "sources": [
+    "https://chsquare.skku.edu/challenge/nxui/index.html",
+    "https://chsquarem.skku.edu/challengeM/nxuiM/index.html",
+    "https://success.skku.edu/success/notice.do?mode=view&articleNo=66252 (2026 챌린지스퀘어 학생용 안내자료.pdf, 2026-08-28)",
+    "https://success.skku.edu/success/notice.do?mode=view&articleNo=52494 (프로그램 캘린더 신설, 2024-12-06)",
+    "https://success.skku.edu/success/notice.do?mode=view&articleNo=48998 (디지털 배지, 2024-06-04)",
+    "https://success.skku.edu/success/notice.do?mode=view&articleNo=38904 (e-포트폴리오 메뉴 신설, 2023-04-14)",
+    "https://success.skku.edu/success/notice.do?mode=view&articleNo=33025 (챌스선배 시범, 2022-08-09)",
+    "https://success.skku.edu/success/notice.do?mode=view&boardNo=2204&articleNo=27872 (영문 서비스/이용 가능 서비스, 2021-11-10)",
+    "https://success.skku.edu/success/notice.do?mode=view&articleNo=67073 (제40회 학생성공스토리 특강)",
+    "https://success.skku.edu/success/notice.do?mode=view&articleNo=66963 (2026 학생성공 교수멘토링)",
+    "https://www.skku.edu/skku/edu/challenge/challenge_04.do (도전학기 비교과 운영계획/수강신청 경로)",
+    "https://www.skku.edu/skku/edu/challenge/challenge_07.do (학생성공역량 5대 역량)",
+    "https://cihe.skku.edu/cop/bbs/selectBoardArticle.do?bbsId=BBSMSTR_000000000131&nttId=1658&menuId=257 (역량진단 SSCA, 2021)",
+    "https://studentsuccess.oopy.io/ (SKKU 비교과 가이드)",
+    "https://www.epnc.co.kr/news/articleView.html?idxno=103349 (챌린지스퀘어 오픈 기사)"
+  ]
+}

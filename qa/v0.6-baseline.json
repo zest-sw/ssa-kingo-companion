@@ -1,0 +1,86 @@
+{
+  "measuredAt": "2026-10-08T06:36:51.050Z",
+  "method": "로컬 v0.6 빌드(dist)를 1440x900에서 열고 보이는 버튼·링크·입력·탭 요소와 main innerText 길이를 계산",
+  "screens": [
+    {
+      "label": "v0.6 내 성장(첫 화면)",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "interactiveTotal": 52,
+      "interactiveAboveFold": 19,
+      "mainTextChars": 2498,
+      "mainWords": 685,
+      "h2Sections": 5,
+      "h3Items": 4,
+      "cautionTerms": {
+        "미확인": 2,
+        "예시": 7,
+        "아님_않습니다": 5,
+        "판정": 0
+      },
+      "scrollHeight": 2664
+    },
+    {
+      "label": "v0.6 활동 탐색(기본)",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "interactiveTotal": 20,
+      "interactiveAboveFold": 20,
+      "mainTextChars": 525,
+      "mainWords": 135,
+      "h2Sections": 0,
+      "h3Items": 5,
+      "cautionTerms": {
+        "미확인": 0,
+        "예시": 5,
+        "아님_않습니다": 0,
+        "판정": 0
+      },
+      "scrollHeight": 1051
+    },
+    {
+      "label": "v0.6 채용 공고 상세",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "interactiveTotal": 45,
+      "interactiveAboveFold": 11,
+      "mainTextChars": 2934,
+      "mainWords": 737,
+      "h2Sections": 1,
+      "h3Items": 6,
+      "cautionTerms": {
+        "미확인": 7,
+        "예시": 2,
+        "아님_않습니다": 10,
+        "판정": 4
+      },
+      "scrollHeight": 3533
+    },
+    {
+      "label": "v0.6 경험 아카이브",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "interactiveTotal": 29,
+      "interactiveAboveFold": 23,
+      "mainTextChars": 714,
+      "mainWords": 193,
+      "h2Sections": 0,
+      "h3Items": 6,
+      "cautionTerms": {
+        "미확인": 0,
+        "예시": 1,
+        "아님_않습니다": 0,
+        "판정": 0
+      },
+      "scrollHeight": 1159
+    }
+  ]
+}

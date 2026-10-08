@@ -1,6 +1,6 @@
 # 의존성·빌드 결과
-node_modules/
-dist/
+node_modules
+dist
 .vite/
 
 # 테스트 산출물

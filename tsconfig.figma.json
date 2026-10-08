@@ -1,7 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "include": [
-    "figma/App.tsx",
-    "src/vite-env.d.ts"
-  ]
-}
