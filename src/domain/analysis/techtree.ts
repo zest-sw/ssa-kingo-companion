@@ -1,0 +1,74 @@
+import type { Activity, Did, FieldGroup, Program, RecordItem } from '../types';
+import { FIELD_GROUP, GROUP_LABEL } from '../vocab';
+import { sortRecords } from './semester';
+
+// ponytail: 분야 줄과 활동 유형 기준은 기준 문서에서 미정이다. 임시로 '한 일(did)'을 유형 칸에 접는다. 기준이 정해지면 이 표만 고친다.
+export const TREE_COLUMNS = ['들어 보기', '해 보기', '만들기', '나누기'] as const;
+export const COLUMN_OF_DID: Record<Did, number> = { listen: 0, ask: 0, organize: 1, idea: 1, make: 2, present: 3 };
+export const TREE_GROUPS: FieldGroup[] = ['ai', 'dev', 'plan', 'mentor', 'global', 'other'];
+
+export type TreeCell = {
+  id: string;
+  /** done 채운 칸, ongoing 하는 중, candidate 지금 신청할 수 있는 추천 후보(테두리만) */
+  kind: 'done' | 'ongoing' | 'candidate';
+  label: string;
+  group: FieldGroup;
+  col: number;
+  did?: Did;
+  recordId?: string;
+  activityId?: string;
+  programId?: string;
+  /** 후보의 마감까지 남은 날 */
+  dday?: number;
+};
+/** unknown: 아직 안 해 본 분야 */
+export type TreeRow = { group: FieldGroup; label: string; cells: TreeCell[]; unknown: boolean };
+/** cross: 다른 줄로 건너가는 경로 */
+export type TreeLink = { from: string; to: string; cross: boolean };
+export type TechTree = { rows: TreeRow[]; links: TreeLink[] };
+export type CandidateRef = { program: Program; dday: number };
+
+export function buildTechTree(input: { records: RecordItem[]; activities: Activity[]; candidates: CandidateRef[] }): TechTree {
+  const sorted = sortRecords(input.records);
+  const cells: TreeCell[] = sorted.map(r => ({
+    id: `r:${r.id}`, kind: 'done', label: r.title, group: FIELD_GROUP[r.field], col: COLUMN_OF_DID[r.did], did: r.did, recordId: r.id
+  }));
+
+  // 기록으로 옮겨진 활동은 기록 칸이 대신한다. 신청 전·결과 대기·떨어진 신청은 아직 한 활동이 아니라서 뺀다.
+  const recordIds = new Set(input.records.map(r => r.id));
+  const programIds = new Set(input.records.map(r => r.programId).filter(Boolean));
+  for (const a of input.activities) {
+    if (a.status !== 'ongoing' && a.status !== 'ended' && a.status !== 'recorded') continue;
+    if ((a.recordId && recordIds.has(a.recordId)) || (a.programId && programIds.has(a.programId))) continue;
+    cells.push({ id: `a:${a.id}`, kind: a.status === 'ongoing' ? 'ongoing' : 'done', label: a.title, group: FIELD_GROUP[a.field], col: 1, activityId: a.id });
+  }
+  for (const c of input.candidates) {
+    cells.push({
+      id: `p:${c.program.id}`, kind: 'candidate', label: c.program.title, group: FIELD_GROUP[c.program.field],
+      col: COLUMN_OF_DID[c.program.did[0] ?? 'listen'], programId: c.program.id, dday: c.dday
+    });
+  }
+
+  const rows: TreeRow[] = TREE_GROUPS.map(group => {
+    const own = cells.filter(c => c.group === group).sort((a, b) => a.col - b.col);
+    return { group, label: GROUP_LABEL[group], cells: own, unknown: !own.some(c => c.kind !== 'candidate') };
+  });
+
+  const links: TreeLink[] = [];
+  for (const row of rows) {
+    for (const cell of row.cells) {
+      const before = row.cells.filter(c => c.col < cell.col).map(c => c.col);
+      if (!before.length) continue;
+      const prev = Math.max(...before);
+      for (const p of row.cells.filter(c => c.col === prev)) links.push({ from: p.id, to: cell.id, cross: false });
+    }
+  }
+  // 같은 일을 다른 분야에서 이어 한 기록끼리, 시간 순서대로 점선으로 잇는다.
+  const lastByDid = new Map<Did, TreeCell>();
+  for (const cell of cells.filter(c => c.recordId && c.did)) {
+    const prev = lastByDid.get(cell.did!);
+    if (prev && prev.group !== cell.group) links.push({ from: prev.id, to: cell.id, cross: true });
+    lastByDid.set(cell.did!, cell);
+  }
+  return { rows, links };
+}
