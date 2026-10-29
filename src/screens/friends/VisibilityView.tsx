@@ -36,8 +36,8 @@ export function VisibilityView() {
     run({ type: 'visibility/set', patch: { profilePublic: true } }, { toast: '프로필을 공개했어요. 설정에서 언제든 거둘 수 있어요.' });
     setAsking(false);
   };
-  // 철회는 한 번에. 명예의 전당 동의도 reducer 에서 함께 거둔다.
-  const withdraw = () => run({ type: 'visibility/set', patch: { profilePublic: false } }, { toast: '프로필을 비공개로 돌렸어요.', undoable: true });
+  // 되돌리기를 달지 않는다: 다시 공개하려면 동의 창을 거쳐야 한다. 철회는 한 번에. 명예의 전당 동의도 reducer 에서 함께 거둔다.
+  const withdraw = () => run({ type: 'visibility/set', patch: { profilePublic: false } }, { toast: '프로필을 비공개로 돌렸어요.' });
   const set = (patch: Partial<typeof v>) => run({ type: 'visibility/set', patch });
 
   return (

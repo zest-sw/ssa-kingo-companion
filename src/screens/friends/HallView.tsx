@@ -36,7 +36,7 @@ export function HallView() {
     run({ type: 'visibility/set', patch: { hallOfFameConsent: true } }, { toast: '명예의 전당에 올라가요. 설정에서 언제든 내릴 수 있어요.' });
     setAsking(false);
   };
-  const leave = () => run({ type: 'visibility/set', patch: { hallOfFameConsent: false } }, { toast: '명예의 전당에서 내렸어요.', undoable: true });
+  const leave = () => run({ type: 'visibility/set', patch: { hallOfFameConsent: false } }, { toast: '명예의 전당에서 내렸어요.' });
 
   return (
     <>

@@ -22,6 +22,7 @@ export function RecruitView({ posts, onPost }: Props) {
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
+  // ponytail: 정렬은 '내가 관심 표시한 기회의 글이 먼저'이다. 내 글이 관심 표시한 학생에게 먼저 보이는 건 숫자(interested)로만 알린다. 실제 배포는 서버가 정할 일이다.
   // 관심 표시한 기회: 내가 직접 표시했거나, 신청 준비 중인 추천 후보와 같은 기회.
   const preparing = new Set(state.activities.map(a => a.programId));
   const interested = [...interest, ...TEAM_OPPORTUNITIES.filter(o => o.programId && preparing.has(o.programId)).map(o => o.id)];
@@ -78,7 +79,8 @@ export function RecruitView({ posts, onPost }: Props) {
               const o = OPPORTUNITY_BY_ID[p.opportunityId];
               if (!o) return null;
               const marked = interested.includes(o.id);
-              const done = accepted.length >= p.slots && p.mine;
+              const mineAccepted = accepted.filter(k => k.startsWith(`${p.id}:`)).length;
+              const done = p.mine && mineAccepted >= p.slots;
               return (
                 <li key={p.id} className={`fr-post${marked ? ' fr-post--match' : ''}`}>
                   <div className="fr-post__head">
@@ -93,11 +95,12 @@ export function RecruitView({ posts, onPost }: Props) {
                     {p.mine ? (
                       <ul className="fr-applicants">
                         {APPLICANTS.map(name => {
-                          const ok = accepted.includes(name);
+                          const key = `${p.id}:${name}`;
+                          const ok = accepted.includes(key);
                           return (
                             <li key={name} className="fr-applicant">
                               <span>{name}님이 지원했어요</span>
-                              {ok ? <Badge tone="green" icon="check">수락함</Badge> : <Button size="sm" disabled={done} onClick={() => { setAccepted(a => [...a, name]); toast(`${name}님을 팀원으로 받았어요.`); }}>수락</Button>}
+                              {ok ? <Badge tone="green" icon="check">수락함</Badge> : <Button size="sm" disabled={done} onClick={() => { setAccepted(a => [...a, key]); toast(`${name}님을 팀원으로 받았어요.`); }}>수락</Button>}
                             </li>
                           );
                         })}

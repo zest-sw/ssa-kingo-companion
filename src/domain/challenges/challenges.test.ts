@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { PROGRAM_BY_ID } from '../../data/catalog';
-import { rec } from '../fixtures.test-util';
-import type { Activity } from '../types';
+import { rec as baseRec } from '../fixtures.test-util';
+import type { Activity, RecordItem } from '../types';
 import { evaluate, isInProgress, newlyAchieved, showcaseable, type ChallengeDef } from './index';
 
+// 기본은 학생이 남긴 기록. 예시 기록은 source: 'seed' 로 따로 만든다.
+const rec = (id: string, over: Partial<RecordItem> = {}) => baseRec(id, { source: 'agent', ...over });
 const act = (id: string, over: Partial<Activity> = {}): Activity => ({ id, title: id, field: 'dev', status: 'ongoing', schedule: '', ...over });
 const defs: ChallengeDef[] = [
   { id: 'first', rule: 'firstRetro', hidden: false },
@@ -19,6 +21,13 @@ const by = (rs: ReturnType<typeof run>, id: string) => rs.find(r => r.def.id ===
 describe('도전 과제 달성 계산', () => {
   it('예시 기록만 있으면 첫 회고는 아직이다', () => {
     expect(by(run(), 'first').achieved).toBe(false);
+  });
+  it('예시 기록은 어떤 과제에도 세지 않는다', () => {
+    const seeds = ['research', 'club', 'ai'].map((field, i) => rec(`s${i}`, { source: 'seed', field: field as RecordItem['field'], card: { role: '멘티' } }));
+    const rs = run(seeds);
+    expect(by(rs, 'first').achieved).toBe(false);
+    expect(by(rs, 'paths').progress.value).toBe(0);
+    expect(by(rs, 'swap').achieved).toBe(false);
   });
   it('학생이 쓴 회고가 생기면 첫 회고가 달성된다', () => {
     expect(by(run([rec('a', { source: 'agent' })]), 'first').achieved).toBe(true);

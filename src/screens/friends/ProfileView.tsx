@@ -41,7 +41,7 @@ export function ProfileView() {
           <div className="fr-me">
             <span className="fr-avatar fr-avatar--lg" aria-hidden="true">성</span>
             <div>
-              <p className="fr-me__name">예시 학생</p>
+              <p className="fr-me__name">나</p>
               <p className="fr-me__sub">소프트웨어학과 3학년{interests && ` · ${interests}`}</p>
             </div>
           </div>
@@ -121,7 +121,7 @@ export function ProfileView() {
         </Card>
 
         <Card padding="md" title="친구 소식">
-          <ul className="fr-people">
+          {FEED.length === 0 ? <p className="fr-empty">친구 소식이 아직 없어요. 친구를 맺으면 여기에 보여요.</p> : (<ul className="fr-people">
             {FEED.map(f => {
               const on = cheered.includes(f.id);
               return (
@@ -131,7 +131,7 @@ export function ProfileView() {
                 </li>
               );
             })}
-          </ul>
+          </ul>)}
         </Card>
       </div>
     </div>

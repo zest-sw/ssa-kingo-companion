@@ -1,13 +1,15 @@
+:root { --ch-card-min: 232px; --ch-edge: 2px; --ch-icon: 44px; }
+
 .ch-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
 .ch-stats__dark { background: var(--ink-strong); }
 .ch-stats__dark .ui-stat__label, .ch-stats__dark .ui-stat__unit { color: var(--ink-subtle); }
 .ch-stats__dark .ui-stat__value { color: var(--ink-inverse); }
 
-.ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
-.ch-card { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; padding: var(--space-5); border-radius: var(--radius-lg); background: var(--surface); border: 2px solid transparent; }
+.ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--ch-card-min), 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+.ch-card { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; padding: var(--space-5); border-radius: var(--radius-lg); background: var(--surface); border: var(--ch-edge) solid transparent; }
 .ch-card--done { border-color: var(--lime-500); }
 .ch-card--locked { background: var(--ink-strong); color: var(--ink-inverse); }
-.ch-card__icon { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: var(--space-2); border-radius: var(--radius-md); background: var(--primary-soft); color: var(--primary); font-weight: var(--weight-bold); font-size: var(--text-xl); }
+.ch-card__icon { display: grid; place-items: center; width: var(--ch-icon); height: var(--ch-icon); margin-bottom: var(--space-2); border-radius: var(--radius-md); background: var(--primary-soft); color: var(--primary); font-weight: var(--weight-bold); font-size: var(--text-xl); }
 .ch-card--locked .ch-card__icon { background: var(--on-dark-hover); color: var(--ink-inverse); }
 .ch-card__name { font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); overflow-wrap: anywhere; }
 .ch-card__desc { color: var(--ink-muted); font-size: var(--text-md); overflow-wrap: anywhere; }
