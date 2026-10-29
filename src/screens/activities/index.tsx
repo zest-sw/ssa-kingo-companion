@@ -1,16 +1,31 @@
-import { Button, EmptyState, PageHeader } from '../../components';
-import { navigate, type ScreenProps } from '../../app/router';
+import { useState } from 'react';
+import { PageHeader, SegmentedControl } from '../../components';
+import { useApp } from '../../app/AppState';
+import { CURRENT_TERM } from '../../data/records';
+import { semesterLabel } from '../../domain/interview/archive';
+import type { ScreenProps } from '../../app/router';
+import { ActivityDrawer } from './ActivityDrawer';
+import { BoardView } from './BoardView';
+import { ListView } from './ListView';
+import './activities.css';
 
-// ponytail: 기반 작업의 자리 표시 화면이다. activities-records 화면 워커가 이 폴더 안에서 바꾼다.
+type View = 'board' | 'list';
+
 export default function ActivitiesScreen(_props: ScreenProps) {
+  const { state } = useApp();
+  const [view, setView] = useState<View>('board');
+  const [openId, setOpenId] = useState<string | null>(null);
+  const open = state.activities.find(a => a.id === openId);
+
   return (
     <>
-      <PageHeader eyebrow="2026-2학기" title="내 활동" />
-      <EmptyState
-        icon="board"
-        message="하기로 한 활동이 할 것, 하는 중, 끝난 것으로 모여요. 추천에서 신청 준비를 눌러 시작해 보세요."
-        action={<Button variant="primary" onClick={() => navigate('recommend')}>추천 보러 가기</Button>}
+      <PageHeader
+        eyebrow={semesterLabel(CURRENT_TERM.semester)}
+        title="내 활동"
+        actions={<SegmentedControl<View> label="보기 방식" value={view} onChange={setView} items={[{ id: 'board', label: '보드' }, { id: 'list', label: '목록' }]} />}
       />
+      {view === 'board' ? <BoardView activities={state.activities} onOpen={setOpenId} /> : <ListView activities={state.activities} onOpen={setOpenId} />}
+      <ActivityDrawer a={open} onClose={() => setOpenId(null)} />
     </>
   );
 }
