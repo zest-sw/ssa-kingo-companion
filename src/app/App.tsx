@@ -8,6 +8,7 @@ import Home from '../screens/home';
 import Recommend from '../screens/recommend';
 import Records from '../screens/records';
 import { AppStateProvider } from './AppState';
+import { useChallengeToasts } from './challenges';
 import KitScreen from './kit/KitScreen';
 import { NAV, useRoute, type RouteName, type ScreenProps } from './router';
 import { Sidebar } from './Sidebar';
@@ -20,6 +21,7 @@ const SCREEN: Record<RouteName, ComponentType<ScreenProps>> = {
 function Shell() {
   const route = useRoute();
   const first = useRef(true);
+  useChallengeToasts();
 
   // 화면이 바뀌면 맨 위로, 제목으로 포커스. 같은 화면 안 하위 경로(탭) 이동은 화면이 직접 다룬다.
   useEffect(() => {

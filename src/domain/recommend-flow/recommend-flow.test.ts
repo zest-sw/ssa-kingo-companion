@@ -182,7 +182,7 @@ describe('날짜·고른 방법·시각', () => {
 
 describe('나중에 보기 만료', () => {
   const choices: Record<string, CandidateChoice> = { a: 'later', b: 'later', c: 'dismissed', d: 'preparing', e: 'later' };
-  const until = new Map([['a', laterUntilDay(1, 1)], ['b', laterUntilDay(1, 7)]]);
+  const until = { a: laterUntilDay(1, 1), b: laterUntilDay(1, 7) };
 
   it('1주차에는 고른 날이 아직 안 와서 모두 숨긴다', () => {
     expect(effectiveChoices(choices, until, 1)).toEqual(choices);

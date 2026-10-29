@@ -2,9 +2,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useReducer,
 import { useToast } from '../components';
 import { buildCandidates, type CandidateView } from '../domain/candidates';
 import { discState } from '../domain/discoveries';
+import { effectiveChoices } from '../domain/recommend-flow/flow';
 import type { DiscState, Discovery } from '../domain/types';
 import { CATALOG } from '../data/catalog';
-import { reducer, type Action, type AppState } from './state';
+import { applyWithUndo, reducer, type Action, type AppState } from './state';
 import { clearSaved, loadState, saveState } from './storage';
 
 type RunOptions = {
@@ -16,11 +17,11 @@ type RunOptions = {
 
 export type AppContextValue = {
   state: AppState;
-  /** 추천 후보·발견처럼 상태에서 계산한 값 */
+  /** 추천 후보·발견처럼 상태에서 계산한 값. 나중에 보기로 고른 날이 된 후보는 다시 들어 있다 */
   view: CandidateView;
   discStateOf: (d: Discovery) => DiscState;
-  /** 상태를 바꾸는 유일한 길. 토스트와 되돌리기를 함께 건다. */
-  run: (action: Action, opts?: RunOptions) => void;
+  /** 상태를 바꾸는 유일한 길. 여러 액션을 배열로 넘기면 되돌리기가 한 번에 되돌린다. */
+  run: (action: Action | Action[], opts?: RunOptions) => void;
   /** 예시 상태와 저장한 프로필을 모두 처음으로 */
   resetAll: () => void;
 };
@@ -33,20 +34,27 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const latest = useRef(state);
   latest.current = state;
 
-  useEffect(() => { saveState(state); }, [state.profile, state.onboarded, state.visibility]);
+  useEffect(() => { saveState(state); }, [
+    state.profile, state.onboarded, state.visibility, state.choices, state.laterUntil, state.dislikedFields, state.preferEasier,
+    state.activities, state.drafts, state.edgeAnswers, state.selfLevels
+  ]);
 
-  const run = useCallback((action: Action, opts: RunOptions = {}) => {
-    const before = latest.current;
-    dispatch(action);
-    if (opts.toast) toast(opts.toast, opts.undoable ? { onUndo: () => dispatch({ type: 'restore', state: before }) } : undefined);
+  const run = useCallback((action: Action | Action[], opts: RunOptions = {}) => {
+    const list = Array.isArray(action) ? action : [action];
+    const { after, undo } = applyWithUndo(latest.current, list);
+    // 같은 이벤트 안에서 run 을 또 불러도 방금 바뀐 상태를 기준으로 삼는다.
+    latest.current = after;
+    list.forEach(dispatch);
+    if (opts.toast) toast(opts.toast, opts.undoable ? { onUndo: () => dispatch(undo) } : undefined);
   }, [toast]);
 
   const resetAll = useCallback(() => { clearSaved(); dispatch({ type: 'reset' }); }, []);
 
+  const choices = useMemo(() => effectiveChoices(state.choices, state.laterUntil, state.week), [state.choices, state.laterUntil, state.week]);
   const view = useMemo(() => buildCandidates({
     catalog: CATALOG, week: state.week, profile: state.profile, records: state.records, confirm: state.confirm, settings: state.settings,
-    choices: state.choices, dislikedFields: state.dislikedFields, preferEasier: state.preferEasier, last: state.lastDone
-  }), [state.week, state.profile, state.records, state.confirm, state.settings, state.choices, state.dislikedFields, state.preferEasier, state.lastDone]);
+    choices, dislikedFields: state.dislikedFields, preferEasier: state.preferEasier, last: state.lastDone
+  }), [state.week, state.profile, state.records, state.confirm, state.settings, choices, state.dislikedFields, state.preferEasier, state.lastDone]);
 
   const discStateOf = useCallback((d: Discovery) => discState(d, state.confirm), [state.confirm]);
 
