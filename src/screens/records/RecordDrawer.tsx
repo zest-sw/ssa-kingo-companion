@@ -8,7 +8,7 @@ import type { RecordCard, RecordItem } from '../../domain/types';
 import { FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
 import { cardOf } from '../../domain/interview/record';
 import { RecordCardView } from './RecordCardView';
-import { setConfirmedAxes, toggleAxis, useConfirmedAxes } from './stores';
+import { toggleAxis } from '../../domain/interview/draft';
 
 type Props = { record: RecordItem | undefined; onClose: () => void; onDelete: (r: RecordItem) => void };
 
@@ -22,7 +22,7 @@ export function RecordDrawer({ record, onClose, onDelete }: Props) {
 
 function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose' | 'onDelete'>) {
   const { state, run } = useApp();
-  const confirmed = useConfirmedAxes(r.id);
+  const confirmed = r.confirmedAxes ?? [];
   const [editing, setEditing] = useState(false);
   const card = cardOf(r);
   const meta = `${semesterLabel(r.semester)} · ${GROUP_LABEL[FIELD_GROUP[r.field]]} · ${r.kind}`;
@@ -45,7 +45,7 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
         card={card}
         evidence={evidenceOf(r.axes, card.action)}
         confirmed={confirmed}
-        onToggleAxis={a => setConfirmedAxes(r.id, toggleAxis(confirmed, a))}
+        onToggleAxis={a => run({ type: 'record/setFlags', id: r.id, flags: { confirmedAxes: toggleAxis(confirmed, a) } })}
         visibility={r.visibility}
         onVisibility={visibility => run({ type: 'record/setFlags', id: r.id, flags: { visibility } })}
         profilePublic={state.visibility.profilePublic}

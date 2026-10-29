@@ -16,7 +16,7 @@ export function PrototypeInfo({ open, onClose }: { open: boolean; onClose: () =>
           <ul>
             <li>모든 활동, 기록, 학생 정보는 예시예요. 실제 학생 데이터가 아니에요.</li>
             <li>실제 AI, 학교 API, 챌린지스퀘어 연동은 없어요. 신청은 언제나 학생이 직접 해요.</li>
-            <li>새로고침하면 예시 상태로 돌아가요. 프로필과 공개 설정만 이 브라우저에 남아요.</li>
+            <li>새로고침하면 예시 상태로 돌아가요. 프로필, 공개 설정, 추천에서 고른 것, 신청 준비, 쓰던 회고 초안, 분석에서 답한 것만 이 브라우저에 남아요.</li>
             <li>추천 후보 개수, 역량 체계, 보드 상태 이름, 테크 트리 기준은 아직 정하지 않은 예시 값이에요.</li>
             <li>채용 공고 요건은 2026.10.08 확인한 공개 공고 3건이고 직무 참고용이에요.</li>
           </ul>
@@ -31,7 +31,7 @@ export function PrototypeInfo({ open, onClose }: { open: boolean; onClose: () =>
           <Button variant="primary" onClick={() => { resetAll(); setAsk(false); onClose(); navigate('home'); toast('처음 상태로 돌렸어요.'); }}>돌리기</Button>
         </>}
       >
-        저장한 프로필과 공개 설정도 지워져요.
+        이 브라우저에 남긴 프로필, 고른 것, 초안도 지워져요.
       </Modal>
     </>
   );

@@ -4,21 +4,18 @@ import { navigate, type ScreenProps } from '../../app/router';
 import { Button, PageHeader, SegmentedControl } from '../../components';
 import { DISLIKES } from '../../data/options';
 import { pickAlternatives } from '../../domain/recommend';
-import { parseRecommendSub, prepareHref } from '../../domain/recommend-flow/flow';
+import { laterUntilDay, parseRecommendSub, prepareHref } from '../../domain/recommend-flow/flow';
 import type { DislikeKind, Program } from '../../domain/types';
 import { CompareView } from './CompareView';
 import { DismissModal, LaterDrawer, LaterModal, ProfileDrawer } from './Dialogs';
-import { clearLater, setLater } from './laterStore';
 import { PrepareView } from './PrepareView';
 import { TopView } from './TopView';
-import { useCandidateView } from './useCandidateView';
 import './recommend.css';
 
 const VIEWS = [{ id: 'top', label: '가장 추천' }, { id: 'compare', label: '비교해서 고르기' }] as const;
 
 export default function RecommendScreen({ sub }: ScreenProps) {
-  const { state, run } = useApp();
-  const view = useCandidateView();
+  const { state, view, run } = useApp();
   const route = parseRecommendSub(sub);
   const [dismissing, setDismissing] = useState<Program>();
   const [postponing, setPostponing] = useState<Program>();
@@ -27,7 +24,6 @@ export default function RecommendScreen({ sub }: ScreenProps) {
 
   const prepare = (p: Program) => {
     run({ type: 'candidate/choose', programId: p.id, choice: 'preparing' });
-    clearLater(p.id);
     navigate(prepareHref(p.id));
   };
   const dismiss = (p: Program, kind: DislikeKind) => {
@@ -36,8 +32,7 @@ export default function RecommendScreen({ sub }: ScreenProps) {
   };
   const postpone = (p: Program, days: number) => {
     setPostponing(undefined);
-    setLater(p.id, state.week, days);
-    run({ type: 'candidate/choose', programId: p.id, choice: 'later' }, { toast: '나중에 다시 보여 드릴게요.', undoable: true });
+    run({ type: 'candidate/choose', programId: p.id, choice: 'later', until: laterUntilDay(state.week, days) }, { toast: '나중에 다시 보여 드릴게요.', undoable: true });
   };
   const actions = { onPrepare: prepare, onLater: setPostponing, onDismiss: setDismissing };
 
@@ -67,8 +62,9 @@ export default function RecommendScreen({ sub }: ScreenProps) {
       <LaterDrawer
         open={laterOpen}
         programs={view.later}
+        laterUntil={state.laterUntil}
         onClose={() => setLaterOpen(false)}
-        onBack={p => { clearLater(p.id); run({ type: 'candidate/clear', programId: p.id }, { toast: '추천 목록으로 돌려놨어요.' }); }}
+        onBack={p => { run({ type: 'candidate/clear', programId: p.id }, { toast: '추천 목록으로 돌려놨어요.' }); }}
         onPrepare={p => { setLaterOpen(false); prepare(p); }}
       />
       {profileOpen && (

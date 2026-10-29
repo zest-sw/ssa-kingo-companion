@@ -3,7 +3,6 @@ import { Button, Card, Chip, EmptyState, FieldTag, Icon, Modal, PageHeader } fro
 import { navigate } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { filterRecords, groupBySemester, groupsPresent, previewOf, type ArchiveFilter } from '../../domain/interview/archive';
-import { activityOfRecord, unrecordedPatch } from '../../domain/interview/transitions';
 import type { RecordItem } from '../../domain/types';
 import { GROUP_LABEL } from '../../domain/vocab';
 import { AddRecordModal } from './AddRecordModal';
@@ -46,15 +45,8 @@ export function Archive() {
 
   const remove = () => {
     if (!deleting) return;
-    // 기록을 지우면 그 활동은 회고 대기로 돌아간다. 되돌리기는 둘을 함께 되돌린다.
-    const opts = { toast: `‘${deleting.title}’ 기록을 지웠어요.`, undoable: true };
-    const act = activityOfRecord(state.activities, deleting);
-    if (act) {
-      run({ type: 'record/delete', id: deleting.id });
-      run({ type: 'activity/update', id: act.id, patch: unrecordedPatch() }, opts);
-    } else {
-      run({ type: 'record/delete', id: deleting.id }, opts);
-    }
+    // 기록을 지우면 그 활동은 회고 대기로 돌아간다(reducer). 되돌리기는 기록·활동·역량 근거 확인을 함께 되돌린다.
+    run({ type: 'record/delete', id: deleting.id }, { toast: `‘${deleting.title}’ 기록을 지웠어요.`, undoable: true });
     setDeleting(null);
   };
 

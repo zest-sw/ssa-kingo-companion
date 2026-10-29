@@ -47,6 +47,8 @@ export type RecordItem = {
   useForRecommend: boolean;
   card?: RecordCard;
   programId?: string;
+  /** 학생이 '맞아요'를 눌러 확인한 역량 근거. 없는 축은 AI 추정(점선)이다 */
+  confirmedAxes?: Axis[];
 };
 
 export type CareerLink = { req: string; part: 'match' | 'gap'; gapLabel?: string };
@@ -94,6 +96,22 @@ export type Visibility = {
   showcaseChallengeIds: string[];
 };
 
+export type PrepItem = {
+  id: string;
+  label: string;
+  /** 누가 하나. 에이전트가 한 건 처음부터 done 이다 */
+  by: 'agent' | 'me';
+  done: boolean;
+  /** 끝낸 시각('21:40'). 에이전트 항목은 준비를 시작한 시각 */
+  at?: string;
+  /** 마감까지 남은 날. 에이전트가 끝낸 건 없다 */
+  dday?: number;
+  /** 항목 아래 한 줄 안내 */
+  hint?: string;
+  /** 누르면 가는 곳 */
+  link?: { label: string; path: string };
+};
+
 export type ActivityStatus = 'preparing' | 'applied' | 'ongoing' | 'ended' | 'recorded' | 'declined';
 export type BoardColumn = 'todo' | 'doing' | 'done';
 export type Activity = {
@@ -105,6 +123,8 @@ export type Activity = {
   schedule: string;
   /** 신청 준비 진행도 */
   prep?: { done: number; total: number };
+  /** 신청 준비 체크리스트. 항목별 완료가 여기 남는다(prep 은 이걸 센 값) */
+  prepItems?: PrepItem[];
   /** 가장 급한 마감 하나. dday 0 = 오늘 */
   due?: { label: string; dday: number };
   programId?: string;

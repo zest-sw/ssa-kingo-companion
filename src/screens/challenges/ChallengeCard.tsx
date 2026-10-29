@@ -1,7 +1,8 @@
-import { Badge, Icon, ProgressBar } from '../../components';
+import type { ChallengeView } from '../../app/challenges';
+import { Badge, Icon, ProgressBar, Switch } from '../../components';
 import { RARITY_LABEL } from '../../data/challenges';
-import { Switch } from './Switch';
-import { formatWhen, type ChallengeView } from './useChallenges';
+
+const formatWhen = (d: Date) => `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
 type Props = { item: ChallengeView; showcased: boolean; onShowcase: (next: boolean) => void };
 

@@ -1,5 +1,7 @@
 import { ddayOf } from '../recommend';
-import type { Activity, ActivityStatus, CandidateChoice, Funnel, Interest, Program } from '../types';
+import type { Activity, ActivityStatus, CandidateChoice, Funnel, Interest, PrepItem, Program } from '../types';
+
+export type { PrepItem } from '../types';
 
 // 추천 화면의 흐름: 어느 단계인지, 신청 준비 체크리스트가 어떻게 바뀌는지. 순수 함수만 둔다.
 
@@ -29,22 +31,6 @@ export function toggleInterest(interests: Interest[], id: Interest): Interest[] 
   if (base.includes(id)) return base.filter(x => x !== id);
   return base.length >= MAX_INTERESTS ? base : [...base, id];
 }
-
-export type PrepItem = {
-  id: string;
-  label: string;
-  /** 누가 하나. 에이전트가 한 건 처음부터 done 이다 */
-  by: 'agent' | 'me';
-  done: boolean;
-  /** 끝낸 시각('21:40'). 에이전트 항목은 준비를 시작한 시각 */
-  at?: string;
-  /** 마감까지 남은 날. 에이전트가 끝낸 건 없다 */
-  dday?: number;
-  /** 항목 아래 한 줄 안내 */
-  hint?: string;
-  /** 누르면 가는 곳 */
-  link?: { label: string; path: string };
-};
 
 // ponytail: 팀 활동 여부를 이름으로 짐작한다. 기회 데이터에 팀 구성 필드가 생기면 그걸 쓴다.
 const TEAM_WORDS = ['해커톤', '아이디어톤', '공모전', '경진대회', '프로젝트', '피칭'];
@@ -121,11 +107,11 @@ export const laterDateLabel = (untilDay: number) => dateLabel(untilDay, 1);
  * 나중에 보기로 미룬 것 중 고른 날이 된 것은 다시 후보로 돌려보낸다. 날짜를 안 골랐으면 계속 숨긴다.
  * 오늘이 고른 날이면 다시 보인다.
  */
-export function effectiveChoices(choices: Record<string, CandidateChoice>, untilDays: ReadonlyMap<string, number>, week: number): Record<string, CandidateChoice> {
+export function effectiveChoices(choices: Record<string, CandidateChoice>, untilDays: Readonly<Record<string, number>>, week: number): Record<string, CandidateChoice> {
   const today = 7 * (week - 1);
   const out: Record<string, CandidateChoice> = {};
   for (const [id, c] of Object.entries(choices)) {
-    const until = untilDays.get(id);
+    const until = untilDays[id];
     if (c === 'later' && until !== undefined && until <= today) continue;
     out[id] = c;
   }

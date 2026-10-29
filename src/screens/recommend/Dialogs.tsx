@@ -5,7 +5,6 @@ import { FORMAT_OPTIONS } from '../../data/options';
 import { dateLabel, laterDateLabel, LATER_CHOICES, toggleInterest } from '../../domain/recommend-flow/flow';
 import type { DislikeKind, Interest, Profile, Program } from '../../domain/types';
 import { TIME_OPTIONS } from '../../domain/vocab';
-import { getLater } from './laterStore';
 
 /** 관심 없음: 이유를 고르면 추천 규칙에 반영된다 */
 export function DismissModal({ program, onPick, onClose }: { program?: Program; onPick: (p: Program, kind: DislikeKind) => void; onClose: () => void }) {
@@ -44,7 +43,7 @@ export function LaterModal({ week, program, onPick, onClose }: { week: number; p
 }
 
 /** 나중에 보기로 미룬 활동 목록 */
-export function LaterDrawer({ open, programs, onClose, onBack, onPrepare }: { open: boolean; programs: Program[]; onClose: () => void; onBack: (p: Program) => void; onPrepare: (p: Program) => void }) {
+export function LaterDrawer({ open, programs, laterUntil, onClose, onBack, onPrepare }: { open: boolean; programs: Program[]; laterUntil: Record<string, number>; onClose: () => void; onBack: (p: Program) => void; onPrepare: (p: Program) => void }) {
   return (
     <Drawer open={open} title="나중에 보기" eyebrow="미뤄 둔 활동" onClose={onClose}>
       {programs.length === 0 ? (
@@ -52,7 +51,7 @@ export function LaterDrawer({ open, programs, onClose, onBack, onPrepare }: { op
       ) : (
         <ul className="rec-later">
           {programs.map(p => {
-            const until = getLater(p.id);
+            const until = laterUntil[p.id];
             return (
               <li key={p.id} className="rec-later__item">
                 <div>

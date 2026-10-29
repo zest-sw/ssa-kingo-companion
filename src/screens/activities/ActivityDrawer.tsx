@@ -5,7 +5,7 @@ import { PROGRAM_BY_ID } from '../../data/catalog';
 import type { Activity, ActivityStatus } from '../../domain/types';
 import { STATUS_LABEL } from '../../domain/vocab';
 import { ActivityMeta, StatusBadge, goInterview } from './ActivityCard';
-import { canQuit, dueView, quitPatch } from './helpers';
+import { canQuit, dueView } from './helpers';
 
 const FLOW: ActivityStatus[] = ['preparing', 'applied', 'ongoing', 'ended', 'recorded'];
 const DECLINED_FLOW: ActivityStatus[] = ['preparing', 'applied', 'declined'];
@@ -48,10 +48,9 @@ function Facts({ a }: { a: Activity }) {
 export function ActivityDrawer({ a, onClose }: { a: Activity | undefined; onClose: () => void }) {
   const { run } = useApp();
   const go = (path: string) => { onClose(); navigate(path); };
-  // 전역 상태에 활동을 지우는 액션이 없어, 그만두면 '이번엔 안 됨'(끝난 것)으로 옮긴다. ponytail: 지우는 액션이 생기면 바꾼다
   const quit = () => {
     if (!a) return;
-    run({ type: 'activity/update', id: a.id, patch: quitPatch() }, { toast: '활동을 그만뒀어요. 끝난 것에서 볼 수 있어요.', undoable: true });
+    run({ type: 'activity/remove', id: a.id }, { toast: '활동을 그만뒀어요.', undoable: true });
     onClose();
   };
 

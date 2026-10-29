@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
-import { Badge, Button, Card, Chip, Icon, Modal, type IconName } from '../../components';
+import { useChallenges } from '../../app/challenges';
+import { Badge, Button, Card, Chip, Icon, Modal, Switch, type IconName } from '../../components';
 import { isSensitive, publicActivities, toggled } from '../../domain/social';
 import { showcaseable } from '../../domain/challenges';
-import { useChallenges } from '../challenges/useChallenges';
-import { Switch } from '../challenges/Switch';
 
 const UNLOCKS: { icon: IconName; title: string; sub: string }[] = [
   { icon: 'friends', title: '친구 찾기', sub: '비슷한 학생과 서로 친구 맺기' },
