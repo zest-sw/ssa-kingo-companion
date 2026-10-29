@@ -56,11 +56,11 @@ UI를 만들거나 고쳤으면 실제 렌더를 직접 본다. 방법은 `docs/
 
 ```
 src/
-  app/        앱 틀(사이드바, 라우팅, 전역 상태 공급)
-  components/ 공용 UI (Card, Button, Chip, Modal, ...)
-  domain/     추천 규칙, 발견 생성 등 순수 로직 + 테스트
-  data/       예시 데이터 (화면별 파일로 나눈다)
-  screens/    화면별 폴더 (home, recommend, activities, records, analysis, challenges, friends)
+  app/        앱 틀: App(라우트 표), Sidebar, router(useRoute, navigate), AppState(useApp), state(reducer), kit/(#/_kit)
+  components/ 공용 UI. index.ts 에서만 가져온다 (Card, Button, Chip, Badge, FieldTag, Tabs, Drawer, Modal, Toast, ...)
+  domain/     추천 규칙, 발견 생성, 보드 칸 등 순수 로직 + 테스트, 공용 타입(types.ts)
+  data/       예시 데이터. 공용은 catalog·seed·options, 화면 전용은 <화면>.ts
+  screens/    화면별 폴더 (home, recommend, activities, records, analysis, challenges, friends). index.tsx 의 default export 가 화면
   styles/     tokens.css (토큰), base.css
 public/       qa-frame.html (폭별 확인용)
 docs/         product(기준), design(명세·목업), orchestration(작업 방식)
