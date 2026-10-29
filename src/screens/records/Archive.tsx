@@ -6,7 +6,8 @@ import { filterRecords, groupBySemester, groupsPresent, type ArchiveFilter } fro
 import type { RecordItem } from '../../domain/types';
 import { GROUP_LABEL } from '../../domain/vocab';
 import { AddRecordModal } from './AddRecordModal';
-import { cardOf, RecordDrawer } from './RecordDrawer';
+import { cardOf } from './cardOf';
+import { RecordDrawer } from './RecordDrawer';
 import { VerificationBadge } from './RecordCardView';
 import { RecordsTabs } from './RecordsTabs';
 
