@@ -1,0 +1,49 @@
+/* 내 활동 화면. 클래스는 act- 로 시작한다. 색·간격은 토큰만 쓴다. */
+.act-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); align-items: start; }
+.act-col { background: var(--bg-sunken); border-radius: var(--radius-lg); padding: var(--space-4); min-height: 360px; min-width: 0; }
+.act-col__head { display: flex; align-items: baseline; gap: var(--space-2); padding: var(--space-2) var(--space-3) var(--space-4); font-size: var(--text-xl); font-weight: var(--weight-bold); }
+.act-col__count { font-size: var(--text-lg); font-weight: var(--weight-medium); color: var(--ink-subtle); }
+.act-col__list { display: flex; flex-direction: column; gap: var(--space-3); }
+.act-col .ui-state { padding: var(--space-8) var(--space-4); }
+
+.act-card { position: relative; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); border-radius: var(--radius-md); background: var(--surface); min-width: 0; }
+.act-card:hover { background: var(--surface-alt); }
+.act-card__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.act-card__title { font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+/* 제목 버튼이 카드 전체를 누르는 영역이 된다. 회고 쓰기 버튼은 그 위에 둔다. */
+.act-card__open { all: unset; cursor: pointer; }
+.act-card__open::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-md); }
+.act-card__open:focus-visible::after { box-shadow: var(--focus-ring); }
+.act-card__meta { font-size: var(--text-md); color: var(--ink-muted); }
+.act-card__cta { position: relative; z-index: 1; margin-top: var(--space-1); }
+.act-card .ui-progress { margin-top: var(--space-1); }
+
+.act-list__tools { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
+.act-table { width: 100%; border-collapse: collapse; }
+.act-table th, .act-table td { padding: var(--space-3); text-align: left; border-bottom: var(--border); vertical-align: middle; }
+.act-table thead th { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--ink-muted); }
+.act-table tbody tr:last-child > * { border-bottom: 0; }
+.act-table tbody th { font-weight: var(--weight-bold); font-size: var(--text-lg); }
+.act-table__open { all: unset; cursor: pointer; display: inline-flex; align-items: center; min-height: var(--hit-min); border-radius: var(--radius-sm); }
+.act-table__open:hover { text-decoration: underline; }
+.act-table__open:focus-visible { box-shadow: var(--focus-ring); }
+.act-table__meta { color: var(--ink-muted); }
+.act-table__act { text-align: right; white-space: nowrap; }
+
+.act-drawer { display: flex; flex-direction: column; gap: var(--space-6); }
+.act-drawer__line { color: var(--ink-muted); }
+.act-stages { display: flex; justify-content: space-between; gap: var(--space-2); }
+.act-stage { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); font-size: var(--text-xs); color: var(--ink-subtle); }
+.act-stage__dot { width: 12px; height: 12px; border-radius: var(--radius-full); border: 1.5px solid var(--line-strong); background: var(--surface); }
+.act-stage[data-state='past'] .act-stage__dot { background: var(--green-900); border-color: var(--green-900); }
+.act-stage[data-state='now'] { color: var(--ink); font-weight: var(--weight-bold); }
+.act-stage[data-state='now'] .act-stage__dot { background: var(--surface); border: 4px solid var(--green-900); }
+.act-facts { display: flex; flex-direction: column; }
+.act-facts > div { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: var(--space-3); padding: var(--space-3) 0; border-top: var(--border); align-items: center; }
+.act-facts dt { font-size: var(--text-sm); color: var(--ink-muted); }
+
+@media (max-width: 1199px) {
+  .act-board { gap: var(--space-3); }
+  .act-col { padding: var(--space-3); }
+  .act-card { padding: var(--space-4); }
+}

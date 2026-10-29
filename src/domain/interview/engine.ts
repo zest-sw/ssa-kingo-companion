@@ -22,7 +22,7 @@ export function firstMissing(card: RecordCard): Step {
   return CARD_STEPS.find(s => !card[s]?.trim()) ?? 'review';
 }
 
-const ask = (step: Step, title: string) => (isCardStep(step) ? QUESTION[step](title) : REVIEW_PROMPT);
+export const ask = (step: Step, title: string) => (isCardStep(step) ? QUESTION[step](title) : REVIEW_PROMPT);
 
 /**
  * 인터뷰 시작. 상황은 에이전트가 활동 정보로 먼저 채우고, 빠진 것만 묻는다.
