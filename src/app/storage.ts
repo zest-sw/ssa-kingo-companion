@@ -1,11 +1,11 @@
 import { parseAnswers, pruneAnswers, type EdgeAnswers } from '../domain/analysis/map';
 import { parseSelf, type Level } from '../domain/analysis/strengths';
 import { parseDrafts, type InterviewDraft } from '../domain/interview/draft';
-import type { Activity, Axis, CandidateChoice, Field, Profile, Visibility } from '../domain/types';
+import type { Activity, Axis, CandidateChoice, Field, NotifyHour, NotifyPrefs, Profile, Settings, Visibility } from '../domain/types';
 import { SEED_ACTIVITIES } from '../data/seed';
-import { DEFAULT_VISIBILITY, INITIAL_STATE, type AppState } from './state';
+import { DEFAULT_NOTIFY, DEFAULT_SETTINGS, DEFAULT_VISIBILITY, INITIAL_STATE, type AppState } from './state';
 
-// 학생이 고른 것만 브라우저에 남긴다: 프로필, 공개 설정, 추천에서 고른 것, 신청 준비로 만든 활동, 쓰던 회고 초안, 분석에서 답한 것.
+// 학생이 고른 것만 브라우저에 남긴다: 프로필, 공개 설정, 데이터·알림 설정, 추천에서 고른 것, 신청 준비로 만든 활동, 쓰던 회고 초안, 분석에서 답한 것.
 // 예시 기록·예시 활동의 변화는 남기지 않는다. 새로고침하면 예시 상태로 돌아간다.
 const KEY = 'kingo-companion:v1';
 /** 나의 분석이 따로 쓰던 옛 키. 읽어서 한 번 옮기고 지운다. */
@@ -24,6 +24,8 @@ export type Saved = {
   drafts?: Record<string, InterviewDraft>;
   edgeAnswers?: EdgeAnswers;
   selfLevels?: Record<Axis, Level>;
+  settings?: Settings;
+  notify?: NotifyPrefs;
 };
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null;
@@ -35,7 +37,13 @@ function readJson(key: string): unknown {
   return raw === null ? null : JSON.parse(raw);
 }
 
-const pickRecord = <T,>(raw: unknown, ok: (v: unknown) => v is T): Record<string, T> =>
+const HOURS: readonly unknown[] = [9, 12, 19] satisfies NotifyHour[];
+
+/** 기본값에 있는 켬/끔 키 중 불린인 것만 */
+const pickFlags = (raw: unknown, base: object): Record<string, boolean> =>
+  isObj(raw) ? Object.fromEntries(Object.keys(base).filter(k => typeof raw[k] === 'boolean').map(k => [k, raw[k] as boolean])) : {};
+
+const pickRecord =<T,>(raw: unknown, ok: (v: unknown) => v is T): Record<string, T> =>
   isObj(raw) ? Object.fromEntries(Object.entries(raw).filter((e): e is [string, T] => ok(e[1]))) : {};
 
 /** 저장한 값을 예시 상태 위에 얹는다. 모양이 틀린 조각은 버리고 예시 값을 쓴다. */
@@ -55,6 +63,8 @@ export function restoreSaved(s: unknown, legacy: { answers?: unknown; self?: unk
     profile: { ...INITIAL_STATE.profile, ...saved.profile },
     onboarded: saved.onboarded === true,
     visibility: { ...DEFAULT_VISIBILITY, ...(isObj(saved.visibility) ? saved.visibility : {}) },
+    settings: { ...DEFAULT_SETTINGS, ...pickFlags(saved.settings, DEFAULT_SETTINGS) },
+    notify: { ...DEFAULT_NOTIFY, ...pickFlags(saved.notify, DEFAULT_NOTIFY), hour: isObj(saved.notify) && HOURS.includes(saved.notify.hour) ? (saved.notify.hour as NotifyHour) : DEFAULT_NOTIFY.hour },
     choices: pickRecord(saved.choices, (v): v is CandidateChoice => CHOICES.includes(v)),
     laterUntil: pickRecord(saved.laterUntil, (v): v is number => typeof v === 'number'),
     dislikedFields: Array.isArray(saved.dislikedFields) ? saved.dislikedFields : [],
@@ -72,7 +82,8 @@ export function toSaved(state: AppState): Saved {
     profile: state.profile, onboarded: state.onboarded, visibility: state.visibility,
     choices: state.choices, laterUntil: state.laterUntil, dislikedFields: state.dislikedFields, preferEasier: state.preferEasier,
     addedActivities: state.activities.filter(a => !SEED_IDS.has(a.id)),
-    drafts: state.drafts, edgeAnswers: state.edgeAnswers, selfLevels: state.selfLevels
+    drafts: state.drafts, edgeAnswers: state.edgeAnswers, selfLevels: state.selfLevels,
+    settings: state.settings, notify: state.notify
   };
 }
 

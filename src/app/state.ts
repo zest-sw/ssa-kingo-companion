@@ -8,7 +8,7 @@ import { pruneByKeys } from '../domain/interview/prune';
 import { activityOfRecord, recordedPatch, unrecordedPatch } from '../domain/interview/transitions';
 import { prepProgress } from '../domain/recommend-flow/flow';
 import type { RecruitPost } from '../domain/social';
-import type { Activity, ActivityStatus, Axis, CandidateChoice, Confirm, Discovery, DislikeKind, Field, LastDone, PrepItem, Profile, RecordItem, Settings, Visibility } from '../domain/types';
+import type { Activity, ActivityStatus, Axis, CandidateChoice, Confirm, Discovery, DislikeKind, Field, LastDone, NotifyPrefs, PrepItem, Profile, RecordItem, Settings, Visibility } from '../domain/types';
 import { DID_AXES } from '../domain/vocab';
 import { INITIAL_SELF } from '../data/analysis';
 import { INITIAL_REQ_EVIDENCE, PROGRAM_BY_ID } from '../data/catalog';
@@ -32,6 +32,8 @@ export type AppState = {
   confirm: Record<string, Confirm>;
   lastDone: LastDone | null;
   settings: Settings;
+  /** 알림 설정(예시). 실제 발송은 없다 */
+  notify: NotifyPrefs;
   visibility: Visibility;
   /** 채용 요건별 근거 기록 id */
   reqEvidence: Record<string, string[]>;
@@ -68,12 +70,16 @@ export type Action =
   | { type: 'challenge/achieve'; ids: string[]; at: number }
   | { type: 'recruit/post'; post: RecruitPost }
   | { type: 'settings/toggle'; key: keyof Settings }
+  | { type: 'notify/set'; patch: Partial<NotifyPrefs> }
   | { type: 'visibility/set'; patch: Partial<Visibility> }
   /** 되돌리기: 그 행동이 바꾼 조각만 이전 값으로 돌린다 */
   | { type: 'undo'; patch: Partial<AppState> }
   | { type: 'reset' };
 
 export const DEFAULT_VISIBILITY: Visibility = { profilePublic: false, hallOfFameConsent: false, hiddenActivityIds: [], sharedRecordIds: [], showcaseChallengeIds: [] };
+
+export const DEFAULT_SETTINGS: Settings = { discover: true, career: true };
+export const DEFAULT_NOTIFY: NotifyPrefs = { newCandidates: true, dayBefore: true, retro: true, hour: 9 };
 
 export const INITIAL_STATE: AppState = {
   week: 1,
@@ -87,7 +93,8 @@ export const INITIAL_STATE: AppState = {
   records: SEED_RECORDS,
   confirm: {},
   lastDone: null,
-  settings: { discover: true, career: true },
+  settings: DEFAULT_SETTINGS,
+  notify: DEFAULT_NOTIFY,
   visibility: DEFAULT_VISIBILITY,
   reqEvidence: INITIAL_REQ_EVIDENCE,
   drafts: {},
@@ -206,6 +213,8 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, recruitPosts: [action.post, ...state.recruitPosts] };
     case 'settings/toggle':
       return { ...state, settings: { ...state.settings, [action.key]: !state.settings[action.key] } };
+    case 'notify/set':
+      return { ...state, notify: { ...state.notify, ...action.patch } };
     case 'visibility/set': {
       const visibility = { ...state.visibility, ...action.patch };
       // 비공개로 돌리면 명예의 전당 동의도 함께 거둔다.
