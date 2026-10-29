@@ -28,12 +28,12 @@ export function writeDraft(p: Program, records: RecordItem[], goal: string, revi
 export type LogEntry = { time: string; text: string; ok: boolean };
 
 /** 에이전트 실행 기록: 한 일과 못 한 일 */
-export function runLog(needsLogin: boolean, team: boolean): LogEntry[] {
+export function runLog(needsLogin: boolean, team: boolean, draftReady = true): LogEntry[] {
   const log: LogEntry[] = [
     { time: '21:38', text: '신청 대상을 확인했어요', ok: true },
-    { time: '21:39', text: '일정을 캘린더에 등록했어요', ok: true },
-    { time: '21:40', text: '신청서 초안을 썼어요', ok: true }
+    { time: '21:39', text: '일정을 캘린더에 등록했어요', ok: true }
   ];
+  if (draftReady) log.push({ time: '21:40', text: '신청서 초안을 썼어요', ok: true });
   if (needsLogin) log.push({ time: '21:40', text: '사전 설문을 채우지 못했어요. 로그인이 필요해요', ok: false });
   if (team) log.push({ time: '21:41', text: '팀원을 찾지 못했어요. 모집 글은 내가 올려요', ok: false });
   return log;

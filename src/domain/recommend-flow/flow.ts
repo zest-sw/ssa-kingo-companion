@@ -89,3 +89,15 @@ export function funnelSteps(f: Funnel): { label: string; count: number }[] {
     { label: '아직 고르지 않음', count: f.fresh }
   ];
 }
+
+/** 맞는 후보가 없을 때 왜 그런지 한 줄. 거르기 단계 중 처음 0이 되는 곳을 짚는다. */
+export function emptyReason(f: Funnel): string {
+  if (f.pool === 0) return '이번 주에 모집 중인 활동이 없어요.';
+  if (f.open === 0 || f.eligible === 0) return '신청할 수 있는 활동이 없어요.';
+  if (f.fit === 0) return '내 시간·방식에 맞는 활동이 없어요. 시간이나 방식을 바꾸면 더 보여요.';
+  return '맞는 활동을 모두 골랐어요. 나중에 보기에 둔 활동을 다시 볼 수 있어요.';
+}
+
+/** 방식 칸: 온라인이면 장소를 또 적지 않는다. */
+export const formatText = (p: Program): { main: string; sub?: string } =>
+  p.format === 'online' ? { main: '온라인' } : { main: '직접 만나서', sub: p.place };

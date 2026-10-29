@@ -3,7 +3,7 @@ import { discoveriesOf, discState } from '../discoveries';
 import { prog, rec } from '../fixtures.test-util';
 import type { Activity } from '../types';
 import { relatedRecords, runLog, writeDraft } from './draft';
-import { dateLabel, funnelSteps, mostUrgent, needsTeam, overlapsSchedule, parseRecommendSub, prepItemsFor, prepProgress, remainingItems, submitBlockReason, toggleItem } from './flow';
+import { dateLabel, emptyReason, funnelSteps, mostUrgent, needsTeam, overlapsSchedule, parseRecommendSub, prepItemsFor, prepProgress, remainingItems, submitBlockReason, toggleItem } from './flow';
 import { dueToday, evidenceRows, homeCounts, interestFlow, semesterLabel } from './home';
 
 describe('parseRecommendSub', () => {
@@ -80,6 +80,16 @@ describe('겹침·날짜·고른 방법', () => {
   it('고른 방법은 다섯 단계 개수를 그대로 낸다', () => {
     const s = funnelSteps({ pool: 10, open: 9, eligible: 8, fit: 5, fresh: 3 });
     expect(s.map(x => x.count)).toEqual([10, 9, 8, 5, 3]);
+  });
+});
+
+describe('emptyReason', () => {
+  const f = { pool: 5, open: 5, eligible: 5, fit: 5, fresh: 0 };
+  it('처음 0이 되는 단계를 짚는다', () => {
+    expect(emptyReason({ ...f, pool: 0, open: 0, eligible: 0, fit: 0 })).toContain('모집 중인 활동이 없어요');
+    expect(emptyReason({ ...f, eligible: 0, fit: 0 })).toContain('신청할 수 있는');
+    expect(emptyReason({ ...f, fit: 0 })).toContain('시간·방식');
+    expect(emptyReason(f)).toContain('나중에 보기');
   });
 });
 
