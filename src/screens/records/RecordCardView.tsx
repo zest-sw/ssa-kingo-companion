@@ -48,6 +48,8 @@ function Field({ step, value, current, onEdit }: { step: CardStep; value?: strin
 
 export type RecordCardViewProps = {
   title: string;
+  /** 서랍처럼 제목이 이미 머리에 있으면 카드 머리의 제목은 생략 */
+  bare?: boolean;
   meta: string;
   verification: 'school' | 'self';
   card: RecordCard;
@@ -71,8 +73,7 @@ export function RecordCardView(p: RecordCardViewProps) {
   return (
     <div className="rec-card">
       <header className="rec-card__head">
-        <p className="rec-card__eyebrow">기록 카드</p>
-        <h2 className="rec-card__title">{p.title}</h2>
+        {!p.bare && <><p className="rec-card__eyebrow">기록 카드</p><h2 className="rec-card__title">{p.title}</h2></>}
         <p className="rec-card__meta">{p.meta} <VerificationBadge v={p.verification} /></p>
       </header>
 
@@ -113,7 +114,7 @@ export function RecordCardView(p: RecordCardViewProps) {
         </div>
         {!p.profilePublic && <p className="rec-setting__hint">프로필을 공개하면 열려요.</p>}
         <div className="rec-setting">
-          <span id="rec-use">추천에 쓰기</span>
+          <span>추천에 쓰기</span>
           <Switch checked={p.useForRecommend} onChange={p.onUseForRecommend} label="추천에 쓰기" />
         </div>
       </footer>

@@ -49,7 +49,7 @@ export function AddRecordModal({ open, onClose }: { open: boolean; onClose: () =
           끝난 뒤 에너지
           <span className="rec-quick">{ENERGY.map(e => <Chip key={e.id} selected={energy === e.id} onClick={() => setEnergy(e.id)}>{e.label}</Chip>)}</span>
         </div>
-        <label className="rec-form__field">한마디 <span className="rec-form__opt">(선택)</span>
+        <label className="rec-form__field"><span>한마디 <span className="rec-form__opt">(선택)</span></span>
           <input className="rec-input" value={quote} onChange={e => setQuote(e.target.value)} placeholder={QUOTE_HINTS[inferDid(note)][0]} />
         </label>
       </form>

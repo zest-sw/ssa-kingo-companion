@@ -40,6 +40,7 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
   return (
     <div className="rec-drawer">
       <RecordCardView
+        bare
         title={r.title}
         meta={meta}
         verification={r.verification}
