@@ -23,12 +23,12 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
       <DiscoveryCards />
       <Card
         title="경험 지도"
-        action={
+        action={records.length === 0 ? undefined : (
           <ul className="an-legend an-legend--inline" aria-label="선 표시">
             <li><span className="an-key an-key--yes" aria-hidden="true" />확인한 연결</li>
             <li><span className="an-key an-key--est" aria-hidden="true" />AI 추정</li>
           </ul>
-        }
+        )}
       >
         {records.length === 0 ? (
           <EmptyState icon="records" title="아직 기록이 없어요" message="회고를 쓰면 기록이 점으로 생기고, 같은 일을 한 기록끼리 이어져요." action={<Button variant="primary" onClick={() => navigate('records')}>회고 쓰러 가기</Button>} />
