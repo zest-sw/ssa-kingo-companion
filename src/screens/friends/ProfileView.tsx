@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, EmptyState, FieldTag, Icon, useToast } from '../../components';
+import { Badge, Button, Card, EmptyState, Icon, useToast } from '../../components';
 import { showcaseable } from '../../domain/challenges';
 import { publicActivities, publicRecords } from '../../domain/social';
-import { FIELD_LABEL } from '../../domain/vocab';
+import { FIELD_GROUP, FIELD_LABEL } from '../../domain/vocab';
 import { DONE_BY, FEED, FRIENDS, INCOMING, SIMILAR_PEERS, type Peer } from '../../data/friends';
 import { useChallenges } from '../challenges/useChallenges';
 
@@ -58,7 +58,7 @@ export function ProfileView() {
         <Card title="공개한 활동 경로">
           {acts.length ? (
             <ul className="fr-chips">
-              {acts.map(a => <li key={a.id} className="fr-path"><FieldTag field={a.field} /><span>{a.title}</span></li>)}
+              {acts.map(a => <li key={a.id} className="fr-path"><span className={`ui-field__dot ui-field__dot--${FIELD_GROUP[a.field]}`} aria-hidden="true" /><span>{a.title}</span></li>)}
             </ul>
           ) : (
             <EmptyState icon="flag" message="보여 줄 활동이 없어요. 공개 설정에서 보일 활동을 골라 보세요." action={<Button size="sm" onClick={() => navigate('friends/visibility')}>공개 설정 보기</Button>} />

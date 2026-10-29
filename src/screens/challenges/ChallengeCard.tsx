@@ -45,7 +45,7 @@ export function ChallengeCard({ item, showcased, onShowcase }: Props) {
         <>
           {def.note ? <p className="ch-card__meta">{def.note}</p> : <ProgressBar value={progress.value} max={progress.max} label={`${def.name} 진행도`} showText />}
           <div className="ch-card__foot">
-            <span>{def.hidden ? '숨은 도전 과제' : '진행 중'}</span>
+            <span>{def.hidden ? '숨은 도전 과제' : progress.value > 0 ? '진행 중' : '시작 전'}</span>
             {rarity}
           </div>
         </>
