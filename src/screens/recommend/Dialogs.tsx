@@ -97,13 +97,13 @@ export function ProfileDrawer({ open, profile, onSave, onClose }: { open: boolea
       <section className="rec-prof" aria-labelledby="prof-t">
         <h3 id="prof-t" className="rec-prof__h">한 주에 쓸 시간</h3>
         <div className="rec-prof__chips">
-          {TIME_OPTIONS.map(o => <Chip key={o.value} selected={draft.time === o.value} onClick={() => setDraft({ ...draft, time: o.value })}>{o.label}</Chip>)}
+          {TIME_OPTIONS.map(o => <Chip key={o.value} selected={draft.time === o.value} onClick={() => setDraft(d => ({ ...d, time: o.value }))}>{o.label}</Chip>)}
         </div>
       </section>
       <section className="rec-prof" aria-labelledby="prof-f">
         <h3 id="prof-f" className="rec-prof__h">방식</h3>
         <div className="rec-prof__chips">
-          {FORMAT_OPTIONS.map(o => <Chip key={o.value} selected={draft.format === o.value} onClick={() => setDraft({ ...draft, format: o.value })}>{o.label}</Chip>)}
+          {FORMAT_OPTIONS.map(o => <Chip key={o.value} selected={draft.format === o.value} onClick={() => setDraft(d => ({ ...d, format: o.value }))}>{o.label}</Chip>)}
         </div>
       </section>
     </Drawer>

@@ -80,7 +80,7 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
             <p className="home-onb__label" id="onb-time">시간</p>
             <div className="home-onb__options" role="group" aria-labelledby="onb-time">
               {TIME_OPTIONS.map(o => (
-                <button key={o.value} type="button" className="home-onb__option" aria-pressed={draft.time === o.value} onClick={() => setDraft({ ...draft, time: o.value })}>
+                <button key={o.value} type="button" className="home-onb__option" aria-pressed={draft.time === o.value} onClick={() => setDraft(d => ({ ...d, time: o.value }))}>
                   <b>{o.label}</b><span>{o.sub}</span>
                 </button>
               ))}
@@ -90,7 +90,7 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
             <p className="home-onb__label" id="onb-format">방식</p>
             <div className="home-onb__options" role="group" aria-labelledby="onb-format">
               {FORMAT_OPTIONS.map(o => (
-                <button key={o.value} type="button" className="home-onb__option" aria-pressed={draft.format === o.value} onClick={() => setDraft({ ...draft, format: o.value })}>
+                <button key={o.value} type="button" className="home-onb__option" aria-pressed={draft.format === o.value} onClick={() => setDraft(d => ({ ...d, format: o.value }))}>
                   <b>{o.label}</b><span>{o.sub}</span>
                 </button>
               ))}
@@ -105,10 +105,10 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
           <p className="home-onb__sub">비워 둬도 돼요. 나중에 바꿀 수 있어요</p>
           <label className="home-onb__field">
             <span className="sr-only">목표</span>
-            <input className="home-onb__input" value={draft.goal} maxLength={40} placeholder="예: 서비스 기획 직무" onChange={e => setDraft({ ...draft, goal: e.target.value })} />
+            <input className="home-onb__input" value={draft.goal} maxLength={40} placeholder="예: 서비스 기획 직무" onChange={e => { const goal = e.target.value; setDraft(d => ({ ...d, goal })); }} />
           </label>
           <div className="home-onb__chips" role="group" aria-label="목표 예시">
-            {GOAL_SUGGESTIONS.map(g => <Chip key={g} selected={draft.goal === g} onClick={() => setDraft({ ...draft, goal: draft.goal === g ? '' : g })}>{g}</Chip>)}
+            {GOAL_SUGGESTIONS.map(g => <Chip key={g} selected={draft.goal === g} onClick={() => setDraft(d => ({ ...d, goal: d.goal === g ? '' : g }))}>{g}</Chip>)}
           </div>
         </section>
       )}

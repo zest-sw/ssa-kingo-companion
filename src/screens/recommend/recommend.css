@@ -79,8 +79,8 @@
 .rec-table__diff { display: block; margin-top: var(--space-1); font-size: var(--text-sm); color: var(--green-900); font-weight: var(--weight-medium); }
 .rec-table .rec-col--top { background: var(--lime-100); }
 .rec-table__acts td { border-top: var(--border); }
-.rec-table__sub { display: flex; justify-content: center; gap: var(--space-1); margin-top: var(--space-2); }
-.rec-table__sub .ui-btn--sm { padding: 0 var(--space-2); }
+.rec-table__sub { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-1); margin-top: var(--space-2); }
+.rec-table__sub .ui-btn--sm { padding: 0 var(--space-2); white-space: normal; }
 .rec-compare__ok { margin-top: var(--space-4); }
 .rec-fact__accent { color: var(--orange-500); }
 
@@ -119,6 +119,8 @@
 
 @media (max-width: 1399px) {
   .rec-top { grid-template-columns: minmax(0, 1fr) 300px; gap: var(--space-6); }
+  .rec-top__title { font-size: var(--text-3xl); }
+  .rec-fact dd:not(.rec-fact__sub) { font-size: var(--text-xl); }
   .rec-prep { grid-template-columns: minmax(0, 1fr) minmax(0, 420px); }
 }
 @media (max-width: 1199px) {
