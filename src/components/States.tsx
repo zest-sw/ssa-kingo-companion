@@ -6,7 +6,7 @@ import { Icon, type IconName } from './Icon';
 export function EmptyState({ icon = 'leaf', title, message, action }: { icon?: IconName; title?: ReactNode; message: ReactNode; action?: ReactNode }) {
   return (
     <div className="ui-state">
-      <span className="ui-state__icon"><Icon name={icon} size={24} /></span>
+      <span className="ui-state__icon"><Icon name={icon} size={20} /></span>
       {title && <p className="ui-state__title">{title}</p>}
       <p className="ui-state__msg">{message}</p>
       {action && <div className="ui-state__action">{action}</div>}
@@ -18,7 +18,7 @@ export function EmptyState({ icon = 'leaf', title, message, action }: { icon?: I
 export function ErrorState({ message = '불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.', onRetry }: { message?: ReactNode; onRetry: () => void }) {
   return (
     <div className="ui-state ui-state--error" role="alert">
-      <span className="ui-state__icon"><Icon name="alert" size={24} /></span>
+      <span className="ui-state__icon"><Icon name="alert" size={20} /></span>
       <p className="ui-state__msg">{message}</p>
       <div className="ui-state__action"><Button size="sm" icon="refresh" onClick={onRetry}>다시 시도</Button></div>
     </div>

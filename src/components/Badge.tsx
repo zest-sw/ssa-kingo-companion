@@ -10,7 +10,7 @@ export type BadgeTone = 'neutral' | 'green' | 'navy' | 'orange' | 'lime' | 'soli
 export function Badge({ tone = 'neutral', icon, children }: { tone?: BadgeTone; icon?: IconName; children: ReactNode }) {
   return (
     <span className={`ui-badge ui-badge--${tone}`}>
-      {icon && <Icon name={icon} size={14} />}
+      {icon && <Icon name={icon} size={12} />}
       {children}
     </span>
   );

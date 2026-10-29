@@ -15,7 +15,7 @@ export function Button({ variant = 'secondary', size = 'md', icon, block, classN
   const cls = ['ui-btn', `ui-btn--${variant}`, size === 'sm' && 'ui-btn--sm', block && 'ui-btn--block', className].filter(Boolean).join(' ');
   return (
     <button type={type} className={cls} {...rest}>
-      {icon && <Icon name={icon} size={size === 'sm' ? 16 : 18} />}
+      {icon && <Icon name={icon} size={16} />}
       {children}
     </button>
   );
@@ -25,7 +25,7 @@ export function Button({ variant = 'secondary', size = 'md', icon, block, classN
 export function IconButton({ icon, label, className, type = 'button', ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { icon: IconName; label: string }) {
   return (
     <button type={type} className={['ui-icon-btn', className].filter(Boolean).join(' ')} aria-label={label} title={label} {...rest}>
-      <Icon name={icon} size={18} />
+      <Icon name={icon} size={16} />
     </button>
   );
 }
