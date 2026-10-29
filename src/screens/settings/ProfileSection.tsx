@@ -17,8 +17,8 @@ export function ProfileSection() {
   const [draft, setDraft] = useState(state.profile);
   const [saved, setSaved] = useState(false);
   const dirty = !same(draft, state.profile);
-  const edit = (patch: Partial<Profile>) => { setDraft(d => ({ ...d, ...patch })); setSaved(false); };
-  const toggle = (id: Interest) => edit({ interests: toggleInterest(draft.interests, id) });
+  const edit = (patch: (d: Profile) => Partial<Profile>) => { setDraft(d => ({ ...d, ...patch(d) })); setSaved(false); };
+  const toggle = (id: Interest) => edit(d => ({ interests: toggleInterest(d.interests, id) }));
 
   const save = () => {
     run({ type: 'profile/save', profile: { ...draft, goal: draft.goal.trim() } }, { toast: '저장했어요. 바뀐 조건으로 추천을 다시 골랐어요.' });
@@ -34,18 +34,18 @@ export function ProfileSection() {
       </Group>
       <Group title="한 주에 쓸 시간" sub="이보다 오래 걸리는 활동은 뒤로 미뤄요">
         <div className="st-chips">
-          {TIME_OPTIONS.map(o => <Chip key={o.value} selected={draft.time === o.value} onClick={() => edit({ time: o.value })}>{o.label}</Chip>)}
+          {TIME_OPTIONS.map(o => <Chip key={o.value} selected={draft.time === o.value} onClick={() => edit(() => ({ time: o.value }))}>{o.label}</Chip>)}
         </div>
       </Group>
       <Group title="방식">
         <div className="st-chips">
-          {FORMAT_OPTIONS.map(o => <Chip key={o.value} selected={draft.format === o.value} onClick={() => edit({ format: o.value })} title={o.sub}>{o.label}</Chip>)}
+          {FORMAT_OPTIONS.map(o => <Chip key={o.value} selected={draft.format === o.value} onClick={() => edit(() => ({ format: o.value }))} title={o.sub}>{o.label}</Chip>)}
         </div>
       </Group>
       <Group title="목표" sub="신청서 초안의 지원 동기에 써요. 비워 둬도 돼요">
         <label className="st-field">
           <span className="sr-only">목표</span>
-          <input className="st-input" value={draft.goal} maxLength={40} placeholder="예: 서비스 기획 직무" onChange={e => edit({ goal: e.target.value })} />
+          <input className="st-input" value={draft.goal} maxLength={40} placeholder="예: 서비스 기획 직무" onChange={e => { const goal = e.target.value; edit(() => ({ goal })); }} />
         </label>
       </Group>
       <div className="st-foot">
