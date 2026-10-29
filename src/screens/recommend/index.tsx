@@ -7,7 +7,7 @@ import { pickAlternatives } from '../../domain/recommend';
 import { laterUntilDay, parseRecommendSub, prepareHref } from '../../domain/recommend-flow/flow';
 import type { DislikeKind, Program } from '../../domain/types';
 import { CompareView } from './CompareView';
-import { DismissModal, LaterDrawer, LaterModal, ProfileDrawer } from './Dialogs';
+import { DismissModal, LaterDrawer, LaterModal } from './Dialogs';
 import { PrepareView } from './PrepareView';
 import { TopView } from './TopView';
 import './recommend.css';
@@ -20,7 +20,6 @@ export default function RecommendScreen({ sub }: ScreenProps) {
   const [dismissing, setDismissing] = useState<Program>();
   const [postponing, setPostponing] = useState<Program>();
   const [laterOpen, setLaterOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
 
   const prepare = (p: Program) => {
     run({ type: 'candidate/choose', programId: p.id, choice: 'preparing' });
@@ -55,7 +54,7 @@ export default function RecommendScreen({ sub }: ScreenProps) {
       />
       {compare
         ? <CompareView scored={view.scored} week={state.week} records={state.records} interests={state.profile.interests} activities={state.activities} actions={actions} />
-        : <TopView primary={focus ?? view.primary} isPrimary={!focus || focus.p.id === view.primary?.p.id} alternatives={focus ? pickAlternatives(view.scored, focus.p) : view.alternatives} week={state.week} funnel={view.funnel} records={state.records} activities={state.activities} actions={actions} onChangeProfile={() => setProfileOpen(true)} />}
+        : <TopView primary={focus ?? view.primary} isPrimary={!focus || focus.p.id === view.primary?.p.id} alternatives={focus ? pickAlternatives(view.scored, focus.p) : view.alternatives} week={state.week} funnel={view.funnel} records={state.records} activities={state.activities} actions={actions} onChangeProfile={() => navigate('settings/profile')} />}
 
       <DismissModal program={dismissing} onPick={dismiss} onClose={() => setDismissing(undefined)} />
       <LaterModal week={state.week} program={postponing} onPick={postpone} onClose={() => setPostponing(undefined)} />
@@ -67,14 +66,6 @@ export default function RecommendScreen({ sub }: ScreenProps) {
         onBack={p => { run({ type: 'candidate/clear', programId: p.id }, { toast: '추천 목록으로 돌려놨어요.' }); }}
         onPrepare={p => { setLaterOpen(false); prepare(p); }}
       />
-      {profileOpen && (
-        <ProfileDrawer
-          open
-          profile={state.profile}
-          onClose={() => setProfileOpen(false)}
-          onSave={profile => { setProfileOpen(false); run({ type: 'profile/save', profile }, { toast: '바뀐 조건으로 다시 골랐어요.' }); }}
-        />
-      )}
     </>
   );
 }

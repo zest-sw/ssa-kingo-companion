@@ -23,22 +23,6 @@
 .fr-gate__item-title { font-weight: var(--weight-bold); }
 .fr-gate__item-sub { color: var(--ink-muted); font-size: var(--text-sm); }
 
-/* 공개 설정 */
-.fr-status { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-md); background: var(--surface-alt); }
-.fr-status__label { font-size: var(--text-sm); color: var(--ink-muted); }
-.fr-status__value { font-size: var(--text-3xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
-.fr-status__sub { font-size: var(--text-md); color: var(--ink-muted); }
-.fr-list { display: flex; flex-direction: column; }
-.fr-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: var(--border); }
-.fr-row:last-child { border-bottom: 0; }
-.fr-row__icon { display: grid; place-items: center; width: var(--space-10); height: var(--space-10); border-radius: var(--radius-md); background: var(--grey-100); color: var(--ink-muted); flex: none; }
-.fr-row__text { flex: 1; min-width: 0; }
-.fr-row__title { font-weight: var(--weight-bold); }
-.fr-row__sub { color: var(--ink-muted); font-size: var(--text-sm); }
-.fr-cta { margin-top: var(--space-6); }
-.fr-pick { margin-top: var(--space-4); }
-.fr-pick__group .fr-sub-title { margin-top: var(--space-4); }
-.fr-pick__group:first-of-type .fr-sub-title { margin-top: 0; }
 
 /* 프로필 */
 .fr-avatar { display: grid; place-items: center; width: var(--space-10); height: var(--space-10); border-radius: var(--radius-full); background: var(--primary-soft); color: var(--primary); font-weight: var(--weight-bold); flex: none; }
