@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Badge, Button, Card, EmptyState } from '../../components';
 import { navigate } from '../../app/router';
 import { ddayOf, diffLabel, mainReason } from '../../domain/recommend';
-import { dateLabel, formatText, needsTeam, overlapsSchedule, prepItemsFor } from '../../domain/recommend-flow/flow';
+import { checksOf, dateLabel, formatText, isNearDeadline, prepItemsFor } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import type { Activity, Interest, Program, RecordItem, Scored } from '../../domain/types';
 import { DID_LABEL, FIELD_LABEL } from '../../domain/vocab';
@@ -20,25 +20,25 @@ export function CompareView({ scored, week, records, interests, activities, acti
   }
   const base = cols[0].p;
   const tried = new Set(records.map(r => r.field));
-  const allFit = cols.every(c => c.p.eligible && !overlapsSchedule(c.p, activities));
+  const allFit = cols.every(c => { const k = checksOf(c.p, activities); return k.eligible && !k.overlap; });
 
   const rows: { label: string; cell: (p: Program, s: Scored) => ReactNode }[] = [
-    { label: '마감', cell: p => { const d = ddayOf(p, week); return <><b className={d <= 3 ? 'rec-fact__accent num' : 'num'}>{ddayText(d)}</b> · {dateLabel(d, week)}</>; } },
+    { label: '마감', cell: p => { const d = ddayOf(p, week); return <><b className={isNearDeadline(d) ? 'rec-fact__accent num' : 'num'}>{ddayText(d)}</b> · {dateLabel(d, week)}</>; } },
     { label: '활동 기간', cell: p => p.when },
     { label: '방식', cell: p => { const f = formatText(p); return f.sub ? `${f.main} · ${f.sub}` : f.main; } },
     { label: '필요한 시간', cell: p => p.durationLabel },
-    { label: '신청 대상', cell: p => `${p.target}${p.eligible ? ' · 맞음' : ''}` },
-    { label: '준비할 것', cell: p => `${prepItemsFor(p, week).filter(i => i.by === 'me').length}개${needsTeam(p) ? ' · 팀 필요' : ''}` },
-    { label: '일정 겹침', cell: p => (overlapsSchedule(p, activities) ? '겹쳐요' : '안 겹침') },
+    { label: '신청 대상', cell: p => `${p.target}${checksOf(p, activities).eligible ? ' · 맞음' : ''}` },
+    { label: '준비할 것', cell: p => `${prepItemsFor(p, week, '').filter(i => i.by === 'me').length}개${checksOf(p, activities).team ? ' · 팀 필요' : ''}` },
+    { label: '일정 겹침', cell: p => (checksOf(p, activities).overlap ? '겹쳐요' : '안 겹침') },
     { label: '나와 맞는 이유', cell: (_p, s) => mainReason(s.reasons)?.text ?? '이번 주 모집 중이에요' }
   ];
 
   return (
     <>
-      <Card className="rec-compare" aria-label="후보 비교">
-        <div className="rec-compare__scroll">
+      <Card className="rec-compare" aria-labelledby="rec-compare-cap">
+        <div className="rec-compare__scroll" role="region" aria-label="후보 비교표 (가로로 스크롤)" tabIndex={0}>
           <table className="rec-table">
-            <caption className="sr-only">후보 {cols.length}개 비교</caption>
+            <caption id="rec-compare-cap" className="sr-only">후보 {cols.length}개 비교</caption>
             <thead>
               <tr>
                 <td />

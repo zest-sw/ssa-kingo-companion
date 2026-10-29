@@ -1,4 +1,4 @@
-import type { Activity, Axis, DiscState, Discovery, FieldGroup, RecordItem } from '../types';
+import type { Activity, Axis, DiscState, Discovery, FieldGroup, RecordItem, Scored } from '../types';
 import { AXES, FIELD_GROUP } from '../vocab';
 
 // 홈 숫자와 그래프에 쓰는 계산. 전역 상태에서 바로 뽑는다.
@@ -11,9 +11,16 @@ export function homeCounts(activities: Activity[], newRecommend: number, discove
     semesterActivities: activities.filter(a => a.status === 'ongoing' || a.status === 'ended' || a.status === 'recorded').length,
     reviewWaiting: activities.filter(a => a.status === 'ended').length,
     newRecommend,
-    toConfirm: discoveries.filter(d => stateOf(d) === 'none' || stateOf(d) === 'changed').length
+    toConfirm: discoveries.filter(d => needsConfirm(stateOf(d))).length
   };
 }
+
+/** 아직 확인 전이거나 근거가 바뀌어 다시 확인할 발견 */
+const needsConfirm = (s: DiscState) => s === 'none' || s === 'changed';
+export const pendingDiscovery = (discoveries: Discovery[], stateOf: (d: Discovery) => DiscState) => discoveries.find(d => needsConfirm(stateOf(d)));
+
+/** 이번 주 추천 줄: 가장 추천 하나와 대안 */
+export const weeklyItems = (primary: Scored | undefined, alternatives: Scored[]): Scored[] => (primary ? [primary, ...alternatives] : []);
 
 export type Dot = { recordId: string; state: 'confirmed' | 'estimated' };
 export type AxisRow = { axis: Axis; label: string; dots: Dot[] };

@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Badge, Button, Chip, Drawer, EmptyState, Modal } from '../../components';
 import { DISLIKES, INTEREST_OPTIONS } from '../../data/options';
 import { FORMAT_OPTIONS } from '../../data/options';
-import { dateLabel, LATER_CHOICES } from '../../domain/recommend-flow/flow';
+import { dateLabel, laterDateLabel, LATER_CHOICES, toggleInterest } from '../../domain/recommend-flow/flow';
 import type { DislikeKind, Interest, Profile, Program } from '../../domain/types';
 import { TIME_OPTIONS } from '../../domain/vocab';
-import { getLaterDays } from './laterStore';
+import { getLater } from './laterStore';
 
 /** 관심 없음: 이유를 고르면 추천 규칙에 반영된다 */
 export function DismissModal({ program, onPick, onClose }: { program?: Program; onPick: (p: Program, kind: DislikeKind) => void; onClose: () => void }) {
@@ -26,7 +26,7 @@ export function DismissModal({ program, onPick, onClose }: { program?: Program; 
 }
 
 /** 나중에 보기: 다시 볼 날을 고른다 */
-export function LaterModal({ program, onPick, onClose }: { program?: Program; onPick: (p: Program, days: number) => void; onClose: () => void }) {
+export function LaterModal({ week, program, onPick, onClose }: { week: number; program?: Program; onPick: (p: Program, days: number) => void; onClose: () => void }) {
   return (
     <Modal open={!!program} title="언제 다시 볼까요?" onClose={onClose} actions={<Button onClick={onClose}>취소</Button>}>
       <p className="rec-dialog__sub">고른 날까지 추천에서 숨겨요.</p>
@@ -34,7 +34,7 @@ export function LaterModal({ program, onPick, onClose }: { program?: Program; on
         {LATER_CHOICES.map(c => (
           <li key={c.days}>
             <button type="button" className="rec-reason" onClick={() => program && onPick(program, c.days)}>
-              <b>{c.label}</b><span>{dateLabel(c.days)}</span>
+              <b>{c.label}</b><span>{dateLabel(c.days, week)}</span>
             </button>
           </li>
         ))}
@@ -52,12 +52,12 @@ export function LaterDrawer({ open, programs, onClose, onBack, onPrepare }: { op
       ) : (
         <ul className="rec-later">
           {programs.map(p => {
-            const days = getLaterDays(p.id);
+            const until = getLater(p.id);
             return (
               <li key={p.id} className="rec-later__item">
                 <div>
                   <p className="rec-later__title">{p.title}</p>
-                  <p className="rec-later__sub">{days !== undefined ? `${dateLabel(days)}에 다시 보여요` : '다시 볼 날을 안 골랐어요'}</p>
+                  <p className="rec-later__sub">{until !== undefined ? `${laterDateLabel(until)}에 다시 보여요` : '다시 볼 날을 안 골랐어요'}</p>
                 </div>
                 <div className="rec-later__btns">
                   <Button size="sm" onClick={() => onBack(p)}>다시 보기</Button>
@@ -75,11 +75,7 @@ export function LaterDrawer({ open, programs, onClose, onBack, onPrepare }: { op
 /** 맞는 후보가 없을 때 관심 분야·시간·방식을 바꾼다 */
 export function ProfileDrawer({ open, profile, onSave, onClose }: { open: boolean; profile: Profile; onSave: (p: Profile) => void; onClose: () => void }) {
   const [draft, setDraft] = useState(profile);
-  const toggle = (id: Interest) => setDraft(d => {
-    if (id === 'unknown') return { ...d, interests: d.interests.includes('unknown') ? [] : ['unknown'] };
-    const base = d.interests.filter(x => x !== 'unknown');
-    return { ...d, interests: base.includes(id) ? base.filter(x => x !== id) : base.length >= 3 ? base : [...base, id] };
-  });
+  const toggle = (id: Interest) => setDraft(d => ({ ...d, interests: toggleInterest(d.interests, id) }));
   return (
     <Drawer
       open={open}

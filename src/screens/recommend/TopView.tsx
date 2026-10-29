@@ -3,7 +3,7 @@ import { Badge, Button, Card, Drawer, EmptyState, FieldTag, Icon, ProgressBar } 
 import { hrefOf, navigate } from '../../app/router';
 import { AGENT_TASKS, APPLY_URL } from '../../data/recommend';
 import { ddayOf, sortedReasons, mainReason } from '../../domain/recommend';
-import { dateLabel, emptyReason, formatText, funnelSteps, needsTeam, overlapsSchedule, prepItemsFor } from '../../domain/recommend-flow/flow';
+import { candidateHref, checksOf, dateLabel, emptyReason, formatText, funnelSteps, isNearDeadline, plainText, prepItemsFor } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import type { Activity, Funnel, Program, RecordItem, Scored } from '../../domain/types';
 import { DID_LABEL, FIELD_LABEL, REASON_LABEL } from '../../domain/vocab';
@@ -11,8 +11,8 @@ import { DID_LABEL, FIELD_LABEL, REASON_LABEL } from '../../domain/vocab';
 export type CardActions = { onPrepare: (p: Program) => void; onLater: (p: Program) => void; onDismiss: (p: Program) => void };
 
 /** 가장 추천 하나. 적합도 점수는 화면에 내지 않는다. */
-export function TopView({ primary, alternatives, week, funnel, records, activities, actions, onChangeProfile }: {
-  primary?: Scored; alternatives: Scored[]; week: number; funnel: Funnel; records: RecordItem[]; activities: Activity[]; actions: CardActions; onChangeProfile: () => void;
+export function TopView({ primary, isPrimary, alternatives, week, funnel, records, activities, actions, onChangeProfile }: {
+  primary?: Scored; isPrimary: boolean; alternatives: Scored[]; week: number; funnel: Funnel; records: RecordItem[]; activities: Activity[]; actions: CardActions; onChangeProfile: () => void;
 }) {
   const [why, setWhy] = useState(false);
 
@@ -31,36 +31,35 @@ export function TopView({ primary, alternatives, week, funnel, records, activiti
 
   const p = primary.p;
   const dday = ddayOf(p, week);
-  const prep = prepItemsFor(p, week).filter(i => i.by === 'me');
+  const prep = prepItemsFor(p, week, '').filter(i => i.by === 'me');
   const reason = mainReason(primary.reasons);
   const chips = sortedReasons(primary.reasons).map(r => ({ r, rec: r.recordId ? records.find(x => x.id === r.recordId) : undefined }));
-  const team = needsTeam(p);
-  const overlap = overlapsSchedule(p, activities);
+  const checks = checksOf(p, activities);
 
   return (
     <>
-      <Card className="rec-top" aria-label="가장 추천">
+      <Card className="rec-top" aria-labelledby="rec-top-title">
         <div className="rec-top__main">
           <div className="rec-top__meta">
-            <Badge tone="lime">가장 추천</Badge>
+            <Badge tone={isPrimary ? 'lime' : 'neutral'}>{isPrimary ? '가장 추천' : '고른 후보'}</Badge>
             <span className="rec-top__kind">{FIELD_LABEL[p.field]} · {DID_LABEL[p.did[0]]}</span>
             <a className="rec-link rec-top__src" href={APPLY_URL} target="_blank" rel="noopener noreferrer">모집글 원문 보기<Icon name="external" size={14} /></a>
           </div>
-          <h2 className="rec-top__title">{p.title}</h2>
-          <p className="rec-top__host">{p.host}</p>
+          <h2 id="rec-top-title" className="rec-top__title">{p.title}</h2>
+          <p className="rec-top__host">{plainText(p.host)}</p>
 
           <dl className="rec-facts">
-            <div className="rec-fact"><dt>마감</dt><dd className={dday <= 3 ? 'rec-fact__accent num' : 'num'}>{ddayText(dday)}</dd><dd className="rec-fact__sub">{dateLabel(dday, week)}</dd></div>
+            <div className="rec-fact"><dt>마감</dt><dd className={isNearDeadline(dday) ? 'rec-fact__accent num' : 'num'}>{ddayText(dday)}</dd><dd className="rec-fact__sub">{dateLabel(dday, week)}</dd></div>
             <div className="rec-fact"><dt>활동 기간</dt><dd>{p.durationLabel}</dd><dd className="rec-fact__sub">{p.when}</dd></div>
             <div className="rec-fact"><dt>방식</dt><dd>{formatText(p).main}</dd><dd className="rec-fact__sub">{formatText(p).sub ?? '이동 없이 참여'}</dd></div>
             <div className="rec-fact"><dt>준비할 것</dt><dd className="num">{prep.length}개</dd><dd className="rec-fact__sub">{prep.map(i => i.label).join(', ')}</dd></div>
           </dl>
 
           <ul className="rec-checks" aria-label="확인한 것">
-            <li><Badge tone="green" icon="check">{p.target === '전 학년' ? '신청 대상 맞음' : `${p.target} 신청 대상 맞음`}</Badge></li>
-            {!overlap && <li><Badge tone="green" icon="check">시간표와 안 겹침</Badge></li>}
-            {overlap && <li><Badge tone="orange">다른 활동과 일정이 겹쳐요</Badge></li>}
-            {team && <li className="rec-checks__team"><Badge>팀이 필요해요</Badge><a className="rec-link" href={hrefOf('friends/recruit')}>팀원 모집 보기</a></li>}
+            <li><Badge tone="green" icon="check">{checks.eligible ? (p.target === '전 학년' ? '신청 대상 맞음' : `${p.target} 신청 대상 맞음`) : '신청 대상이 아니에요'}</Badge></li>
+            {!checks.overlap && <li><Badge tone="green" icon="check">시간표와 안 겹침</Badge></li>}
+            {checks.overlap && <li><Badge tone="orange">다른 활동과 일정이 겹쳐요</Badge></li>}
+            {checks.team && <li className="rec-checks__team"><Badge>팀이 필요해요</Badge><a className="rec-link" href={hrefOf('friends/recruit')}>팀원 모집 보기</a></li>}
           </ul>
 
           <div className="rec-why">
@@ -89,15 +88,15 @@ export function TopView({ primary, alternatives, week, funnel, records, activiti
         </aside>
       </Card>
 
-      <Card padding="md" className="rec-alts" aria-label="다른 대안">
-        <b className="rec-alts__title">다른 대안 {alternatives.length}개</b>
+      <Card padding="md" className="rec-alts" aria-labelledby="rec-alts-title">
+        <b id="rec-alts-title" className="rec-alts__title">다른 대안 {alternatives.length}개</b>
         {alternatives.length === 0 ? (
           <span className="rec-muted">대안이 아직 없어요. 나중에 보기로 미뤄 둔 활동을 다시 볼 수 있어요.</span>
         ) : (
           <ul className="rec-alts__list">
             {alternatives.map(a => (
               <li key={a.p.id}>
-                <button type="button" className="rec-alt" onClick={() => navigate('recommend/compare')}>
+                <button type="button" className="rec-alt" onClick={() => navigate(candidateHref(a.p.id))}>
                   <FieldTag field={a.p.field} />
                   {a.p.title}<span className="rec-alt__d num">{ddayText(ddayOf(a.p, week))}</span>
                 </button>

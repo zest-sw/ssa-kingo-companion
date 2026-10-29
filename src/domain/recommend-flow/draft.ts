@@ -1,6 +1,7 @@
 import { josa } from '../text';
 import type { Program, RecordItem } from '../types';
 import { FIELD_LABEL } from '../vocab';
+import type { PrepItem } from './flow';
 
 // 신청서 초안. 실제 AI 대신 기록 카드에 있는 말만 이어 붙인다(수치·경험을 지어내지 않는다).
 
@@ -27,14 +28,20 @@ export function writeDraft(p: Program, records: RecordItem[], goal: string, revi
 
 export type LogEntry = { time: string; text: string; ok: boolean };
 
-/** 에이전트 실행 기록: 한 일과 못 한 일 */
-export function runLog(needsLogin: boolean, team: boolean, draftReady = true): LogEntry[] {
-  const log: LogEntry[] = [
-    { time: '21:38', text: '신청 대상을 확인했어요', ok: true },
-    { time: '21:39', text: '일정을 캘린더에 등록했어요', ok: true }
-  ];
-  if (draftReady) log.push({ time: '21:40', text: '신청서 초안을 썼어요', ok: true });
-  if (needsLogin) log.push({ time: '21:40', text: '사전 설문을 채우지 못했어요. 로그인이 필요해요', ok: false });
-  if (team) log.push({ time: '21:41', text: '팀원을 찾지 못했어요. 모집 글은 내가 올려요', ok: false });
-  return log;
+const AGENT_DONE: Record<string, string> = { target: '신청 대상을 확인했어요', calendar: '일정을 캘린더에 등록했어요' };
+const AGENT_FAIL: Record<string, string> = { survey: '사전 설문을 채우지 못했어요. 로그인이 필요해요', team: '팀원을 찾지 못했어요. 모집 글은 내가 올려요' };
+
+/**
+ * 실행 기록: 단계가 실행된(체크한) 시각 순서로 한 일과 못 한 일을 낸다.
+ * 에이전트 항목의 시각은 준비를 시작한 시각이고, 초안은 다 쓴 시각(draftAt)이다. 못 한 일은 시작한 시각에 남는다.
+ */
+export function runLog(items: PrepItem[], draftAt?: string): LogEntry[] {
+  const started = items.find(i => i.by === 'agent')?.at ?? '';
+  const log: LogEntry[] = [];
+  for (const i of items) {
+    if (i.done && i.at) log.push({ time: i.at, text: i.by === 'agent' ? (AGENT_DONE[i.id] ?? `${i.label}을 마쳤어요`) : `${i.label}을 내가 끝냈어요`, ok: true });
+    else if (!i.done && AGENT_FAIL[i.id]) log.push({ time: started, text: AGENT_FAIL[i.id], ok: false });
+  }
+  if (draftAt) log.push({ time: draftAt, text: '신청서 초안을 썼어요', ok: true });
+  return log.sort((a, b) => a.time.localeCompare(b.time));
 }

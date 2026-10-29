@@ -3,19 +3,22 @@ import { useApp } from '../../app/AppState';
 import { navigate, type ScreenProps } from '../../app/router';
 import { Button, PageHeader, SegmentedControl } from '../../components';
 import { DISLIKES } from '../../data/options';
+import { pickAlternatives } from '../../domain/recommend';
 import { parseRecommendSub, prepareHref } from '../../domain/recommend-flow/flow';
 import type { DislikeKind, Program } from '../../domain/types';
 import { CompareView } from './CompareView';
 import { DismissModal, LaterDrawer, LaterModal, ProfileDrawer } from './Dialogs';
-import { clearLater, setLaterDays } from './laterStore';
+import { clearLater, setLater } from './laterStore';
 import { PrepareView } from './PrepareView';
 import { TopView } from './TopView';
+import { useCandidateView } from './useCandidateView';
 import './recommend.css';
 
 const VIEWS = [{ id: 'top', label: '가장 추천' }, { id: 'compare', label: '비교해서 고르기' }] as const;
 
 export default function RecommendScreen({ sub }: ScreenProps) {
-  const { state, view, run } = useApp();
+  const { state, run } = useApp();
+  const view = useCandidateView();
   const route = parseRecommendSub(sub);
   const [dismissing, setDismissing] = useState<Program>();
   const [postponing, setPostponing] = useState<Program>();
@@ -33,7 +36,7 @@ export default function RecommendScreen({ sub }: ScreenProps) {
   };
   const postpone = (p: Program, days: number) => {
     setPostponing(undefined);
-    setLaterDays(p.id, days);
+    setLater(p.id, state.week, days);
     run({ type: 'candidate/choose', programId: p.id, choice: 'later' }, { toast: '나중에 다시 보여 드릴게요.', undoable: true });
   };
   const actions = { onPrepare: prepare, onLater: setPostponing, onDismiss: setDismissing };
@@ -41,6 +44,8 @@ export default function RecommendScreen({ sub }: ScreenProps) {
   if (route.view === 'prepare') return <PrepareView key={route.programId} programId={route.programId} />;
 
   const compare = route.view === 'compare';
+  // #/recommend/<활동 id> 로 열면 그 후보를 가장 추천 자리에 보여 준다. 후보가 아니면 원래 가장 추천을 보여 준다.
+  const focus = route.view === 'top' && route.programId ? view.scored.find(s => s.p.id === route.programId) : undefined;
   return (
     <>
       <PageHeader
@@ -55,10 +60,10 @@ export default function RecommendScreen({ sub }: ScreenProps) {
       />
       {compare
         ? <CompareView scored={view.scored} week={state.week} records={state.records} interests={state.profile.interests} activities={state.activities} actions={actions} />
-        : <TopView primary={view.primary} alternatives={view.alternatives} week={state.week} funnel={view.funnel} records={state.records} activities={state.activities} actions={actions} onChangeProfile={() => setProfileOpen(true)} />}
+        : <TopView primary={focus ?? view.primary} isPrimary={!focus || focus.p.id === view.primary?.p.id} alternatives={focus ? pickAlternatives(view.scored, focus.p) : view.alternatives} week={state.week} funnel={view.funnel} records={state.records} activities={state.activities} actions={actions} onChangeProfile={() => setProfileOpen(true)} />}
 
       <DismissModal program={dismissing} onPick={dismiss} onClose={() => setDismissing(undefined)} />
-      <LaterModal program={postponing} onPick={postpone} onClose={() => setPostponing(undefined)} />
+      <LaterModal week={state.week} program={postponing} onPick={postpone} onClose={() => setPostponing(undefined)} />
       <LaterDrawer
         open={laterOpen}
         programs={view.later}

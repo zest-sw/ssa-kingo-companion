@@ -5,27 +5,24 @@ import { Badge, Button, Card, EmptyState, ErrorState, Icon, LoadingState, PageHe
 import { APPLY_URL, DRAFT_DELAY } from '../../data/recommend';
 import { PROGRAM_BY_ID } from '../../data/catalog';
 import { runLog, writeDraft, type Draft } from '../../domain/recommend-flow/draft';
-import { dateLabel, mostUrgent, needsTeam, prepItemsFor, prepProgress, remainingItems, submitBlockReason, toggleItem, type PrepItem } from '../../domain/recommend-flow/flow';
+import { clockLabel, dateLabel, mostUrgent, needsTeam, prepItemsFor, prepProgress, remainingItems, submitBlockReason, submitPatch, toggleItem, type PrepItem } from '../../domain/recommend-flow/flow';
 import { ddayOf } from '../../domain/recommend';
 import { ddayText } from '../../domain/text';
 import { getPrep, setPrep } from './prepStore';
 
-type DraftState = { status: 'writing' } | { status: 'ready'; draft: Draft } | { status: 'error' };
+type DraftState = { status: 'writing' } | { status: 'ready'; draft: Draft; at: string } | { status: 'error' };
+
+const nowLabel = () => clockLabel(new Date());
 
 /** 신청 준비: 체크리스트, 신청서 초안, 실행 기록, 승인 버튼 3개. 신청은 학생이 '이대로 신청'을 눌러야 나간다. */
 export function PrepareView({ programId }: { programId: string }) {
   const { state, run } = useApp();
   const p = PROGRAM_BY_ID[programId];
   const activity = state.activities.find(a => a.programId === programId);
-  const [items, setItems] = useState<PrepItem[]>(() => (p ? getPrep(programId) ?? prepItemsFor(p, state.week) : []));
+  const [items, setItems] = useState<PrepItem[]>(() => (p ? getPrep(programId) ?? prepItemsFor(p, state.week, nowLabel()) : []));
   const [revision, setRevision] = useState(0);
   const [attempt, setAttempt] = useState(0);
   const [draft, setDraft] = useState<DraftState>({ status: 'writing' });
-
-  // 바로 주소로 들어와도 신청 준비 활동이 생기게 한다.
-  useEffect(() => {
-    if (p && !activity && !state.choices[programId]) run({ type: 'candidate/choose', programId, choice: 'preparing' });
-  }, [p, activity, programId, run, state.choices]);
 
   // 체크리스트 진행도를 내 활동에 반영한다.
   useEffect(() => {
@@ -41,7 +38,7 @@ export function PrepareView({ programId }: { programId: string }) {
     setDraft({ status: 'writing' });
     const t = window.setTimeout(() => {
       try {
-        setDraft({ status: 'ready', draft: writeDraft(p, state.records, state.profile.goal, revision) });
+        setDraft({ status: 'ready', draft: writeDraft(p, state.records, state.profile.goal, revision), at: nowLabel() });
       } catch {
         setDraft({ status: 'error' });
       }
@@ -51,7 +48,8 @@ export function PrepareView({ programId }: { programId: string }) {
 
   const team = p ? needsTeam(p) : false;
   const draftReady = draft.status === 'ready';
-  const log = useMemo(() => runLog(items.some(i => i.id === 'survey'), team, draftReady), [items, team, draftReady]);
+  const draftAt = draft.status === 'ready' ? draft.at : undefined;
+  const log = useMemo(() => runLog(items, draftAt), [items, draftAt]);
 
   if (!p) {
     return (
@@ -64,22 +62,25 @@ export function PrepareView({ programId }: { programId: string }) {
 
   const dday = ddayOf(p, state.week);
   const change = (id: string) => {
-    const next = toggleItem(items, id);
+    const next = toggleItem(items, id, nowLabel());
     setItems(next);
     setPrep(programId, next);
   };
 
   const submitted = !!activity && activity.status !== 'preparing';
-  const ready = draftReady;
-  const reason = submitBlockReason(items, ready);
+  const reason = submitBlockReason(items, draftReady, activity?.status);
   const urgent = mostUrgent(items);
   const left = remainingItems(items).length;
 
+  const start = () => run({ type: 'candidate/choose', programId, choice: 'preparing' });
+
   const submit = () => {
+    // 주소로 바로 열어도 신청 준비를 거친 활동일 때만 신청 링크를 연다.
+    if (!activity || submitBlockReason(items, draftReady, activity.status)) return;
     window.open(APPLY_URL, '_blank', 'noopener,noreferrer');
-    if (!activity) return;
-    run({ type: 'activity/setStatus', id: activity.id, status: 'applied' }, { toast: '신청 화면을 새 탭으로 열었어요. 내 활동에 결과 대기로 옮겼어요.' });
-    run({ type: 'activity/update', id: activity.id, patch: { prep: prepProgress(items), due: undefined, schedule: `결과 대기 · ${p.when}` } });
+    const t = submitPatch(p, items);
+    run({ type: 'activity/setStatus', id: activity.id, status: t.status }, { toast: '신청 화면을 새 탭으로 열었어요. 내 활동에 결과 대기로 옮겼어요.' });
+    run({ type: 'activity/update', id: activity.id, patch: t.patch });
   };
 
   const giveUp = () => {
@@ -100,7 +101,7 @@ export function PrepareView({ programId }: { programId: string }) {
             {items.map(i => (
               <li key={i.id} className={`rec-item${i.done ? ' rec-item--done' : ''}`}>
                 <label className="rec-item__box">
-                  <input type="checkbox" checked={i.done} disabled={i.by === 'agent' || submitted || (i.id === 'draft' && !ready)} onChange={() => change(i.id)} />
+                  <input type="checkbox" checked={i.done} disabled={i.by === 'agent' || !activity || submitted || (i.id === 'draft' && !draftReady)} onChange={() => change(i.id)} />
                   <span className="rec-item__text">
                     <span className="rec-item__label">{i.label}</span>
                     {!i.done && i.hint && <span className="rec-item__hint">{i.hint}</span>}
@@ -112,8 +113,8 @@ export function PrepareView({ programId }: { programId: string }) {
               </li>
             ))}
           </ul>
-          <div className="rec-log" aria-label="에이전트 실행 기록">
-            <p className="rec-log__head">실행 기록</p>
+          <section className="rec-log" aria-labelledby="rec-log-head">
+            <h3 id="rec-log-head" className="rec-log__head">실행 기록</h3>
             <ul>
               {log.map((l, n) => (
                 <li key={n} className={l.ok ? '' : 'rec-log__fail'}>
@@ -123,12 +124,12 @@ export function PrepareView({ programId }: { programId: string }) {
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         </Card>
 
-        <Card className="rec-prep__draft" aria-label="신청서 초안">
+        <Card className="rec-prep__draft" aria-labelledby="rec-draft-title">
           <p className="rec-draft__eyebrow"><Icon name="doc" size={16} />에이전트가 쓴 신청서 초안</p>
-          <h2 className="rec-draft__title">지원서</h2>
+          <h2 id="rec-draft-title" className="rec-draft__title">지원서</h2>
           <div className="rec-draft__body" aria-live="polite">
             {draft.status === 'writing' && <LoadingState message="초안 쓰는 중이에요" lines={4} />}
             {draft.status === 'error' && <ErrorState message="초안을 쓰지 못했어요." onRetry={() => setAttempt(attempt + 1)} />}
@@ -152,9 +153,10 @@ export function PrepareView({ programId }: { programId: string }) {
             </div>
           ) : (
             <div className="rec-draft__acts">
-              <Button variant="primary" block disabled={!!reason} aria-describedby="prep-reason" onClick={submit}>이대로 신청</Button>
+              {!activity && <Button variant="primary" block onClick={start}>신청 준비</Button>}
+              <Button variant={activity ? 'primary' : 'secondary'} block disabled={!!reason} aria-describedby="prep-reason" onClick={submit}>이대로 신청</Button>
               <div className="rec-draft__row">
-                <Button block disabled={!ready} onClick={() => setRevision(revision + 1)}>고쳐 줘</Button>
+                <Button block disabled={!draftReady} onClick={() => setRevision(revision + 1)}>고쳐 줘</Button>
                 <Button block onClick={giveUp}>안 할래</Button>
               </div>
               <p id="prep-reason" className="rec-draft__note">{reason ?? '신청은 내가 누를 때만 챌린지스퀘어에서 열려요'}</p>

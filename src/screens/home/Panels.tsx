@@ -2,6 +2,7 @@ import { ConfirmDot, ConfirmLegend, Badge, Button, Card, EmptyState, Icon } from
 import { hrefOf, navigate } from '../../app/router';
 import { FIELD_LABEL, GROUP_LABEL } from '../../domain/vocab';
 import { ddayOf, mainReason } from '../../domain/recommend';
+import { candidateHref, isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import { discoveryQuestion, type AxisRow, type FlowRow } from '../../domain/recommend-flow/home';
 import type { Discovery, DiscState, FieldGroup, RecordItem, Scored } from '../../domain/types';
@@ -103,12 +104,12 @@ export function WeeklyPanel({ items, week }: { items: Scored[]; week: number }) 
             const d = ddayOf(s.p, week);
             return (
               <li key={s.p.id}>
-                <a className={`home-rec${i === 0 ? ' home-rec--top' : ''}`} href={hrefOf('recommend')}>
+                <a className={`home-rec${i === 0 ? ' home-rec--top' : ''}`} href={hrefOf(candidateHref(s.p.id))}>
                   <span className="home-rec__text">
                     <span className="home-rec__title">{s.p.title}{i === 0 && <Badge tone="lime">가장 추천</Badge>}</span>
                     <span className="home-rec__why">{mainReason(s.reasons)?.text ?? `${FIELD_LABEL[s.p.field]} 활동이에요`}</span>
                   </span>
-                  <Badge tone={d <= 3 ? 'orange' : 'neutral'}>{ddayText(d)}</Badge>
+                  <Badge tone={isNearDeadline(d) ? 'orange' : 'neutral'}>{ddayText(d)}</Badge>
                 </a>
               </li>
             );

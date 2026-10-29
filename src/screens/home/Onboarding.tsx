@@ -4,10 +4,10 @@ import { GOAL_SUGGESTIONS, ONBOARDING_WORK } from '../../data/home';
 import { FORMAT_OPTIONS, INTEREST_OPTIONS } from '../../data/options';
 import { EMPTY_PROFILE } from '../../data/seed';
 import type { Interest, Profile } from '../../domain/types';
+import { MAX_INTERESTS, toggleInterest } from '../../domain/recommend-flow/flow';
 import { TIME_OPTIONS } from '../../domain/vocab';
 
 const STEPS = 3;
-const MAX_INTERESTS = 3;
 
 /** 첫 실행에서 홈 자리에 그리는 가입 인터뷰: 관심 분야, 가능한 시간·방식, 목표. */
 export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void; onExample: () => void }) {
@@ -29,12 +29,7 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
     return () => window.clearTimeout(t);
   }, [working]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const toggle = (id: Interest) => setDraft(d => {
-    if (id === 'unknown') return { ...d, interests: d.interests.includes('unknown') ? [] : ['unknown'] };
-    const base = d.interests.filter(x => x !== 'unknown');
-    if (base.includes(id)) return { ...d, interests: base.filter(x => x !== id) };
-    return base.length >= MAX_INTERESTS ? d : { ...d, interests: [...base, id] };
-  });
+  const toggle = (id: Interest) => setDraft(d => ({ ...d, interests: toggleInterest(d.interests, id) }));
 
   const finish = () => {
     const reduce = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -43,8 +38,8 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
 
   if (working) {
     return (
-      <Card className="home-onb" aria-label="이번 주 활동 고르는 중">
-        <h1 ref={head} tabIndex={-1} className="home-onb__q" data-page-title>이번 주 활동을 고르는 중이에요</h1>
+      <Card className="home-onb" aria-labelledby="onb-q">
+        <h1 id="onb-q" ref={head} tabIndex={-1} className="home-onb__q" data-page-title>이번 주 활동을 고르는 중이에요</h1>
         <LoadingState message="잠시만 기다려 주세요" lines={2} />
         <ul className="home-onb__work">
           {ONBOARDING_WORK.map(t => <li key={t}><Icon name="check" size={18} />{t}</li>)}
@@ -56,7 +51,7 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
 
   const canNext = step === 0 ? draft.interests.length > 0 : true;
   return (
-    <Card className="home-onb" aria-label="가입 인터뷰">
+    <Card className="home-onb" aria-labelledby="onb-q">
       <div className="home-onb__top">
         <p className="home-onb__intro">찾고 비교하는 일은 제가 할게요. 세 가지만 알려 주세요.</p>
         <span className="home-onb__count num" aria-label={`${STEPS}단계 중 ${step + 1}단계`}>{step + 1} / {STEPS}</span>
