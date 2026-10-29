@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { edgeState, layoutMap, type EdgeAnswers, type ExperienceMap, type MapEdge, type MapNode } from '../../domain/analysis/map';
+import { edgeState, layoutMap, visibleEdges, type EdgeAnswers, type ExperienceMap, type MapEdge, type MapNode } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
 import { FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
 
@@ -15,7 +15,7 @@ const short = (s: string) => (s.length > MAX_LABEL ? `${s.slice(0, MAX_LABEL)}â€
 export function MapGraph({ map, answers, picked, onPick }: { map: ExperienceMap; answers: EdgeAnswers; picked: MapPick | null; onPick: (p: MapPick) => void }) {
   const layout = useMemo(() => layoutMap(map, SIZE), [map]);
   const nodeOf = useMemo(() => Object.fromEntries(map.nodes.map(n => [n.id, n])) as Record<string, MapNode>, [map]);
-  const visible = map.edges.filter(e => edgeState(e, answers) !== 'rejected');
+  const visible = visibleEdges(map, answers);
   const press = (p: MapPick) => ({
     role: 'button' as const, tabIndex: 0, onClick: () => onPick(p),
     onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(p); } }

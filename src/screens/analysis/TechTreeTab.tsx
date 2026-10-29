@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState, FieldTag, SegmentedControl } from '../../components';
-import { buildTechTree, TREE_COLUMNS, type TreeCell } from '../../domain/analysis/techtree';
+import { buildTechTree, recordOfActivity, relatedRecords, TREE_COLUMNS, type TreeCell } from '../../domain/analysis/techtree';
 import { ddayOf } from '../../domain/recommend';
 import { ddayText } from '../../domain/text';
 import type { RecordItem } from '../../domain/types';
@@ -76,14 +76,16 @@ function CellDrawer({ cell, records, onClose }: { cell: TreeCell | null; records
   const record = cell?.recordId ? records.find(r => r.id === cell.recordId) : undefined;
   const activity = cell?.activityId ? state.activities.find(a => a.id === cell.activityId) : undefined;
   // 같은 분야 줄에서 이 칸과 이어진 다른 기록
-  const related = record ? records.filter(r => r.id !== record.id && r.field === record.field).slice(0, 3) : [];
+  const related = record ? relatedRecords(records, record) : [];
+  const written = activity ? recordOfActivity(records, activity) : undefined;
+  const column = TREE_COLUMNS[cell?.col ?? 0];
   return (
-    <Drawer open={!!cell} onClose={onClose} eyebrow={cell ? `한 활동 · ${TREE_COLUMNS[cell.col]}` : undefined} title={cell?.label ?? ''}>
+    <Drawer open={!!cell} onClose={onClose} eyebrow={cell ? `한 활동 · ${column}` : undefined} title={cell?.label ?? ''}>
       {record && (
         <>
           <RecordSummary record={record} />
           <h3 className="an-sub">이 칸에 놓인 이유</h3>
-          <p>‘{DID_LABEL[record.did]}’를 주로 해서 ‘{TREE_COLUMNS[cell!.col]}’ 칸에 놓였어요.</p>
+          <p>‘{DID_LABEL[record.did]}’를 주로 한 기록이라 ‘{column}’ 칸에 놓았어요.</p>
           <h3 className="an-sub">같은 분야의 다른 기록</h3>
           {related.length ? <div className="an-stack">{related.map(r => <RecordSummary key={r.id} record={r} />)}</div> : <p className="an-muted">같은 분야 기록이 아직 하나예요. 회고를 더 쓰면 이어져요.</p>}
         </>
@@ -93,8 +95,12 @@ function CellDrawer({ cell, records, onClose }: { cell: TreeCell | null; records
           <p className="an-rec__meta"><FieldTag field={activity.field} detail /> · {STATUS_LABEL[activity.status]}</p>
           <p>{activity.schedule}</p>
           <h3 className="an-sub">근거</h3>
-          <p className="an-muted">아직 회고가 없어요. 회고를 쓰면 한 일과 배운 점이 이 칸의 근거가 돼요.</p>
-          <Button variant="primary" onClick={() => navigate('records')}>회고 쓰러 가기</Button>
+          {written ? <RecordSummary record={written} /> : (
+            <>
+              <p className="an-muted">아직 회고가 없어요. 회고를 쓰면 한 일과 배운 점이 이 칸의 근거가 돼요.</p>
+              <Button variant="primary" onClick={() => navigate('records')}>회고 쓰러 가기</Button>
+            </>
+          )}
         </>
       )}
     </Drawer>

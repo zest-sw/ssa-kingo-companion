@@ -1,17 +1,37 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-// ponytail: 연결 확인과 '내 생각'은 전역 상태에 자리가 없어 화면 밖 변수에 둔다. 새로고침하면 처음으로 돌아간다. 전역 상태에 자리가 생기면 옮긴다.
-const kept = new Map<string, unknown>();
+const PREFIX = 'ssa-an:';
+// 저장소를 못 쓰는 환경(사생활 보호 창 등)에서도 화면 사이 이동에는 값이 남게 메모리에 한 벌 더 둔다.
+const memory = new Map<string, unknown>();
 
-/** useState 처럼 쓰되, 다른 화면에 다녀와도 값을 지킨다. */
-export function useKept<T>(key: string, initial: T) {
-  const [value, set] = useState<T>(() => (kept.has(key) ? (kept.get(key) as T) : initial));
+function read<T>(key: string, parse: (raw: unknown) => T | null): T | null {
+  if (memory.has(key)) return memory.get(key) as T;
+  try {
+    const raw = localStorage.getItem(PREFIX + key);
+    return raw === null ? null : parse(JSON.parse(raw));
+  } catch {
+    return null;
+  }
+}
+
+function write(key: string, value: unknown) {
+  memory.set(key, value);
+  try { localStorage.setItem(PREFIX + key, JSON.stringify(value)); } catch { /* 저장소가 막혀 있으면 메모리에만 둔다 */ }
+}
+
+/**
+ * useState 처럼 쓰되 학생이 고른 값을 localStorage('ssa-an:' 키)에 저장해 새로고침에도 남긴다.
+ * parse 는 저장된 값의 모양을 확인하고, 맞지 않으면 null 을 돌려 초기값을 쓰게 한다.
+ */
+export function useKept<T>(key: string, initial: T, parse: (raw: unknown) => T | null) {
+  const [value, set] = useState<T>(() => read(key, parse) ?? initial);
+  const latest = useRef(value);
   const update = (next: T | ((prev: T) => T)) => {
-    set(prev => {
-      const v = typeof next === 'function' ? (next as (p: T) => T)(prev) : next;
-      kept.set(key, v);
-      return v;
-    });
+    const v = typeof next === 'function' ? (next as (p: T) => T)(latest.current) : next;
+    if (Object.is(v, latest.current)) return;
+    latest.current = v;
+    set(v);
+    write(key, v);
   };
   return [value, update] as const;
 }

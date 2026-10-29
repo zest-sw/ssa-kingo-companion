@@ -1,11 +1,13 @@
+import { useEffect } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate, type ScreenProps } from '../../app/router';
-import { Card, ErrorState, Icon, LoadingState, PageHeader, TabPanel, Tabs, type TabItem } from '../../components';
-import type { EdgeAnswers } from '../../domain/analysis/map';
-import type { Level } from '../../domain/analysis/strengths';
+import { Card, ErrorState, LoadingState, PageHeader, TabPanel, Tabs, type TabItem } from '../../components';
+import { parseAnswers, pruneAnswers, type EdgeAnswers } from '../../domain/analysis/map';
+import { parseSelf, type Level } from '../../domain/analysis/strengths';
 import type { Axis } from '../../domain/types';
 import { INITIAL_SELF, SEMESTER_NOW } from '../../data/analysis';
 import { semesterLabel } from '../../domain/analysis/semester';
+import { EyeIcon } from './EyeIcon';
 import ExperienceMapTab from './ExperienceMapTab';
 import FlowTab from './FlowTab';
 import StrengthsTab from './StrengthsTab';
@@ -26,13 +28,17 @@ export default function AnalysisScreen({ sub }: ScreenProps) {
   const { state } = useApp();
   const analysis = useAnalysis(state.records);
   const tab = tabOf(sub);
-  const [answers, setAnswers] = useKept<EdgeAnswers>('edge-answers', {});
-  const [self, setSelf] = useKept<Record<Axis, Level>>('self-levels', INITIAL_SELF);
+  const [answers, setAnswers] = useKept<EdgeAnswers>('edge-answers', {}, parseAnswers);
+  const [self, setSelf] = useKept<Record<Axis, Level>>('self-levels', INITIAL_SELF, raw => parseSelf(raw, INITIAL_SELF));
+
+  // 기록이 지워지면 그 기록을 가리키던 연결 답도 지운다.
+  const recordIds = state.records.map(r => r.id).join('|');
+  useEffect(() => { setAnswers(prev => pruneAnswers(prev, state.records.map(r => r.id))); }, [recordIds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
       <PageHeader eyebrow={`${semesterLabel(SEMESTER_NOW)} · 나의 분석`} title="나의 분석" />
-      <p className="an-private"><Icon name="lock" size={16} />여기 있는 분석은 나에게만 보여요.</p>
+      <p className="an-private"><EyeIcon />여기 있는 분석은 나에게만 보여요.</p>
       <Tabs id="analysis" label="나의 분석" items={TABS} value={tab} onChange={id => navigate(`analysis/${id}`)} />
       <TabPanel id="analysis" active={tab}>
         {analysis.status === 'loading' && (

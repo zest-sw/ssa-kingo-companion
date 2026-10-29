@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, ConfirmDot, Drawer, EmptyState } from '../../components';
+import { usedCount } from '../../domain/analysis/discovery';
 import type { Discovery } from '../../domain/types';
 import { DISC_STATE_TEXT } from '../../domain/vocab';
 import { RecordSummary } from './RecordSummary';
@@ -10,9 +11,9 @@ const EVIDENCE_SHOWN = 3;
 
 /** 확인할 발견. 맞아요/아니에요는 전역 상태의 확인 표를 바꾸고, 확인한 것만 추천에 쓰인다. */
 export function DiscoveryCards() {
-  const { view, discStateOf, run } = useApp();
+  const { state, view, discStateOf, run } = useApp();
   const [seeing, setSeeing] = useState<Discovery | null>(null);
-  const used = view.discoveries.filter(d => discStateOf(d) === 'yes').length;
+  const used = usedCount(view.discoveries, state.confirm);
 
   const answer = (d: Discovery, status: 'yes' | 'no') => {
     const cancel = discStateOf(d) === status;
@@ -39,10 +40,10 @@ export function DiscoveryCards() {
                     <span>{DISC_STATE_TEXT[st]}</span>
                   </p>
                 </div>
-                <p className="an-disc__evidence" aria-label="근거 기록">
-                  {d.evidence.slice(0, EVIDENCE_SHOWN).map(r => <Badge key={r.id} tone="neutral">{r.title}</Badge>)}
-                  {d.evidence.length > EVIDENCE_SHOWN && <Badge tone="neutral">외 {d.evidence.length - EVIDENCE_SHOWN}개</Badge>}
-                </p>
+                <ul className="an-disc__evidence" aria-label="근거 기록">
+                  {d.evidence.slice(0, EVIDENCE_SHOWN).map(r => <li key={r.id}><Badge tone="neutral">{r.title}</Badge></li>)}
+                  {d.evidence.length > EVIDENCE_SHOWN && <li><Badge tone="neutral">외 {d.evidence.length - EVIDENCE_SHOWN}개</Badge></li>}
+                </ul>
                 <div className="an-disc__actions">
                   <Button size="sm" variant={st === 'yes' ? 'primary' : 'secondary'} aria-pressed={st === 'yes'} onClick={() => answer(d, 'yes')}>맞아요</Button>
                   <Button size="sm" variant={st === 'no' ? 'primary' : 'secondary'} aria-pressed={st === 'no'} onClick={() => answer(d, 'no')}>아니에요</Button>

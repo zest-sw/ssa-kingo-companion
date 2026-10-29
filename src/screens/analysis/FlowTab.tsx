@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react';
 import { navigate } from '../../app/router';
 import { Button, Card, Drawer, EmptyState } from '../../components';
-import { buildFlow, summarizeFlow, type FlowSegment } from '../../domain/analysis/flow';
+import { buildFlow, clampRange, legendGroups, moveRange, summarizeFlow, type FlowRange, type FlowSegment } from '../../domain/analysis/flow';
 import { semesterAxis, semesterLabel } from '../../domain/analysis/semester';
-import { TREE_GROUPS } from '../../domain/analysis/techtree';
 import type { FieldGroup, RecordItem } from '../../domain/types';
 import { GROUP_LABEL } from '../../domain/vocab';
 import { SEMESTER_FROM, SEMESTER_NOW } from '../../data/analysis';
@@ -16,8 +15,8 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   const axis = useMemo(() => semesterAxis(records, SEMESTER_FROM, SEMESTER_NOW), [records]);
   const rows = useMemo(() => buildFlow(records, axis), [records, axis]);
   const last = axis.length - 1;
-  const [range, setRange] = useState<[number, number]>([0, last]);
-  const [from, to] = [Math.min(range[0], last), Math.min(range[1], last)];
+  const [range, setRange] = useState<FlowRange>([0, last]);
+  const [from, to] = clampRange(range, last);
   const [pick, setPick] = useState<Pick | null>(null);
   const summary = summarizeFlow(rows, from, to);
   const inRange = (i: number) => i >= from && i <= to;
@@ -55,14 +54,14 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
             </li>
           ))}
         </ol>
-        <Legend groups={TREE_GROUPS.filter(g => records.some(r => rows.some(w => w.segments.some(s => s.group === g))))} />
+        <Legend groups={legendGroups(rows)} />
         {rows.some(r => r.total === 0) && <p className="an-note">비어 있는 칸은 기록이 없는 학기예요. 쉬어 간 학기도 흐름의 일부예요.</p>}
         <div className="an-range">
           <label>시작 학기 <b>{semesterLabel(axis[from])}</b>
-            <input type="range" min={0} max={last} value={from} onChange={e => setRange([Number(e.target.value), Math.max(Number(e.target.value), to)])} aria-valuetext={semesterLabel(axis[from])} />
+            <input type="range" min={0} max={last} value={from} onChange={e => setRange(moveRange([from, to], 'from', Number(e.target.value), last))} aria-valuetext={semesterLabel(axis[from])} />
           </label>
           <label>끝 학기 <b>{semesterLabel(axis[to])}</b>
-            <input type="range" min={0} max={last} value={to} onChange={e => setRange([Math.min(from, Number(e.target.value)), Number(e.target.value)])} aria-valuetext={semesterLabel(axis[to])} />
+            <input type="range" min={0} max={last} value={to} onChange={e => setRange(moveRange([from, to], 'to', Number(e.target.value), last))} aria-valuetext={semesterLabel(axis[to])} />
           </label>
         </div>
       </Card>

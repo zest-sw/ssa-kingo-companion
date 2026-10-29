@@ -10,6 +10,8 @@ type Snapshot = { sig: string; records: RecordItem[] };
 let analyzed: Snapshot | null = null;
 
 const shouldFail = () => {
+  // 실패 확인용 스위치는 개발 중에만 읽는다.
+  if (!import.meta.env.DEV) return false;
   try { return localStorage.getItem(ANALYSIS_FAIL_KEY) === '1'; } catch { return false; }
 };
 const clearFail = () => {
@@ -47,5 +49,7 @@ export function useAnalysis(records: RecordItem[]) {
     return () => window.clearTimeout(timer.current);
   }, [sig]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { status, records: snap.records, retry: () => run(true) };
+  // 기록이 바뀐 바로 그 렌더부터 로딩으로 본다. 그래야 reset·restore 직후에 이전 분석이 잠깐 비치지 않는다.
+  const stale = snap.sig !== sig && status === 'ready';
+  return { status: stale ? ('loading' as AnalysisStatus) : status, records: snap.records, retry: () => run(true) };
 }

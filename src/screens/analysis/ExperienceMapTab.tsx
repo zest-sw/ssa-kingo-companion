@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState } from '../../components';
-import { answerEdge, buildMap, edgesOf, edgeState, type EdgeAnswers, type MapEdge } from '../../domain/analysis/map';
+import { answerEdge, buildMap, clearRejected, edgesOf, edgeState, type EdgeAnswers, type MapEdge } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
 import type { RecordItem } from '../../domain/types';
 import { DID_LABEL, FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
@@ -40,7 +40,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
             {rejected.length > 0 && (
               <p className="an-note">
                 아니라고 한 연결 <b className="num">{rejected.length}</b>개는 숨겼어요.{' '}
-                <Button size="sm" variant="ghost" onClick={() => setAnswers(prev => Object.fromEntries(Object.entries(prev).filter(([, v]) => v !== 'no')))}>다시 보이기</Button>
+                <Button size="sm" variant="ghost" onClick={() => setAnswers(clearRejected)}>다시 보이기</Button>
               </p>
             )}
           </>
@@ -74,7 +74,7 @@ function MapDrawer({ pick, onClose, map, byId, answers, answer }: DrawerProps) {
                   <li key={e.id} className="an-edgerow">
                     <div>
                       <b>{other.title}</b>
-                      <p className="an-rec__meta">{reasonText(e, byId[e.a], byId[e.b])}</p>
+                      <p className="an-rec__meta">{reasonText(e, byId[e.a], byId[e.b], edgeState(e, answers) === 'confirmed')}</p>
                     </div>
                     <AnswerButtons id={e.id} answers={answers} answer={answer} />
                   </li>
@@ -94,7 +94,7 @@ function EdgeBody({ edge, byId, answers, answer }: { edge: MapEdge; byId: Record
   const st = edgeState(edge, answers);
   return (
     <>
-      <p className="an-edgewhy">{reasonText(edge, a, b)}</p>
+      <p className="an-edgewhy">{reasonText(edge, a, b, st === 'confirmed')}</p>
       <p className="an-edgestate">
         {st === 'confirmed' ? <Badge tone="green" icon="check">확인했어요</Badge> : st === 'rejected' ? <Badge>아니라고 했어요</Badge> : <Badge tone="dashed">AI 추정 · 확인 전</Badge>}
       </p>
@@ -115,9 +115,12 @@ function AnswerButtons({ id, answers, answer, large }: { id: string; answers: Ed
   );
 }
 
-function reasonText(e: MapEdge, a: RecordItem, b: RecordItem) {
+/** 확인 전 연결은 추정으로, 학생이 맞다고 한 연결만 사실로 말한다. */
+function reasonText(e: MapEdge, a: RecordItem, b: RecordItem, confirmed: boolean) {
+  const did = DID_LABEL[a.did];
+  const group = GROUP_LABEL[FIELD_GROUP[a.field]];
   const parts: string[] = [];
-  if (e.reasons.includes('did')) parts.push(`같은 일(${DID_LABEL[a.did]})을 했어요`);
-  if (e.reasons.includes('field')) parts.push(`같은 분야(${GROUP_LABEL[FIELD_GROUP[a.field]]})예요`);
+  if (e.reasons.includes('did')) parts.push(confirmed ? `같은 일(${did})을 했어요` : `같은 일(${did})로 보여요`);
+  if (e.reasons.includes('field')) parts.push(confirmed ? `같은 분야(${group})예요` : `같은 분야(${group})로 보여요`);
   return `${parts.join(' · ')} · ${semesterLabel(a.semester)} → ${semesterLabel(b.semester)}`;
 }
