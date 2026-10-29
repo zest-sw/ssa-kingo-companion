@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { prog, rec } from '../fixtures.test-util';
 import type { Activity } from '../types';
-import { buildFlow, summarizeFlow } from './flow';
-import { answerEdge, buildMap, edgeState, edgesOf, layoutMap } from './map';
+import { usedCount } from './discovery';
+import { buildFlow, clampRange, legendGroups, moveRange, summarizeFlow } from './flow';
+import { answerEdge, buildMap, clearRejected, edgeState, edgesOf, layoutMap, parseAnswers, pruneAnswers, visibleEdges } from './map';
 import { recordsSig } from './refresh';
+import { sigOf, discoveriesOf } from '../discoveries';
 import { semesterAxis, semesterKey, semesterLabel, sortRecords } from './semester';
-import { buildStrengths, differences, seenOf } from './strengths';
-import { buildTechTree } from './techtree';
+import { buildStrengths, differences, levelOfSeen, seenOf } from './strengths';
+import { buildTechTree, CANDIDATES_PER_CELL, recordOfActivity, relatedRecords } from './techtree';
 
 const act = (id: string, over: Partial<Activity> = {}): Activity => ({ id, title: id, field: 'dev', status: 'ongoing', schedule: '', ...over });
 
@@ -158,5 +160,77 @@ describe('분석 갱신 기준', () => {
     expect(recordsSig([a, b])).toBe(recordsSig([b, a]));
     expect(recordsSig([a])).not.toBe(recordsSig([a, b]));
     expect(recordsSig([a])).not.toBe(recordsSig([{ ...a, v: 2 }]));
+  });
+});
+
+describe('재작업: 화면에서 옮긴 계산', () => {
+  const rs = [rec('a', { did: 'listen', field: 'research', semester: '2026-1' }), rec('b', { did: 'listen', field: 'dev', semester: '2026-2' })];
+
+  it('다시 보이기는 아니에요만 지운다', () => {
+    expect(clearRejected({ 'a~b': 'no', 'b~c': 'yes' })).toEqual({ 'b~c': 'yes' });
+    expect(clearRejected({})).toEqual({});
+  });
+  it('보이는 연결은 거절한 것을 뺀다', () => {
+    const m = buildMap(rs);
+    expect(visibleEdges(m, {})).toHaveLength(1);
+    expect(visibleEdges(m, { 'a~b': 'no' })).toHaveLength(0);
+    expect(visibleEdges(m, { 'a~b': 'yes' })).toHaveLength(1);
+  });
+  it('지워진 기록을 가리키는 답은 버리고, 바뀐 게 없으면 같은 객체', () => {
+    const answers = { 'a~b': 'yes', 'b~c': 'no' } as const;
+    expect(pruneAnswers({ ...answers }, ['a', 'b'])).toEqual({ 'a~b': 'yes' });
+    const same = { ...answers };
+    expect(pruneAnswers(same, ['a', 'b', 'c'])).toBe(same);
+    expect(pruneAnswers(same, [])).toEqual({});
+  });
+  it('저장소 값은 모양이 맞을 때만 쓴다', () => {
+    expect(parseAnswers({ 'a~b': 'yes', 'b~c': 'maybe' })).toEqual({ 'a~b': 'yes' });
+    expect(parseAnswers(null)).toBeNull();
+    expect(parseAnswers([1])).toBeNull();
+    expect(parseAnswers('x')).toBeNull();
+  });
+  it('같은 분야 기록은 자기 자신을 빼고 개수 제한', () => {
+    const many = ['a', 'b', 'c', 'd', 'e'].map(id => rec(id, { field: 'research' }));
+    expect(relatedRecords(many, many[0]).map(r => r.id)).toEqual(['b', 'c', 'd']);
+    expect(relatedRecords(many, many[0], 1)).toHaveLength(1);
+    expect(relatedRecords([rec('x', { field: 'dev' }), rec('y')], rec('y'))).toEqual([]);
+  });
+  it('활동에 이어진 기록을 찾는다', () => {
+    expect(recordOfActivity([rec('r', { programId: 'p' })], act('x', { programId: 'p' }))?.id).toBe('r');
+    expect(recordOfActivity([rec('r')], act('x', { recordId: 'r' }))?.id).toBe('r');
+    expect(recordOfActivity([rec('r')], act('x'))).toBeUndefined();
+  });
+  it('구간은 축 밖으로 나가지 않고 뒤집히지 않는다', () => {
+    expect(clampRange([0, 9], 4)).toEqual([0, 4]);
+    expect(clampRange([7, 3], 4)).toEqual([3, 3]);
+    expect(clampRange([-2, -1], 4)).toEqual([0, 0]);
+    expect(moveRange([1, 3], 'from', 5, 6)).toEqual([5, 5]);
+    expect(moveRange([2, 3], 'to', 0, 6)).toEqual([0, 0]);
+    expect(moveRange([2, 3], 'to', 6, 6)).toEqual([2, 6]);
+  });
+  it('범례는 기록이 있는 분야만 고정 순서로', () => {
+    const rows = buildFlow([rec('a', { field: 'mentor' }), rec('b', { field: 'dev' })], ['2026-2']);
+    expect(legendGroups(rows)).toEqual(['dev', 'mentor']);
+    expect(legendGroups(buildFlow([], ['2026-2']))).toEqual([]);
+  });
+  it('반영 중인 발견 수는 맞아요만 세고 근거가 바뀐 것은 뺀다', () => {
+    const records = [rec('a', { did: 'make' }), rec('b', { did: 'make' }), rec('c', { did: 'ask' }), rec('d', { did: 'ask' })];
+    const [d1, d2] = discoveriesOf(records);
+    expect(usedCount([d1, d2], {})).toBe(0);
+    expect(usedCount([d1, d2], { [d1.key]: { status: 'yes', sig: d1.sig }, [d2.key]: { status: 'no', sig: d2.sig } })).toBe(1);
+    expect(usedCount([d1], { [d1.key]: { status: 'yes', sig: sigOf([rec('zzz')]) } })).toBe(0);
+  });
+  it('기록 수 경계: 0/1/3/4 와 수준 없음', () => {
+    expect([seenOf(0), seenOf(1), seenOf(3), seenOf(4)]).toEqual(['none', 'low', 'mid', 'high']);
+    expect(levelOfSeen('none')).toBeNull();
+    expect(levelOfSeen('mid')).toBe('mid');
+  });
+  it('테크 트리: 후보는 칸마다 제한하고 목록용은 전부, 후보만 있는 줄은 ? 로 남는다', () => {
+    const candidates = ['p1', 'p2', 'p3', 'p4'].map((id, i) => ({ program: prog(id, { field: 'data', did: ['make'] }), dday: i }));
+    const t = buildTechTree({ records: [], activities: [], candidates });
+    const ai = t.rows.find(r => r.group === 'ai')!;
+    expect(ai.cells).toHaveLength(CANDIDATES_PER_CELL);
+    expect(t.candidates).toHaveLength(4);
+    expect(ai.unknown).toBe(true);
   });
 });

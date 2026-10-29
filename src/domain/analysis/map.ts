@@ -75,3 +75,23 @@ export function layoutMap(map: ExperienceMap, s: LayoutSize): MapLayout {
   const pos = Object.fromEntries(map.nodes.map(n => [n.id, { x: colX[n.col], y: rowY[n.row] + n.slot * s.slotH }]));
   return { pos, width: s.padLeft + s.colW * map.semesters.length + s.padRight, height: y + s.padBottom, colX, rowY };
 }
+
+/** 지도에 그릴 연결: 아니라고 한 연결은 뺀다 */
+export const visibleEdges = (map: ExperienceMap, answers: EdgeAnswers) => map.edges.filter(e => edgeState(e, answers) !== 'rejected');
+
+/** '아니에요'만 지워서 숨긴 연결을 다시 보이게 한다. 맞아요는 그대로 둔다. */
+export const clearRejected = (answers: EdgeAnswers): EdgeAnswers => Object.fromEntries(Object.entries(answers).filter(([, v]) => v !== 'no'));
+
+/** 지워진 기록을 가리키는 답을 버린다(연결 id 는 '기록~기록'). 바뀐 게 없으면 같은 객체를 돌려준다. */
+export function pruneAnswers(answers: EdgeAnswers, recordIds: string[]): EdgeAnswers {
+  const alive = new Set(recordIds);
+  const kept = Object.entries(answers).filter(([id]) => id.split('~').every(r => alive.has(r)));
+  return kept.length === Object.keys(answers).length ? answers : Object.fromEntries(kept);
+}
+
+/** 저장소에서 읽은 값이 EdgeAnswers 모양일 때만 쓴다 */
+export function parseAnswers(raw: unknown): EdgeAnswers | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const entries = Object.entries(raw).filter(([, v]) => v === 'yes' || v === 'no') as [string, 'yes' | 'no'][];
+  return Object.fromEntries(entries);
+}

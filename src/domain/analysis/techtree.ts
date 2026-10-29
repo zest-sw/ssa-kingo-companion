@@ -39,11 +39,9 @@ export function buildTechTree(input: { records: RecordItem[]; activities: Activi
   }));
 
   // 기록으로 옮겨진 활동은 기록 칸이 대신한다. 신청 전·결과 대기·떨어진 신청은 아직 한 활동이 아니라서 뺀다.
-  const recordIds = new Set(input.records.map(r => r.id));
-  const programIds = new Set(input.records.map(r => r.programId).filter(Boolean));
   for (const a of input.activities) {
     if (a.status !== 'ongoing' && a.status !== 'ended' && a.status !== 'recorded') continue;
-    if ((a.recordId && recordIds.has(a.recordId)) || (a.programId && programIds.has(a.programId))) continue;
+    if (recordOfActivity(input.records, a)) continue;
     cells.push({ id: `a:${a.id}`, kind: a.status === 'ongoing' ? 'ongoing' : 'done', label: a.title, field: a.field, group: FIELD_GROUP[a.field], col: 1, activityId: a.id });
   }
   const candidateCells: TreeCell[] = [];
@@ -86,3 +84,11 @@ export function buildTechTree(input: { records: RecordItem[]; activities: Activi
   }
   return { rows, links, candidates: candidateCells };
 }
+
+/** 칸 서랍에서 같은 분야의 다른 기록 */
+export const relatedRecords = (records: RecordItem[], record: RecordItem, limit = 3) =>
+  records.filter(r => r.id !== record.id && r.field === record.field).slice(0, limit);
+
+/** 활동에 이어진 기록(있으면). 회고를 썼는지의 근거다. */
+export const recordOfActivity = (records: RecordItem[], a: Activity) =>
+  records.find(r => (a.recordId && r.id === a.recordId) || (a.programId && r.programId === a.programId));

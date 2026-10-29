@@ -29,3 +29,19 @@ export function summarizeFlow(rows: FlowRow[], from: number, to: number): { tota
   }).filter(s => s.count > 0);
   return { total, segments };
 }
+
+export type FlowRange = [from: number, to: number];
+
+/** 학기 수가 바뀌어도 구간이 축 밖으로 나가지 않게, 시작이 끝을 넘지 않게 */
+export function clampRange([from, to]: FlowRange, last: number): FlowRange {
+  const hi = Math.max(0, Math.min(to, last));
+  return [Math.max(0, Math.min(from, hi)), hi];
+}
+
+/** 슬라이더 하나를 옮긴다. 반대쪽 끝이 밀려나서 구간이 뒤집히지 않는다. */
+export function moveRange(range: FlowRange, which: 'from' | 'to', value: number, last: number): FlowRange {
+  return clampRange(which === 'from' ? [value, Math.max(value, range[1])] : [Math.min(range[0], value), value], last);
+}
+
+/** 범례에 올릴 분야: 어느 학기에든 기록이 있는 묶음만, 고정 순서로 */
+export const legendGroups = (rows: FlowRow[]): FieldGroup[] => TREE_GROUPS.filter(g => rows.some(r => r.segments.some(s => s.group === g)));

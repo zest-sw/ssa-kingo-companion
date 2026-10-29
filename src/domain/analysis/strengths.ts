@@ -24,3 +24,19 @@ export function buildStrengths(records: RecordItem[], self: Record<Axis, Level>)
 
 /** '내 생각과 기록이 달라요'에 모을 항목 */
 export const differences = (rows: StrengthRow[]) => rows.filter(r => r.gap !== 'same');
+
+/** 기록에서 보이는 수준이 있으면 그 수준, 없으면 null */
+export const levelOfSeen = (seen: Seen): Level | null => (seen === 'none' ? null : seen);
+export const levelLabel = (l: Level) => LEVELS.find(x => x.id === l)?.label ?? '';
+
+/** 저장소에서 읽은 '내 생각'은 모든 역량에 알맞은 수준이 있을 때만 쓴다. 빠진 역량은 기본값으로 채운다. */
+export function parseSelf(raw: unknown, fallback: Record<Axis, Level>): Record<Axis, Level> | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const src = raw as Record<string, unknown>;
+  const out = { ...fallback };
+  for (const { id } of AXES) {
+    const v = src[id];
+    if (v === 'low' || v === 'mid' || v === 'high') out[id] = v;
+  }
+  return out;
+}
