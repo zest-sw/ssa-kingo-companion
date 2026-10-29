@@ -2,23 +2,23 @@
 
 /* 이 화면만 쓰는 치수. 간격·글자·클릭 최소 높이는 공용 토큰을 쓴다. */
 :root {
-  --act-col-min-h: 360px;
+  --act-col-min-h: 240px;
   --act-ring: 1.5px;
-  --act-dot: 12px;
+  --act-dot: 8px;
   --act-fact-label-w: 72px;
 }
 
-.act-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); align-items: start; }
-.act-col { background: var(--bg-sunken); border-radius: var(--radius-lg); padding: var(--space-4); min-height: var(--act-col-min-h); min-width: 0; }
-.act-col__head { display: flex; align-items: baseline; gap: var(--space-2); padding: var(--space-2) var(--space-3) var(--space-4); font-size: var(--text-xl); font-weight: var(--weight-bold); }
-.act-col__count { font-size: var(--text-lg); font-weight: var(--weight-medium); color: var(--ink-subtle); }
-.act-col__list { display: flex; flex-direction: column; gap: var(--space-3); }
+.act-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
+.act-col { border: var(--border); border-radius: var(--radius-lg); padding: var(--space-3); min-height: var(--act-col-min-h); min-width: 0; background: var(--surface-alt); }
+.act-col__head { display: flex; align-items: baseline; gap: var(--space-2); padding: var(--space-1) var(--space-2) var(--space-3); font-size: var(--text-md); font-weight: var(--weight-bold); }
+.act-col__count { font-size: var(--text-md); font-weight: var(--weight-medium); color: var(--ink-subtle); }
+.act-col__list { display: flex; flex-direction: column; gap: var(--space-2); }
 .act-col .ui-state { padding: var(--space-8) var(--space-4); }
 
-.act-card { position: relative; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); border-radius: var(--radius-md); background: var(--surface); min-width: 0; }
+.act-card { position: relative; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border: var(--border); border-radius: var(--radius-md); background: var(--surface); min-width: 0; }
 .act-card:hover { background: var(--surface-alt); }
 .act-card__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
-.act-card__title { font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+.act-card__title { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
 /* 제목 버튼이 카드 전체를 누르는 영역이 된다. 회고 쓰기 버튼은 그 위에 둔다. */
 .act-card__open { all: unset; cursor: pointer; }
 .act-card__open::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-md); }
@@ -32,14 +32,14 @@
 .act-table th, .act-table td { padding: var(--space-3); text-align: left; border-bottom: var(--border); vertical-align: middle; }
 .act-table thead th { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--ink-muted); }
 .act-table tbody tr:last-child > * { border-bottom: 0; }
-.act-table tbody th { font-weight: var(--weight-bold); font-size: var(--text-lg); }
+.act-table tbody th { font-weight: var(--weight-bold); font-size: var(--text-md); }
 .act-table__open { all: unset; cursor: pointer; display: inline-flex; align-items: center; min-height: var(--hit-min); border-radius: var(--radius-sm); }
 .act-table__open:hover { text-decoration: underline; }
 .act-table__open:focus-visible { box-shadow: var(--focus-ring); }
 .act-table__meta { color: var(--ink-muted); }
 .act-table__act { text-align: right; white-space: nowrap; }
 
-.act-drawer { display: flex; flex-direction: column; gap: var(--space-6); }
+.act-drawer { display: flex; flex-direction: column; gap: var(--space-5); }
 .act-drawer__line { color: var(--ink-muted); }
 .act-stages { display: flex; justify-content: space-between; gap: var(--space-2); }
 .act-stage { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); font-size: var(--text-xs); color: var(--ink-subtle); }

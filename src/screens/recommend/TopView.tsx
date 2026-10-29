@@ -72,19 +72,19 @@ export function TopView({ primary, isPrimary, alternatives, week, funnel, record
           </div>
         </div>
 
-        <aside className="rec-side" aria-label="신청 준비">
-          <p className="rec-side__head">‘신청 준비’를 누르면 에이전트가</p>
-          <ul className="rec-side__tasks">
-            {AGENT_TASKS.map(t => <li key={t.text}><span className="rec-side__icon"><Icon name={t.icon} size={18} /></span>{t.text}</li>)}
+        <aside className="rec-aside" aria-label="신청 준비">
+          <p className="rec-aside__head">‘신청 준비’를 누르면 에이전트가</p>
+          <ul className="rec-aside__tasks">
+            {AGENT_TASKS.map(t => <li key={t.text}><span className="rec-aside__icon"><Icon name={t.icon} size={16} /></span>{t.text}</li>)}
           </ul>
-          <div className="rec-side__btns">
+          <div className="rec-aside__btns">
             <Button variant="primary" block onClick={() => actions.onPrepare(p)}>신청 준비</Button>
-            <div className="rec-side__row">
+            <div className="rec-aside__row">
               <Button block onClick={() => actions.onLater(p)}>나중에 보기</Button>
               <Button block onClick={() => actions.onDismiss(p)}>관심 없음</Button>
             </div>
           </div>
-          <p className="rec-side__note">신청은 내가 확인하고 누를 때만 나가요</p>
+          <p className="rec-aside__note">신청은 내가 확인하고 누를 때만 나가요</p>
         </aside>
       </Card>
 
@@ -124,12 +124,12 @@ export function TopView({ primary, isPrimary, alternatives, week, funnel, record
         </section>
         <section aria-labelledby="why-m" className="rec-drawer__sec">
           <h3 id="why-m" className="rec-drawer__h">고른 방법</h3>
-          <ol className="rec-steps">
+          <ol className="rec-flow">
             {funnelSteps(funnel).map((s, i) => (
-              <li key={s.label} className="rec-step">
-                <span className="rec-step__label">{i + 1}. {s.label}</span>
+              <li key={s.label} className="rec-flow__step">
+                <span className="rec-flow__label">{i + 1}. {s.label}</span>
                 <ProgressBar value={s.count} max={funnel.pool} label={s.label} />
-                <span className="rec-step__n num">{s.count}개</span>
+                <span className="rec-flow__n num">{s.count}개</span>
               </li>
             ))}
           </ol>

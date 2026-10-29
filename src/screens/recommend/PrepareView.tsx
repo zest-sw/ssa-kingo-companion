@@ -108,11 +108,11 @@ export function PrepareView({ programId }: { programId: string }) {
               </li>
             ))}
           </ul>
-          <section className="rec-log" aria-labelledby="rec-log-head">
-            <h3 id="rec-log-head" className="rec-log__head">실행 기록</h3>
+          <section className="rec-runlog" aria-labelledby="rec-runlog-head">
+            <h3 id="rec-runlog-head" className="rec-runlog__head">실행 기록</h3>
             <ul>
               {log.map((l, n) => (
-                <li key={n} className={l.ok ? '' : 'rec-log__fail'}>
+                <li key={n} className={l.ok ? '' : 'rec-runlog__fail'}>
                   <Icon name={l.ok ? 'check' : 'alert'} size={14} />
                   <span className="num">오늘 {l.time}</span>
                   <span>{l.text}</span>
