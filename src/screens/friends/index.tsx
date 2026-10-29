@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate, type ScreenProps } from '../../app/router';
 import { Button, PageHeader, TabPanel, Tabs, type TabItem } from '../../components';
-import { canUseSocial, type RecruitPost } from '../../domain/social';
+import { canUseSocial } from '../../domain/social';
 import { SEED_POSTS } from '../../data/friends';
 import { Gate } from './Gate';
 import { HallView } from './HallView';
@@ -38,16 +38,16 @@ const OPENS: Record<Exclude<Sub, 'visibility'>, { icon: 'friends' | 'flag' | 'tr
 };
 
 export default function FriendsScreen({ sub }: ScreenProps) {
-  const { state } = useApp();
+  const { state, run } = useApp();
   const current: Sub = TABS.some(t => t.id === sub) ? (sub as Sub) : 'profile';
   const open = canUseSocial(state.visibility);
-  // 모집 글은 탭을 옮겨도 남게 이 화면에서 들고 있다. 이번 세션 동안만이다.
-  const [posts, setPosts] = useState<RecruitPost[]>(SEED_POSTS);
+  // 내가 올린 모집 글은 전역 상태에 둔다(새로고침하면 사라진다). 예시 글 앞에 새 글이 온다.
+  const posts = useMemo(() => [...state.recruitPosts, ...SEED_POSTS], [state.recruitPosts]);
 
   const body = current === 'visibility' ? <VisibilityView />
     : !open ? <Gate opens={OPENS[current]} />
     : current === 'profile' ? <ProfileView />
-    : current === 'recruit' ? <RecruitView posts={posts} onPost={p => setPosts(list => [p, ...list])} />
+    : current === 'recruit' ? <RecruitView posts={posts} onPost={post => run({ type: 'recruit/post', post })} />
     : <HallView />;
 
   return (

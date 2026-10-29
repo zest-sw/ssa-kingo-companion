@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
+import { useChallenges, type ChallengeView } from '../../app/challenges';
 import { navigate, type ScreenProps } from '../../app/router';
 import { Button, Card, EmptyState, Icon, PageHeader, Stat, TabPanel, Tabs, type TabItem } from '../../components';
 import { isInProgress } from '../../domain/challenges';
 import { toggled } from '../../domain/social';
 import { ChallengeCard } from './ChallengeCard';
-import { useChallenges, type ChallengeView } from './useChallenges';
 import './challenges.css';
 
 type Tab = 'all' | 'done' | 'doing' | 'hidden';

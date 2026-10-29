@@ -5,10 +5,9 @@ import { Badge, Button, Card, EmptyState, ErrorState, Icon, LoadingState, PageHe
 import { APPLY_URL, DRAFT_DELAY } from '../../data/recommend';
 import { PROGRAM_BY_ID } from '../../data/catalog';
 import { runLog, writeDraft, type Draft } from '../../domain/recommend-flow/draft';
-import { clockLabel, dateLabel, mostUrgent, needsTeam, prepItemsFor, prepProgress, remainingItems, submitBlockReason, submitPatch, toggleItem, type PrepItem } from '../../domain/recommend-flow/flow';
+import { clockLabel, dateLabel, mostUrgent, needsTeam, prepItemsFor, remainingItems, submitBlockReason, submitPatch, toggleItem, type PrepItem } from '../../domain/recommend-flow/flow';
 import { ddayOf } from '../../domain/recommend';
 import { ddayText } from '../../domain/text';
-import { getPrep, setPrep } from './prepStore';
 
 type DraftState = { status: 'writing' } | { status: 'ready'; draft: Draft; at: string } | { status: 'error' };
 
@@ -19,19 +18,17 @@ export function PrepareView({ programId }: { programId: string }) {
   const { state, run } = useApp();
   const p = PROGRAM_BY_ID[programId];
   const activity = state.activities.find(a => a.programId === programId);
-  const [items, setItems] = useState<PrepItem[]>(() => (p ? getPrep(programId) ?? prepItemsFor(p, state.week, nowLabel()) : []));
+  // 체크 상태는 활동에 남는다. 아직 활동이 아니면(주소로 바로 연 경우) 처음 체크리스트를 보여 주기만 한다.
+  const [fresh] = useState<PrepItem[]>(() => (p ? prepItemsFor(p, state.week, nowLabel()) : []));
+  const items = activity?.prepItems ?? fresh;
   const [revision, setRevision] = useState(0);
   const [attempt, setAttempt] = useState(0);
   const [draft, setDraft] = useState<DraftState>({ status: 'writing' });
 
-  // 체크리스트 진행도를 내 활동에 반영한다.
+  // 신청 준비를 막 시작한 활동에 체크리스트를 붙인다. 진행도(prep)도 함께 내 활동에 반영된다.
   useEffect(() => {
-    if (!activity || activity.status !== 'preparing') return;
-    const pr = prepProgress(items);
-    if (!activity.prep || activity.prep.done !== pr.done || activity.prep.total !== pr.total) {
-      run({ type: 'activity/update', id: activity.id, patch: { prep: pr } });
-    }
-  }, [items, activity, run]);
+    if (activity?.status === 'preparing' && !activity.prepItems) run({ type: 'activity/prepItems', id: activity.id, items: fresh });
+  }, [activity, fresh, run]);
 
   useEffect(() => {
     if (!p) return;
@@ -62,9 +59,7 @@ export function PrepareView({ programId }: { programId: string }) {
 
   const dday = ddayOf(p, state.week);
   const change = (id: string) => {
-    const next = toggleItem(items, id, nowLabel());
-    setItems(next);
-    setPrep(programId, next);
+    if (activity) run({ type: 'activity/prepItems', id: activity.id, items: toggleItem(items, id, nowLabel()) });
   };
 
   const submitted = !!activity && activity.status !== 'preparing';
@@ -84,8 +79,8 @@ export function PrepareView({ programId }: { programId: string }) {
   };
 
   const giveUp = () => {
-    // 활동을 목록에서 지우는 액션이 없어, 지금 상태에서 이 활동을 뺀 상태로 되돌린다.
-    run({ type: 'restore', state: { ...state, activities: state.activities.filter(a => a.programId !== programId), choices: { ...state.choices, [programId]: 'dismissed' } } }, { toast: '신청 준비를 그만뒀어요.', undoable: true });
+    // 활동이 있으면 지우고(후보는 관심 없음으로), 아직 활동이 아니면 후보만 관심 없음으로 둔다.
+    run(activity ? { type: 'activity/remove', id: activity.id } : { type: 'candidate/choose', programId, choice: 'dismissed' }, { toast: '신청 준비를 그만뒀어요.', undoable: true });
     navigate('recommend');
   };
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Activity } from '../../domain/types';
-import { canQuit, dueText, dueView, metaView, quitPatch } from './helpers';
+import { canQuit, dueText, dueView, metaView } from './helpers';
 
 const a = (over: Partial<Activity> = {}): Activity => ({ id: 'a', title: 't', field: 'dev', status: 'preparing', schedule: '11월부터 매주', ...over });
 
@@ -29,10 +29,6 @@ describe('metaView', () => {
 });
 
 describe('그만두기', () => {
-  it('끝난 것(이번엔 안 됨)으로 옮기고 마감·준비를 비운다', () => {
-    const next = { ...a({ prep: { done: 1, total: 2 }, due: { label: '신청 마감', dday: 3 } }), ...quitPatch() };
-    expect(next).toMatchObject({ status: 'declined', schedule: '직접 그만뒀어요', due: undefined, prep: undefined });
-  });
   it('기록됐거나 이미 안 된 활동은 그만둘 수 없다', () => {
     expect(canQuit(a())).toBe(true);
     expect(canQuit(a({ status: 'ongoing' }))).toBe(true);

@@ -4,14 +4,12 @@ import { navigate, type ScreenProps } from '../../app/router';
 import { Badge, Button, PageHeader, Stat } from '../../components';
 import { EXAMPLE_PROFILE } from '../../data/seed';
 import { dueToday, evidenceRows, homeCounts, interestFlow, pendingDiscovery, weeklyItems } from '../../domain/recommend-flow/home';
-import { useCandidateView } from '../recommend/useCandidateView';
 import { Onboarding } from './Onboarding';
 import { DiscoveryPanel, EvidencePanel, FlowPanel, WeeklyPanel } from './Panels';
 import './home.css';
 
 export default function HomeScreen(_props: ScreenProps) {
-  const { state, discStateOf, run } = useApp();
-  const view = useCandidateView();
+  const { state, view, discStateOf, run } = useApp();
 
   const counts = useMemo(() => homeCounts(state.activities, view.newCount, view.discoveries, discStateOf), [state.activities, view.newCount, view.discoveries, discStateOf]);
   const rows = useMemo(() => evidenceRows(state.records, view.discoveries, discStateOf), [state.records, view.discoveries, discStateOf]);

@@ -5,14 +5,13 @@ import { useApp } from '../../app/AppState';
 import { factsOf } from '../../data/activities';
 import { CURRENT_TERM, QUICK_ANSWERS } from '../../data/records';
 import { answer, editField, isCardStep, missingSteps, startInterview, stepStatuses, type InterviewState } from '../../domain/interview/engine';
-import { recordedPatch } from '../../domain/interview/transitions';
 import { buildRecord, evidenceOf, inferDid, savedSummary, type SavedSummary } from '../../domain/interview/record';
 import { ENERGY_PROMPT, STEP_LABEL, STEP_ORDER, type CardStep } from '../../domain/interview/schema';
 import type { Activity, Axis, Energy, RecordVisibility } from '../../domain/types';
 import { DID_AXES, ENERGY, FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
 import { RecordCardView } from './RecordCardView';
 import { RecordsTabs } from './RecordsTabs';
-import { clearDraft, getDraft, saveDraft, setConfirmedAxes, toggleAxis, type Message } from './stores';
+import { toggleAxis, type Message } from '../../domain/interview/draft';
 import { useAgentQueue } from './useAgentQueue';
 
 /** 저장 버튼 아래 안내 한 줄: 빈 칸이 먼저, 그다음 에너지 */
@@ -25,7 +24,7 @@ export function Interview({ activity }: { activity: Activity }) {
   const { state, run } = useApp();
   const toast = useToast();
   const facts = factsOf(activity);
-  const saved = useRef(getDraft(activity.id)).current;
+  const saved = useRef(state.drafts[activity.id]).current;
   const nextId = useRef(saved ? saved.messages.length : 0);
 
   const [messages, setMessages] = useState<Message[]>(saved?.messages ?? []);
@@ -70,7 +69,7 @@ export function Interview({ activity }: { activity: Activity }) {
 
   const pause = () => {
     const rest = drain().map(text => ({ id: nextId.current++, from: 'agent' as const, text }));
-    saveDraft(activity.id, { messages: [...messages, ...rest], interview: iv, energy, visibility, useForRecommend, confirmed });
+    run({ type: 'draft/save', activityId: activity.id, draft: { messages: [...messages, ...rest], interview: iv, energy, visibility, useForRecommend, confirmed } });
     toast('초안을 저장했어요. 다시 열면 이어서 쓸 수 있어요.');
     navigate('records/interview');
   };
@@ -93,10 +92,8 @@ export function Interview({ activity }: { activity: Activity }) {
           card: iv.card, energy, visibility, useForRecommend
         });
         setSummary(savedSummary(state.records, record));
-        run({ type: 'record/add', record });
-        run({ type: 'activity/update', id: activity.id, patch: recordedPatch(record.id) });
-        setConfirmedAxes(record.id, confirmed.filter(a => record.axes.includes(a)));
-        clearDraft(activity.id);
+        // 기록이 생기면 활동은 '기록됨'이 되고 초안은 지워진다(reducer).
+        run({ type: 'record/add', record: { ...record, confirmedAxes: confirmed.filter(a => record.axes.includes(a)) }, activityId: activity.id });
         setPhase('done');
       } catch {
         setPhase('error');

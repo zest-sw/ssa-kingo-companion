@@ -2,12 +2,11 @@ import { Badge, Button, Card, EmptyState, FieldTag, PageHeader } from '../../com
 import { navigate } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { RecordsTabs } from './RecordsTabs';
-import { useDraftIds } from './stores';
 
 /** 활동 없이 '회고 쓰기'를 열었을 때: 회고 대기 활동 목록 */
 export function Pending() {
   const { state } = useApp();
-  const drafts = useDraftIds();
+  const drafts = Object.keys(state.drafts);
   const list = state.activities.filter(a => a.status === 'ended');
   return (
     <>

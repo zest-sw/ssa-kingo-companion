@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
+import { useChallenges } from '../../app/challenges';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, EmptyState, Icon, useToast } from '../../components';
 import { showcaseable } from '../../domain/challenges';
 import { publicActivities, publicRecords } from '../../domain/social';
 import { FIELD_GROUP, FIELD_LABEL } from '../../domain/vocab';
 import { DONE_BY, FEED, FRIENDS, INCOMING, SIMILAR_PEERS, type Peer } from '../../data/friends';
-import { useChallenges } from '../challenges/useChallenges';
 
 const Avatar = ({ name }: { name: string }) => <span className="fr-avatar" aria-hidden="true">{name.slice(0, 1)}</span>;
 const peerLine = (p: Peer) => `${p.dept} ${p.year}학년 · ${p.note}`;

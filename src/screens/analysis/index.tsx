@@ -1,19 +1,16 @@
-import { useEffect } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate, type ScreenProps } from '../../app/router';
-import { Card, ErrorState, LoadingState, PageHeader, TabPanel, Tabs, type TabItem } from '../../components';
-import { parseAnswers, pruneAnswers, type EdgeAnswers } from '../../domain/analysis/map';
-import { parseSelf, type Level } from '../../domain/analysis/strengths';
+import { Card, ErrorState, Icon, LoadingState, PageHeader, TabPanel, Tabs, type TabItem } from '../../components';
+import type { EdgeAnswers } from '../../domain/analysis/map';
+import type { Level } from '../../domain/analysis/strengths';
 import type { Axis } from '../../domain/types';
-import { INITIAL_SELF, SEMESTER_NOW } from '../../data/analysis';
+import { SEMESTER_NOW } from '../../data/analysis';
 import { semesterLabel } from '../../domain/analysis/semester';
-import { EyeIcon } from './EyeIcon';
 import ExperienceMapTab from './ExperienceMapTab';
 import FlowTab from './FlowTab';
 import StrengthsTab from './StrengthsTab';
 import TechTreeTab from './TechTreeTab';
 import { useAnalysis } from './useAnalysis';
-import { useKept } from './useKept';
 import './analysis.css';
 
 type TabId = 'techtree' | 'map' | 'flow' | 'strengths';
@@ -25,20 +22,17 @@ const TABS: TabItem<TabId>[] = [
 const tabOf = (sub?: string): TabId => TABS.find(t => t.id === sub?.split('/')[0])?.id ?? 'techtree';
 
 export default function AnalysisScreen({ sub }: ScreenProps) {
-  const { state } = useApp();
+  const { state, run } = useApp();
   const analysis = useAnalysis(state.records);
   const tab = tabOf(sub);
-  const [answers, setAnswers] = useKept<EdgeAnswers>('edge-answers', {}, parseAnswers);
-  const [self, setSelf] = useKept<Record<Axis, Level>>('self-levels', INITIAL_SELF, raw => parseSelf(raw, INITIAL_SELF));
-
-  // 기록이 지워지면 그 기록을 가리키던 연결 답도 지운다.
-  const recordIds = state.records.map(r => r.id).join('|');
-  useEffect(() => { setAnswers(prev => pruneAnswers(prev, state.records.map(r => r.id))); }, [recordIds]); // eslint-disable-line react-hooks/exhaustive-deps
+  // 연결 확인과 '내 생각'은 전역 상태에 둔다. 기록을 지우면 그 기록의 연결 답도 reducer 가 함께 지운다.
+  const setAnswers = (next: (prev: EdgeAnswers) => EdgeAnswers) => run({ type: 'analysis/answers', answers: next(state.edgeAnswers) });
+  const setSelf = (next: (prev: Record<Axis, Level>) => Record<Axis, Level>) => run({ type: 'analysis/self', self: next(state.selfLevels) });
 
   return (
     <>
       <PageHeader eyebrow={`${semesterLabel(SEMESTER_NOW)} · 나의 분석`} title="나의 분석" />
-      <p className="an-private"><EyeIcon />여기 있는 분석은 나에게만 보여요.</p>
+      <p className="an-private"><Icon name="eye" size={16} />여기 있는 분석은 나에게만 보여요.</p>
       <Tabs id="analysis" label="나의 분석" items={TABS} value={tab} onChange={id => navigate(`analysis/${id}`)} />
       <TabPanel id="analysis" active={tab}>
         {analysis.status === 'loading' && (
@@ -48,9 +42,9 @@ export default function AnalysisScreen({ sub }: ScreenProps) {
           <Card><ErrorState message="새 기록을 분석하지 못했어요. 지난 분석은 그대로예요." onRetry={analysis.retry} /></Card>
         )}
         {analysis.status === 'ready' && tab === 'techtree' && <TechTreeTab records={analysis.records} />}
-        {analysis.status === 'ready' && tab === 'map' && <ExperienceMapTab records={analysis.records} answers={answers} setAnswers={setAnswers} />}
+        {analysis.status === 'ready' && tab === 'map' && <ExperienceMapTab records={analysis.records} answers={state.edgeAnswers} setAnswers={setAnswers} />}
         {analysis.status === 'ready' && tab === 'flow' && <FlowTab records={analysis.records} />}
-        {analysis.status === 'ready' && tab === 'strengths' && <StrengthsTab records={analysis.records} self={self} setSelf={setSelf} />}
+        {analysis.status === 'ready' && tab === 'strengths' && <StrengthsTab records={analysis.records} self={state.selfLevels} setSelf={setSelf} />}
       </TabPanel>
     </>
   );
