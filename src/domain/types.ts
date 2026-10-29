@@ -83,6 +83,17 @@ export type Settings = {
   career: boolean;
 };
 
+/** 알림 받을 시각(시). 예시 설정이고 실제 발송은 없다 */
+export type NotifyHour = 9 | 12 | 19;
+
+/** 알림 예산(기준 문서): 새 후보는 묶어서, 활동은 전날, 회고 알림은 최대 2번 */
+export type NotifyPrefs = {
+  newCandidates: boolean;
+  dayBefore: boolean;
+  retro: boolean;
+  hour: NotifyHour;
+};
+
 export type Visibility = {
   /** 프로필 공개. 기본 false(비공개). false 면 소셜 기능을 쓸 수 없다 */
   profilePublic: boolean;

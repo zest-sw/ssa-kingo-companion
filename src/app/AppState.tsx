@@ -35,7 +35,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   latest.current = state;
 
   useEffect(() => { saveState(state); }, [
-    state.profile, state.onboarded, state.visibility, state.choices, state.laterUntil, state.dislikedFields, state.preferEasier,
+    state.profile, state.onboarded, state.visibility, state.settings, state.notify, state.choices, state.laterUntil, state.dislikedFields, state.preferEasier,
     state.activities, state.drafts, state.edgeAnswers, state.selfLevels
   ]);
 

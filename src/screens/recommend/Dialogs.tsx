@@ -1,10 +1,7 @@
-import { useState } from 'react';
-import { Badge, Button, Chip, Drawer, EmptyState, Modal } from '../../components';
-import { DISLIKES, INTEREST_OPTIONS } from '../../data/options';
-import { FORMAT_OPTIONS } from '../../data/options';
-import { dateLabel, laterDateLabel, LATER_CHOICES, toggleInterest } from '../../domain/recommend-flow/flow';
-import type { DislikeKind, Interest, Profile, Program } from '../../domain/types';
-import { TIME_OPTIONS } from '../../domain/vocab';
+import { Button, Drawer, EmptyState, Modal } from '../../components';
+import { DISLIKES } from '../../data/options';
+import { dateLabel, laterDateLabel, LATER_CHOICES } from '../../domain/recommend-flow/flow';
+import type { DislikeKind, Program } from '../../domain/types';
 
 /** 관심 없음: 이유를 고르면 추천 규칙에 반영된다 */
 export function DismissModal({ program, onPick, onClose }: { program?: Program; onPick: (p: Program, kind: DislikeKind) => void; onClose: () => void }) {
@@ -71,36 +68,3 @@ export function LaterDrawer({ open, programs, laterUntil, onClose, onBack, onPre
   );
 }
 
-/** 맞는 후보가 없을 때 관심 분야·시간·방식을 바꾼다 */
-export function ProfileDrawer({ open, profile, onSave, onClose }: { open: boolean; profile: Profile; onSave: (p: Profile) => void; onClose: () => void }) {
-  const [draft, setDraft] = useState(profile);
-  const toggle = (id: Interest) => setDraft(d => ({ ...d, interests: toggleInterest(d.interests, id) }));
-  return (
-    <Drawer
-      open={open}
-      title="관심과 시간 바꾸기"
-      eyebrow="추천 조건"
-      onClose={onClose}
-      footer={<><Button onClick={onClose}>취소</Button><Button variant="primary" onClick={() => onSave(draft)}>저장하고 다시 고르기</Button></>}
-    >
-      <section className="rec-prof" aria-labelledby="prof-i">
-        <h3 id="prof-i" className="rec-prof__h">관심 분야 <Badge>최대 3개</Badge></h3>
-        <div className="rec-prof__chips">
-          {INTEREST_OPTIONS.map(o => <Chip key={o.id} selected={draft.interests.includes(o.id)} onClick={() => toggle(o.id)}>{o.label}</Chip>)}
-        </div>
-      </section>
-      <section className="rec-prof" aria-labelledby="prof-t">
-        <h3 id="prof-t" className="rec-prof__h">한 주에 쓸 시간</h3>
-        <div className="rec-prof__chips">
-          {TIME_OPTIONS.map(o => <Chip key={o.value} selected={draft.time === o.value} onClick={() => setDraft(d => ({ ...d, time: o.value }))}>{o.label}</Chip>)}
-        </div>
-      </section>
-      <section className="rec-prof" aria-labelledby="prof-f">
-        <h3 id="prof-f" className="rec-prof__h">방식</h3>
-        <div className="rec-prof__chips">
-          {FORMAT_OPTIONS.map(o => <Chip key={o.value} selected={draft.format === o.value} onClick={() => setDraft(d => ({ ...d, format: o.value }))}>{o.label}</Chip>)}
-        </div>
-      </section>
-    </Drawer>
-  );
-}

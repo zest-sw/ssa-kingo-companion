@@ -88,3 +88,17 @@ describe('localStorage', () => {
     expect(loadState()).toBe(INITIAL_STATE);
   });
 });
+
+describe('설정 화면에서 바꾼 것', () => {
+  it('데이터·알림 설정이 새로고침 뒤에도 남는다', () => {
+    const r = reload(play([{ type: 'settings/toggle', key: 'career' }, { type: 'notify/set', patch: { retro: false, hour: 19 } }]));
+    expect(r.settings).toEqual({ discover: true, career: false });
+    expect(r.notify).toEqual({ newCandidates: true, dayBefore: true, retro: false, hour: 19 });
+  });
+
+  it('모양이 틀린 설정 조각은 기본값으로 둔다', () => {
+    const r = restoreSaved({ ...toSaved(INITIAL_STATE), settings: { discover: 'no', career: false }, notify: { retro: 1, hour: 7 } });
+    expect(r.settings).toEqual({ discover: true, career: false });
+    expect(r.notify).toEqual(INITIAL_STATE.notify);
+  });
+});

@@ -8,11 +8,14 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-md);
   line-height: var(--leading);
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   word-break: keep-all;
   overflow-wrap: break-word;
 }
 h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; }
+h1, h2, h3, h4 { font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
 ul, ol { padding: 0; list-style: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }

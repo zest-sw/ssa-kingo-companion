@@ -11,7 +11,7 @@ type Props = Omit<HTMLAttributes<HTMLElement>, 'title'> & {
   children: ReactNode;
 };
 
-/** 흰 바탕, 반지름 16, 그림자 없음. */
+/** 흰 바탕, 1px 선, 반지름 6, 그림자 없음. */
 export function Card({ as: Tag = 'section', title, action, tone = 'surface', padding = 'lg', className, children, ...rest }: Props) {
   const id = useId();
   const cls = ['ui-card', tone === 'alt' && 'ui-card--alt', padding === 'md' && 'ui-card--md', className].filter(Boolean).join(' ');

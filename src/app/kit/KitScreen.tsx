@@ -108,7 +108,7 @@ export default function KitScreen({ sub }: ScreenProps) {
       </Section>
 
       <Section title="Card" usage="<Card title='역량 근거' action={<ConfirmLegend />}>">
-        <Card title="역량 근거" action={<ConfirmLegend />} className="kit-card"><p className="kit-muted">흰 바탕, 반지름 16, 그림자 없음.</p></Card>
+        <Card title="역량 근거" action={<ConfirmLegend />} className="kit-card"><p className="kit-muted">흰 바탕, 1px 선, 반지름 6, 그림자 없음.</p></Card>
         <Card tone="alt" padding="md" className="kit-card"><p className="kit-muted">tone="alt" · padding="md"</p></Card>
         <Card padding="md" className="kit-card" title={LONG}><FieldTag field="global" /></Card>
       </Section>

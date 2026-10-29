@@ -61,7 +61,7 @@ export function ProfileView() {
               {acts.map(a => <li key={a.id} className="fr-path"><span className={`ui-field__dot ui-field__dot--${FIELD_GROUP[a.field]}`} aria-hidden="true" /><span>{a.title}</span></li>)}
             </ul>
           ) : (
-            <EmptyState icon="flag" message="보여 줄 활동이 없어요. 공개 설정에서 보일 활동을 골라 보세요." action={<Button size="sm" onClick={() => navigate('friends/visibility')}>공개 설정 보기</Button>} />
+            <EmptyState icon="flag" message="보여 줄 활동이 없어요. 공개 범위 설정에서 보일 활동을 골라 보세요." action={<Button size="sm" onClick={() => navigate('settings/visibility')}>공개 범위 설정</Button>} />
           )}
           {retros.length > 0 && (
             <ul className="fr-retros">

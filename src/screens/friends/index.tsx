@@ -8,20 +8,19 @@ import { Gate } from './Gate';
 import { HallView } from './HallView';
 import { ProfileView } from './ProfileView';
 import { RecruitView } from './RecruitView';
-import { VisibilityView } from './VisibilityView';
 import './friends.css';
 
-type Sub = 'profile' | 'visibility' | 'recruit' | 'hall';
+// 공개 설정은 설정(#/settings/visibility)으로 옮겼다. 예전 경로는 router 가 넘겨 준다.
+type Sub = 'profile' | 'recruit' | 'hall';
 
 const TABS: TabItem<Sub>[] = [
   { id: 'profile', label: '프로필' },
-  { id: 'visibility', label: '공개 설정' },
   { id: 'recruit', label: '팀원 모집' },
   { id: 'hall', label: '명예의 전당' }
 ];
-const TITLE: Record<Sub, string> = { profile: '내 프로필', visibility: '공개 설정', recruit: '팀원 모집', hall: '명예의 전당' };
+const TITLE: Record<Sub, string> = { profile: '내 프로필', recruit: '팀원 모집', hall: '명예의 전당' };
 
-const OPENS: Record<Exclude<Sub, 'visibility'>, { icon: 'friends' | 'flag' | 'trophy' | 'doc'; title: string; sub: string }[]> = {
+const OPENS: Record<Sub, { icon: 'friends' | 'flag' | 'trophy' | 'doc'; title: string; sub: string }[]> = {
   profile: [
     { icon: 'doc', title: '친구에게 이렇게 보여요', sub: '한 활동 목록과 고른 회고, 전시할 도전 과제' },
     { icon: 'friends', title: '친구 찾기', sub: '비슷한 학생과 서로 수락해서 친구 맺기' },
@@ -44,8 +43,7 @@ export default function FriendsScreen({ sub }: ScreenProps) {
   // 내가 올린 모집 글은 전역 상태에 둔다(새로고침하면 사라진다). 예시 글 앞에 새 글이 온다.
   const posts = useMemo(() => [...state.recruitPosts, ...SEED_POSTS], [state.recruitPosts]);
 
-  const body = current === 'visibility' ? <VisibilityView />
-    : !open ? <Gate opens={OPENS[current]} />
+  const body = !open ? <Gate opens={OPENS[current]} />
     : current === 'profile' ? <ProfileView />
     : current === 'recruit' ? <RecruitView posts={posts} onPost={post => run({ type: 'recruit/post', post })} />
     : <HallView />;
@@ -55,7 +53,7 @@ export default function FriendsScreen({ sub }: ScreenProps) {
       <PageHeader
         eyebrow="친구"
         title={TITLE[current]}
-        actions={current === 'profile' && open ? <Button icon="pencil" onClick={() => navigate('friends/visibility')}>공개 범위 설정</Button> : undefined}
+        actions={current === 'profile' && open ? <Button icon="pencil" onClick={() => navigate('settings/visibility')}>공개 범위 설정</Button> : undefined}
       />
       <Tabs id="friends" label="친구 화면" items={TABS} value={current} onChange={id => navigate(`friends/${id}`)} />
       <TabPanel id="friends" active={current}>{body}</TabPanel>

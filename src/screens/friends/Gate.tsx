@@ -18,7 +18,7 @@ export function Gate({ opens }: { opens: { icon: IconName; title: string; sub: s
           </li>
         ))}
       </ul>
-      <Button variant="primary" onClick={() => navigate('friends/visibility')}>공개 설정 보기</Button>
+      <Button variant="primary" onClick={() => navigate('settings/visibility')}>공개 범위 설정</Button>
     </Card>
   );
 }

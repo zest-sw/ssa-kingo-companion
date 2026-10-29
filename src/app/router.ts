@@ -4,8 +4,19 @@ import type { IconName } from '../components';
 /** 사이드바 메뉴 순서 그대로 */
 export const SCREENS = ['home', 'recommend', 'activities', 'records', 'analysis', 'challenges', 'friends'] as const;
 export type ScreenName = (typeof SCREENS)[number];
-/** '_kit' 은 컴포넌트 목록(개발용). 사이드바에는 없다. */
-export type RouteName = ScreenName | '_kit';
+/** 'settings' 는 사이드바 아래 톱니바퀴로 연다. '_kit' 은 컴포넌트 목록(개발용)이고 사이드바에 없다. */
+export type RouteName = ScreenName | 'settings' | '_kit';
+const OTHER_ROUTES: readonly string[] = ['settings', '_kit'];
+
+/** 자리를 옮긴 경로. 예전 링크와 북마크가 새 자리로 열린다. */
+const MOVED: Record<string, string> = { 'friends/visibility': 'settings/visibility' };
+
+/** 옮긴 경로면 새 경로('settings/visibility'), 아니면 undefined */
+export function movedPath(hash: string): string | undefined {
+  const path = hash.replace(/^#?\/?/, '').replace(/\/+$/, '');
+  const from = Object.keys(MOVED).find(k => path === k || path.startsWith(k + '/'));
+  return from && MOVED[from] + path.slice(from.length);
+}
 
 export const NAV: { id: ScreenName; label: string; icon: IconName }[] = [
   { id: 'home', label: '홈', icon: 'home' },
@@ -21,10 +32,10 @@ export const NAV: { id: ScreenName; label: string; icon: IconName }[] = [
 export type ScreenProps = { sub?: string };
 export type Route = { name: RouteName; sub?: string };
 
-/** '#/analysis/techtree/x' → { name: 'analysis', sub: 'techtree/x' }. 모르는 경로는 홈. */
+/** '#/analysis/techtree/x' → { name: 'analysis', sub: 'techtree/x' }. 모르는 경로는 홈, 옮긴 경로는 새 자리. */
 export function parseHash(hash: string): Route {
-  const [head, ...rest] = hash.replace(/^#\/?/, '').split('/');
-  const name = (SCREENS as readonly string[]).includes(head) || head === '_kit' ? (head as RouteName) : 'home';
+  const [head, ...rest] = (movedPath(hash) ?? hash.replace(/^#\/?/, '')).split('/');
+  const name = (SCREENS as readonly string[]).includes(head) || OTHER_ROUTES.includes(head) ? (head as RouteName) : 'home';
   const sub = name === head && rest.length ? rest.filter(Boolean).join('/') || undefined : undefined;
   return { name, sub };
 }
