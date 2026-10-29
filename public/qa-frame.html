@@ -19,7 +19,7 @@
   const hash = q.get('path') || '';
   const f = document.getElementById('f');
   f.style.width = w + 'px';
-  f.src = '/' + hash;
+  f.src = './' + hash;
   document.getElementById('bar').textContent = 'iframe 폭 ' + w + 'px ' + (hash ? '· ' + hash : '');
 </script>
 </body>
