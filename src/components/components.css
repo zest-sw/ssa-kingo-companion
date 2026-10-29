@@ -164,3 +164,11 @@
 .ui-toast__btn--quiet { color: var(--ink-subtle); font-weight: var(--weight-medium); }
 .ui-toast__btn:hover { background: var(--on-dark-hover); }
 .ui-toast__btn:focus-visible { box-shadow: 0 0 0 2px var(--lime-500); }
+
+/* Switch */
+.ui-switch { --sw-w: 40px; --sw-h: 24px; --sw-thumb: 20px; --sw-gap: 2px; border: 0; background: transparent; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--hit-min); padding: 0 var(--space-1); border-radius: var(--radius-full); color: inherit; font-size: var(--text-sm); }
+.ui-switch__track { position: relative; flex: none; width: var(--sw-w); height: var(--sw-h); border-radius: var(--radius-full); background: var(--line-strong); transition: background var(--duration); }
+.ui-switch__thumb { position: absolute; top: var(--sw-gap); left: var(--sw-gap); width: var(--sw-thumb); height: var(--sw-thumb); border-radius: var(--radius-full); background: var(--surface); transition: transform var(--duration); }
+.ui-switch[aria-checked='true'] .ui-switch__track { background: var(--primary); }
+.ui-switch[aria-checked='true'] .ui-switch__thumb { transform: translateX(calc(var(--sw-w) - var(--sw-thumb) - 2 * var(--sw-gap))); }
+.ui-switch__label { font-weight: var(--weight-medium); }

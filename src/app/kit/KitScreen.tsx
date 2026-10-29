@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import {
   Badge, Button, Card, Chip, ConfirmDot, ConfirmLegend, CountBadge, Drawer, EmptyState, ErrorState, FieldTag, Icon, ICON_NAMES, IconButton,
-  LoadingState, Modal, PageHeader, ProgressBar, SegmentedControl, Stat, TabPanel, Tabs, Toast, useToast
+  LoadingState, Modal, PageHeader, ProgressBar, SegmentedControl, Stat, Switch, TabPanel, Tabs, Toast, useToast
 } from '../../components';
 import type { Field } from '../../domain/types';
 import { useApp } from '../AppState';
@@ -33,6 +33,7 @@ export default function KitScreen({ sub }: ScreenProps) {
   const [drawer, setDrawer] = useState(false);
   const [modal, setModal] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [on, setOn] = useState(true);
 
   return (
     <div className="kit">
@@ -53,6 +54,11 @@ export default function KitScreen({ sub }: ScreenProps) {
         {['data', 'ai', 'plan'].map(id => <Chip key={id} selected={chip === id} onClick={() => setChip(id)}>{id === 'data' ? '데이터' : id === 'ai' ? 'AI' : '서비스 기획'}</Chip>)}
         <Chip icon="check">아이콘</Chip>
         <Chip disabled>비활성</Chip>
+      </Section>
+
+      <Section title="Switch" usage="<Switch checked={on} onChange={setOn} label='프로필에 전시' />">
+        <Cell label="라벨"><Switch checked={on} onChange={setOn} label="프로필에 전시" /></Cell>
+        <Cell label="hideLabel"><Switch hideLabel checked={!on} onChange={next => setOn(!next)} label="프로필 공개" /></Cell>
       </Section>
 
       <Section title="Badge · CountBadge" usage="<Badge tone='navy'>신청 준비</Badge>">
