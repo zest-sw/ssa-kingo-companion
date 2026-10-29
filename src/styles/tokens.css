@@ -1,0 +1,96 @@
+/* 디자인 토큰. 색은 docs/design/mockups/*.png 에서 픽셀로 뽑았다(2026-10-29).
+   컴포넌트와 화면은 여기 변수만 쓴다. 값을 직접 박지 않는다. */
+:root {
+  /* 성균관대 UI 색 */
+  --green-900: #224433;
+  --green-700: #2f5c45;
+  --green-100: #e8eeea;
+  --lime-500: #99c555;
+  --lime-100: #f0f6e5;
+  --navy-900: #11295d;
+  --navy-100: #e9edf4;
+  --orange-500: #ee7430;
+  --orange-700: #b4541f;
+  --orange-100: #fdf1e7;
+  --grey-500: #8d95a0;
+  --grey-100: #f3f4f6;
+
+  /* 바탕과 글자 */
+  --bg: #f3f4f6;
+  --bg-sunken: #eaecef;
+  --surface: #ffffff;
+  --surface-alt: #f9fafb;
+  --line: #e8eaed;
+  --line-strong: #d5d9de;
+  --ink: #111827;
+  --ink-strong: #1a1f27;
+  --ink-muted: #6b7280;
+  --ink-subtle: #8d95a0;
+  --ink-inverse: #ffffff;
+  --scrim: rgb(17 24 39 / 0.32);
+  --on-dark-hover: rgb(255 255 255 / 0.08);
+
+  /* 의미 */
+  --primary: var(--green-900);
+  --primary-hover: var(--green-700);
+  --primary-soft: var(--green-100);
+  --accent: var(--orange-500);
+  --accent-soft: var(--orange-100);
+  --accent-ink: var(--orange-700);
+  --focus: var(--navy-900);
+
+  /* 분야 색. 의미가 고정이다. 색만으로 구분하지 않고 라벨을 함께 쓴다. */
+  --field-dev: var(--green-900);
+  --field-ai: var(--navy-900);
+  --field-startup: var(--lime-500);
+  --field-mentor: var(--orange-500);
+  --field-global: var(--grey-500);
+
+  /* 간격 (4px 배수) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* 글자 */
+  --font-sans: 'Pretendard', 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', system-ui, sans-serif;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 22px;
+  --text-3xl: 28px;
+  --text-4xl: 32px;
+  --leading-tight: 1.3;
+  --leading: 1.55;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  /* 모양 */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+  --border: 1px solid var(--line);
+  --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus);
+  --shadow-overlay: 0 12px 40px rgb(17 24 39 / 0.16);
+
+  /* 틀 */
+  --sidebar-width: 240px;
+  --sidebar-width-compact: 72px;
+  --drawer-width: 480px;
+  --modal-width: 420px;
+  --hit-min: 32px;
+  --readable: 72ch;
+
+  --duration: 160ms;
+  --z-overlay: 50;
+  --z-toast: 60;
+}

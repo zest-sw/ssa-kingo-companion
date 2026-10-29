@@ -1,0 +1,13 @@
+.kit { display: flex; flex-direction: column; gap: var(--space-6); }
+.kit-section .ui-card__head { flex-wrap: wrap; }
+.kit-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.kit-cell { display: flex; flex-direction: column; gap: var(--space-1); }
+.kit-col { display: flex; flex-direction: column; min-width: 0; }
+.kit-label { font-size: var(--text-xs); color: var(--ink-subtle); }
+.kit-code { font-size: var(--text-xs); color: var(--ink-muted); background: var(--grey-100); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+.kit-muted { color: var(--ink-muted); }
+.kit-narrow { width: calc(var(--space-12) * 5); }
+.kit-stat { width: calc(var(--space-10) * 5.5); border: var(--border); }
+.kit-card { flex: 1 1 calc(var(--space-10) * 7); border: var(--border); min-width: 0; }
+.kit-card .ui-card__title { overflow-wrap: anywhere; }
+.kit-icon { display: inline-flex; flex-direction: column; align-items: center; gap: var(--space-1); width: var(--sidebar-width-compact); font-size: var(--text-xs); color: var(--ink-muted); }

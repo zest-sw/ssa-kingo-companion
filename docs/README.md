@@ -1,5 +1,8 @@
 # 문서
 
+지금 기준은 [product/concept.md](./product/concept.md)(Notion '서비스 철학·컨셉 정리' 사본)와 [product/decisions.md](./product/decisions.md)다. 화면 명세는 [design/web-desktop.md](./design/web-desktop.md), 작업 방식은 [orchestration/](./orchestration/README.md).
+아래 표의 planning·history 문서는 옛 기획(v0.5 이전, 모바일 기준)이라 보존만 한다. 따르지 않는다.
+
 | 문서 | 내용 |
 |---|---|
 | [planning/v0.5-agent-curation.md](./planning/v0.5-agent-curation.md) | 기획서 v0.5: 문제 정의, 챌린지스퀘어와의 역할 분담, 핵심 루프, 추천 규칙, HCI 원리 매핑, v0.6 대비 측정, 검증 계획 |

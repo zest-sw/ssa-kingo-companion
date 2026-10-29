@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>폭별 확인</title>
+<style>
+  html, body { margin: 0; background: #d9dcd6; }
+  iframe { display: block; border: 0; background: #fff; height: 100vh; }
+  .bar { font: 12px system-ui; padding: 6px 10px; color: #333; }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<iframe id="f" title="앱 미리보기"></iframe>
+<script>
+  // ?w=1280&path=%23%2Frecommend 처럼 쓴다. 같은 오리진이라 미디어 쿼리가 iframe 폭 기준으로 동작한다.
+  const q = new URLSearchParams(location.search);
+  const w = Number(q.get('w')) || 1440;
+  const hash = q.get('path') || '';
+  const f = document.getElementById('f');
+  f.style.width = w + 'px';
+  f.src = '/' + hash;
+  document.getElementById('bar').textContent = 'iframe 폭 ' + w + 'px ' + (hash ? '· ' + hash : '');
+</script>
+</body>
+</html>
