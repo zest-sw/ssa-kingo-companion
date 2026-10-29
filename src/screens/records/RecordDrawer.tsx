@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Button, Drawer } from '../../components';
 import { useApp } from '../../app/AppState';
-import { evidenceOf } from '../../domain/interview/record';
+import { editedRecord, evidenceOf, usesRecord } from '../../domain/interview/record';
 import { semesterLabel } from '../../domain/interview/archive';
 import { CARD_STEPS, STEP_LABEL, type CardStep } from '../../domain/interview/schema';
 import type { RecordCard, RecordItem } from '../../domain/types';
 import { FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
-import { cardOf } from './cardOf';
+import { cardOf } from '../../domain/interview/record';
 import { RecordCardView } from './RecordCardView';
 import { setConfirmedAxes, toggleAxis, useConfirmedAxes } from './stores';
 
@@ -27,7 +27,7 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
   const card = cardOf(r);
   const meta = `${semesterLabel(r.semester)} · ${GROUP_LABEL[FIELD_GROUP[r.field]]} · ${r.kind}`;
   // 이 기록으로 확인한 발견이 있으면, 고쳤을 때 그 확인이 풀린다고 미리 알린다.
-  const usedByConfirmed = Object.values(state.confirm).some(c => c.sig.some(s => s.startsWith(`${r.id}@`)));
+  const usedByConfirmed = usesRecord(state.confirm, r.id);
 
   if (editing) {
     return <EditForm r={r} card={card} warn={usedByConfirmed} onCancel={() => setEditing(false)} onSave={next => {
@@ -64,11 +64,7 @@ function EditForm({ r, card, warn, onCancel, onSave }: { r: RecordItem; card: Re
   const [title, setTitle] = useState(r.title);
   const [draft, setDraft] = useState<RecordCard>(card);
   const set = (s: CardStep, v: string) => setDraft({ ...draft, [s]: v });
-  const submit = () => {
-    const next: RecordCard = {};
-    for (const s of CARD_STEPS) if (draft[s]?.trim()) next[s] = draft[s]?.trim();
-    onSave({ ...r, title: title.trim() || r.title, card: next, note: next.action ?? '', quote: next.learned ?? '' });
-  };
+  const submit = () => onSave(editedRecord(r, title, draft));
   return (
     <form className="rec-form" onSubmit={e => { e.preventDefault(); submit(); }}>
       {warn && <p className="rec-form__warn">이 기록으로 확인한 발견이 있어요. 고치면 그 확인이 풀리고 다시 물어봐요.</p>}

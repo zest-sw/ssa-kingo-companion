@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { PageHeader, SegmentedControl } from '../../components';
 import { useApp } from '../../app/AppState';
+import { CURRENT_TERM } from '../../data/records';
+import { semesterLabel } from '../../domain/interview/archive';
 import type { ScreenProps } from '../../app/router';
 import { ActivityDrawer } from './ActivityDrawer';
 import { BoardView } from './BoardView';
@@ -18,7 +20,7 @@ export default function ActivitiesScreen(_props: ScreenProps) {
   return (
     <>
       <PageHeader
-        eyebrow="2026-2학기"
+        eyebrow={semesterLabel(CURRENT_TERM.semester)}
         title="내 활동"
         actions={<SegmentedControl<View> label="보기 방식" value={view} onChange={setView} items={[{ id: 'board', label: '보드' }, { id: 'list', label: '목록' }]} />}
       />

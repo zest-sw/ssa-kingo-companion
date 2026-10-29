@@ -24,6 +24,9 @@ export function firstMissing(card: RecordCard): Step {
 
 export const ask = (step: Step, title: string) => (isCardStep(step) ? QUESTION[step](title) : REVIEW_PROMPT);
 
+/** 비어 있는 칸 전부(저장 전에 빈 칸 안내에 쓴다). 단계 순서대로 */
+export const missingSteps = (card: RecordCard): CardStep[] => CARD_STEPS.filter(s => !card[s]?.trim());
+
 /**
  * 인터뷰 시작. 상황은 에이전트가 활동 정보로 먼저 채우고, 빠진 것만 묻는다.
  * situation 이 없으면 상황부터 묻는다.

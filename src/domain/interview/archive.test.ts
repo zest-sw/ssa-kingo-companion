@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { rec } from '../fixtures.test-util';
-import { filterRecords, groupBySemester, groupsPresent, semesterKey, semesterLabel } from './archive';
+import { filterRecords, groupBySemester, groupsPresent, previewOf, semesterKey, semesterLabel } from './archive';
 
 describe('semester', () => {
   it('같은 해 안에서 1학기 < 여름 < 2학기, 해가 큰 쪽이 뒤', () => {
@@ -34,5 +34,16 @@ describe('filterRecords · groupsPresent', () => {
   });
   it('있는 분야 묶음만 정해진 순서로', () => {
     expect(groupsPresent(list)).toEqual(['ai', 'plan']);
+  });
+});
+
+describe('previewOf', () => {
+  it('회고 기록: 역할·배운 점·다음·결과 순으로 비지 않은 두 줄', () => {
+    const r = rec('a', { card: { role: '발표', result: '본선', next: '스터디' } });
+    expect(previewOf(r)).toEqual([['역할', '발표'], ['다음', '스터디']]);
+  });
+  it('회고가 없는 기록: 한 일·한마디', () => {
+    expect(previewOf(rec('b', { note: '메모', quote: '한마디' }))).toEqual([['한 일', '메모'], ['한마디', '한마디']]);
+    expect(previewOf(rec('c', { note: '', quote: '' }))).toEqual([]);
   });
 });

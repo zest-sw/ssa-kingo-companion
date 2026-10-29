@@ -2,25 +2,16 @@ import { useState } from 'react';
 import { Button, Card, Chip, EmptyState, FieldTag, Icon, Modal, PageHeader } from '../../components';
 import { navigate } from '../../app/router';
 import { useApp } from '../../app/AppState';
-import { filterRecords, groupBySemester, groupsPresent, type ArchiveFilter } from '../../domain/interview/archive';
+import { filterRecords, groupBySemester, groupsPresent, previewOf, type ArchiveFilter } from '../../domain/interview/archive';
+import { activityOfRecord, unrecordedPatch } from '../../domain/interview/transitions';
 import type { RecordItem } from '../../domain/types';
 import { GROUP_LABEL } from '../../domain/vocab';
 import { AddRecordModal } from './AddRecordModal';
-import { cardOf } from './cardOf';
 import { RecordDrawer } from './RecordDrawer';
 import { VerificationBadge } from './RecordCardView';
 import { RecordsTabs } from './RecordsTabs';
 
 const ALL: ArchiveFilter = { group: 'all', verification: 'all' };
-
-/** 카드에 보여 줄 두 줄. 회고가 있으면 역할·배운 점·다음에 해 볼 것, 아니면 한 일·한마디. */
-function previewOf(r: RecordItem): [string, string][] {
-  const c = cardOf(r);
-  const rows: [string, string | undefined][] = r.card
-    ? [['역할', c.role], ['배운 점', c.learned], ['다음', c.next], ['결과', c.result]]
-    : [['한 일', c.action], ['한마디', c.learned]];
-  return rows.filter((x): x is [string, string] => !!x[1]).slice(0, 2);
-}
 
 function RecordTile({ r, onOpen }: { r: RecordItem; onOpen: (id: string) => void }) {
   const lines = previewOf(r);
@@ -55,7 +46,15 @@ export function Archive() {
 
   const remove = () => {
     if (!deleting) return;
-    run({ type: 'record/delete', id: deleting.id }, { toast: `‘${deleting.title}’ 기록을 지웠어요.`, undoable: true });
+    // 기록을 지우면 그 활동은 회고 대기로 돌아간다. 되돌리기는 둘을 함께 되돌린다.
+    const opts = { toast: `‘${deleting.title}’ 기록을 지웠어요.`, undoable: true };
+    const act = activityOfRecord(state.activities, deleting);
+    if (act) {
+      run({ type: 'record/delete', id: deleting.id });
+      run({ type: 'activity/update', id: act.id, patch: unrecordedPatch() }, opts);
+    } else {
+      run({ type: 'record/delete', id: deleting.id }, opts);
+    }
     setDeleting(null);
   };
 

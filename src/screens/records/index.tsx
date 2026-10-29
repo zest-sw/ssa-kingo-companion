@@ -5,11 +5,13 @@ import { useApp } from '../../app/AppState';
 import { Archive } from './Archive';
 import { Interview } from './Interview';
 import { Pending } from './Pending';
+import { useStoreSync } from './useStoreSync';
 import { RecordsTabs } from './RecordsTabs';
 import './records.css';
 
 /** 하위 경로: (없음)·archive = 기록 보관함, interview = 회고 대기 목록, interview/<활동 id> = 그 활동의 회고 */
 export default function RecordsScreen({ sub }: ScreenProps) {
+  useStoreSync();
   const [head, id] = (sub ?? 'archive').split('/');
   if (head === 'interview') return id ? <Gate id={id} key={id} /> : <Pending />;
   return <Archive />;

@@ -1,4 +1,5 @@
 import type { FieldGroup, RecordItem } from '../types';
+import { cardOf } from './record';
 import { FIELD_GROUP } from '../vocab';
 
 // 기록 보관함: 학기별로 묶고 분야·확인 방식으로 거른다.
@@ -39,4 +40,13 @@ export function groupsPresent(records: RecordItem[]): FieldGroup[] {
   const order: FieldGroup[] = ['dev', 'ai', 'plan', 'mentor', 'global', 'other'];
   const have = new Set(records.map(r => FIELD_GROUP[r.field]));
   return order.filter(g => have.has(g));
+}
+
+/** 카드에 보여 줄 최대 두 줄. 회고를 거친 기록은 역할·배운 점·다음·결과 순, 아니면 한 일·한마디. 빈 칸은 건너뛴다. */
+export function previewOf(r: RecordItem): [label: string, text: string][] {
+  const c = cardOf(r);
+  const rows: [string, string | undefined][] = r.card
+    ? [['역할', c.role], ['배운 점', c.learned], ['다음', c.next], ['결과', c.result]]
+    : [['한 일', c.action], ['한마디', c.learned]];
+  return rows.filter((x): x is [string, string] => !!x[1]).slice(0, 2);
 }

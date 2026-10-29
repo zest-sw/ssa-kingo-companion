@@ -4,15 +4,20 @@ import { navigate } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { factsOf } from '../../data/activities';
 import { CURRENT_TERM, QUICK_ANSWERS } from '../../data/records';
-import { answer, editField, isCardStep, startInterview, stepStatuses, type InterviewState } from '../../domain/interview/engine';
+import { answer, editField, isCardStep, missingSteps, startInterview, stepStatuses, type InterviewState } from '../../domain/interview/engine';
+import { recordedPatch } from '../../domain/interview/transitions';
 import { buildRecord, evidenceOf, inferDid, savedSummary, type SavedSummary } from '../../domain/interview/record';
-import { ENERGY_PROMPT, STEP_LABEL, STEP_ORDER } from '../../domain/interview/schema';
+import { ENERGY_PROMPT, STEP_LABEL, STEP_ORDER, type CardStep } from '../../domain/interview/schema';
 import type { Activity, Axis, Energy, RecordVisibility } from '../../domain/types';
 import { DID_AXES, ENERGY, FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
 import { RecordCardView } from './RecordCardView';
 import { RecordsTabs } from './RecordsTabs';
 import { clearDraft, getDraft, saveDraft, setConfirmedAxes, toggleAxis, type Message } from './stores';
 import { useAgentQueue } from './useAgentQueue';
+
+/** 저장 버튼 아래 안내 한 줄: 빈 칸이 먼저, 그다음 에너지 */
+const saveHint = (missing: CardStep[], energy?: Energy) =>
+  missing.length ? `비어 있는 칸이 있어요: ${missing.map(s => STEP_LABEL[s]).join(', ')}` : energy ? '저장하면 기록 보관함에 쌓여요.' : '에너지를 고르면 저장할 수 있어요.';
 
 type Phase = 'talk' | 'saving' | 'done' | 'error';
 
@@ -75,8 +80,10 @@ export function Interview({ activity }: { activity: Activity }) {
   const meta = `${CURRENT_TERM.month} · ${GROUP_LABEL[FIELD_GROUP[activity.field]]} · ${facts.kind}`;
 
   // 학생이 확인 버튼을 누른 뒤에만 기록이 생긴다. 기록이 생기면 활동은 '기록됨'이 된다.
+  const missing = missingSteps(iv.card);
   const save = () => {
-    if (!energy) return;
+    // 빈 칸이 있으면 저장하지 않는다. 에너지만 골랐다고 저장되면 안 된다.
+    if (!energy || missing.length) return;
     setPhase('saving');
     saveTimer.current = window.setTimeout(() => {
       try {
@@ -87,7 +94,7 @@ export function Interview({ activity }: { activity: Activity }) {
         });
         setSummary(savedSummary(state.records, record));
         run({ type: 'record/add', record });
-        run({ type: 'activity/update', id: activity.id, patch: { status: 'recorded', recordId: record.id, schedule: '기록 보관함으로 옮겼어요', due: undefined, prep: undefined } });
+        run({ type: 'activity/update', id: activity.id, patch: recordedPatch(record.id) });
         setConfirmedAxes(record.id, confirmed.filter(a => record.axes.includes(a)));
         clearDraft(activity.id);
         setPhase('done');
@@ -142,7 +149,7 @@ export function Interview({ activity }: { activity: Activity }) {
             </div>
 
             {phase === 'saving' && <LoadingState message="기록 카드를 만들고 있어요" lines={2} />}
-            {phase === 'error' && <ErrorState message="기록을 저장하지 못했어요. 쓴 내용은 그대로예요." onRetry={() => { setPhase('talk'); }} />}
+            {phase === 'error' && <ErrorState message="기록을 저장하지 못했어요. 쓴 내용은 그대로예요." onRetry={save} />}
             {phase === 'talk' && !review && (
               <div className="rec-composer">
                 {isCardStep(iv.step) && !typing && (
@@ -159,10 +166,12 @@ export function Interview({ activity }: { activity: Activity }) {
             {phase === 'talk' && review && (
               <div className="rec-review">
                 <div className="rec-quick" role="group" aria-label="끝난 뒤 에너지">
-                  {ENERGY.map(e => <Chip key={e.id} selected={energy === e.id} disabled={typing} title={e.sub} onClick={() => setEnergy(e.id)}>{e.label}</Chip>)}
+                  {ENERGY.map(e => (
+                    <Chip key={e.id} selected={energy === e.id} disabled={typing} aria-describedby={`rec-en-${e.id}`} onClick={() => setEnergy(e.id)}>{e.label}<span id={`rec-en-${e.id}`} className="sr-only">{e.sub}</span></Chip>
+                  ))}
                 </div>
-                <Button variant="primary" block disabled={!energy || typing} onClick={save}>확인했어요, 저장할게요</Button>
-                <p className="rec-review__hint">{energy ? '저장하면 기록 보관함에 쌓여요.' : '에너지를 고르면 저장할 수 있어요.'}</p>
+                <Button variant="primary" block disabled={!energy || missing.length > 0 || typing} aria-describedby="rec-save-hint" onClick={save}>확인했어요, 저장할게요</Button>
+                <p id="rec-save-hint" className="rec-review__hint">{saveHint(missing, energy)}</p>
               </div>
             )}
           </section>

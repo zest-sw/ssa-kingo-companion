@@ -1,25 +1,19 @@
 import type { ReactNode } from 'react';
 import { Badge, Button, FieldTag, ProgressBar, type BadgeTone } from '../../components';
 import { navigate } from '../../app/router';
-import { ddayText } from '../../domain/text';
 import type { Activity, ActivityStatus } from '../../domain/types';
 import { STATUS_LABEL } from '../../domain/vocab';
+import { metaView } from './helpers';
 
-// 경고색 없이 상태 이름만 다르게 쓴다. orange 는 '챙길 것(회고 대기)'에만.
-const TONE: Record<ActivityStatus, BadgeTone> = { preparing: 'navy', applied: 'neutral', ongoing: 'green', ended: 'orange', recorded: 'neutral', declined: 'neutral' };
+// 경고색 없이 상태 이름(글)으로 구분한다. 회고 대기도 중립 톤이고, 오렌지는 '오늘' 배지에만 쓴다.
+const TONE: Record<ActivityStatus, BadgeTone> = { preparing: 'navy', applied: 'neutral', ongoing: 'green', ended: 'neutral', recorded: 'neutral', declined: 'neutral' };
 
 export const StatusBadge = ({ status }: { status: ActivityStatus }) => <Badge tone={TONE[status]}>{STATUS_LABEL[status]}</Badge>;
 
-/** '신청 마감' → '마감 D-5' */
-export function dueText(due: NonNullable<Activity['due']>) {
-  return `${due.label.replace(/^신청 /, '')} ${ddayText(due.dday)}`;
-}
-
-/** 한 줄 정보: 준비 2/3 · 마감 D-5 / 오늘 + 사전 설문 마감 18:00 / 일정. 오늘이 마감이면 '오늘' 배지와 마감 문구만 둔다. */
+/** 한 줄 정보: 준비 2/3 · 마감 D-5 / 오늘 + 사전 설문 마감 18:00 / 일정 */
 export function ActivityMeta({ a }: { a: Activity }): ReactNode {
-  if (a.due?.dday === 0) return <><Badge tone="solid-orange">오늘</Badge> {a.due.label}</>;
-  const parts = [a.prep && `준비 ${a.prep.done}/${a.prep.total}`, a.due && dueText(a.due)].filter(Boolean);
-  return parts.length ? parts.join(' · ') : a.schedule;
+  const m = metaView(a);
+  return m.kind === 'today' ? <><Badge tone="solid-orange">오늘</Badge> {m.label}</> : m.text;
 }
 
 export const goInterview = (id: string) => navigate(`records/interview/${id}`);

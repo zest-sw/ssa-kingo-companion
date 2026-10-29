@@ -1,5 +1,5 @@
 import { discoveriesOf } from '../discoveries';
-import type { Axis, Did, Discovery, Energy, Field, RecordCard, RecordItem, RecordVisibility } from '../types';
+import type { Axis, Confirm, Did, Discovery, Energy, Field, RecordCard, RecordItem, RecordVisibility } from '../types';
 import { AXES, DID_AXES } from '../vocab';
 
 /** 말한 단어로 '무엇을 했는지'를 어림한다. 학생이 고른 값이 아니라 추정이라, 기록을 고치면 다시 어림한다. */
@@ -68,3 +68,34 @@ export function savedSummary(before: RecordItem[], record: RecordItem): SavedSum
   const after = discoveriesOf([...before.filter(r => r.id !== record.id), record].filter(r => r.useForRecommend));
   return { newDiscoveries: after.filter(d => !keys.has(d.key)), usedForRecommend: record.useForRecommend };
 }
+
+/** 인터뷰를 거치지 않은 기록(예시·직접 입력)은 메모를 '한 일', 한마디를 '배운 점'으로 보여 준다. */
+export const cardOf = (r: RecordItem): RecordCard => r.card ?? { ...(r.note && { action: r.note }), ...(r.quote && { learned: r.quote }) };
+
+export type ManualInput = { id: string; title: string; note: string; quote: string; energy: Energy; date: string; semester: string };
+
+/** 직접 기록 추가. 학교가 확인하지 않았으니 '직접 입력'이고, 공개 범위는 나만 보기다. */
+export function buildManualRecord(i: ManualInput): RecordItem {
+  const note = i.note.trim();
+  const quote = i.quote.trim();
+  const did = inferDid(note);
+  return {
+    id: i.id, v: 1, title: i.title.trim(), kind: '직접 기록', date: i.date, semester: i.semester, field: 'etc', did, energy: i.energy,
+    quote, note, axes: DID_AXES[did], source: 'manual', verification: 'self', visibility: 'me', useForRecommend: true,
+    card: { action: note, ...(quote ? { learned: quote } : {}) }
+  };
+}
+
+/** 기록 고치기. 칸이 바뀌었을 수 있어 '무엇을 했는지'를 다시 어림한다(역량 근거도 따라 바뀐다). */
+export function editedRecord(r: RecordItem, title: string, draft: RecordCard): RecordItem {
+  const card: RecordCard = {};
+  for (const k of Object.keys(draft) as (keyof RecordCard)[]) {
+    const v = draft[k]?.trim();
+    if (v) card[k] = v;
+  }
+  return { ...r, title: title.trim() || r.title, card, note: card.action ?? '', quote: card.learned ?? '', did: inferDid(`${card.role ?? ''} ${card.action ?? ''}`) };
+}
+
+/** 학생이 확인한 발견 중 이 기록을 근거로 쓴 것이 있는지. 근거 표시는 '기록id@버전' 이다. */
+export const usesRecord = (confirm: Record<string, Confirm>, recordId: string): boolean =>
+  Object.values(confirm).some(c => c.sig.some(s => s.slice(0, s.lastIndexOf('@')) === recordId));

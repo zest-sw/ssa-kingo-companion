@@ -8,12 +8,12 @@ export type ActivityFacts = {
   kind: string;
   /** 학교 연동으로 확인된 활동인지(예시). false 면 '직접 입력' */
   verified: boolean;
-  /** 에이전트가 활동 정보로 미리 채우는 상황. 없으면 인터뷰에서 묻는다 */
+  /** 에이전트가 활동 정보로 미리 채우는 상황. 없으면 인터뷰에서 묻는다. 숫자는 넣지 않는다(수치는 학생이 말한 것만 적는다) */
   situation?: string;
 };
 
 const FACTS: Record<string, ActivityFacts> = {
-  'a-hackathon': { kind: '교내 해커톤', verified: true, situation: '24시간 교내 해커톤, 4인 팀' },
+  'a-hackathon': { kind: '교내 해커톤', verified: true, situation: '교내 해커톤에 참여한 활동' },
   'a-ai-club': { kind: '학회', verified: false },
   'a-startup-club': { kind: '동아리', verified: false }
 };
@@ -23,6 +23,6 @@ export function factsOf(a: Activity): ActivityFacts {
   const known = FACTS[a.id];
   if (known) return known;
   const p = a.programId ? PROGRAM_BY_ID[a.programId] : undefined;
-  if (p) return { kind: '비교과 프로그램', verified: true, situation: `${p.host.replace(' (예시)', '')} ${p.durationLabel} 프로그램, ${p.place.replace(' (예시)', '')}` };
+  if (p) return { kind: '비교과 프로그램', verified: true, situation: `${p.host.replace(' (예시)', '')} 프로그램, ${p.place.replace(' (예시)', '')}` };
   return { kind: '비교과 활동', verified: false };
 }

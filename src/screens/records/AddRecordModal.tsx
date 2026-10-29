@@ -3,9 +3,9 @@ import { Button, Chip, Modal } from '../../components';
 import { useApp } from '../../app/AppState';
 import { QUOTE_HINTS } from '../../data/options';
 import { CURRENT_TERM } from '../../data/records';
-import { inferDid } from '../../domain/interview/record';
+import { buildManualRecord, inferDid } from '../../domain/interview/record';
 import type { Energy } from '../../domain/types';
-import { DID_AXES, ENERGY } from '../../domain/vocab';
+import { ENERGY } from '../../domain/vocab';
 
 /** 직접 기록 추가: 제목, 한 일, 에너지 정도, 한마디. 학교가 확인하지 않은 기록이라 '직접 입력'으로 표시된다. */
 export function AddRecordModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -19,15 +19,7 @@ export function AddRecordModal({ open, onClose }: { open: boolean; onClose: () =
   const close = () => { setTitle(''); setNote(''); setEnergy(undefined); setQuote(''); onClose(); };
   const submit = () => {
     if (!ready) return;
-    const did = inferDid(note);
-    run({
-      type: 'record/add',
-      record: {
-        id: `m-${Date.now()}`, v: 1, title: title.trim(), kind: '직접 기록', date: CURRENT_TERM.date, semester: CURRENT_TERM.semester, field: 'etc', did, energy,
-        quote: quote.trim(), note: note.trim(), axes: DID_AXES[did], source: 'manual', verification: 'self', visibility: 'me', useForRecommend: true,
-        card: { action: note.trim(), ...(quote.trim() ? { learned: quote.trim() } : {}) }
-      }
-    }, { toast: '직접 입력으로 기록했어요.' });
+    run({ type: 'record/add', record: buildManualRecord({ id: `m-${Date.now()}`, title, note, quote, energy, date: CURRENT_TERM.date, semester: CURRENT_TERM.semester }) }, { toast: '직접 입력으로 기록했어요.' });
     close();
   };
 
