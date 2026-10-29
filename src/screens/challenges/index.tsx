@@ -44,7 +44,7 @@ export default function ChallengesScreen(_props: ScreenProps) {
       <div className="ch-stats">
         <Card padding="md"><Stat label="달성" value={done} unit="개" /></Card>
         <Card padding="md"><Stat label="진행 중" value={doing} unit="개" /></Card>
-        <Card padding="md" className="ch-stats__dark"><Stat label="숨은 도전 과제" value={hiddenLeft} unit="개 남음" /></Card>
+        <Card padding="md"><Stat label="숨은 도전 과제" value={hiddenLeft} unit="개 남음" /></Card>
       </div>
       <Tabs id="challenges" label="도전 과제 보기" items={tabs} value={tab} onChange={setTab} />
       <TabPanel id="challenges" active={tab}>
