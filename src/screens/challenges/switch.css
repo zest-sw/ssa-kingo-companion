@@ -1,0 +1,8 @@
+:root { --sw-w: 40px; --sw-h: 24px; --sw-thumb: 20px; --sw-gap: 2px; }
+
+.cf-switch { border: 0; background: transparent; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--hit-min); padding: 0 var(--space-1); border-radius: var(--radius-full); color: inherit; font-size: var(--text-sm); }
+.cf-switch__track { position: relative; flex: none; width: var(--sw-w); height: var(--sw-h); border-radius: var(--radius-full); background: var(--line-strong); transition: background var(--duration); }
+.cf-switch__thumb { position: absolute; top: var(--sw-gap); left: var(--sw-gap); width: var(--sw-thumb); height: var(--sw-thumb); border-radius: var(--radius-full); background: var(--surface); transition: transform var(--duration); }
+.cf-switch[aria-checked='true'] .cf-switch__track { background: var(--primary); }
+.cf-switch[aria-checked='true'] .cf-switch__thumb { transform: translateX(calc(var(--sw-w) - var(--sw-thumb) - 2 * var(--sw-gap))); }
+.cf-switch__label { font-weight: var(--weight-medium); }
