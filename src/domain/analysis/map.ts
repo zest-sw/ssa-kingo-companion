@@ -61,3 +61,17 @@ export function answerEdge(answers: EdgeAnswers, id: string, answer: 'yes' | 'no
 /** 이 기록에 닿아 있는 연결(거절한 것 제외) */
 export const edgesOf = (map: ExperienceMap, recordId: string, answers: EdgeAnswers) =>
   map.edges.filter(e => (e.a === recordId || e.b === recordId) && edgeState(e, answers) !== 'rejected');
+
+export type MapLayout = { pos: Record<string, { x: number; y: number }>; width: number; height: number; colX: number[]; rowY: number[] };
+export type LayoutSize = { padLeft: number; padTop: number; colW: number; rowH: number; slotH: number; padRight: number; padBottom: number };
+
+/** 학기는 왼쪽에서 오른쪽, 분야는 위에서 아래. 같은 칸에 겹친 기록은 아래로 쌓는다. */
+export function layoutMap(map: ExperienceMap, s: LayoutSize): MapLayout {
+  const maxSlot = map.groups.map((_, row) => Math.max(0, ...map.nodes.filter(n => n.row === row).map(n => n.slot)));
+  const rowY: number[] = [];
+  let y = s.padTop;
+  maxSlot.forEach((m, i) => { rowY[i] = y; y += s.rowH + m * s.slotH; });
+  const colX = map.semesters.map((_, i) => s.padLeft + s.colW * i + s.colW / 2);
+  const pos = Object.fromEntries(map.nodes.map(n => [n.id, { x: colX[n.col], y: rowY[n.row] + n.slot * s.slotH }]));
+  return { pos, width: s.padLeft + s.colW * map.semesters.length + s.padRight, height: y + s.padBottom, colX, rowY };
+}

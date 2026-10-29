@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { prog, rec } from '../fixtures.test-util';
 import type { Activity } from '../types';
 import { buildFlow, summarizeFlow } from './flow';
-import { answerEdge, buildMap, edgeState, edgesOf } from './map';
+import { answerEdge, buildMap, edgeState, edgesOf, layoutMap } from './map';
 import { recordsSig } from './refresh';
 import { semesterAxis, semesterKey, semesterLabel, sortRecords } from './semester';
 import { buildStrengths, differences, seenOf } from './strengths';
 import { buildTechTree } from './techtree';
 
-const act = (id: string, over: Partial<Activity>): Activity => ({ id, title: id, field: 'dev', status: 'ongoing', schedule: '', ...over });
+const act = (id: string, over: Partial<Activity> = {}): Activity => ({ id, title: id, field: 'dev', status: 'ongoing', schedule: '', ...over });
 
 describe('학기', () => {
   it('학기 이름을 순서로 바꾼다', () => {
@@ -100,6 +100,17 @@ describe('경험 지도', () => {
   it('같은 학기 같은 분야 기록은 겹치지 않게 slot 을 다르게', () => {
     const m = buildMap([rec('a'), rec('b')]);
     expect(m.nodes.map(n => n.slot)).toEqual([0, 1]);
+  });
+});
+
+describe('경험 지도 배치', () => {
+  it('학기는 가로, 분야는 세로, 겹친 기록은 아래로 쌓는다', () => {
+    const m = buildMap([rec('a', { semester: '2026-1' }), rec('b', { semester: '2026-1' }), rec('c', { semester: '2026-2', field: 'dev' })]);
+    const l = layoutMap(m, { padLeft: 0, padTop: 10, colW: 100, rowH: 50, slotH: 20, padRight: 0, padBottom: 0 });
+    expect(l.pos.a).toEqual({ x: 50, y: 60 });
+    expect(l.pos.b).toEqual({ x: 50, y: 80 });
+    expect(l.pos.c).toEqual({ x: 150, y: 10 });
+    expect(l.width).toBe(200);
   });
 });
 
