@@ -17,8 +17,10 @@ export function ChallengeCard({ item, showcased, onShowcase }: Props) {
   if (locked) {
     return (
       <li className="ch-card ch-card--locked">
-        <span className="ch-card__icon" aria-hidden="true">?</span>
-        <h3 className="ch-card__name">숨은 도전 과제</h3>
+        <div className="ch-card__head">
+          <span className="ch-card__icon" aria-hidden="true">?</span>
+          <h3 className="ch-card__name">숨은 도전 과제</h3>
+        </div>
         <p className="ch-card__desc">{def.hint ? `힌트: ${def.hint}` : '조건은 달성하면 공개돼요'}</p>
         <div className="ch-card__foot">
           <span>{def.hint ? '힌트 1개' : '희귀도만 보여요'}</span>
@@ -30,8 +32,10 @@ export function ChallengeCard({ item, showcased, onShowcase }: Props) {
 
   return (
     <li className={`ch-card${achieved ? ' ch-card--done' : ''}`}>
-      <span className="ch-card__icon" aria-hidden="true"><Icon name={def.icon} size={22} /></span>
-      <h3 className="ch-card__name">{def.name}</h3>
+      <div className="ch-card__head">
+        <span className="ch-card__icon" aria-hidden="true"><Icon name={def.icon} /></span>
+        <h3 className="ch-card__name">{def.name}</h3>
+      </div>
       <p className="ch-card__desc">{achieved ? def.praise : def.condition}</p>
       {achieved ? (
         <>

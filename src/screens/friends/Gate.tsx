@@ -6,7 +6,7 @@ export function Gate({ opens }: { opens: { icon: IconName; title: string; sub: s
   return (
     <Card className="fr-gate">
       <div className="fr-gate__head">
-        <span className="fr-gate__icon"><Icon name="lock" size={24} /></span>
+        <span className="fr-gate__icon"><Icon name="lock" size={20} /></span>
         <h2 className="fr-gate__title">공개하면 열려요</h2>
         <p className="fr-gate__sub">지금은 내 기록을 나만 봐요. 공개하면 아래를 쓸 수 있고, 언제든 거둘 수 있어요.</p>
       </div>
