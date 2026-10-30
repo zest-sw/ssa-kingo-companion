@@ -2,6 +2,8 @@
 
 개인 데이터로 교과 밖 학교생활에서 지금 할 수 있는 최선의 선택을 돕는 에이전트의 **데스크톱 웹 프로토타입**입니다. 지난 활동을 기록하고(과거), 지금의 나를 알게 하고(현재), 가장 좋은 다음 활동을 추천합니다(미래). 정보 찾기부터 신청 준비까지는 에이전트가 맡고, 신청 버튼은 학생이 직접 누릅니다.
 
+**배포 화면(GitHub Pages):** <https://zest-sw.github.io/ssa-kingo-companion/>
+
 > 예시 데이터와 화면 안의 규칙으로만 동작합니다. 실제 AI, 학교 API, 챌린지스퀘어 연동, 서버 저장소는 없습니다.
 > 기준 문서: [docs/product/concept.md](docs/product/concept.md) · 화면 명세: [docs/design/web-desktop.md](docs/design/web-desktop.md)
 
