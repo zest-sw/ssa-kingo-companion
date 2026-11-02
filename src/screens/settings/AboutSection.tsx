@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
 import { Button, Card, Modal, useToast } from '../../components';
-import { ABOUT_LINES } from '../../data/settings';
+import { ABOUT_LINES, PRINCIPLE_LINES } from '../../data/settings';
 import { Group, Row } from './Row';
 
 /** 프로토타입 정보. 데이터가 예시임을 밝히는 단 한 곳이고, 처음 상태로 돌리기도 여기 있다. */
@@ -17,6 +17,11 @@ export function AboutSection() {
         <Group title="킹고 컴패니언 데스크톱 웹 프로토타입">
           <ul className="st-about">
             {ABOUT_LINES.map(line => <li key={line}>{line}</li>)}
+          </ul>
+        </Group>
+        <Group title="이 서비스가 지키는 것">
+          <ul className="st-about">
+            {PRINCIPLE_LINES.map(line => <li key={line}>{line}</li>)}
           </ul>
         </Group>
         <Group title="이 브라우저에 남긴 것">
