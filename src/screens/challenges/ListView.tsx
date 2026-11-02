@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { useChallenges, type ChallengeView } from '../../app/challenges';
-import { navigate, type ScreenProps } from '../../app/router';
+import { l1Of, navigate } from '../../app/router';
 import { Button, Card, EmptyState, Icon, PageHeader, Stat, TabPanel, Tabs, type TabItem } from '../../components';
 import { isInProgress } from '../../domain/challenges';
 import { toggled } from '../../domain/social';
 import { ChallengeCard } from './ChallengeCard';
-import './challenges.css';
 
 type Tab = 'all' | 'done' | 'doing' | 'hidden';
 
@@ -20,10 +19,11 @@ const FILTER: Record<Tab, (c: ChallengeView) => boolean> = {
 const EMPTY: Record<Exclude<Tab, 'all'>, { icon: 'trophy' | 'flag' | 'sparkle'; message: string; action: string; to: string }> = {
   done: { icon: 'trophy', message: '아직 달성한 과제가 없어요. 활동 하나를 끝내고 회고를 써 보세요.', action: '내 활동 보기', to: 'activities' },
   doing: { icon: 'flag', message: '진행 중인 과제가 없어요. 새 활동을 신청하면 막대가 차기 시작해요.', action: '추천 보기', to: 'recommend' },
-  hidden: { icon: 'sparkle', message: '숨은 과제는 활동하다 보면 찾게 돼요. 힌트가 있는 과제부터 살펴보세요.', action: '전체 보기', to: 'challenges' }
+  hidden: { icon: 'sparkle', message: '숨은 과제는 활동하다 보면 찾게 돼요. 힌트가 있는 과제부터 살펴보세요.', action: '전체 보기', to: 'challenges/list' }
 };
 
-export default function ChallengesScreen(_props: ScreenProps) {
+/** 도전 과제 L2: 필터가 있는 카드 목록. 지금까지의 도전 과제 화면이 그대로 여기로 왔다. */
+export function ListView() {
   const { state, run } = useApp();
   const items = useChallenges();
   const [tab, setTab] = useState<Tab>('all');
@@ -40,7 +40,7 @@ export default function ChallengesScreen(_props: ScreenProps) {
 
   return (
     <>
-      <PageHeader eyebrow="나의 성장" title="도전 과제" />
+      <PageHeader parent={l1Of('challenges')} title="과제 목록" />
       <div className="ch-stats">
         <Card padding="md"><Stat label="달성" value={done} unit="개" /></Card>
         <Card padding="md"><Stat label="진행 중" value={doing} unit="개" /></Card>
