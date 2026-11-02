@@ -18,16 +18,16 @@ export function Locked() {
       <PageHeader title="친구" />
       <Card>
         <div className="fr-unlock">
-          <svg className="fr-unlock__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M0 50 C50 50 50 17 100 17" />
-            <path d="M0 50 L100 50" />
-            <path d="M0 50 C50 50 50 83 100 83" />
-          </svg>
           <button type="button" className="fr-node fr-node--me" onClick={toVisibility} aria-label="내 프로필, 지금은 비공개예요. 공개 범위 설정으로 가요">
             <span className="fr-avatar fr-avatar--lg" aria-hidden="true">나</span>
             <span className="fr-node__label">내 프로필</span>
             <span className="fr-node__line"><Icon name="lock" size={12} />비공개</span>
           </button>
+          <svg className="fr-unlock__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 50 C50 50 50 17 100 17" />
+            <path d="M0 50 L100 50" />
+            <path d="M0 50 C50 50 50 83 100 83" />
+          </svg>
           <ul className="fr-unlock__branches">
             {BRANCHES.map(b => (
               <li key={b.id}>
