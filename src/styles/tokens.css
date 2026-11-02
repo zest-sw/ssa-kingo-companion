@@ -104,6 +104,25 @@
   --modal-width: 420px;
   --readable: 72ch;
 
+  /* 다이어그램(src/components/diagram). 조각은 보이는 모양이 작아도 누르는 칸은 --hit-min 이다. */
+  --dg-track: var(--bg-sunken);
+  --dg-grid: var(--line);
+  --dg-today: var(--accent);
+  --dg-tip-bg: var(--ink-strong);
+  --dg-tip-max: 280px;
+  --dg-label-w: 168px;
+  --dg-row-h: 40px;
+  --dg-lane-h: 32px;
+  --dg-bar-h: 18px;
+  --dg-dot: 12px;
+  --dg-mark: 12px;
+  --dg-hatch: 6px;
+  --dg-faded: 0.4;
+  --dg-funnel-h: 28px;
+  --dg-segment-h: 24px;
+  --dg-tile-pic-h: 112px;
+  --dg-node-w: 160px;
+
   --duration: 150ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --z-overlay: 50;

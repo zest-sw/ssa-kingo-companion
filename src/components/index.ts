@@ -17,3 +17,4 @@ export { EmptyState, ErrorState, LoadingState } from './States';
 export { Switch } from './Switch';
 export { SegmentedControl, TabPanel, Tabs, type TabItem } from './Tabs';
 export { Toast, ToastProvider, useToast } from './Toast';
+export * from './diagram';

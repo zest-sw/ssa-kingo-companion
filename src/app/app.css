@@ -54,3 +54,11 @@
   .app-student { flex: none; padding: 0; }
   .app-main { padding: var(--space-6) var(--space-6) var(--space-10); }
 }
+
+/* 공용 서랍 기본 내용(entity.tsx) */
+.app-entity { display: flex; flex-direction: column; gap: var(--space-4); }
+.app-entity__facts { display: flex; flex-direction: column; border-top: var(--border); }
+.app-entity__facts > div { display: grid; grid-template-columns: calc(var(--space-12) * 1.5) minmax(0, 1fr); gap: var(--space-3); padding: var(--space-2) 0; border-bottom: var(--border); font-size: var(--text-sm); }
+.app-entity__facts dt { color: var(--ink-muted); }
+.app-entity__facts dd { color: var(--ink); overflow-wrap: anywhere; }
+.app-entity__note { color: var(--ink-muted); font-size: var(--text-sm); }
