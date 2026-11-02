@@ -108,6 +108,18 @@
 .ui-page-head__title { font-size: var(--text-3xl); font-weight: var(--weight-heavy); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .ui-page-head__title:focus-visible { box-shadow: none; outline: none; }
 .ui-page-head__actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; justify-content: flex-end; }
+.ui-page-head--l2 { justify-content: flex-start; gap: var(--space-3); }
+.ui-page-head--l2 .ui-page-head__text { flex: 1; }
+.ui-page-head__back {
+  display: inline-grid; place-items: center; width: var(--control-h); height: var(--control-h); flex: none; align-self: flex-end;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-muted);
+  transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+.ui-page-head__back:hover { background: var(--surface-hover); color: var(--ink); }
+.ui-crumbs { display: flex; align-items: center; gap: var(--space-2); min-width: 0; margin-bottom: 2px; font-size: var(--text-sm); color: var(--ink-subtle); }
+.ui-crumbs a { color: var(--ink-muted); text-decoration: none; white-space: nowrap; }
+.ui-crumbs a:hover { color: var(--ink); text-decoration: underline; }
+.ui-crumbs [aria-current] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-muted); }
 
 /* States: 장식 원 없이 작은 선 아이콘 + 문장 */
 .ui-state { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-8) var(--space-6); text-align: center; color: var(--ink-muted); font-size: var(--text-sm); }
