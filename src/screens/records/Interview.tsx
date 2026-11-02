@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, Card, Chip, ErrorState, Icon, LoadingState, PageHeader, useToast } from '../../components';
-import { navigate } from '../../app/router';
+import { l1Of, navigate } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { factsOf } from '../../data/activities';
 import { CURRENT_TERM, QUICK_ANSWERS } from '../../data/records';
@@ -10,7 +10,7 @@ import { ENERGY_PROMPT, STEP_LABEL, STEP_ORDER, type CardStep } from '../../doma
 import type { Activity, Axis, Energy, RecordVisibility } from '../../domain/types';
 import { DID_AXES, ENERGY, FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
 import { RecordCardView } from './RecordCardView';
-import { RecordsTabs } from './RecordsTabs';
+import { setMapFocus } from './mapFocus';
 import { toggleAxis, type Message } from '../../domain/interview/draft';
 import { useAgentQueue } from './useAgentQueue';
 
@@ -92,6 +92,7 @@ export function Interview({ activity }: { activity: Activity }) {
           card: iv.card, energy, visibility, useForRecommend
         });
         setSummary(savedSummary(state.records, record));
+        setMapFocus(record.id);
         // 기록이 생기면 활동은 '기록됨'이 되고 초안은 지워진다(reducer).
         run({ type: 'record/add', record: { ...record, confirmedAxes: confirmed.filter(a => record.axes.includes(a)) }, activityId: activity.id });
         setPhase('done');
@@ -104,8 +105,8 @@ export function Interview({ activity }: { activity: Activity }) {
   if (phase === 'done' && summary) {
     return (
       <>
-        <PageHeader eyebrow="회고" title={activity.title} />
-        <RecordsTabs value="interview">
+        <PageHeader parent={l1Of('records')} crumb="회고 인터뷰" title={activity.title} />
+        <>
           <Card className="rec-done">
             <span className="rec-done__icon"><Icon name="check" size={28} /></span>
             <h2 ref={doneTitle} tabIndex={-1} className="rec-done__title">기록 카드를 만들었어요</h2>
@@ -115,11 +116,10 @@ export function Interview({ activity }: { activity: Activity }) {
               <li><Icon name="compass" size={18} />{summary.usedForRecommend ? '다음 추천에 이 기록을 반영해요.' : '추천에 쓰지 않기로 해서 다음 추천은 그대로예요.'}</li>
             </ul>
             <div className="rec-done__actions">
-              <Button variant="primary" onClick={() => navigate('records/archive')}>기록 보관함 보기</Button>
-              <Button onClick={() => navigate('activities')}>내 활동으로</Button>
+              <Button variant="primary" onClick={() => navigate('records')}>기록 지도에서 보기</Button>
             </div>
           </Card>
-        </RecordsTabs>
+        </>
       </>
     );
   }
@@ -127,8 +127,8 @@ export function Interview({ activity }: { activity: Activity }) {
   const status = stepStatuses(iv);
   return (
     <>
-      <PageHeader eyebrow="회고" title={activity.title} actions={phase === 'talk' && <Button onClick={pause}>나중에 이어 하기</Button>} />
-      <RecordsTabs value="interview">
+      <PageHeader parent={l1Of('records')} crumb="회고 인터뷰" title={activity.title} actions={phase === 'talk' && <Button onClick={pause}>나중에 이어 하기</Button>} />
+      <>
         <div className="rec-interview">
           <section className="rec-chat" aria-label="회고 대화">
             <ol className="rec-steps" aria-label="회고 단계">
@@ -192,7 +192,7 @@ export function Interview({ activity }: { activity: Activity }) {
             />
           </aside>
         </div>
-      </RecordsTabs>
+      </>
     </>
   );
 }

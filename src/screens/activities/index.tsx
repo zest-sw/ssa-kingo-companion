@@ -1,31 +1,34 @@
-import { useState } from 'react';
 import { PageHeader, SegmentedControl } from '../../components';
+import { navigate, l1Of, type ScreenProps } from '../../app/router';
+import { openEntity } from '../../app/entity';
 import { useApp } from '../../app/AppState';
-import { CURRENT_TERM } from '../../data/records';
-import { semesterLabel } from '../../domain/interview/archive';
-import type { ScreenProps } from '../../app/router';
-import { ActivityDrawer } from './ActivityDrawer';
 import { BoardView } from './BoardView';
 import { ListView } from './ListView';
+import { Overview } from './Overview';
+import './ActivityEntity';
 import './activities.css';
 
 type View = 'board' | 'list';
 
-export default function ActivitiesScreen(_props: ScreenProps) {
-  const { state } = useApp();
-  const [view, setView] = useState<View>('board');
-  const [openId, setOpenId] = useState<string | null>(null);
-  const open = state.activities.find(a => a.id === openId);
+const open = (id: string) => openEntity({ kind: 'activity', id });
 
+/** 하위 경로: (없음) = 개요(L1), board = 보드, list = 목록. 활동 서랍은 어디서든 openEntity 로 연다. */
+export default function ActivitiesScreen({ sub }: ScreenProps) {
+  if (sub === 'board' || sub === 'list') return <Detail view={sub} />;
+  return <Overview />;
+}
+
+function Detail({ view }: { view: View }) {
+  const { state } = useApp();
   return (
     <>
       <PageHeader
-        eyebrow={semesterLabel(CURRENT_TERM.semester)}
-        title="내 활동"
-        actions={<SegmentedControl<View> label="보기 방식" value={view} onChange={setView} items={[{ id: 'board', label: '보드' }, { id: 'list', label: '목록' }]} />}
+        parent={l1Of('activities')}
+        crumb={view === 'board' ? '보드' : '목록'}
+        title={view === 'board' ? '활동 보드' : '활동 목록'}
+        actions={<SegmentedControl<View> label="보기 방식" value={view} onChange={v => navigate(`activities/${v}`, { replace: true })} items={[{ id: 'board', label: '보드' }, { id: 'list', label: '목록' }]} />}
       />
-      {view === 'board' ? <BoardView activities={state.activities} onOpen={setOpenId} /> : <ListView activities={state.activities} onOpen={setOpenId} />}
-      <ActivityDrawer a={open} onClose={() => setOpenId(null)} />
+      {view === 'board' ? <BoardView activities={state.activities} onOpen={open} /> : <ListView activities={state.activities} onOpen={open} />}
     </>
   );
 }

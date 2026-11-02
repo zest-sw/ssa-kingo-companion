@@ -15,6 +15,27 @@
 .act-col__list { display: flex; flex-direction: column; gap: var(--space-2); }
 .act-col .ui-state { padding: var(--space-8) var(--space-4); }
 
+.act-col[data-focus] { border-color: var(--green-900); }
+.act-col__head:focus-visible { box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+
+/* 개요(L1) */
+.act-overview + .act-overview { margin-top: var(--space-4); }
+.act-overview .ui-dg-legend { margin-bottom: var(--space-3); }
+.act-undated { display: grid; grid-template-columns: var(--dg-label-w) minmax(0, 1fr); align-items: center; min-height: var(--dg-row-h); border-top: var(--border); }
+.act-undated__label { padding-right: var(--space-3); font-size: var(--text-sm); color: var(--ink-muted); }
+.act-undated__list { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 var(--space-3); }
+.act-undated__item { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--hit-min); padding: 0 var(--space-3); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-sm); color: var(--ink); }
+.act-undated__item:hover { background: var(--surface-alt); }
+.act-undated__item:focus-visible { box-shadow: var(--focus-ring); }
+.act-undated__item[aria-pressed='true'] { background: var(--surface-alt); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.act-undated__dot { flex: none; width: var(--act-dot); height: var(--act-dot); border-radius: var(--radius-full); background: var(--grey-500); }
+.act-undated__dot[data-group='dev'] { background: var(--field-dev); }
+.act-undated__dot[data-group='ai'] { background: var(--field-ai); }
+.act-undated__dot[data-group='plan'] { background: var(--field-startup); }
+.act-undated__dot[data-group='mentor'] { background: var(--field-mentor); }
+.act-undated__dot[data-group='global'] { background: var(--field-global); }
+.act-undated__name { max-width: 16em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .act-card { position: relative; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border: var(--border); border-radius: var(--radius-md); background: var(--surface); min-width: 0; }
 .act-card:hover { background: var(--surface-alt); }
 .act-card__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
