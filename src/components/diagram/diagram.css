@@ -153,10 +153,11 @@
 .ui-dg-loop__node:focus-visible { border-radius: var(--radius-lg); }
 .ui-dg-loop__label { max-width: 100%; color: var(--ink); font-size: var(--text-md); font-weight: var(--weight-bold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ui-dg-loop__value { max-width: 100%; color: var(--ink-muted); font-size: var(--text-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ui-dg-loop__arrow { position: relative; height: 0; margin: 0 var(--space-2); border-top: 1.5px solid var(--line-strong); }
-.ui-dg-loop__arrow::after { content: ''; position: absolute; right: 0; top: -5px; width: var(--space-2); height: var(--space-2); border-top: 1.5px solid var(--line-strong); border-right: 1.5px solid var(--line-strong); transform: rotate(45deg); transform-origin: 75% 25%; }
+.ui-dg-loop__arrow { position: relative; height: 0; margin: 0; border-top: 2px solid var(--ink-subtle); }
+.ui-dg-loop__arrow::after { content: ''; position: absolute; right: 0; top: -6px; width: 10px; height: 10px; border-top: 2px solid var(--ink-subtle); border-right: 2px solid var(--ink-subtle); transform: rotate(45deg); transform-origin: 70% 30%; }
+/* 돌아오는 길: 마지막 노드 아래 가운데에서 내려와 첫 노드 아래 가운데로 올라간다. 끝에 화살촉 */
 .ui-dg-loop__back {
-  grid-column: 1 / -1; position: relative; height: var(--space-4);
-  margin: 0 calc((100% - 2 * var(--space-10)) / 6); border: 1.5px solid var(--line-strong); border-top: 0; border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  grid-column: 1 / -1; position: relative; height: var(--space-5);
+  margin: 0 calc((100% - 2 * var(--space-10)) / 6 - 1px); border: 2px solid var(--ink-subtle); border-top: 0; border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
-.ui-dg-loop__back::after { content: ''; position: absolute; left: -5px; top: 0; width: var(--space-2); height: var(--space-2); border-top: 1.5px solid var(--line-strong); border-left: 1.5px solid var(--line-strong); transform: rotate(45deg); }
+.ui-dg-loop__back::after { content: ''; position: absolute; left: -6px; top: -2px; width: 10px; height: 10px; border-top: 2px solid var(--ink-subtle); border-left: 2px solid var(--ink-subtle); transform: rotate(45deg); transform-origin: 30% 30%; }
