@@ -1,7 +1,8 @@
 import type { Activity, Program, Scored } from '../types';
 import { ddayOf } from '../recommend';
+import { TODAY_YEAR, todayUtc } from '../today';
 
-// 홈 '곧 있어요' 14일 타임라인에 올릴 점. 기준일은 flow.ts 의 dateLabel 과 같은 10월 13일(1주차 첫날).
+// 홈 '곧 있어요' 14일 타임라인에 올릴 점. 기준일은 today.ts 의 PROTOTYPE_TODAY(1주차 첫날).
 
 export const UPCOMING_DAYS = 14;
 export type UpcomingKind = 'deadline' | 'activity' | 'review';
@@ -10,7 +11,7 @@ export type UpcomingItem = { id: string; date: string; label: string; kind: Upco
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const isoAt = (offset: number, week: number) => {
-  const d = new Date(Date.UTC(2026, 9, 13 + 7 * (week - 1) + offset));
+  const d = new Date(todayUtc(7 * (week - 1) + offset));
   return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 };
 export const todayIso = (week: number) => isoAt(0, week);
@@ -21,8 +22,8 @@ export const upcomingRange = (week: number) => ({ start: isoAt(0, week), end: is
 export function whenOffset(when: string, week: number): number | undefined {
   const m = /^(\d{1,2})\.(\d{1,2})/.exec(when);
   if (!m) return undefined;
-  const day = Date.UTC(2026, Number(m[1]) - 1, Number(m[2]));
-  return Math.round((day - Date.UTC(2026, 9, 13 + 7 * (week - 1))) / 86_400_000);
+  const day = Date.UTC(TODAY_YEAR, Number(m[1]) - 1, Number(m[2]));
+  return Math.round((day - todayUtc(7 * (week - 1))) / 86_400_000);
 }
 
 const within = (n: number | undefined): n is number => n !== undefined && n >= 0 && n <= UPCOMING_DAYS;

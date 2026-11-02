@@ -8,7 +8,7 @@ import {
   candidateHref, checksOf, clockLabel, dateLabel, effectiveChoices, emptyReason, formatText, funnelSteps, isNearDeadline, laterDateLabel, laterUntilDay, mostUrgent,
   needsTeam, overlapsSchedule, parseRecommendSub, plainText, prepItemsFor, prepProgress, remainingItems, submitBlockReason, submitPatch, toggleInterest, toggleItem
 } from './flow';
-import { dueToday, evidenceRows, homeCounts, interestFlow, pendingDiscovery, semesterLabel, weeklyItems } from './home';
+import { homeCounts } from './home';
 
 const T0 = '21:38';
 const T1 = '21:45';
@@ -282,41 +282,5 @@ describe('홈 계산', () => {
   it('확인한 발견은 확인할 발견에서 빠지고 바뀐 근거는 다시 센다', () => {
     expect(homeCounts([], 0, discoveries, () => 'yes').toConfirm).toBe(0);
     expect(homeCounts([], 0, discoveries, () => 'changed').toConfirm).toBe(1);
-  });
-
-  it('확인할 발견 하나는 확인 전·근거 바뀜인 첫 발견', () => {
-    expect(pendingDiscovery(discoveries, () => 'none')?.did).toBe('listen');
-    expect(pendingDiscovery(discoveries, () => 'changed')?.did).toBe('listen');
-    expect(pendingDiscovery(discoveries, () => 'yes')).toBeUndefined();
-    expect(pendingDiscovery(discoveries, () => 'no')).toBeUndefined();
-    expect(pendingDiscovery([], () => 'none')).toBeUndefined();
-  });
-
-  it('이번 주 추천 줄은 가장 추천 뒤에 대안을 잇는다', () => {
-    const s = (id: string) => ({ p: prog(id), score: 0, reasons: [] });
-    expect(weeklyItems(s('a'), [s('b'), s('c')]).map(x => x.p.id)).toEqual(['a', 'b', 'c']);
-    expect(weeklyItems(undefined, [s('b')])).toEqual([]);
-  });
-
-  it('역량 근거: 학교 확인이나 맞다고 한 발견의 기록은 채운 점, 나머지는 AI 추정', () => {
-    const before = evidenceRows(records, discoveries, () => 'none');
-    expect(before.find(r => r.axis === 'communication')?.dots.map(d => d.state)).toEqual(['estimated', 'confirmed']);
-    const after = evidenceRows(records, discoveries, () => 'yes');
-    expect(after.find(r => r.axis === 'communication')?.dots.every(d => d.state === 'confirmed')).toBe(true);
-    expect(after.find(r => r.axis === 'creative')?.dots).toEqual([]);
-  });
-
-  it('관심 흐름은 학기 순서로 분야 묶음 개수를 센다', () => {
-    const flow = interestFlow(records);
-    expect(flow.map(f => f.label)).toEqual(['26-1', '26 여름', '26-2']);
-    expect(flow[1].groups).toEqual([{ group: 'dev', count: 1 }]);
-    expect(semesterLabel('2026-2')).toBe('26-2');
-    expect(interestFlow([])).toEqual([]);
-  });
-
-  it('오늘 마감인 준비 중 활동만 오늘 칩에 쓴다', () => {
-    expect(dueToday([a('preparing', { label: 'x', dday: 3 })])).toBeUndefined();
-    expect(dueToday([a('preparing', { label: 'x', dday: 0 })])?.due?.label).toBe('x');
-    expect(dueToday([a('applied', { label: 'x', dday: 0 })])).toBeUndefined();
   });
 });

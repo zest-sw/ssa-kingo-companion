@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CATALOG } from '../../data/catalog';
 import { buildCandidates } from '../candidates';
 import { prog } from '../fixtures.test-util';
+import { PROTOTYPE_TODAY } from '../today';
 import type { Activity, Scored } from '../types';
 import { filterLabels, isEmptyFilter, matchesAsk, parseAsk, withoutKey } from './ask';
 import { funnelDrops, STEP_IDS } from './drops';
@@ -56,7 +57,7 @@ describe('upcomingItems', () => {
       act({ id: 'a3', title: '먼 마감', due: { label: '마감', dday: 30 } }),
       act({ id: 'a4', title: '하는 중', status: 'ongoing', due: { label: '마감', dday: 1 } })
     ], [], 1);
-    expect(items.map(i => [i.id, i.date, i.kind])).toEqual([['due:a1', '2026-10-13', 'deadline'], ['review:a2', '2026-10-13', 'review']]);
+    expect(items.map(i => [i.id, i.date, i.kind])).toEqual([['due:a1', PROTOTYPE_TODAY, 'deadline'], ['review:a2', PROTOTYPE_TODAY, 'review']]);
     expect(items.find(i => i.kind === 'review')?.target).toEqual({ path: 'records/interview/a2' });
   });
   it('후보는 마감과 활동 날짜를 올리고 이미 활동이 된 후보는 건너뛴다', () => {
@@ -64,7 +65,7 @@ describe('upcomingItems', () => {
     expect(items.map(i => [i.id, i.date])).toEqual([['due:p1', '2026-10-15'], ['on:p1', '2026-10-14']].sort((a, b) => a[1].localeCompare(b[1])));
   });
   it('범위와 날짜 읽기', () => {
-    expect(upcomingRange(1)).toEqual({ start: '2026-10-13', end: '2026-10-27' });
+    expect(upcomingRange(1)).toEqual({ start: PROTOTYPE_TODAY, end: '2026-10-27' });
     expect(upcomingRange(2).start).toBe('2026-10-20');
     expect(whenOffset('10.16(금) 16:00', 1)).toBe(3);
     expect(whenOffset('매주 목', 1)).toBeUndefined();

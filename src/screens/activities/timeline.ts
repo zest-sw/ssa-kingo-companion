@@ -1,12 +1,12 @@
 import type { DateRange, GanttRow, GanttState } from '../../components';
 import { COLUMN_OF } from '../../domain/activities';
 import type { Activity, ActivityStatus } from '../../domain/types';
+import { PROTOTYPE_TODAY, TODAY_YEAR } from '../../domain/today';
 import { FIELD_GROUP } from '../../domain/vocab';
 
-// ponytail: '오늘'과 학기 범위는 예시 데이터 기준 값이다(추천 흐름의 기준일 10월 13일과 같다). 실제 날짜·학사 일정이 붙으면 거기서 받는다.
-export const TODAY = '2026-10-13';
+// ponytail: 학기 범위는 예시 데이터 기준 값이다. 실제 학사 일정이 붙으면 거기서 받는다.
 export const SEMESTER: DateRange = { start: '2026-09-01', end: '2026-12-20' };
-const YEAR = 2026;
+const YEAR = TODAY_YEAR;
 
 const DAY_MS = 86_400_000;
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -29,6 +29,13 @@ export function parseSchedule(schedule: string): ScheduleDates {
   const out: ScheduleDates = {};
 
   text = text.replace(/결과 발표\s*(\d{1,2})월\s*(\d{1,2})일/, (_, m: string, d: string) => { out.result = iso(+m, +d); return ''; });
+
+  // 카탈로그 일정 '10.14(수) 18:30', '10.20(화)부터 4주'. 신청한 활동이 간트 막대가 되려면 읽혀야 한다.
+  const dotted = /^(\d{1,2})\.(\d{1,2})\([^)]*\)(부터\s*(\d+)주)?/.exec(text.trim());
+  if (dotted) {
+    const start = iso(+dotted[1], +dotted[2]);
+    return { ...out, start, end: dotted[4] ? addDays(start, 7 * +dotted[4] - 1) : start };
+  }
 
   let hit = /(\d{1,2})월\s*(\d{1,2})일\s*~\s*(\d{1,2})월\s*(\d{1,2})일/.exec(text);
   if (hit) return { ...out, start: iso(+hit[1], +hit[2]), end: iso(+hit[3], +hit[4]) };
@@ -58,7 +65,7 @@ function periodOf(a: Activity, today: string, dates: ScheduleDates, deadline: st
 export type Timeline = { rows: GanttRow[]; undated: Activity[] };
 
 /** 활동 → 학기 간트 행. 빠뜨리지 않는다: 기간이 없는 활동은 undated 로 돌려준다. */
-export function timelineOf(activities: Activity[], today: string = TODAY): Timeline {
+export function timelineOf(activities: Activity[], today: string = PROTOTYPE_TODAY): Timeline {
   const rows: GanttRow[] = [];
   const undated: Activity[] = [];
   for (const a of activities) {
