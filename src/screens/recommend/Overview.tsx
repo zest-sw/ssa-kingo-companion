@@ -33,7 +33,7 @@ export function Overview({ onPrepare, onOpenLater }: Props) {
   }), [state.week, state.profile.time, state.profile.format, state.records, state.choices, state.laterUntil]);
 
   const counts: Record<StepId, number> = { pool: f.pool, open: f.open, eligible: f.eligible, fit: f.fit, fresh: f.fresh };
-  const steps = STEP_IDS.map(id => ({ id, label: id === 'fresh' ? `추천 ${f.fresh}` : STEP_LABEL[id], count: counts[id] }));
+  const steps = STEP_IDS.map(id => ({ id, label: STEP_LABEL[id], count: counts[id] }));
   const shown = sel.step ? drops[sel.step] : [];
 
   const toList = (select?: string) => { setListIntent({ select }); navigate('recommend/list'); };
