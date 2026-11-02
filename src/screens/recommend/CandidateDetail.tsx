@@ -1,33 +1,20 @@
 import { useState } from 'react';
-import { Badge, Button, Card, Drawer, EmptyState, FieldTag, Icon, ProgressBar } from '../../components';
-import { hrefOf, navigate } from '../../app/router';
+import { Badge, Button, Card, Drawer, Icon } from '../../components';
+import { hrefOf } from '../../app/router';
 import { AGENT_TASKS, APPLY_URL } from '../../data/recommend';
 import { ddayOf, sortedReasons, mainReason } from '../../domain/recommend';
-import { candidateHref, checksOf, dateLabel, emptyReason, formatText, funnelSteps, isNearDeadline, plainText, prepItemsFor } from '../../domain/recommend-flow/flow';
+import { checksOf, dateLabel, formatText, isNearDeadline, plainText, prepItemsFor } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
-import type { Activity, Funnel, Program, RecordItem, Scored } from '../../domain/types';
+import type { Activity, Program, RecordItem, Scored } from '../../domain/types';
 import { DID_LABEL, FIELD_LABEL, REASON_LABEL } from '../../domain/vocab';
 
 export type CardActions = { onPrepare: (p: Program) => void; onLater: (p: Program) => void; onDismiss: (p: Program) => void };
 
-/** 가장 추천 하나. 적합도 점수는 화면에 내지 않는다. */
-export function TopView({ primary, isPrimary, alternatives, week, funnel, records, activities, actions, onChangeProfile }: {
-  primary?: Scored; isPrimary: boolean; alternatives: Scored[]; week: number; funnel: Funnel; records: RecordItem[]; activities: Activity[]; actions: CardActions; onChangeProfile: () => void;
+/** 후보 하나의 상세. 추천 상세(L2)와 목록-상세의 오른쪽 칸이 함께 쓴다. 적합도 점수는 화면에 내지 않는다. */
+export function CandidateDetail({ primary, isPrimary, week, records, activities, actions, stacked }: {
+  primary: Scored; isPrimary: boolean; week: number; records: RecordItem[]; activities: Activity[]; actions: CardActions; stacked?: boolean;
 }) {
   const [why, setWhy] = useState(false);
-
-  if (!primary) {
-    return (
-      <Card>
-        <EmptyState
-          icon="compass"
-          title="지금 추천할 활동이 없어요"
-          message={emptyReason(funnel)}
-          action={<Button variant="primary" onClick={onChangeProfile}>관심 분야·시간 바꾸기</Button>}
-        />
-      </Card>
-    );
-  }
 
   const p = primary.p;
   const dday = ddayOf(p, week);
@@ -38,7 +25,7 @@ export function TopView({ primary, isPrimary, alternatives, week, funnel, record
 
   return (
     <>
-      <Card className="rec-top" aria-labelledby="rec-top-title">
+      <Card className={`rec-top${stacked ? ' rec-top--stacked' : ''}`} aria-labelledby="rec-top-title">
         <div className="rec-top__main">
           <div className="rec-top__meta">
             <Badge tone={isPrimary ? 'lime' : 'neutral'}>{isPrimary ? '가장 추천' : '고른 후보'}</Badge>
@@ -88,26 +75,6 @@ export function TopView({ primary, isPrimary, alternatives, week, funnel, record
         </aside>
       </Card>
 
-      <Card padding="md" className="rec-alts" aria-labelledby="rec-alts-title">
-        <b id="rec-alts-title" className="rec-alts__title">다른 대안 {alternatives.length}개</b>
-        {alternatives.length === 0 ? (
-          <span className="rec-muted">대안이 아직 없어요. 나중에 보기로 미뤄 둔 활동을 다시 볼 수 있어요.</span>
-        ) : (
-          <ul className="rec-alts__list">
-            {alternatives.map(a => (
-              <li key={a.p.id}>
-                <button type="button" className="rec-alt" onClick={() => navigate(candidateHref(a.p.id))}>
-                  <FieldTag field={a.p.field} />
-                  {a.p.title}<span className="rec-alt__d num">{ddayText(ddayOf(a.p, week))}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {alternatives.length > 0 && <Button variant="ghost" className="rec-alts__go" onClick={() => navigate('recommend/compare')}>비교해서 고르기<Icon name="chevron" size={14} /></Button>}
-      </Card>
-      <p className="rec-foot"><Icon name="check" size={14} />필요한 정보만 보여 줘요. 적합도 점수는 쓰지 않아요.</p>
-
       <Drawer open={why} title="근거 기록" eyebrow={p.title} onClose={() => setWhy(false)}>
         <section aria-labelledby="why-r" className="rec-drawer__sec">
           <h3 id="why-r" className="rec-drawer__h">추천 이유</h3>
@@ -121,19 +88,6 @@ export function TopView({ primary, isPrimary, alternatives, week, funnel, record
               </li>
             ))}
           </ul>
-        </section>
-        <section aria-labelledby="why-m" className="rec-drawer__sec">
-          <h3 id="why-m" className="rec-drawer__h">고른 방법</h3>
-          <ol className="rec-flow">
-            {funnelSteps(funnel).map((s, i) => (
-              <li key={s.label} className="rec-flow__step">
-                <span className="rec-flow__label">{i + 1}. {s.label}</span>
-                <ProgressBar value={s.count} max={funnel.pool} label={s.label} />
-                <span className="rec-flow__n num">{s.count}개</span>
-              </li>
-            ))}
-          </ol>
-          <p className="rec-muted">이 중에서 내 기록과 관심에 가장 맞는 하나를 골랐어요.</p>
         </section>
       </Drawer>
     </>

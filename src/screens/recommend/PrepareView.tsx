@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
-import { hrefOf, navigate } from '../../app/router';
+import { hrefOf, l1Of, navigate } from '../../app/router';
 import { Badge, Button, Card, EmptyState, ErrorState, Icon, LoadingState, PageHeader } from '../../components';
 import { APPLY_URL, DRAFT_DELAY } from '../../data/recommend';
 import { PROGRAM_BY_ID } from '../../data/catalog';
@@ -51,7 +51,7 @@ export function PrepareView({ programId }: { programId: string }) {
   if (!p) {
     return (
       <>
-        <PageHeader eyebrow="신청 준비" title="활동을 찾지 못했어요" />
+        <PageHeader parent={l1Of('recommend')} crumb="신청 준비" title="활동을 찾지 못했어요" />
         <Card><EmptyState message="이 활동은 이번 주 후보에 없어요. 추천에서 다시 골라 주세요." action={<Button variant="primary" onClick={() => navigate('recommend')}>추천으로 가기</Button>} /></Card>
       </>
     );
@@ -86,7 +86,7 @@ export function PrepareView({ programId }: { programId: string }) {
 
   return (
     <>
-      <PageHeader eyebrow="신청 준비" title={p.title} actions={<Badge tone="orange">마감 {ddayText(dday)} · {dateLabel(dday, state.week)}</Badge>} />
+      <PageHeader parent={l1Of('recommend')} crumb="신청 준비" title={p.title} actions={<Badge tone="orange">마감 {ddayText(dday)} · {dateLabel(dday, state.week)}</Badge>} />
       <div className="rec-prep">
         <Card className="rec-prep__list" title="준비할 것" action={<span>{left > 0 ? `${left}개 남음` : '모두 끝났어요'}</span>}>
           {urgent && urgent.dday !== undefined && (
