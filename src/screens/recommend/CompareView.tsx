@@ -6,7 +6,7 @@ import { checksOf, dateLabel, formatText, isNearDeadline, prepItemsFor } from '.
 import { ddayText } from '../../domain/text';
 import type { Activity, Interest, Program, RecordItem, Scored } from '../../domain/types';
 import { DID_LABEL, FIELD_LABEL } from '../../domain/vocab';
-import type { CardActions } from './TopView';
+import type { CardActions } from './CandidateDetail';
 
 const MAX_COLUMNS = 5;
 
@@ -76,7 +76,6 @@ export function CompareView({ scored, week, records, interests, activities, acti
         </div>
         {allFit && <p className="rec-compare__ok"><Badge tone="green" icon="check">{cols.length === 1 ? '신청 대상이고 시간표와 겹치지 않아요' : `${cols.length}개 모두 신청 대상이고 시간표와 겹치지 않아요`}</Badge></p>}
       </Card>
-      <p className="rec-foot">같은 항목끼리 나란히 놓아요. 고르는 건 내가 해요.</p>
     </>
   );
 }

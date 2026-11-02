@@ -1,18 +1,16 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
-import { navigate, type ScreenProps } from '../../app/router';
-import { Button, PageHeader, SegmentedControl } from '../../components';
+import { l1Of, navigate, type ScreenProps } from '../../app/router';
+import { Button, Card, EmptyState, PageHeader } from '../../components';
 import { DISLIKES } from '../../data/options';
-import { pickAlternatives } from '../../domain/recommend';
 import { laterUntilDay, parseRecommendSub, prepareHref } from '../../domain/recommend-flow/flow';
 import type { DislikeKind, Program } from '../../domain/types';
-import { CompareView } from './CompareView';
+import { CandidateDetail } from './CandidateDetail';
 import { DismissModal, LaterDrawer, LaterModal } from './Dialogs';
+import { ListView } from './ListView';
+import { Overview } from './Overview';
 import { PrepareView } from './PrepareView';
-import { TopView } from './TopView';
 import './recommend.css';
-
-const VIEWS = [{ id: 'top', label: '가장 추천' }, { id: 'compare', label: '비교해서 고르기' }] as const;
 
 export default function RecommendScreen({ sub }: ScreenProps) {
   const { state, view, run } = useApp();
@@ -37,25 +35,31 @@ export default function RecommendScreen({ sub }: ScreenProps) {
 
   if (route.view === 'prepare') return <PrepareView key={route.programId} programId={route.programId} />;
 
-  const compare = route.view === 'compare';
-  // #/recommend/<활동 id> 로 열면 그 후보를 가장 추천 자리에 보여 준다. 후보가 아니면 원래 가장 추천을 보여 준다.
-  const focus = route.view === 'top' && route.programId ? view.scored.find(s => s.p.id === route.programId) : undefined;
+  // #/recommend/<활동 id>: 그 후보의 상세(L2). 후보가 아니면(이미 골랐거나 없는 id) 안내하고 목록으로 보낸다.
+  const detail = route.view === 'top' && route.programId ? view.scored.find(s => s.p.id === route.programId) : undefined;
+
+  let body;
+  if (route.view === 'list' || route.view === 'compare') {
+    body = <ListView key={route.view} startTable={route.view === 'compare'} actions={actions} onOpenLater={() => setLaterOpen(true)} />;
+  } else if (route.view === 'top' && route.programId) {
+    body = detail ? (
+      <>
+        <PageHeader parent={l1Of('recommend')} crumb="추천 상세" title={detail.p.title} />
+        <CandidateDetail primary={detail} isPrimary={detail.p.id === view.primary?.p.id} week={state.week} records={state.records} activities={state.activities} actions={actions} />
+      </>
+    ) : (
+      <>
+        <PageHeader parent={l1Of('recommend')} crumb="추천 상세" title="후보를 찾지 못했어요" />
+        <Card><EmptyState icon="compass" message="이미 골랐거나 이번 주 후보가 아니에요. 후보 목록에서 다시 골라 주세요." action={<Button variant="primary" onClick={() => navigate('recommend/list')}>후보 목록 보기</Button>} /></Card>
+      </>
+    );
+  } else {
+    body = <Overview onPrepare={prepare} onOpenLater={() => setLaterOpen(true)} />;
+  }
+
   return (
     <>
-      <PageHeader
-        eyebrow="이번 주 추천"
-        title="추천"
-        actions={
-          <>
-            <Button variant="ghost" onClick={() => setLaterOpen(true)}>나중에 보기 <span className="rec-count num">{view.later.length}</span></Button>
-            <SegmentedControl label="보기 전환" items={[...VIEWS]} value={compare ? 'compare' : 'top'} onChange={id => navigate(id === 'compare' ? 'recommend/compare' : 'recommend')} />
-          </>
-        }
-      />
-      {compare
-        ? <CompareView scored={view.scored} week={state.week} records={state.records} interests={state.profile.interests} activities={state.activities} actions={actions} />
-        : <TopView primary={focus ?? view.primary} isPrimary={!focus || focus.p.id === view.primary?.p.id} alternatives={focus ? pickAlternatives(view.scored, focus.p) : view.alternatives} week={state.week} funnel={view.funnel} records={state.records} activities={state.activities} actions={actions} onChangeProfile={() => navigate('settings/profile')} />}
-
+      {body}
       <DismissModal program={dismissing} onPick={dismiss} onClose={() => setDismissing(undefined)} />
       <LaterModal week={state.week} program={postponing} onPick={postpone} onClose={() => setPostponing(undefined)} />
       <LaterDrawer

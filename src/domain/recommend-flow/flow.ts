@@ -5,11 +5,12 @@ export type { PrepItem } from '../types';
 
 // 추천 화면의 흐름: 어느 단계인지, 신청 준비 체크리스트가 어떻게 바뀌는지. 순수 함수만 둔다.
 
-export type RecommendView = { view: 'top'; programId?: string } | { view: 'compare' } | { view: 'prepare'; programId: string };
+export type RecommendView = { view: 'top'; programId?: string } | { view: 'list' } | { view: 'compare' } | { view: 'prepare'; programId: string };
 
 /** '#/recommend/prepare/p-chatbot' 의 sub('prepare/p-chatbot')를 단계로. 'p-chatbot' 만 있으면 그 후보를 연 가장 추천 보기. */
 export function parseRecommendSub(sub?: string): RecommendView {
   const [head, id] = (sub ?? '').split('/');
+  if (head === 'list') return { view: 'list' };
   if (head === 'compare') return { view: 'compare' };
   if (head === 'prepare' && id) return { view: 'prepare', programId: id };
   if (head && head !== 'prepare') return { view: 'top', programId: head };

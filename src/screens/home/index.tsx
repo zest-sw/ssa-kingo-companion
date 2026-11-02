@@ -1,20 +1,31 @@
 import { useMemo } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate, type ScreenProps } from '../../app/router';
-import { Badge, Button, PageHeader, Stat } from '../../components';
+import { useOverviewState } from '../../app/useOverviewState';
+import { Badge, Button, Card, EmptyState, FieldTag, PageHeader } from '../../components';
 import { EXAMPLE_PROFILE } from '../../data/seed';
-import { dueToday, evidenceRows, homeCounts, interestFlow, pendingDiscovery, weeklyItems } from '../../domain/recommend-flow/home';
+import { ddayOf } from '../../domain/recommend';
+import { homeCounts } from '../../domain/recommend-flow/home';
+import { isNearDeadline, prepareHref } from '../../domain/recommend-flow/flow';
+import { setListIntent } from '../../domain/recommend-flow/intent';
+import { upcomingItems } from '../../domain/recommend-flow/upcoming';
+import { ddayText } from '../../domain/text';
+import { TopPick } from '../recommend/TopPick';
+import { AskBar } from './AskBar';
 import { Onboarding } from './Onboarding';
-import { DiscoveryPanel, EvidencePanel, FlowPanel, WeeklyPanel } from './Panels';
+import { PastPresentFuture, Upcoming } from './Upcoming';
 import './home.css';
 
 export default function HomeScreen(_props: ScreenProps) {
   const { state, view, discStateOf, run } = useApp();
+  // 선택할 값은 없고, 다른 메뉴 L2 에서 돌아왔을 때 스크롤만 되살린다.
+  useOverviewState('home', null);
 
   const counts = useMemo(() => homeCounts(state.activities, view.newCount, view.discoveries, discStateOf), [state.activities, view.newCount, view.discoveries, discStateOf]);
-  const rows = useMemo(() => evidenceRows(state.records, view.discoveries, discStateOf), [state.records, view.discoveries, discStateOf]);
-  const flow = useMemo(() => interestFlow(state.records), [state.records]);
-  const pending = pendingDiscovery(view.discoveries, discStateOf);
+  const upcoming = useMemo(
+    () => upcomingItems(state.activities, view.primary ? [view.primary, ...view.alternatives] : [], state.week),
+    [state.activities, view.primary, view.alternatives, state.week]
+  );
 
   if (!state.onboarded) {
     return (
@@ -25,40 +36,47 @@ export default function HomeScreen(_props: ScreenProps) {
     );
   }
 
-  const today = dueToday(state.activities);
-  const weekly = weeklyItems(view.primary, view.alternatives);
+  const top = view.primary;
+  const prepare = () => {
+    if (!top) return;
+    run({ type: 'candidate/choose', programId: top.p.id, choice: 'preparing' });
+    navigate(prepareHref(top.p.id));
+  };
+  const toList = (select: string) => { setListIntent({ select }); navigate('recommend/list'); };
 
   return (
     <>
-      <PageHeader
-        eyebrow="2026-2학기"
-        title="나의 상태창"
-        actions={
-          <>
-            {today?.due && <span className="home-today"><Badge tone="solid-orange">오늘</Badge>{today.title} {today.due.label}</span>}
-            <Button variant="primary" icon="pencil" onClick={() => navigate('records')}>회고 쓰기</Button>
-          </>
-        }
-      />
-      <div className="home-grid">
-        <section className="home-stats" aria-label="이번 학기 숫자">
-          <div className="home-stat"><Stat label="이번 학기 활동" value={counts.semesterActivities} unit="개" /></div>
-          <div className="home-stat"><Stat label="회고 대기" value={counts.reviewWaiting} unit="개" tone={counts.reviewWaiting > 0 ? 'accent' : 'default'} /></div>
-          <div className="home-stat"><Stat label="새 추천" value={counts.newRecommend} unit="개" /></div>
-          <div className="home-stat"><Stat label="확인할 발견" value={counts.toConfirm} unit="개" /></div>
-        </section>
-        <EvidencePanel rows={rows} records={state.records} />
-        <FlowPanel rows={flow} />
-        <DiscoveryPanel
-          discovery={pending}
-          state={pending ? discStateOf(pending) : 'none'}
-          onAnswer={(d, status) => run({ type: 'discovery/confirm', discovery: d, status }, {
-            toast: status === 'yes' ? '맞다고 한 발견을 추천에 반영할게요.' : '이 발견은 추천에 쓰지 않을게요.',
-            undoable: true
-          })}
-          onWrite={() => navigate('records')}
-        />
-        <WeeklyPanel items={weekly} week={state.week} />
+      <PageHeader title="나의 상태창" actions={<Button variant="primary" icon="pencil" onClick={() => navigate('records')}>회고 쓰기</Button>} />
+      <AskBar />
+      <div className="home-l1">
+        <div className="home-l1__main">
+          <Card className="home-top" aria-label="이번에 할 것">
+            {top ? (
+              <TopPick pick={top} week={state.week} onPrepare={prepare} />
+            ) : (
+              <EmptyState icon="compass" message="지금은 맞는 후보가 없어요. 관심 분야나 시간을 바꿔 보세요." action={<Button size="sm" onClick={() => navigate('settings/profile')}>관심 분야·시간 바꾸기</Button>} />
+            )}
+          </Card>
+          <ul className="home-alts" aria-label="다른 대안">
+            {view.alternatives.slice(0, 2).map(a => {
+              const d = ddayOf(a.p, state.week);
+              return (
+                <li key={a.p.id}>
+                  <button type="button" className="home-alt" onClick={() => toList(a.p.id)}>
+                    <FieldTag field={a.p.field} />
+                    <span className="home-alt__title">{a.p.title}</span>
+                    <Badge tone={isNearDeadline(d) ? 'orange' : 'neutral'}>{ddayText(d)}</Badge>
+                  </button>
+                </li>
+              );
+            })}
+            {top && view.alternatives.length === 0 && <li className="home-alts__none"><Button size="sm" variant="ghost" onClick={() => navigate('recommend/list')}>후보 목록 보기</Button></li>}
+          </ul>
+        </div>
+        <div className="home-l1__side">
+          <Upcoming items={upcoming} week={state.week} />
+          <PastPresentFuture records={state.records.length} toConfirm={counts.toConfirm} recommend={counts.newRecommend} />
+        </div>
       </div>
     </>
   );
