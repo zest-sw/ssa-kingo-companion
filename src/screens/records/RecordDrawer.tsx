@@ -54,7 +54,7 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
       />
       <div className="rec-drawer__actions">
         <Button icon="pencil" onClick={() => setEditing(true)}>고치기</Button>
-        <Button variant="ghost" onClick={() => { onClose(); onDelete(r); }}>삭제</Button>
+        <Button variant="ghost" onClick={() => onDelete(r)}>삭제</Button>
       </div>
     </div>
   );

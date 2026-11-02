@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import { Button, Card, Chip, EmptyState, FieldTag, Icon, Modal, PageHeader } from '../../components';
-import { navigate } from '../../app/router';
+import { Button, Card, Chip, EmptyState, FieldTag, Icon, PageHeader } from '../../components';
+import { l1Of, navigate } from '../../app/router';
+import { openEntity } from '../../app/entity';
 import { useApp } from '../../app/AppState';
 import { filterRecords, groupBySemester, groupsPresent, previewOf, type ArchiveFilter } from '../../domain/interview/archive';
 import type { RecordItem } from '../../domain/types';
 import { GROUP_LABEL } from '../../domain/vocab';
 import { AddRecordModal } from './AddRecordModal';
-import { RecordDrawer } from './RecordDrawer';
 import { VerificationBadge } from './RecordCardView';
-import { RecordsTabs } from './RecordsTabs';
 
 const ALL: ArchiveFilter = { group: 'all', verification: 'all' };
 
@@ -33,27 +32,18 @@ function RecordTile({ r, onOpen }: { r: RecordItem; onOpen: (id: string) => void
 }
 
 export function Archive() {
-  const { state, run } = useApp();
+  const { state } = useApp();
   const [filter, setFilter] = useState<ArchiveFilter>(ALL);
-  const [openId, setOpenId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  const [deleting, setDeleting] = useState<RecordItem | null>(null);
 
   const shown = filterRecords(state.records, filter);
   const groups = groupBySemester(shown);
-  const open = state.records.find(r => r.id === openId);
-
-  const remove = () => {
-    if (!deleting) return;
-    // 기록을 지우면 그 활동은 회고 대기로 돌아간다(reducer). 되돌리기는 기록·활동·역량 근거 확인을 함께 되돌린다.
-    run({ type: 'record/delete', id: deleting.id }, { toast: `‘${deleting.title}’ 기록을 지웠어요.`, undoable: true });
-    setDeleting(null);
-  };
+  const open = (id: string) => openEntity({ kind: 'record', id });
 
   return (
     <>
-      <PageHeader eyebrow="기록" title="기록 보관함" actions={<Button icon="plus" onClick={() => setAdding(true)}>직접 기록 추가</Button>} />
-      <RecordsTabs value="archive">
+      <PageHeader parent={l1Of('records')} crumb="보관함" title="기록 보관함" actions={<Button icon="plus" onClick={() => setAdding(true)}>직접 기록 추가</Button>} />
+      <>
         {state.records.length === 0 ? (
           <Card><EmptyState icon="records" message="아직 기록이 없어요. 끝난 활동에서 회고를 쓰면 여기에 쌓여요." action={<Button variant="primary" onClick={() => navigate('records/interview')}>회고 쓰기</Button>} /></Card>
         ) : (
@@ -74,17 +64,13 @@ export function Archive() {
             ) : groups.map(g => (
               <section key={g.semester} className="rec-sem" aria-labelledby={`sem-${g.semester}`}>
                 <h2 id={`sem-${g.semester}`} className="rec-sem__title">{g.label} <span className="rec-sem__count num">{g.items.length}</span></h2>
-                <ul className="rec-grid">{g.items.map(r => <li key={r.id}><RecordTile r={r} onOpen={setOpenId} /></li>)}</ul>
+                <ul className="rec-grid">{g.items.map(r => <li key={r.id}><RecordTile r={r} onOpen={open} /></li>)}</ul>
               </section>
             ))}
           </>
         )}
-      </RecordsTabs>
-      <RecordDrawer record={open} onClose={() => setOpenId(null)} onDelete={setDeleting} />
+      </>
       <AddRecordModal open={adding} onClose={() => setAdding(false)} />
-      <Modal open={!!deleting} onClose={() => setDeleting(null)} title="이 기록을 지울까요?" actions={<><Button onClick={() => setDeleting(null)}>취소</Button><Button variant="primary" onClick={remove}>지우기</Button></>}>
-        지우면 추천과 분석에서도 빠져요. 지운 뒤 바로 되돌릴 수 있어요.
-      </Modal>
     </>
   );
 }
