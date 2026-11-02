@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { useApp } from '../../app/AppState';
-import { navigate, type ScreenProps } from '../../app/router';
+import { l1Of, navigate, type ScreenProps } from '../../app/router';
 import { Button, PageHeader, TabPanel, Tabs, type TabItem } from '../../components';
 import { canUseSocial } from '../../domain/social';
 import { SEED_POSTS } from '../../data/friends';
 import { Gate } from './Gate';
 import { HallView } from './HallView';
+import { Locked } from './Locked';
+import { Overview } from './Overview';
 import { ProfileView } from './ProfileView';
 import { RecruitView } from './RecruitView';
 import './friends.css';
@@ -38,10 +40,12 @@ const OPENS: Record<Sub, { icon: 'friends' | 'flag' | 'trophy' | 'doc'; title: s
 
 export default function FriendsScreen({ sub }: ScreenProps) {
   const { state, run } = useApp();
-  const current: Sub = TABS.some(t => t.id === sub) ? (sub as Sub) : 'profile';
   const open = canUseSocial(state.visibility);
+  const current = TABS.find(t => t.id === sub?.split('/')[0])?.id;
   // 내가 올린 모집 글은 전역 상태에 둔다(새로고침하면 사라진다). 예시 글 앞에 새 글이 온다.
   const posts = useMemo(() => [...state.recruitPosts, ...SEED_POSTS], [state.recruitPosts]);
+
+  if (!current) return open ? <Overview /> : <Locked />;
 
   const body = !open ? <Gate opens={OPENS[current]} />
     : current === 'profile' ? <ProfileView />
@@ -51,8 +55,9 @@ export default function FriendsScreen({ sub }: ScreenProps) {
   return (
     <>
       <PageHeader
-        eyebrow="친구"
+        parent={l1Of('friends')}
         title={TITLE[current]}
+        crumb={TABS.find(t => t.id === current)?.label}
         actions={current === 'profile' && open ? <Button icon="pencil" onClick={() => navigate('settings/visibility')}>공개 범위 설정</Button> : undefined}
       />
       <Tabs id="friends" label="친구 화면" items={TABS} value={current} onChange={id => navigate(`friends/${id}`)} />

@@ -87,3 +87,32 @@
 .fr-quote { display: flex; flex-direction: column; gap: var(--space-1); padding-left: var(--space-3); border-left: var(--fr-edge-quote) solid var(--lime-500); }
 .fr-quote__label { font-size: var(--text-sm); color: var(--ink-muted); }
 .fr-field select, .fr-field input { border-color: var(--line-strong); }
+
+/* L1: 비공개 '공개하면 열리는 것' 그림 */
+:root { --fr-node-w: 220px; --fr-branch-gap: var(--space-4); --fr-stroke: 1.5px; --fr-dot: 14px; --fr-slot: 8px; }
+.fr-unlock { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; gap: var(--space-12); padding: var(--space-6) var(--space-4); }
+.fr-unlock__lines { position: absolute; inset: var(--space-6) 0; width: 100%; height: calc(100% - 2 * var(--space-6)); pointer-events: none; }
+.fr-unlock__lines path { fill: none; stroke: var(--ink-subtle); stroke-width: var(--fr-stroke); stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
+.fr-unlock__branches { position: relative; display: flex; flex-direction: column; gap: var(--fr-branch-gap); }
+.fr-unlock__go { display: flex; justify-content: center; margin-top: var(--space-4); }
+.fr-node { position: relative; display: flex; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--space-12); padding: var(--space-3) var(--space-4); border: var(--fr-stroke) solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.fr-node:hover { background: var(--surface-hover); border-color: var(--ink-subtle); }
+.fr-node--locked { border-style: dashed; border-color: var(--ink-subtle); color: var(--ink-muted); }
+.fr-node--me { flex-direction: column; justify-content: center; text-align: center; max-width: var(--fr-node-w); justify-self: center; padding: var(--space-5); }
+.fr-node__icon { display: inline-flex; flex: none; }
+.fr-node__text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.fr-node__label { font-weight: var(--weight-bold); color: var(--ink); }
+.fr-node__line { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--ink-muted); font-size: var(--text-xs); }
+
+/* L1: 공개 상태 타일 */
+.fr-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.fr-glance { display: flex; align-items: center; justify-content: center; gap: var(--space-2); width: 100%; height: 100%; padding: var(--space-3); }
+.fr-glance__badge { display: inline-grid; place-items: center; width: var(--space-10); height: var(--space-10); border: var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--ink-muted); }
+.fr-avatar--more { background: var(--bg-sunken); color: var(--ink-muted); font-size: var(--text-sm); }
+.fr-glance--posts { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+.fr-slots { display: flex; gap: var(--space-1); }
+.fr-slots__dot { width: var(--fr-slot); height: var(--fr-slot); border-radius: var(--radius-full); background: var(--primary); }
+.fr-glance--route { gap: 0; }
+.fr-route__dot { width: var(--fr-dot); height: var(--fr-dot); margin: 0; }
+.fr-route__dot + .fr-route__dot { margin-left: var(--space-5); position: relative; }
+.fr-route__dot + .fr-route__dot::before { content: ''; position: absolute; right: 100%; top: 50%; width: var(--space-5); border-top: var(--fr-stroke) solid var(--ink-subtle); }
