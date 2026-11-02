@@ -10,6 +10,7 @@ import Records from '../screens/records';
 import Settings from '../screens/settings';
 import { AppStateProvider } from './AppState';
 import { useChallengeToasts } from './challenges';
+import { EntityProvider } from './entity';
 import KitScreen from './kit/KitScreen';
 import { movedPath, navigate, NAV, useRoute, type RouteName, type ScreenProps } from './router';
 import { Sidebar } from './Sidebar';
@@ -55,7 +56,9 @@ export default function App() {
   return (
     <ToastProvider>
       <AppStateProvider>
-        <Shell />
+        <EntityProvider>
+          <Shell />
+        </EntityProvider>
       </AppStateProvider>
     </ToastProvider>
   );
