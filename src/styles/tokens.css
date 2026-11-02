@@ -47,6 +47,11 @@
   --field-mentor: var(--orange-500);
   --field-global: var(--grey-500);
 
+  /* 상태 톤(할 것/하는 중/끝난 것). 분야 색(초록·네이비·라임·오렌지·회색)과 겹치지 않는 하늘·청록 계열 */
+  --state-todo: #bcd3e6;
+  --state-doing: #2f7f95;
+  --state-done: #d7dde2;
+
   /* 간격 (4px 배수) */
   --space-1: 4px;
   --space-2: 8px;

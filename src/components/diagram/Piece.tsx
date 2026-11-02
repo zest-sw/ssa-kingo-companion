@@ -1,8 +1,8 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type { FieldGroup } from '../../domain/types';
 
-/** 조각 색. 분야 묶음 색이 기본이고, 오늘·마감 임박만 accent, 분야와 상관없는 표시(마감 ◆·발표 ○)는 ink, 의미 없는 것은 muted. */
-export type DiagramTone = FieldGroup | 'accent' | 'muted' | 'ink';
+/** 조각 색. 분야 묶음 색이 기본이고, 오늘·마감 임박만 accent, 분야와 상관없는 표시(마감 ◆·발표 ○)는 ink, 의미 없는 것은 muted, todo·doing·done 은 활동 상태. */
+export type DiagramTone = FieldGroup | 'accent' | 'muted' | 'ink' | 'todo' | 'doing' | 'done';
 
 export const toneClass = (tone: DiagramTone = 'muted') => `ui-dg-tone--${tone}`;
 
