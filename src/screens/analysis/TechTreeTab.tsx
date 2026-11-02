@@ -1,25 +1,21 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState, FieldTag, SegmentedControl } from '../../components';
-import { buildTechTree, recordOfActivity, relatedRecords, TREE_COLUMNS, type TreeCell } from '../../domain/analysis/techtree';
-import { ddayOf } from '../../domain/recommend';
+import { recordOfActivity, relatedRecords, TREE_COLUMNS, type TreeCell } from '../../domain/analysis/techtree';
 import { ddayText } from '../../domain/text';
 import type { RecordItem } from '../../domain/types';
 import { DID_LABEL, STATUS_LABEL } from '../../domain/vocab';
 import { RecordSummary } from './RecordSummary';
 import { TreeGraph } from './TreeGraph';
+import { useTechTree } from './useTechTree';
 
 type View = 'graph' | 'list';
 
 export default function TechTreeTab({ records }: { records: RecordItem[] }) {
-  const { state, view } = useApp();
   const [mode, setMode] = useState<View>('graph');
   const [open, setOpen] = useState<TreeCell | null>(null);
-
-  // 지금 신청할 수 있는 후보는 추천 화면과 같은 목록이다. 점수는 쓰지 않는다.
-  const candidates = useMemo(() => view.scored.map(s => ({ program: s.p, dday: ddayOf(s.p, state.week) })), [view.scored, state.week]);
-  const tree = useMemo(() => buildTechTree({ records, activities: state.activities, candidates }), [records, state.activities, candidates]);
+  const tree = useTechTree(records);
   const filled = tree.rows.some(r => r.cells.some(c => c.kind !== 'candidate'));
   const toRecommend = () => navigate('recommend');
 
