@@ -7,6 +7,10 @@ describe('parseSchedule', () => {
   it('날짜 범위', () => expect(parseSchedule('9월 4일 ~ 12월 10일 · 매주 목')).toEqual({ start: '2026-09-04', end: '2026-12-10' }));
   it('달 범위는 달 끝까지', () => expect(parseSchedule('9월 ~ 12월 · 격주 화')).toEqual({ start: '2026-09-01', end: '2026-12-31' }));
   it('끝남은 그날 하루', () => expect(parseSchedule('10월 11일 끝남')).toEqual({ start: '2026-10-11', end: '2026-10-11' }));
+  it('카탈로그 일정: 하루짜리와 N주', () => {
+    expect(parseSchedule('10.14(수) 18:30')).toEqual({ start: '2026-10-14', end: '2026-10-14' });
+    expect(parseSchedule('10.20(화)부터 4주')).toEqual({ start: '2026-10-20', end: '2026-11-16' });
+  });
   it('결과 발표', () => expect(parseSchedule('결과 발표 10월 30일')).toEqual({ result: '2026-10-30' }));
   it('○월부터는 시작만', () => expect(parseSchedule('11월부터 매주 1회')).toEqual({ start: '2026-11-01' }));
   it('다른 해는 읽지 않는다', () => expect(parseSchedule('연수 2027년 1월부터')).toEqual({}));

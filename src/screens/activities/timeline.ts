@@ -30,6 +30,13 @@ export function parseSchedule(schedule: string): ScheduleDates {
 
   text = text.replace(/결과 발표\s*(\d{1,2})월\s*(\d{1,2})일/, (_, m: string, d: string) => { out.result = iso(+m, +d); return ''; });
 
+  // 카탈로그 일정 '10.14(수) 18:30', '10.20(화)부터 4주'. 신청한 활동이 간트 막대가 되려면 읽혀야 한다.
+  const dotted = /^(\d{1,2})\.(\d{1,2})\([^)]*\)(부터\s*(\d+)주)?/.exec(text.trim());
+  if (dotted) {
+    const start = iso(+dotted[1], +dotted[2]);
+    return { ...out, start, end: dotted[4] ? addDays(start, 7 * +dotted[4] - 1) : start };
+  }
+
   let hit = /(\d{1,2})월\s*(\d{1,2})일\s*~\s*(\d{1,2})월\s*(\d{1,2})일/.exec(text);
   if (hit) return { ...out, start: iso(+hit[1], +hit[2]), end: iso(+hit[3], +hit[4]) };
   hit = /(\d{1,2})월\s*~\s*(\d{1,2})월/.exec(text);
