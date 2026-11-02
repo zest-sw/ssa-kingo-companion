@@ -40,6 +40,35 @@
 - 분야 색은 의미가 고정이다: 개발=진한 그린, AI·데이터=네이비, 창업·기획=연두, 멘토링=오렌지, 글로벌=회색. 색만으로 구분하지 않고 라벨을 함께 둔다.
 - AI 추정은 옅은 점선 테두리/점선 점, 학생이 확인한 것은 채운 점. 불확실한 표현을 색이 아니라 선 모양으로 전한다.
 
+## 2-1. 다이어그램 부품과 이동 틀 (v0.9, `docs/design/ia-navigation.md`)
+
+모두 `src/components` 에서 가져오고 `#/_kit` 에 기본·빈 데이터·아주 긴 라벨·많은 항목으로 그려 두었다. 외부 차트 라이브러리 없이 HTML·CSS 로 그린다. 위치는 %, 폭(ResizeObserver)은 눈금 간격과 줄 나누기에만 쓴다. 계산은 `diagram/geometry.ts`(테스트 있음).
+
+- **조각은 모두 버튼이다.** 점·막대·노드는 `Piece`(`<button>`)라서 클릭·Enter·Space·포커스 링이 저절로 된다. `aria-label` 에 이름과 값(날짜·개수)을 넣는다. 보이는 모양이 작아도 누르는 칸은 `--hit-min`(32px). hover·포커스 때 값 한 줄 툴팁, 그림 가장자리 조각은 툴팁을 안쪽으로 붙인다.
+- **색과 모양.** `tone` 은 분야 묶음(`dev`·`ai`·`plan`·`mentor`·`global`·`other`) + `accent`(오늘·임박) + `ink`(마감 ◆·발표 ○처럼 분야와 상관없는 표시) + `muted`. 모양 클래스(`ui-dg-mark--dot|ring|dashed|diamond|circle|fill|hatch|faded|today`)를 그림과 `Legend` 가 함께 써서 생김새가 늘 같다. 새 토큰은 `--dg-*`.
+- **빈 상태.** 목록을 받는 부품은 `empty`(다음 행동 문장)를 꼭 받는다.
+
+| 부품 | 쓰는 법 | 메모 |
+| --- | --- | --- |
+| `Timeline` | `range={{start,end}} today items=[{id,date,end?,label,mark?,tone?}] onSelect(id)` | 날짜 'YYYY-MM-DD'. end 가 있으면 구간 막대. 겹치면 아래 줄로. 범위 밖은 안 그림 |
+| `GanttRows` | `range today rows=[{id,label,start,end,state,tone?,deadline?,result?}] onSelect(id, part)` | state: prep=빗금, active=채움, done=옅음. part: 'bar'·'deadline'·'result' |
+| `DotGrid` | `rows=[{id,label}] cols=[…] items=[{id,row,col,filled,label,tone?}] onSelect(id)` | 채운 점=학교 확인, 테두리 점=직접 입력. 한 칸에 여럿이면 칸 안에서 줄바꿈 |
+| `Funnel` | `steps=[{id,label,count}] onSelect(id) unit?` | 가장 큰 단계=전체 폭, 마지막 단계만 진한 색. 행 전체가 버튼 |
+| `SegmentBar` | `segments=[{id,label,value,tone}] onSelect(id) legend?` | 0 은 빼고 그림. 조각이 너무 많으면 줄을 바꾼다(누르는 칸을 줄이지 않음) |
+| `MiniTile` | `href 또는 onSelect, title, line?, badge?, children(그림)` | 타일 전체가 링크. 그림 안에 누르는 요소를 두지 않는다 |
+| `Loop` | `nodes=[a,b,c] onSelect(id)` | 왼쪽→오른쪽, 마지막에서 처음으로 돌아오는 선 |
+| `Legend` | `items=[{label,mark,tone?}]` | 그림 옆 한 줄 |
+
+모든 그림은 `label`(그림 전체 이름)과 선택 표시용 `selectedId?` 를 받는다.
+
+**머리와 깊이.** `PageHeader` 는 `parent` 가 없으면 L1(제목 + 주 행동 1개, 설명 문단 없음), 있으면 L2(빵부스러기 '메뉴 › 상세' + 뒤로 버튼 + 제목). L2 는 열릴 때 맨 위에서 시작하고 제목에 포커스. `parent={l1Of('activities')}` 처럼 쓰고, 뒤로는 그 메뉴 L1 로 간다. 빵부스러기 끝 이름은 `crumb` 또는 `SUB_LABEL`.
+
+**하위 경로.** `SUB_ROUTES`(`src/app/router.ts`): recommend `list`·`compare`·`prepare/:id`·`:id`, activities `board`·`list`, records `archive`·`interview/:id`, analysis `techtree`·`map`·`flow`·`strengths`, challenges `list`, friends `profile`·`recruit`·`hall`. 화면은 지금처럼 `sub` 를 받고, `matchSub(name, sub)` 로 `{ pattern, id }` 를 얻는다. 모르는 sub 면 L1 을 그린다.
+
+**뒤로 상태 보존.** L1 컴포넌트에서 `const [sel, setSel] = useOverviewState('activities', 초기값)`. 메뉴별 선택은 탭(sessionStorage)에 남고, 같은 메뉴 L2 에서 돌아오면(뒤로 버튼·브라우저 뒤로 가기) 스크롤도 되살린다. 다른 메뉴에서 들어오면 맨 위부터. L2 를 그릴 때는 부르지 않는다.
+
+**공용 서랍.** `openEntity({ kind: 'opportunity' | 'activity' | 'record', id })` 를 어디서 불러도 서랍 하나가 열린다(React 밖 콜백에서도 됨). 화면이 `registerEntityView(kind, ({ id, onClose }) => <기존 서랍 … />)` 로 기존 서랍을 등록하면 그게 열리고, 등록 전에는 기본 서랍(요약 몇 줄 + '자세히 보기')이 열린다. 화면을 옮기면 닫힌다.
+
 ## 3. 화면과 목업 대응
 
 | 경로 | 화면 | 목업 | 담당 |
