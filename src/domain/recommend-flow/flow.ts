@@ -1,4 +1,5 @@
 import { ddayOf } from '../recommend';
+import { todayUtc } from '../today';
 import type { Activity, ActivityStatus, CandidateChoice, Funnel, Interest, PrepItem, Program } from '../types';
 
 export type { PrepItem } from '../types';
@@ -86,12 +87,10 @@ export function submitPatch(p: Program, items: PrepItem[]): { status: 'applied';
   return { status: 'applied', patch: { prep: prepProgress(items), due: undefined, schedule: p.when } };
 }
 
-// ponytail: 오늘을 10월 13일(1주차 첫날)로 고정한 예시다. 실제 날짜를 쓰게 되면 지운다.
-const BASE = { month: 10, day: 13 };
 /** 남은 날을 '10월 15일'로. dday 는 week 주차의 오늘 기준이다. */
 export function dateLabel(dday: number, week = 1): string {
-  const d = new Date(2026, BASE.month - 1, BASE.day + dday + 7 * (week - 1));
-  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+  const d = new Date(todayUtc(dday + 7 * (week - 1)));
+  return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일`;
 }
 
 /** 시각 표시 '21:40' */

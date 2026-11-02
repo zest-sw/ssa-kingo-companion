@@ -1,12 +1,12 @@
 import type { DateRange, GanttRow, GanttState } from '../../components';
 import { COLUMN_OF } from '../../domain/activities';
 import type { Activity, ActivityStatus } from '../../domain/types';
+import { PROTOTYPE_TODAY, TODAY_YEAR } from '../../domain/today';
 import { FIELD_GROUP } from '../../domain/vocab';
 
-// ponytail: '오늘'과 학기 범위는 예시 데이터 기준 값이다(추천 흐름의 기준일 10월 13일과 같다). 실제 날짜·학사 일정이 붙으면 거기서 받는다.
-export const TODAY = '2026-10-13';
+// ponytail: 학기 범위는 예시 데이터 기준 값이다. 실제 학사 일정이 붙으면 거기서 받는다.
 export const SEMESTER: DateRange = { start: '2026-09-01', end: '2026-12-20' };
-const YEAR = 2026;
+const YEAR = TODAY_YEAR;
 
 const DAY_MS = 86_400_000;
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -58,7 +58,7 @@ function periodOf(a: Activity, today: string, dates: ScheduleDates, deadline: st
 export type Timeline = { rows: GanttRow[]; undated: Activity[] };
 
 /** 활동 → 학기 간트 행. 빠뜨리지 않는다: 기간이 없는 활동은 undated 로 돌려준다. */
-export function timelineOf(activities: Activity[], today: string = TODAY): Timeline {
+export function timelineOf(activities: Activity[], today: string = PROTOTYPE_TODAY): Timeline {
   const rows: GanttRow[] = [];
   const undated: Activity[] = [];
   for (const a of activities) {

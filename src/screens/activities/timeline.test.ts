@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_ACTIVITIES } from '../../data/seed';
-import { addDays, columnCounts, parseSchedule, timelineOf, TODAY } from './timeline';
+import { PROTOTYPE_TODAY } from '../../domain/today';
+import { addDays, columnCounts, parseSchedule, timelineOf } from './timeline';
 
 describe('parseSchedule', () => {
   it('날짜 범위', () => expect(parseSchedule('9월 4일 ~ 12월 10일 · 매주 목')).toEqual({ start: '2026-09-04', end: '2026-12-10' }));
@@ -26,10 +27,10 @@ describe('timelineOf', () => {
   it('기간 없는 활동은 날짜 미정', () => expect(undated.map(a => a.id).sort()).toEqual(['a-dataviz', 'a-exchange']));
   it('신청 준비는 오늘부터 마감까지, 마감 ◆ 가 끝에 있다', () => {
     const swm = rows.find(r => r.id === 'a-swm');
-    expect(swm).toMatchObject({ start: TODAY, end: '2026-10-18', deadline: '2026-10-18', state: 'prep' });
+    expect(swm).toMatchObject({ start: PROTOTYPE_TODAY, end: '2026-10-18', deadline: '2026-10-18', state: 'prep' });
   });
   it('결과 대기는 오늘부터 발표일까지, 발표 ○ 가 있다', () => {
-    expect(rows.find(r => r.id === 'a-global-camp')).toMatchObject({ start: TODAY, end: '2026-10-30', result: '2026-10-30', state: 'prep' });
+    expect(rows.find(r => r.id === 'a-global-camp')).toMatchObject({ start: PROTOTYPE_TODAY, end: '2026-10-30', result: '2026-10-30', state: 'prep' });
   });
   it('진행 중·끝남은 모양이 다르다', () => {
     expect(rows.find(r => r.id === 'a-ai-club')?.state).toBe('active');
