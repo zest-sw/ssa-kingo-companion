@@ -6,6 +6,7 @@ import {
 import type { Field } from '../../domain/types';
 import { useApp } from '../AppState';
 import { navigate, type ScreenProps } from '../router';
+import { KitDiagrams } from './KitDiagrams';
 import './kit.css';
 
 const LONG = '아주 긴 활동 이름이 들어와도 카드 밖으로 넘치지 않고 줄을 바꿔야 해요: 2026 하계 글로벌 소프트웨어 융합 리더십 집중 캠프 및 산학 협력 프로젝트 발표회';
@@ -23,8 +24,22 @@ const Cell = ({ label, children }: { label: string; children: ReactNode }) => (
   <div className="kit-cell"><span className="kit-label">{label}</span>{children}</div>
 );
 
+/** L2 머리 예시(#/_kit/detail). 뒤로 버튼·빵부스러기·브라우저 뒤로 가기가 #/_kit 으로 돌아가고, 돌아가면 선택·스크롤이 그대로다. */
+function KitDetail() {
+  return (
+    <div className="kit">
+      <PageHeader parent={{ label: '컴포넌트 목록', href: '#/_kit' }} crumb="L2 머리" title="PageHeader L2 예시" actions={<Button variant="primary">주 행동</Button>} />
+      <Card><p className="kit-muted">뒤로 버튼, 빵부스러기 첫 칸, 브라우저 뒤로 가기 모두 같은 자리로 돌아가요.</p></Card>
+    </div>
+  );
+}
+
 /** 공용 컴포넌트 목록(#/_kit). 화면 워커가 쓰는 법을 여기서 본다. 사이드바에는 없다. */
 export default function KitScreen({ sub }: ScreenProps) {
+  return sub === 'detail' ? <KitDetail /> : <KitOverview sub={sub} />;
+}
+
+function KitOverview({ sub }: ScreenProps) {
   const toast = useToast();
   const { state, view, run } = useApp();
   const [chip, setChip] = useState('data');
@@ -37,7 +52,9 @@ export default function KitScreen({ sub }: ScreenProps) {
 
   return (
     <div className="kit">
-      <PageHeader eyebrow="개발용 · #/_kit" title="컴포넌트 목록" actions={<><Button variant="ghost" onClick={() => navigate('home')}>홈으로</Button><Button variant="primary" icon="pencil">주요 행동</Button></>} />
+      <PageHeader title="컴포넌트 목록" actions={<Button variant="primary" icon="pencil">주 행동 1개</Button>} />
+
+      <KitDiagrams />
 
       <Section title="Button" usage="<Button variant='primary' icon='pencil'>">
         <Cell label="primary"><Button variant="primary">신청 준비</Button></Cell>
