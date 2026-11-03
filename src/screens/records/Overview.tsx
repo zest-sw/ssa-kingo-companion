@@ -50,7 +50,7 @@ export function Overview() {
           <Icon name="chevron" size={18} />
         </button>
       )}
-      <div className="os__body rec-home">
+      <div className="os__body os__body--fill rec-home">
         <section className="rm-card" aria-labelledby="rm-title">
           <div className="rm-card__head">
             <h2 id="rm-title" className="rm-card__title">기록 지도</h2>

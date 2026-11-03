@@ -4,6 +4,7 @@ import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState, FieldTag, SegmentedControl } from '../../components';
 import { recordOfActivity, relatedRecords, TREE_COLUMNS, type TreeCell } from '../../domain/analysis/techtree';
+import { josa } from '../../domain/text';
 import { ddayText } from '../../domain/text';
 import type { RecordItem } from '../../domain/types';
 import { DID_LABEL, STATUS_LABEL } from '../../domain/vocab';
@@ -23,13 +24,13 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
 
   return (
     <Card
-      className="fit-card"
+      className="os-card"
       title="활동 지도"
       action={<SegmentedControl<View> label="보기 방식" value={mode} onChange={setMode} items={[{ id: 'graph', label: '그림으로 보기' }, { id: 'list', label: '지금 신청할 수 있는 것만' }]} />}
     >
       {mode === 'graph' ? (
         <>
-          <div className="fit__scroll">
+          <div className="os-scroll">
             {!filled && <p className="an-note an-note--top">아직 한 활동이 없어요. 후보를 눌러 신청을 준비하거나, 끝난 활동의 회고를 써 보세요.</p>}
             <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} />
           </div>
@@ -42,7 +43,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
           </ul>
         </>
       ) : (
-        <div className="fit__scroll"><CandidateList cells={tree.candidates} onPick={toRecommend} /></div>
+        <div className="os-scroll"><CandidateList cells={tree.candidates} onPick={toRecommend} /></div>
       )}
       <CellDrawer cell={open} records={records} onClose={() => setOpen(null)} />
     </Card>
@@ -85,14 +86,14 @@ function CellDrawer({ cell, records, onClose }: { cell: TreeCell | null; records
         <>
           <RecordSummary record={record} />
           <h3 className="an-sub">이 칸에 놓인 이유</h3>
-          <p>‘{DID_LABEL[record.did]}’를 주로 한 기록이라 ‘{column}’ 칸에 놓았어요.</p>
+          <p>‘{DID_LABEL[record.did]}’{josa(DID_LABEL[record.did], '을', '를')} 주로 한 기록이라 ‘{column}’ 칸에 놓았어요.</p>
           <h3 className="an-sub">같은 분야의 다른 기록</h3>
           {related.length ? <div className="an-stack">{related.map(r => <RecordSummary key={r.id} record={r} />)}</div> : <p className="an-muted">같은 분야 기록이 아직 하나예요. 회고를 더 쓰면 이어져요.</p>}
         </>
       )}
       {activity && (
         <>
-          <p className="an-rec__meta"><FieldTag field={activity.field} detail /> · {STATUS_LABEL[activity.status]}</p>
+          <p className="an-rec__meta"><FieldTag field={activity.field} /> · {STATUS_LABEL[activity.status]}</p>
           <p>{activity.schedule}</p>
           <h3 className="an-sub">근거</h3>
           {written ? <RecordSummary record={written} /> : (

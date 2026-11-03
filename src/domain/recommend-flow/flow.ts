@@ -55,13 +55,20 @@ export function prepItemsFor(p: Program, week: number, now: string): PrepItem[] 
   ];
   if (needsTeam(p)) items.push({ id: 'team', label: '팀 구성', by: 'me', done: false, dday: Math.max(0, due - 1), link: { label: '팀원 모집 글 올리기', path: 'profile/recruit' } });
   items.push({ id: 'draft', label: '신청서 초안 확인', by: 'me', done: false, dday: Math.max(0, due - 1), hint: '에이전트가 써 뒀어요' });
-  if (p.level >= 2) items.push({ id: 'survey', label: '사전 설문 답하기', by: 'me', done: false, dday: due, hint: '로그인이 필요해서 직접 해야 해요' });
+  if (p.level >= 2) items.push({ id: 'survey', label: '사전 설문 답하기', by: 'me', done: false, dday: due, hint: '학교 로그인이 필요해서 직접 답해요', outside: '설문 열기' });
   return items;
 }
 
 /** 내가 할 항목만 눌러서 바꾼다. 에이전트가 한 건 그대로 둔다. 끝낸 시각을 남긴다. */
 export const toggleItem = (items: PrepItem[], id: string, now: string): PrepItem[] =>
   items.map(i => (i.id === id && i.by === 'me' ? { ...i, done: !i.done, at: i.done ? undefined : now } : i));
+
+/** 학교 사이트에서 할 일을 새 탭으로 열었다고 남긴다. 그 뒤에 '했어요'로 체크할 수 있다. */
+export const markOpened = (items: PrepItem[], id: string): PrepItem[] =>
+  items.map(i => (i.id === id && i.outside ? { ...i, opened: true } : i));
+
+/** 이 항목을 지금 체크할 수 있는지. 밖에서 할 일은 먼저 열어 봐야 한다. */
+export const canCheck = (i: PrepItem) => i.by === 'me' && (!i.outside || !!i.opened || i.done);
 
 export const remainingItems = (items: PrepItem[]) => items.filter(i => !i.done);
 export const prepProgress = (items: PrepItem[]) => ({ done: items.filter(i => i.done).length, total: items.length });

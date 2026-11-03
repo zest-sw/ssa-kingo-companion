@@ -14,7 +14,7 @@ describe('메뉴 트리', () => {
     expect(inProfile(parseHash('#/settings'))).toBe(false);
   });
   it('문서 제목 이름', () => {
-    expect(screenLabel(parseHash('#/profile'))).toBe('프로필');
+    expect(screenLabel(parseHash('#/profile'))).toBe('내 프로필');
     expect(screenLabel(parseHash('#/profile/hall'))).toBe('명예의 전당');
     expect(screenLabel(parseHash('#/analysis/map'))).toBe('경험 지도');
   });
@@ -30,7 +30,7 @@ describe('메뉴 트리', () => {
   it('빵부스러기 첫 칸', () => {
     expect(parentLink('activities/records')).toEqual({ label: '기록', href: '#/activities/records' });
     expect(parentLink('recommend')).toEqual({ label: '추천', href: '#/recommend' });
-    expect(parentLink('profile')).toEqual({ label: '프로필', href: '#/profile' });
+    expect(parentLink('profile')).toEqual({ label: '내 프로필', href: '#/profile' });
   });
 });
 

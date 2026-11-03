@@ -14,10 +14,10 @@ describe('미니 타임라인', () => {
     const t = todayTasks(list, 1);
     expect(t.find(x => x.id === 'due:d1')).toMatchObject({ title: '튜터', what: '신청 마감', day: 0, at: '18:00' });
     expect(t.find(x => x.id === 'review:r')).toMatchObject({ what: '회고', day: 0 });
-    expect(t.find(x => x.id === 'due:d2')?.at).toBeUndefined();
+    expect(t.find(x => x.id === 'due:d2')).toBeUndefined();
   });
   it('가까운 날부터, 같은 날이면 시각 순(시각 없는 것이 먼저)', () => {
-    expect(timelineOrder(todayTasks(list, 1)).map(x => x.id)).toEqual(['review:r', 'due:d1', 'due:d2']);
+    expect(timelineOrder(todayTasks(list, 1)).map(x => x.id)).toEqual(['review:r', 'due:d1']);
   });
 });
 

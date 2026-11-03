@@ -47,13 +47,14 @@
 .home-onb__work li { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); }
 .home-onb__work svg { color: var(--green-900); }
 
-/* 홈 한 화면: 2×2 칸. 위 왼쪽 오늘 할 일, 위 오른쪽 가장 추천, 아래 왼쪽 이번 학기, 아래 오른쪽 곧 있어요. */
-.home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
-.home-grid > .ui-card { display: flex; flex-direction: column; padding: var(--space-4) var(--space-5); overflow: hidden; }
-.home-grid > .ui-card > .ui-card__head { flex: none; margin-bottom: var(--space-3); }
+/* 홈 한 화면: 위 줄에 오늘 할 일 · 가장 추천 · 이번 학기(내용 높이), 아래 줄에 곧 있어요 타임라인을 넓게(라벨이 들어갈 폭).
+   카드를 화면 높이에 맞춰 늘리지 않는다. 남는 높이는 아래에 그대로 둔다. */
+.home-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr); grid-template-rows: auto auto; }
+.home-grid > .ui-card { display: flex; flex-direction: column; min-height: 0; }
+.home-upcoming { grid-column: 1 / -1; }
 
 /* 오늘 할 일: 세로 타임라인 */
-.home-rail { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: var(--space-1); }
+.home-rail { position: relative; display: flex; flex-direction: column; gap: var(--space-1); }
 .home-rail::before { content: ''; position: absolute; top: var(--space-3); bottom: var(--space-3); left: calc(var(--home-rail-when) + var(--space-3) + var(--home-dot) / 2); border-left: 1px solid var(--line-strong); }
 .home-rail__item { position: relative; display: grid; grid-template-columns: var(--home-rail-when) var(--home-dot) minmax(0, 1fr); align-items: center; gap: var(--space-3); }
 .home-rail__when { display: flex; flex-direction: column; align-items: flex-end; line-height: var(--leading-tight); font-size: var(--text-xs); color: var(--ink-muted); }
@@ -69,7 +70,6 @@
 .home-rail__what[data-kind='review'], .home-rail__what[data-kind='deadline'] { background: var(--orange-100); color: var(--accent-ink); }
 
 /* 가장 추천 */
-.home-top { justify-content: center; }
 .home-pick { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; }
 .home-pick__meta { display: flex; align-items: center; gap: var(--space-3); }
 .home-pick__title { font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
@@ -85,7 +85,7 @@
 .home-pick__go { display: flex; }
 
 /* 이번 학기: 분야별 막대 */
-.home-bars { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: var(--space-2); }
+.home-bars { display: flex; flex-direction: column; gap: var(--space-2); }
 .home-bars__row { display: grid; grid-template-columns: var(--home-bar-label) minmax(0, 1fr) var(--space-6); align-items: center; gap: var(--space-3); font-size: var(--text-sm); }
 .home-bars__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .home-bars__track { height: var(--home-bar-h); border-radius: var(--radius-xs); background: var(--dg-track); overflow: hidden; }
@@ -98,7 +98,9 @@
 
 /* 곧 있어요 */
 .home-upcoming .ui-card__action { gap: var(--space-2); }
+.home-more { margin-top: var(--space-2); padding-left: calc(var(--home-rail-when) + var(--home-dot) + var(--space-3) * 2 + var(--space-2)); color: var(--ink-muted); font-size: var(--text-sm); }
 
 @media (max-width: 1199px) {
-  .home-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  .home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; }
+  .home-top { grid-column: 2; grid-row: 1 / span 2; }
 }

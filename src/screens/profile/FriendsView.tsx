@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { Badge, Button, Card, useToast } from '../../components';
 import { friendsLine } from '../../domain/social/summary';
-import { DONE_BY, FRIENDS, INCOMING, SIMILAR_PEERS, type Peer } from '../../data/friends';
+import { DONE_BY, SIMILAR_PEERS, type Peer } from '../../data/friends';
+import { useFriends } from './useFriends';
 
 const Avatar = ({ name }: { name: string }) => <span className="fr-avatar" aria-hidden="true">{name.slice(0, 1)}</span>;
 const peerLine = (p: Peer) => `${p.dept} ${p.year}학년 · ${p.note}`;
@@ -11,8 +12,9 @@ const peerLine = (p: Peer) => `${p.dept} ${p.year}학년 · ${p.note}`;
 export function FriendsView() {
   const { state } = useApp();
   const toast = useToast();
-  const [friends, setFriends] = useState<Peer[]>(FRIENDS);
-  const [incoming, setIncoming] = useState<Peer[]>(INCOMING);
+  const start = useFriends();
+  const [friends, setFriends] = useState<Peer[]>(start.friends);
+  const [incoming, setIncoming] = useState<Peer[]>(start.incoming);
   const [sent, setSent] = useState<string[]>([]);
   const mine = new Set(state.activities.map(a => a.title));
   const doneBy = DONE_BY.filter(d => mine.has(d.activityTitle));
@@ -26,7 +28,7 @@ export function FriendsView() {
   return (
     <>
     <p className="fr-headline">{friendsLine(friends.length, incoming.length)}</p>
-    <div className="fr-cols fit__scroll fit__scroll--page">
+    <div className="fr-cols os-scroll os-scroll--page">
       <div className="fr-col-main fr-stack">
         <Card padding="md" title="친구">
           {incoming.length > 0 && (

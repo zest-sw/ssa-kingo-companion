@@ -27,8 +27,8 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
 
   return (
     <div className="an-flow">
-      <Card title="학기별 분야 비율" className="fit-card">
-        <div className="fit__scroll"><ol className="an-flow__rows">
+      <Card title="학기별 분야 비율" className="os-card">
+        <div className="os-scroll"><ol className="an-flow__rows">
           {rows.map((r, i) => (
             <li key={r.semester} className={`an-flow__row${inRange(i) ? '' : ' is-out'}`}>
               <span className="an-flow__sem">{semesterLabel(r.semester)}</span>
@@ -66,7 +66,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
         </div>
       </Card>
 
-      <Card title="고른 구간" tone="alt" padding="md" className="fit-card">
+      <Card title="고른 구간" tone="alt" padding="md" className="os-card">
         <p className="an-muted">{semesterLabel(axis[from])}{from !== to && ` ~ ${semesterLabel(axis[to])}`}</p>
         {summary.total === 0 ? (
           <p className="an-muted an-flow__none">이 구간에는 기록이 없어요. 다른 학기를 골라 보세요.</p>

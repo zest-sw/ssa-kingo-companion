@@ -61,6 +61,13 @@ export type Span = { from: number; to: number };
  * 겹치는 조각을 줄(lane)로 나눈다. 입력 순서대로 줄 번호를 돌려준다.
  * 왼쪽부터 놓으면서, 앞 조각 끝과 gap 이상 떨어진 가장 위 줄에 넣는다.
  */
+/** 짧은 라벨의 대략 폭(px). 한글은 글자 크기만큼, 그 밖은 0.6배. 줄 나누기에만 쓴다(정확할 필요 없음) */
+export function textWidth(s: string, px: number): number {
+  let w = 0;
+  for (const ch of s) w += /[ᄀ-ᇿ㄰-㆏가-힣一-鿿]/.test(ch) ? px : px * 0.6;
+  return w;
+}
+
 export function assignLanes(spans: Span[], gap: number): number[] {
   const order = spans.map((s, i) => i).sort((a, b) => spans[a].from - spans[b].from || a - b);
   const laneEnd: number[] = [];

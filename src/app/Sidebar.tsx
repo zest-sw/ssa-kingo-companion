@@ -1,13 +1,15 @@
 import { CountBadge, Icon } from '../components';
 import { useApp } from './AppState';
-import { hrefOf, inProfile, NAV, navMatch, type Route } from './router';
+import { studentCard } from './student';
+import { hrefOf, inProfile, NAV, navMatch, PROFILE, type Route } from './router';
 
 /**
  * 메인 메뉴 4개와 왼쪽 아래 학생 카드(프로필). 지금 위치의 부모만 하위 항목을 펼친다. 하위 화면은 그 항목이, 흐름 화면(신청 준비·회고 인터뷰)은 가장 가까운 항목이 활성이다.
  * 좁은 폭(아이콘만)에서는 하위 항목을 숨기고, 부모를 누르면 요약 화면의 카드로 하위에 간다.
  */
 export function Sidebar({ route }: { route: Route }) {
-  const { view } = useApp();
+  const { state, view } = useApp();
+  const me = studentCard(state.demo, state.profile);
   const at = navMatch(route);
   // 화면 자체면 'page', 그 아래 흐름 화면이면 'location'
   const mark = (on: boolean) => (on ? (at.exact ? 'page' : 'location') : undefined);
@@ -51,11 +53,11 @@ export function Sidebar({ route }: { route: Route }) {
         </ul>
       </nav>
       <div className="app-side__foot">
-        <a className="app-student" href={hrefOf('profile')} aria-label="내 프로필" title="내 프로필" aria-current={inProfile(route) ? (route.sub ? 'location' : 'page') : undefined}>
-          <span className="app-student__avatar" aria-hidden="true">성</span>
+        <a className="app-student" href={hrefOf('profile')} aria-label={PROFILE.label} title={PROFILE.label} aria-current={inProfile(route) ? (route.sub ? 'location' : 'page') : undefined}>
+          <span className="app-student__avatar" aria-hidden="true">나</span>
           <span className="app-student__text">
-            <b>소프트웨어학과</b>
-            <span>3학년 · 예시 학생</span>
+            <b>{me.name}</b>
+            <span>{me.sub}</span>
           </span>
         </a>
         <a className="app-gear" href={hrefOf('settings')} aria-label="설정" title="설정" aria-current={route.name === 'settings' ? 'page' : undefined}>

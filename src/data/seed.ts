@@ -3,7 +3,7 @@ import type { Activity, Profile, RecordItem } from '../domain/types';
 // 앱을 처음 열었을 때의 예시 상태. 실제 학생 데이터가 아니다.
 
 export const EMPTY_PROFILE: Profile = { interests: [], time: 3, format: 'any', goal: '', importCS: false };
-export const EXAMPLE_PROFILE: Profile = { interests: ['research', 'product'], time: 3, format: 'any', goal: '서비스 기획 직무', importCS: false };
+export const EXAMPLE_PROFILE: Profile = { interests: ['plan'], time: 3, format: 'any', goal: '서비스 기획 직무', importCS: false };
 
 export const SEED_RECORDS: RecordItem[] = [
   { id: 'e1', v: 1, title: '팀 서비스 개선안', kind: '교과', date: '1학기 · 3월', field: 'product', did: 'organize', energy: 'same', quote: '의견을 한 문장으로 묶으니 다음 행동이 보였다.', note: '서로 다른 팀원 의견을 불편 상황과 원인으로 나누어 문제 문장을 정리했다.', axes: ['problem', 'communication', 'collaboration'], source: 'seed', semester: '2026-1', verification: 'self', visibility: 'me', useForRecommend: true },

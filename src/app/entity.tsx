@@ -72,7 +72,7 @@ export function EntityDrawer({ target, onClose }: { target: EntityRef; onClose: 
   return (
     <Drawer open eyebrow={s.eyebrow} title={s.title} onClose={onClose} footer={<Button variant="primary" onClick={() => navigate(s.href)}>자세히 보기</Button>}>
       <div className="app-entity">
-        <FieldTag field={s.field} detail />
+        <FieldTag field={s.field} />
         <dl className="app-entity__facts">
           {s.facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
         </dl>

@@ -20,7 +20,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
   return (
     <>
       <Card
-        className="fit-card"
+        className="os-card"
         title="경험 지도"
         action={records.length === 0 ? undefined : (
           <ul className="an-legend an-legend--inline" aria-label="선 표시">

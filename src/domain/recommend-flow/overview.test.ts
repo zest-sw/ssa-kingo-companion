@@ -8,7 +8,7 @@ import { filterLabels, isEmptyFilter, matchesAsk, parseAsk, withoutKey } from '.
 import { funnelDrops, STEP_IDS } from './drops';
 import { parseRecommendSub } from './flow';
 import { setListIntent, takeListIntent } from './intent';
-import { pickingLine, semesterLine, todayTasks, withoutTasks } from './summary';
+import { pickingLine, semesterLine, todayTasks } from './summary';
 import { upcomingItems, upcomingRange, whenOffset } from './upcoming';
 
 const act = (over: Partial<Activity>): Activity => ({ id: 'a', title: 'A', field: 'dev', status: 'preparing', schedule: '', ...over });
@@ -51,23 +51,23 @@ describe('matchesAsk', () => {
 });
 
 describe('upcomingItems', () => {
-  it('준비 중 활동의 마감과 끝난 활동의 회고를 올린다', () => {
+  it('준비 중 활동의 모레 이후 마감만 올리고, 오늘·내일 일과 회고는 오늘 할 일에 둔다', () => {
     const items = upcomingItems([
-      act({ id: 'a1', title: '튜터', due: { label: '마감', dday: 0 } }),
+      act({ id: 'a0', title: '오늘 마감', due: { label: '마감', dday: 0 } }),
+      act({ id: 'a1', title: '튜터', due: { label: '마감', dday: 2 } }),
       act({ id: 'a2', title: '해커톤', status: 'ended' }),
       act({ id: 'a3', title: '먼 마감', due: { label: '마감', dday: 30 } }),
       act({ id: 'a4', title: '하는 중', status: 'ongoing', due: { label: '마감', dday: 1 } })
     ], [], 1);
-    expect(items.map(i => [i.id, i.date, i.kind])).toEqual([['due:a1', PROTOTYPE_TODAY, 'deadline'], ['review:a2', PROTOTYPE_TODAY, 'review']]);
-    expect(items.find(i => i.kind === 'review')?.target).toEqual({ path: 'activities/records/interview/a2' });
+    expect(items.map(i => [i.id, i.date, i.kind])).toEqual([['due:a1', '2026-10-15', 'deadline']]);
   });
   it('후보는 마감과 활동 날짜를 올리고 이미 활동이 된 후보는 건너뛴다', () => {
-    const items = upcomingItems([act({ id: 'a1', programId: 'p2', status: 'applied' })], [pick('p1', { ddayW1: 2, when: '10.14(수) 18:30' }), pick('p2')], 1);
-    expect(items.map(i => [i.id, i.date])).toEqual([['due:p1', '2026-10-15'], ['on:p1', '2026-10-14']].sort((a, b) => a[1].localeCompare(b[1])));
+    const items = upcomingItems([act({ id: 'a1', programId: 'p2', status: 'applied' })], [pick('p1', { ddayW1: 2, when: '10.16(금) 18:30' }), pick('p2')], 1);
+    expect(items.map(i => [i.id, i.date])).toEqual([['due:p1', '2026-10-15'], ['on:p1', '2026-10-16']]);
   });
   it('범위와 날짜 읽기', () => {
-    expect(upcomingRange(1)).toEqual({ start: PROTOTYPE_TODAY, end: '2026-10-27' });
-    expect(upcomingRange(2).start).toBe('2026-10-20');
+    expect(upcomingRange(1)).toEqual({ start: '2026-10-15', end: '2026-10-29' });
+    expect(upcomingRange(2).start).toBe('2026-10-22');
     expect(whenOffset('10.16(금) 16:00', 1)).toBe(3);
     expect(whenOffset('매주 목', 1)).toBeUndefined();
     expect(upcomingItems([], [pick('p', { ddayW1: -1, when: '10.12' })], 1)).toEqual([]);
@@ -117,21 +117,21 @@ describe('홈 요약 문장', () => {
     act({ id: 'd3', title: '먼 마감', due: { label: '신청 마감', dday: 20 } }),
     act({ id: 'o', title: '학회', status: 'ongoing', field: 'ai', schedule: '10.13(화) 19:00' })
   ];
-  it('오늘 할 일은 회고, 급한 마감, 오늘 활동 순으로 최대 3개', () => {
+  it('오늘 할 일은 오늘·내일 일만: 회고, 급한 마감, 오늘 활동 순', () => {
     const t = todayTasks(list, 1);
-    expect(t.map(x => x.id)).toEqual(['review:r', 'due:d1', 'due:d2']);
+    expect(t.map(x => x.id)).toEqual(['review:r', 'due:d1', 'today:o']);
     expect(t[1].text).toBe('튜터, 사전 설문 마감 18:00');
     expect(t[0].target).toEqual({ path: 'activities/records/interview/r' });
   });
   it('회고를 쓰면 할 일에서 빠진다', () => {
     const t = todayTasks(list.map(a => (a.id === 'r' ? { ...a, status: 'recorded' as const } : a)), 1);
-    expect(t.map(x => x.id)).toEqual(['due:d1', 'due:d2', 'today:o']);
+    expect(t.map(x => x.id)).toEqual(['due:d1', 'today:o']);
   });
-  it('타임라인에서 오늘 할 일과 같은 일을 뺀다', () => {
-    const tasks = todayTasks(list, 1);
-    const items = upcomingItems(list, [], 1);
-    expect(withoutTasks(items, tasks).map(i => i.id)).toEqual([]);
-    expect(withoutTasks(items, []).length).toBe(items.length);
+  it('오늘 할 일과 타임라인에 같은 일이 둘 다 나오지 않는다', () => {
+    const tasks = todayTasks(list, 1).map(t => t.id.split(':')[1]);
+    const items = upcomingItems(list, [], 1).map(i => i.id.split(':')[1]);
+    expect(items).toEqual(['d2']);
+    expect(tasks.filter(id => items.includes(id))).toEqual([]);
   });
   it('할 일이 없으면 빈 목록', () => expect(todayTasks([], 1)).toEqual([]));
   it('이번 학기 한 줄', () => {

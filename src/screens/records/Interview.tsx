@@ -106,7 +106,7 @@ export function Interview({ activity }: { activity: Activity }) {
     return (
       <div className="os">
         <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title={activity.title} />
-        <div className="os__body rec-donebody">
+        <div className="os__body os__body--fill rec-donebody">
           <Card className="rec-done">
             <span className="rec-done__icon"><Icon name="check" size={28} /></span>
             <h2 ref={doneTitle} tabIndex={-1} className="rec-done__title">기록 카드를 만들었어요</h2>
@@ -132,7 +132,7 @@ export function Interview({ activity }: { activity: Activity }) {
     <div className="os">
       <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title={activity.title} actions={phase === 'talk' && <Button onClick={pause}>나중에 이어 하기</Button>} />
       <>
-        <div className="os__body rec-interview">
+        <div className="os__body os__body--fill rec-interview">
           <section className="rec-chat" aria-label="회고 대화">
             <ol className="rec-steps" aria-label="회고 단계">
               {STEP_ORDER.map(s => (

@@ -37,7 +37,7 @@ describe('groupByColumn', () => {
 describe('buildCandidates', () => {
   const base = {
     catalog: catalog([prog('a', { field: 'research' }), prog('b', { field: 'research' }), prog('c', { field: 'data' }), prog('d', { field: 'ai' })]),
-    week: 1, profile: profile({ interests: ['research'] }), records: [rec('r1')], confirm: {}, settings: { discover: true, career: true },
+    week: 1, profile: profile({ interests: ['plan'] }), records: [rec('r1')], confirm: {}, settings: { discover: true, career: true },
     choices: {}, dislikedFields: [], preferEasier: false, last: null
   };
 
@@ -72,5 +72,14 @@ describe('buildCandidates', () => {
     expect(dismissEffect('field', prog('p', { field: 'ai' }))).toEqual({ dislikedField: 'ai' });
     expect(dismissEffect('hard', prog('p'))).toEqual({ preferEasier: true });
     expect(dismissEffect('time', prog('p'))).toEqual({});
+  });
+});
+
+describe('조사: 으로/로', () => {
+  it('받침이 없거나 ㄹ 받침이면 로, 나머지 받침은 으로', async () => {
+    const { josaRo } = await import('./text');
+    expect(josaRo('캠프')).toBe('로');
+    expect(josaRo('서울')).toBe('로');
+    expect(josaRo('특강')).toBe('으로');
   });
 });

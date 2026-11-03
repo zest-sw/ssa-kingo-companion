@@ -34,7 +34,7 @@ describe('rank · 거르기', () => {
 
 describe('rank · 가점', () => {
   it('관심 분야는 +3, 이유에 관심을 적는다', () => {
-    const r = rank(ctx([prog('mine', { field: 'data' }), prog('other', { field: 'ai' })], { profile: profile({ interests: ['data'] }), records: [rec('r', { field: 'data' }), rec('s', { field: 'ai' })] }));
+    const r = rank(ctx([prog('mine', { field: 'data' }), prog('other', { field: 'dev' })], { profile: profile({ interests: ['ai'] }), records: [rec('r', { field: 'data' }), rec('s', { field: 'dev' })] }));
     expect(ids(r)[0]).toBe('mine');
     expect(scoreOf(r, 'mine') - scoreOf(r, 'other')).toBe(3);
     expect(mainReason(r.scored[0].reasons)?.kind).toBe('interest');
@@ -73,9 +73,9 @@ describe('rank · 가점', () => {
     const cat = catalog([prog('m', { career: { req: 'r1', part: 'match' } }), prog('g', { career: { req: 'r1', part: 'gap', gapLabel: '데이터' } })], {
       jobs: [{ id: 'j', company: 'C', short: 's', title: 't', url: 'u', checkedAt: 'd', state: '' }],
       reqs: [{ id: 'r1', job: 'j', label: 'L', kind: '필수' }],
-      directions: [{ id: 'd', field: 'product', label: '', reqIds: ['r1'] }]
+      directions: [{ id: 'd', field: 'dev', label: '', reqIds: ['r1'] }]
     });
-    const base = { catalog: cat, profile: profile({ interests: ['product'] }), records: [rec('r', { field: 'research' })] };
+    const base = { catalog: cat, profile: profile({ interests: ['dev'] }), records: [rec('r', { field: 'research' })] };
     const r = rank(ctx([], base));
     expect(scoreOf(r, 'm')).toBe(1);
     expect(scoreOf(r, 'g')).toBe(1.5);
@@ -129,7 +129,7 @@ describe('pickAlternatives', () => {
 describe('diffLabel', () => {
   const base = prog('base', { field: 'research', hours: 2, format: 'offline', level: 1 });
   it('안 해 본 새 분야를 먼저 알린다', () => {
-    expect(diffLabel(prog('a', { field: 'ai' }), base, new Set(['research']), [])).toBe('새로운 분야 · AI');
+    expect(diffLabel(prog('a', { field: 'ai' }), base, new Set(['research']), [])).toBe('새로운 분야 · AI·데이터');
   });
   it('더 짧으면 더 가볍게, 온라인이면 함께 적는다', () => {
     expect(diffLabel(prog('a', { hours: 1, format: 'online', durationLabel: '1시간' }), base, new Set(), [])).toBe('더 가볍게 · 온라인 1시간');
@@ -137,7 +137,7 @@ describe('diffLabel', () => {
   it('방식 → 단계 → 관심 → 일정 순서', () => {
     expect(diffLabel(prog('a', { format: 'online' }), base, new Set(), [])).toBe('온라인으로');
     expect(diffLabel(prog('a', { level: 2 }), base, new Set(), [])).toBe('한 단계 도전');
-    expect(diffLabel(prog('a'), base, new Set(), ['research'])).toBe('관심 분야 · UX·리서치');
+    expect(diffLabel(prog('a'), base, new Set(), ['plan'])).toBe('관심 분야 · 창업·기획');
     expect(diffLabel(prog('a', { when: '10.28' }), base, new Set(), [])).toBe('다른 일정 · 10.28');
   });
 });

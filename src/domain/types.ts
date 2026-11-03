@@ -6,7 +6,8 @@ export type Energy = 'up' | 'same' | 'down';
 export type Field = 'research' | 'product' | 'data' | 'ai' | 'dev' | 'career' | 'startup' | 'mentor' | 'global' | 'club' | 'etc';
 /** 화면 색 의미가 고정된 분야 묶음 (명세 2절). */
 export type FieldGroup = 'dev' | 'ai' | 'plan' | 'mentor' | 'global' | 'other';
-export type Interest = Field | 'unknown';
+/** 가입·설정에서 고르는 관심 분야. 학생에게는 분야 묶음 이름만 보인다 */
+export type Interest = FieldGroup | 'unknown';
 export type Axis = 'expertise' | 'problem' | 'communication' | 'collaboration' | 'self' | 'creative';
 export type Format = 'offline' | 'online' | 'any';
 export type Mode = 'explore' | 'focus';
@@ -121,6 +122,10 @@ export type PrepItem = {
   hint?: string;
   /** 누르면 가는 곳 */
   link?: { label: string; path: string };
+  /** 학교 사이트에서 직접 하는 일의 버튼 이름(예: '설문 열기'). 주소는 화면이 예시 데이터에서 붙인다 */
+  outside?: string;
+  /** outside 를 한 번 열었는지. 연 뒤에 '했어요'로 체크한다 */
+  opened?: boolean;
 };
 
 export type ActivityStatus = 'preparing' | 'applied' | 'ongoing' | 'ended' | 'recorded' | 'declined';

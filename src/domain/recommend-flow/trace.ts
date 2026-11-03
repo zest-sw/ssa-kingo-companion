@@ -1,4 +1,4 @@
-import { FIELD_LABEL, REASON_LABEL } from '../vocab';
+import { fieldName, REASON_LABEL } from '../vocab';
 import type { Program, Reason, RecordItem } from '../types';
 import { sortedReasons } from '../recommend';
 
@@ -22,7 +22,7 @@ const quoted = (text: string) => /‘([^’]+)’/.exec(text)?.[1] ?? '';
 export function traceNodes(reasons: Reason[], records: RecordItem[], p: Program): TraceNode[] {
   return sortedReasons(reasons).map(r => {
     const rec = r.recordId ? records.find(x => x.id === r.recordId) : undefined;
-    const detail = rec?.title ?? (quoted(r.text) || FIELD_LABEL[p.field]);
+    const detail = rec?.title ?? (quoted(r.text) || fieldName(p.field));
     return { kind: r.kind, label: REASON_LABEL[r.kind], detail, recordId: rec?.id, date: rec?.date };
   });
 }

@@ -1,12 +1,13 @@
 import type { Did, DislikeKind, Format, Interest } from '../domain/types';
+import { GROUP_LABEL, GROUP_ORDER } from '../domain/vocab';
 
 // 가입 인터뷰·추천·회고에서 고르는 선택지 문구. v0.7 에서 옮겼다.
 
 /** 실제 신청은 학생이 챌린지스퀘어에서 직접 한다. 연동은 없다. */
 export const CS_URL = 'https://chsquare.skku.edu/challenge/nxui/index.html';
+/** 관심 분야 선택지 = 화면의 분야 묶음 이름 + '아직 모르겠어요'. 세부 분야는 고르지 않는다. */
 export const INTEREST_OPTIONS: { id: Interest; label: string }[] = [
-  { id: 'research', label: 'UX·리서치' }, { id: 'product', label: '서비스 기획' }, { id: 'data', label: '데이터' }, { id: 'ai', label: 'AI' },
-  { id: 'career', label: '진로·취업 준비' }, { id: 'startup', label: '창업' }, { id: 'unknown', label: '아직 모르겠어요' }
+  ...GROUP_ORDER.map(g => ({ id: g, label: GROUP_LABEL[g] })), { id: 'unknown', label: '아직 모르겠어요' }
 ];
 export const FORMAT_OPTIONS: { value: Format; label: string; sub: string }[] = [
   { value: 'any', label: '상관없어요', sub: '둘 다 추천해 주세요' }, { value: 'offline', label: '직접 만나서', sub: '캠퍼스 활동 위주' }, { value: 'online', label: '온라인으로', sub: '이동 없이 참여' }

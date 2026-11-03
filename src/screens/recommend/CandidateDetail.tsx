@@ -7,7 +7,7 @@ import { checksOf, dateLabel, formatText, isNearDeadline, plainText, prepItemsFo
 import { traceNodes } from '../../domain/recommend-flow/trace';
 import { ddayText } from '../../domain/text';
 import type { Activity, Program, RecordItem, Scored } from '../../domain/types';
-import { DID_LABEL, FIELD_LABEL, REASON_LABEL } from '../../domain/vocab';
+import { DID_LABEL, fieldName, REASON_LABEL } from '../../domain/vocab';
 import { ReasonTrace } from './ReasonTrace';
 
 export type CardActions = { onPrepare: (p: Program) => void; onLater: (p: Program) => void; onDismiss: (p: Program) => void };
@@ -42,7 +42,7 @@ export function CandidateDetail({ primary, isPrimary, week, records, activities,
       <div className="rec-detail__main">
         <div className="rec-detail__meta">
           <Badge tone={isPrimary ? 'lime' : 'neutral'}>{isPrimary ? '가장 추천' : '고른 후보'}</Badge>
-          <span className="rec-detail__kind">{FIELD_LABEL[p.field]} · {DID_LABEL[p.did[0]]}</span>
+          <span className="rec-detail__kind">{fieldName(p.field)} · {DID_LABEL[p.did[0]]}</span>
           <a className="rec-link rec-detail__src" href={APPLY_URL} target="_blank" rel="noopener noreferrer">모집글 원문<Icon name="external" size={14} /></a>
         </div>
         <div>

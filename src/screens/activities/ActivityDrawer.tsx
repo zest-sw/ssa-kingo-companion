@@ -35,7 +35,7 @@ function Facts({ a }: { a: Activity }) {
   const p = a.programId ? PROGRAM_BY_ID[a.programId] : undefined;
   return (
     <dl className="act-facts">
-      <div><dt>분야</dt><dd><FieldTag field={a.field} detail /></dd></div>
+      <div><dt>분야</dt><dd><FieldTag field={a.field} /></dd></div>
       <div><dt>일정</dt><dd>{a.schedule}</dd></div>
       {a.due && <div><dt>마감</dt><dd><DueLine due={a.due} /></dd></div>}
       {a.prep && <div><dt>준비</dt><dd><ProgressBar value={a.prep.done} max={a.prep.total} label="준비 진행도" showText /></dd></div>}
