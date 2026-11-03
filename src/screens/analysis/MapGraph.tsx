@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { edgeState, layoutMap, visibleEdges, type EdgeAnswers, type ExperienceMap, type MapEdge, type MapNode } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
 import { FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
+import { josa } from '../../domain/text';
 
 export type MapPick = { kind: 'node'; id: string } | { kind: 'edge'; id: string };
 
@@ -66,5 +67,5 @@ function curve(a: { x: number; y: number }, b: { x: number; y: number }) {
 }
 
 function edgeLabel(e: MapEdge, nodeOf: Record<string, MapNode>, confirmed: boolean) {
-  return `${nodeOf[e.a].record.title}와 ${nodeOf[e.b].record.title}의 연결, ${confirmed ? '확인한 연결' : '확인 전 AI 추정'}. 맞는지 보기`;
+  return `${nodeOf[e.a].record.title}${josa(nodeOf[e.a].record.title, '과', '와')} ${nodeOf[e.b].record.title}의 연결, ${confirmed ? '확인한 연결' : '확인 전 AI 추정'}. 맞는지 보기`;
 }

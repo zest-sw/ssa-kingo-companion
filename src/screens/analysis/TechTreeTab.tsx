@@ -4,6 +4,7 @@ import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState, FieldTag, SegmentedControl } from '../../components';
 import { recordOfActivity, relatedRecords, TREE_COLUMNS, type TreeCell } from '../../domain/analysis/techtree';
+import { josa } from '../../domain/text';
 import { ddayText } from '../../domain/text';
 import type { RecordItem } from '../../domain/types';
 import { DID_LABEL, STATUS_LABEL } from '../../domain/vocab';
@@ -85,7 +86,7 @@ function CellDrawer({ cell, records, onClose }: { cell: TreeCell | null; records
         <>
           <RecordSummary record={record} />
           <h3 className="an-sub">이 칸에 놓인 이유</h3>
-          <p>‘{DID_LABEL[record.did]}’를 주로 한 기록이라 ‘{column}’ 칸에 놓았어요.</p>
+          <p>‘{DID_LABEL[record.did]}’{josa(DID_LABEL[record.did], '을', '를')} 주로 한 기록이라 ‘{column}’ 칸에 놓았어요.</p>
           <h3 className="an-sub">같은 분야의 다른 기록</h3>
           {related.length ? <div className="an-stack">{related.map(r => <RecordSummary key={r.id} record={r} />)}</div> : <p className="an-muted">같은 분야 기록이 아직 하나예요. 회고를 더 쓰면 이어져요.</p>}
         </>

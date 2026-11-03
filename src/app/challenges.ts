@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useToast } from '../components';
+import { josa } from '../domain/text';
 import { evaluate, newlyAchieved, type ChallengeResult } from '../domain/challenges';
 import { CHALLENGES, type ChallengeInfo } from '../data/challenges';
 import { PROGRAM_BY_ID } from '../data/catalog';
@@ -33,6 +34,6 @@ export function useChallengeToasts() {
     if (!fresh.length) return;
     run({ type: 'challenge/achieve', ids: fresh.map(r => r.def.id), at: Date.now() });
     const first = fresh[0].def;
-    toast(fresh.length === 1 ? `‘${first.name}’을 달성했어요. ${first.praise}` : `‘${first.name}’ 외 ${fresh.length - 1}개를 달성했어요.`);
+    toast(fresh.length === 1 ? `‘${first.name}’${josa(first.name, '을', '를')} 달성했어요. ${first.praise}` : `‘${first.name}’ 외 ${fresh.length - 1}개를 달성했어요.`);
   }, [items, state.challengeAt, run, toast]);
 }

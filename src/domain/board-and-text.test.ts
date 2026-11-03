@@ -74,3 +74,12 @@ describe('buildCandidates', () => {
     expect(dismissEffect('time', prog('p'))).toEqual({});
   });
 });
+
+describe('조사: 으로/로', () => {
+  it('받침이 없거나 ㄹ 받침이면 로, 나머지 받침은 으로', async () => {
+    const { josaRo } = await import('./text');
+    expect(josaRo('캠프')).toBe('로');
+    expect(josaRo('서울')).toBe('로');
+    expect(josaRo('특강')).toBe('으로');
+  });
+});
