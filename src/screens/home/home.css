@@ -102,4 +102,5 @@
 
 @media (max-width: 1199px) {
   .home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; }
+  .home-top { grid-column: 2; grid-row: 1 / span 2; }
 }

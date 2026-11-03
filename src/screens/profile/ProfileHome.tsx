@@ -73,7 +73,7 @@ export function ProfileHome() {
           <Card className="os-card" title="도전 과제" padding="md" action={
             <Button variant="ghost" icon={all ? 'down' : 'chevron'} aria-expanded={all} onClick={() => setAll(x => !x)}>{all ? '접기' : '전체 목록'}</Button>
           }>
-            <div className={all ? 'os-scroll pf-all' : 'pf-prog'}>{all ? <ChallengeList /> : <ChallengeProgress />}</div>
+            <div className={all ? 'os-scroll pf-all' : 'os-scroll pf-prog'}>{all ? <ChallengeList /> : <ChallengeProgress />}</div>
           </Card>
 
           <Card title="최근 활동" padding="md">
