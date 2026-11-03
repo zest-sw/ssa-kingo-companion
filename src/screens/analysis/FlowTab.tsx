@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
 import { navigate } from '../../app/router';
 import { useApp } from '../../app/AppState';
-import { Button, Card, Drawer, EmptyState, GhostPic } from '../../components';
+import { Button, Card, Drawer, EmptyState } from '../../components';
 import { nextStep } from '../../domain/nextStep';
 import { buildFlow, clampRange, defaultRange, legendGroups, moveRange, summarizeFlow, type FlowRange, type FlowSegment } from '../../domain/analysis/flow';
 import { semesterAxis, semesterLabel } from '../../domain/analysis/semester';
 import type { FieldGroup, RecordItem } from '../../domain/types';
 import { GROUP_LABEL } from '../../domain/vocab';
 import { SEMESTER_FROM, SEMESTER_NOW } from '../../data/analysis';
+import { Sketch } from './Sketch';
 import { RecordSummary } from './RecordSummary';
 
 const pct = (share: number) => `${Math.round(share * 100)}%`;
@@ -27,7 +28,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   const shown = rows.slice(from, to + 1);
 
   if (records.length === 0) {
-    return <Card><EmptyState pic={<GhostPic kind="bars" labels={[semesterLabel(SEMESTER_NOW)]} />} message={`${step.lead} 학기마다 어떤 분야를 했는지 보여요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} /></Card>;
+    return <Card><EmptyState pic={<div className="an-skframe"><Sketch kind="flow" /></div>} message={`${step.lead} 학기마다 어떤 분야를 했는지 보여요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} /></Card>;
   }
 
   return (

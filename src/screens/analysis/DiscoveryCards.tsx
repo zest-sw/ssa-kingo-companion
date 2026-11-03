@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, ConfirmDot, Drawer, EmptyState, GhostPic } from '../../components';
+import { Badge, Button, Card, ConfirmDot, Drawer, EmptyState } from '../../components';
 import { nextStep } from '../../domain/nextStep';
 import { nextToAsk, usedCount } from '../../domain/analysis/discovery';
 import { discoveryPic, type DiscoveryPic } from '../../domain/analysis/visual';
 import type { Discovery } from '../../domain/types';
+import { Sketch } from './Sketch';
 import { RecordSummary } from './RecordSummary';
 
 const ROW_H = 22;
@@ -63,7 +64,7 @@ export function DiscoveryCards() {
   return (
     <Card className="os-card an-disc-card" title="확인할 발견" padding="md" action={list.length > 0 ? <span className="an-disc-card__count"><b className="num">{at}</b> / {list.length}</span> : undefined}>
       {!d ? (
-        <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 같은 일을 한 기록끼리 묶어 발견을 보여 줘요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
+        <EmptyState pic={<div className="an-skframe"><Sketch kind="network" /></div>} message={`${step.lead} 같은 일을 한 기록끼리 묶어 발견을 보여 줘요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
       ) : (
         <div className={`an-dq an-dq--${st}`}>
           <p className="an-dq__q">{discoveryPic(d).question}</p>

@@ -36,6 +36,10 @@
   --an-halo: 4px;
   --an-edge: 3px;
   --an-dot-gap: 5px;
+  --an-sk-net-h: 72px;
+  --an-sk-name-w: 64px;
+  --an-sk-track-h: 28px;
+  --an-sk-frame-w: 360px;
 }
 
 .an-private { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); }
@@ -220,10 +224,10 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 .an-gdot { width: var(--an-dot-md); height: var(--an-dot-md); border-radius: var(--radius-full); box-sizing: border-box; flex: none; }
 .an-gdot.is-done { background: var(--ink-strong); }
 .an-gdot.is-self { box-shadow: inset 0 0 0 var(--an-line-w-thin) var(--ink-subtle); background: var(--surface); }
-.an-gdot.is-blank { background: var(--bg-sunken); }
+.an-gdot.is-blank { border: 1px dashed var(--line-strong); background: transparent; }
 
 /* 테크 트리 그림: 분야(행) × 유형(열) */
-.an-tp { display: grid; grid-template-columns: max-content repeat(4, minmax(0, 1fr)); gap: var(--space-1) var(--space-2); align-items: center; width: 100%; font-size: var(--text-xs); color: var(--ink-muted); }
+.an-tp { display: grid; grid-template-columns: max-content repeat(4, minmax(0, 1fr)); gap: var(--space-1) var(--space-2); align-items: center; width: 100%; padding-block: var(--an-halo); font-size: var(--text-xs); color: var(--ink-muted); }
 .an-tp__row { display: contents; }
 .an-tp__col { text-align: center; white-space: nowrap; }
 .an-tp__name { padding-right: var(--space-2); color: var(--ink); font-weight: var(--weight-medium); white-space: nowrap; }
@@ -304,3 +308,21 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 .an-srow__tag { display: flex; justify-content: flex-end; font-size: var(--text-sm); }
 
 .an-mp { width: 100%; }
+
+/* 빈 상태 그림 윤곽: 옅은 점선 테두리만. 속이 찬 회색 띠를 쓰지 않는다. */
+.an-sk { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; min-width: 0; color: var(--ink-subtle); font-size: var(--text-xs); }
+.an-sk__grid { display: grid; grid-template-columns: max-content repeat(4, minmax(0, 1fr)); gap: var(--space-1) var(--space-2); align-items: center; }
+.an-sk__col { text-align: center; white-space: nowrap; }
+.an-sk__name { padding-right: var(--space-2); white-space: nowrap; }
+.an-sk__cell { height: var(--an-cell-h); border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); box-sizing: border-box; }
+.an-sk__net { width: 100%; height: var(--an-sk-net-h); }
+.an-sk__net line { stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.an-sk__net circle { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.5; }
+.an-sk__row { display: flex; align-items: center; gap: var(--space-3); min-height: var(--an-sp-row-h); }
+.an-sk__row .an-sk__name { flex: none; min-width: var(--an-sk-name-w); }
+.an-sk__track { flex: 1; height: var(--an-sk-track-h); border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); box-sizing: border-box; }
+.an-sk__dots { display: flex; gap: var(--space-2); }
+.an-sk__dot { width: var(--an-dot-md); height: var(--an-dot-md); border: 1px dashed var(--line-strong); border-radius: var(--radius-full); box-sizing: border-box; }
+/* 빈 상태 카드 안에서는 그림을 가운데 틀로 */
+.an-skframe { width: min(100%, var(--an-sk-frame-w)); margin: 0 auto; text-align: left; }
+.an-skframe .an-sk { gap: var(--space-3); }
