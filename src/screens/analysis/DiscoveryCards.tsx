@@ -3,7 +3,7 @@ import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, ConfirmDot, Drawer, EmptyState, GhostPic } from '../../components';
 import { nextStep } from '../../domain/nextStep';
-import { usedCount } from '../../domain/analysis/discovery';
+import { nextToAsk, usedCount } from '../../domain/analysis/discovery';
 import { discoveryPic, type DiscoveryPic } from '../../domain/analysis/visual';
 import type { Discovery } from '../../domain/types';
 import { RecordSummary } from './RecordSummary';
@@ -35,50 +35,70 @@ function Converge({ pic }: { pic: DiscoveryPic }) {
   );
 }
 
-/** 확인할 발견. 맞아요/아니에요는 전역 상태의 확인 표를 바꾸고, 확인한 것만 추천에 쓰인다. */
+/**
+ * 확인할 발견 한 장씩. 답하면 아직 답하지 않은 다음 장으로 넘어가고, 전체 목록은 서랍(다음 단계)에서 본다.
+ * 맞아요/아니에요는 전역 상태의 확인 표를 바꾸고, 확인한 것만 추천에 쓰인다.
+ */
 export function DiscoveryCards() {
   const { state, view, discStateOf, run } = useApp();
+  const [focus, setFocus] = useState<string>();
   const [seeing, setSeeing] = useState<Discovery | null>(null);
-  const used = usedCount(view.discoveries, state.confirm);
+  const [listing, setListing] = useState(false);
+  const list = view.discoveries;
+  const isOpen = (d: Discovery) => ['none', 'changed'].includes(discStateOf(d));
+  const d = list.find(x => x.key === focus) ?? nextToAsk(list, isOpen) ?? list[0];
+  const used = usedCount(list, state.confirm);
   const step = nextStep(state.activities);
 
-  const answer = (d: Discovery, status: 'yes' | 'no') => {
-    const cancel = discStateOf(d) === status;
-    run({ type: 'discovery/confirm', discovery: d, status }, {
+  const answer = (target: Discovery, status: 'yes' | 'no') => {
+    const cancel = discStateOf(target) === status;
+    run({ type: 'discovery/confirm', discovery: target, status }, {
       toast: cancel ? '확인을 거뒀어요.' : status === 'yes' ? '맞다고 했어요. 추천에 반영할게요.' : '아니라고 했어요. 추천에 쓰지 않아요.'
     });
+    if (!cancel) setFocus(nextToAsk(list, x => x.key !== target.key && isOpen(x), target.key)?.key ?? target.key);
   };
 
+  const st = d ? discStateOf(d) : 'none';
+  const at = d ? list.indexOf(d) + 1 : 0;
   return (
-    <Card className="os-card" title="확인할 발견" action={<span>확인한 것만 추천에 써요 · 지금 <b className="num">{used}</b>개 반영 중</span>} padding="md">
-      {view.discoveries.length === 0 ? (
+    <Card className="os-card an-disc-card" title="확인할 발견" padding="md" action={list.length > 0 ? <span className="an-disc-card__count"><b className="num">{at}</b> / {list.length}</span> : undefined}>
+      {!d ? (
         <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 같은 일을 한 기록끼리 묶어 발견을 보여 줘요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
       ) : (
-        <ul className="an-disc-grid os-scroll">
-          {view.discoveries.map(d => {
-            const st = discStateOf(d);
+        <div className={`an-dq an-dq--${st}`}>
+          <p className="an-dq__q">{discoveryPic(d).question}</p>
+          {/* 근거 그림 자체가 '근거 보기'다. */}
+          <button type="button" className="an-dq__see" title="근거 기록 보기" aria-label={`근거 기록 ${d.evidence.length}개 보기`} onClick={() => setSeeing(d)}>
+            <Converge pic={discoveryPic(d)} />
+          </button>
+          <p className="an-dq__state">
+            {st === 'changed' ? <Badge tone="orange" icon="refresh">다시 확인해 주세요</Badge> : st === 'none' ? <ConfirmDot state="estimated" label="확인 전" /> : <ConfirmDot state="confirmed" />}
+            {(st === 'yes' || st === 'no') && <span>{st === 'yes' ? '반영 중' : '쓰지 않음'}</span>}
+          </p>
+          <div className="an-dq__actions">
+            <Button variant={st === 'yes' ? 'primary' : 'secondary'} aria-pressed={st === 'yes'} onClick={() => answer(d, 'yes')}>맞아요</Button>
+            <Button variant={st === 'no' ? 'primary' : 'secondary'} aria-pressed={st === 'no'} onClick={() => answer(d, 'no')}>아니에요</Button>
+          </div>
+          <Button variant="ghost" icon="chevron" onClick={() => setListing(true)}>전체 {list.length}개 · 반영 중 {used}개</Button>
+        </div>
+      )}
+      <Drawer open={listing} onClose={() => setListing(false)} eyebrow={`확인한 것만 추천에 써요 · 지금 ${used}개 반영 중`} title="확인할 발견 전체">
+        <ul className="an-dlist">
+          {list.map(x => {
+            const s = discStateOf(x);
             return (
-              <li key={d.key} className={`an-dq an-dq--${st}`}>
-                <p className="an-dq__q">
-                  <span>{discoveryPic(d).question}</span>
+              <li key={x.key}>
+                <button type="button" className="an-dlist__row" onClick={() => { setFocus(x.key); setListing(false); }}>
+                  <span className="an-dlist__q">{discoveryPic(x).question}</span>
                   <span className="an-dq__state">
-                    {st === 'changed' ? <Badge tone="orange" icon="refresh">다시 확인해 주세요</Badge> : st === 'none' ? <ConfirmDot state="estimated" label="확인 전" /> : <ConfirmDot state="confirmed" />}
-                    {(st === 'yes' || st === 'no') && <span>{st === 'yes' ? '반영 중' : '쓰지 않음'}</span>}
+                    {s === 'changed' ? <Badge tone="orange" icon="refresh">다시 확인</Badge> : s === 'none' ? <ConfirmDot state="estimated" label="확인 전" /> : <ConfirmDot state="confirmed" label={s === 'yes' ? '반영 중' : '쓰지 않음'} />}
                   </span>
-                </p>
-                {/* 근거 그림 자체가 '근거 보기'다. 버튼을 하나 줄여 1280×800 에서도 카드가 칸 안에 다 들어온다. */}
-                <button type="button" className="an-dq__see" title="근거 기록 보기" aria-label={`근거 기록 ${d.evidence.length}개 보기`} onClick={() => setSeeing(d)}>
-                  <Converge pic={discoveryPic(d)} />
                 </button>
-                <div className="an-dq__actions">
-                  <Button size="sm" variant={st === 'yes' ? 'primary' : 'secondary'} aria-pressed={st === 'yes'} onClick={() => answer(d, 'yes')}>맞아요</Button>
-                  <Button size="sm" variant={st === 'no' ? 'primary' : 'secondary'} aria-pressed={st === 'no'} onClick={() => answer(d, 'no')}>아니에요</Button>
-                </div>
               </li>
             );
           })}
         </ul>
-      )}
+      </Drawer>
       <Drawer open={!!seeing} onClose={() => setSeeing(null)} eyebrow={`근거 기록 ${seeing?.evidence.length ?? 0}개`} title={seeing ? `${seeing.statement}?` : ''}>
         <div className="an-stack">{seeing?.evidence.map(r => <RecordSummary key={r.id} record={r} />)}</div>
       </Drawer>
