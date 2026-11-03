@@ -1,13 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { discoveriesOf } from '../discoveries';
 import { rec } from '../fixtures.test-util';
-import type { Axis } from '../types';
 import { buildFlow } from './flow';
-import { buildStrengths, type Level } from './strengths';
 import { buildTechTree } from './techtree';
-import { topStrengthDots, discoveryPic, flowBars, flowHeadline, mapHeadline, mapPic, semesterShort, shortName, strengthDots, strengthHeadline, treeHeadline } from './visual';
+import { discoveryPic, flowBars, flowHeadline, mapHeadline, mapPic, semesterShort, shortName, treeHeadline } from './visual';
 
-const SELF: Record<Axis, Level> = { expertise: 'low', problem: 'low', communication: 'low', collaboration: 'low', self: 'low', creative: 'low' };
 const recs = [
   rec('a', { did: 'listen', field: 'product', semester: '2026-1', title: '아주아주아주 긴 기록 이름' }),
   rec('b', { did: 'listen', field: 'product', semester: '2026-2', axes: ['communication', 'problem'] }),
@@ -50,13 +47,6 @@ describe('분석 요약 그림', () => {
     expect(flowHeadline(rows)).toBe('26-1부터 창업·기획');
     expect(flowHeadline([])).toBe('회고를 쓰면 흐름이 보여요');
   });
-  it('나의 강점은 기록 점과 내 생각 점을 따로 주고 다른 줄만 표시한다', () => {
-    const rows = buildStrengths(recs, SELF);
-    const dots = strengthDots(rows);
-    expect(dots.find(d => d.axis === 'communication')).toMatchObject({ seen: 1, self: 1, differs: false });
-    expect(strengthHeadline(buildStrengths([], SELF))).toBe('회고를 쓰면 역량이 보여요');
-    expect(strengthHeadline(buildStrengths(recs, { ...SELF, communication: 'high' }))).toBe('소통: 기록 적음 · 내 생각 많음');
-  });
   it('발견 도식은 짧은 질문과 근거 기록 이름을 준다', () => {
     const ds = discoveriesOf([rec('a', { did: 'make', title: '하나' }), rec('b', { did: 'make', title: '둘' }), rec('c', { did: 'make', title: '셋' }), rec('d', { did: 'make', title: '넷' })]);
     const pic = discoveryPic(ds[0], 3);
@@ -64,13 +54,5 @@ describe('분석 요약 그림', () => {
     expect(pic.evidence.length).toBeLessThanOrEqual(3);
     expect(pic.target).toBe('직접 만들기');
     expect(pic.evidence.length + pic.more).toBe(ds[0].evidence.length);
-  });
-  it('강점 그림이 좁으면 다른 줄을 먼저 n줄만 고르고 나머지를 센다', () => {
-    const dots = strengthDots(buildStrengths(recs, { ...SELF, communication: 'high' }));
-    const { shown, more } = topStrengthDots(dots, 2);
-    expect(shown).toHaveLength(2);
-    expect(shown[0].differs).toBe(true);
-    expect(more).toBe(4);
-    expect(topStrengthDots(dots, 9).more).toBe(0);
   });
 });

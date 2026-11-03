@@ -3,8 +3,7 @@ import { discoveriesOf } from '../discoveries';
 import { rec } from '../fixtures.test-util';
 import type { Confirm } from '../types';
 import { buildFlow } from './flow';
-import { pendingCount, recentFlow, seenAxes, treeGlance } from './glance';
-import { buildStrengths } from './strengths';
+import { pendingCount, recentFlow, treeGlance } from './glance';
 import { buildTechTree } from './techtree';
 
 const recs = [rec('a', { did: 'make', field: 'dev' }), rec('b', { did: 'make', field: 'dev', semester: '2026-1' })];
@@ -33,10 +32,5 @@ describe('분석 L1 요약', () => {
     expect(recentFlow(rows, 4).map(r => r.semester)).toEqual(['2026-1', '2026-2']);
     expect(recentFlow(rows, 1).map(r => r.semester)).toEqual(['2026-2']);
     expect(recentFlow([], 3)).toEqual([]);
-  });
-  it('기록에서 보이는 역량 축을 센다', () => {
-    const self = { expertise: 'low', problem: 'low', communication: 'low', collaboration: 'low', self: 'low', creative: 'low' } as const;
-    expect(seenAxes(buildStrengths([], self))).toBe(0);
-    expect(seenAxes(buildStrengths([rec('a', { axes: ['creative', 'problem'] })], self))).toBe(2);
   });
 });

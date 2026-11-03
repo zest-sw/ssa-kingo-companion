@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { EdgeAnswers } from '../../domain/analysis/map';
 import type { FlowRow } from '../../domain/analysis/flow';
 import type { TreeGlanceRow } from '../../domain/analysis/glance';
-import type { StrengthRow } from '../../domain/analysis/strengths';
+import type { Strength } from '../../domain/analysis/strengths';
 import { TREE_COLUMNS } from '../../domain/analysis/techtree';
 import { wrapWords } from '../../domain/analysis/wrap';
-import { flowBars, mapPic, strengthDots, topStrengthDots } from '../../domain/analysis/visual';
+import { flowBars, mapPic } from '../../domain/analysis/visual';
 import type { RecordItem } from '../../domain/types';
 
 // 나의 분석 요약 카드의 그림. 모든 표시는 그 학생의 기록이고, 이름표는 그림 안에 직접 붙인다.
@@ -110,23 +110,23 @@ export function FlowPic({ rows }: { rows: FlowRow[] }) {
   );
 }
 
-const THREE = [1, 2, 3] as const;
-const STR_ROWS = 4;
+const STR_ROWS = 3;
+const STR_DOTS = 6;
 
-/** 역량 이름마다 점 행 두 줄: 기록(채운 점) vs 내 생각(빈 점). 둘이 다른 역량은 띠로 강조. */
-export function StrengthPic({ rows }: { rows: StrengthRow[] }) {
-  const { shown, more } = topStrengthDots(strengthDots(rows), STR_ROWS);
+/** 근거가 많은 강점 n줄: 이름 + 근거 기록 점(기록 하나 = 점 하나, 확인 = 채운 점, AI 추정 = 점선). 점수가 아니라 실제 개수다. */
+export function StrengthPic({ rows }: { rows: Strength[] }) {
+  const shown = rows.filter(r => r.evidence.length > 0).slice(0, STR_ROWS);
   return (
-    <span className="an-sp" role="img" aria-label="역량별 기록과 내 생각 비교">
-      <span className="an-sp__legend"><span className="an-gdot is-done" />기록<span className="an-gdot is-self" />내 생각</span>
-      {shown.map(d => (
-        <span key={d.axis} className={`an-sp__row${d.differs ? ' is-diff' : ''}`}>
-          <span className="an-sp__name">{d.label}</span>
-          <span className="an-sp__dots">{THREE.map(n => <span key={n} className={`an-gdot${d.seen >= n ? ' is-done' : ' is-blank'}`} />)}</span>
-          <span className="an-sp__dots">{THREE.map(n => <span key={n} className={`an-gdot${d.self >= n ? ' is-self' : ' is-blank'}`} />)}</span>
+    <span className="an-sp" role="img" aria-label={shown.map(r => `${r.label} 근거 ${r.evidence.length}개`).join(', ')}>
+      {shown.map(r => (
+        <span key={r.axis} className="an-sp__row">
+          <span className="an-sp__name">{r.label}</span>
+          <span className="an-sp__dots">
+            {r.evidence.slice(0, STR_DOTS).map(e => <span key={e.recordId} className={`ui-dot ui-dot--${e.confirmed ? 'confirmed' : 'estimated'}`} />)}
+            {r.evidence.length > STR_DOTS && <span className="an-sp__more">+{r.evidence.length - STR_DOTS}</span>}
+          </span>
         </span>
       ))}
-      {more > 0 && <span className="an-sp__more">외 {more}</span>}
     </span>
   );
 }

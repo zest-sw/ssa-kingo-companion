@@ -1,8 +1,6 @@
 import { useApp } from '../../app/AppState';
 import { Card, ErrorState, Icon, LoadingState, PageHeader, type TabItem } from '../../components';
 import type { EdgeAnswers } from '../../domain/analysis/map';
-import type { Level } from '../../domain/analysis/strengths';
-import type { Axis } from '../../domain/types';
 import ExperienceMapTab from './ExperienceMapTab';
 import FlowTab from './FlowTab';
 import StrengthsTab from './StrengthsTab';
@@ -17,9 +15,8 @@ export const TABS: TabItem<TabId>[] = [
 /** 나의 분석 하위 화면 하나. 위치와 옆 화면 이동은 사이드바가 맡아서 탭·뒤로 버튼을 두지 않는다. */
 export function Detail({ tab, analysis }: { tab: TabId; analysis: ReturnType<typeof useAnalysis> }) {
   const { state, run } = useApp();
-  // 연결 확인과 '내 생각'은 전역 상태에 둔다. 기록을 지우면 그 기록의 연결 답도 reducer 가 함께 지운다.
+  // 연결 확인은 전역 상태에 둔다. 기록을 지우면 그 기록의 연결 답도 reducer 가 함께 지운다.
   const setAnswers = (next: (prev: EdgeAnswers) => EdgeAnswers) => run({ type: 'analysis/answers', answers: next(state.edgeAnswers) });
-  const setSelf = (next: (prev: Record<Axis, Level>) => Record<Axis, Level>) => run({ type: 'analysis/self', self: next(state.selfLevels) });
   const label = TABS.find(t => t.id === tab)?.label ?? '';
 
   return (
@@ -32,7 +29,7 @@ export function Detail({ tab, analysis }: { tab: TabId; analysis: ReturnType<typ
         {analysis.status === 'ready' && tab === 'techtree' && <TechTreeTab records={analysis.records} />}
         {analysis.status === 'ready' && tab === 'map' && <ExperienceMapTab records={analysis.records} answers={state.edgeAnswers} setAnswers={setAnswers} />}
         {analysis.status === 'ready' && tab === 'flow' && <FlowTab records={analysis.records} />}
-        {analysis.status === 'ready' && tab === 'strengths' && <StrengthsTab records={analysis.records} self={state.selfLevels} setSelf={setSelf} />}
+        {analysis.status === 'ready' && tab === 'strengths' && <StrengthsTab records={analysis.records} />}
       </div>
     </div>
   );

@@ -50,6 +50,8 @@ export type RecordItem = {
   programId?: string;
   /** 학생이 '맞아요'를 눌러 확인한 역량 근거. 없는 축은 AI 추정(점선)이다 */
   confirmedAxes?: Axis[];
+  /** 학생이 '아니에요'라고 한 역량 근거. 강점 분석에서 뺀다 */
+  rejectedAxes?: Axis[];
 };
 
 export type CareerLink = { req: string; part: 'match' | 'gap'; gapLabel?: string };

@@ -1,5 +1,4 @@
 import { parseAnswers, pruneAnswers, type EdgeAnswers } from '../domain/analysis/map';
-import { parseSelf, type Level } from '../domain/analysis/strengths';
 import { parseDrafts, type InterviewDraft } from '../domain/interview/draft';
 import { FIELD_GROUP, GROUP_ORDER } from '../domain/vocab';
 import type { Activity, Axis, CandidateChoice, Field, Interest, NotifyHour, NotifyPrefs, Profile, RecordItem, Settings, Visibility } from '../domain/types';
@@ -9,7 +8,7 @@ import { DEFAULT_NOTIFY, DEFAULT_SETTINGS, DEFAULT_VISIBILITY, INITIAL_STATE, NE
 // 학생이 고른 것만 브라우저에 남긴다: 프로필, 공개 설정, 데이터·알림 설정, 추천에서 고른 것, 신청 준비로 만든 활동, 쓰던 회고 초안, 분석에서 답한 것.
 // 예시로 둘러볼 때는 예시 기록·예시 활동의 변화를 남기지 않는다(새로고침하면 예시 상태로). 새 학생은 자기가 쓴 기록도 남긴다.
 const KEY = 'kingo-companion:v1';
-/** 나의 분석이 따로 쓰던 옛 키. 읽어서 한 번 옮기고 지운다. */
+/** 나의 분석이 따로 쓰던 옛 키. 읽어서 한 번 옮기고 지운다. self 는 없앤 '내 생각'(2026-11-03)이라 읽지 않고 지우기만 한다. */
 const LEGACY_ANALYSIS = { answers: 'ssa-an:edge-answers', self: 'ssa-an:self-levels' };
 
 export type Saved = {
@@ -28,7 +27,6 @@ export type Saved = {
   records?: RecordItem[];
   drafts?: Record<string, InterviewDraft>;
   edgeAnswers?: EdgeAnswers;
-  selfLevels?: Record<Axis, Level>;
   settings?: Settings;
   notify?: NotifyPrefs;
 };
@@ -62,7 +60,7 @@ const pickRecord =<T,>(raw: unknown, ok: (v: unknown) => v is T): Record<string,
   isObj(raw) ? Object.fromEntries(Object.entries(raw).filter((e): e is [string, T] => ok(e[1]))) : {};
 
 /** 저장한 값을 예시 상태(또는 새 학생 상태) 위에 얹는다. 모양이 틀린 조각은 버리고 기본값을 쓴다. */
-export function restoreSaved(s: unknown, legacy: { answers?: unknown; self?: unknown } = {}): AppState {
+export function restoreSaved(s: unknown, legacy: { answers?: unknown } = {}): AppState {
   if (!isObj(s) || !isObj(s.profile) || !Array.isArray(s.profile.interests)) return NEW_STUDENT_STATE;
   const saved = s as Saved;
   const demo = saved.demo !== false;
@@ -76,7 +74,6 @@ export function restoreSaved(s: unknown, legacy: { answers?: unknown; self?: unk
   const activities = [...base.activities, ...added];
   const ended = new Set(activities.filter(a => a.status === 'ended').map(a => a.id));
   const answers = saved.edgeAnswers ?? legacy.answers;
-  const self = saved.selfLevels ?? legacy.self;
   return {
     ...base,
     profile: { ...base.profile, ...saved.profile, interests: toInterests(saved.profile.interests) },
@@ -92,8 +89,7 @@ export function restoreSaved(s: unknown, legacy: { answers?: unknown; self?: unk
     records,
     drafts: Object.fromEntries(Object.entries(parseDrafts(saved.drafts)).filter(([id]) => ended.has(id))),
     // 저장하지 않는 기록을 가리키던 연결 답은 버린다.
-    edgeAnswers: pruneAnswers((answers !== undefined && parseAnswers(answers)) || {}, [...recordIds]),
-    selfLevels: (self !== undefined && parseSelf(self, base.selfLevels)) || base.selfLevels
+    edgeAnswers: pruneAnswers((answers !== undefined && parseAnswers(answers)) || {}, [...recordIds])
   };
 }
 
@@ -104,7 +100,7 @@ export function toSaved(state: AppState): Saved {
     records: state.demo ? undefined : state.records,
     choices: state.choices, laterUntil: state.laterUntil, dislikedFields: state.dislikedFields, preferEasier: state.preferEasier,
     addedActivities: state.activities.filter(a => !SEED_IDS.has(a.id)),
-    drafts: state.drafts, edgeAnswers: state.edgeAnswers, selfLevels: state.selfLevels,
+    drafts: state.drafts, edgeAnswers: state.edgeAnswers,
     settings: state.settings, notify: state.notify
   };
 }

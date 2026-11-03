@@ -1,6 +1,5 @@
 import { activityFromProgram } from '../domain/activities';
 import { pruneAnswers, type EdgeAnswers } from '../domain/analysis/map';
-import type { Level } from '../domain/analysis/strengths';
 import { dismissEffect } from '../domain/candidates';
 import { nextConfirm } from '../domain/discoveries';
 import type { InterviewDraft } from '../domain/interview/draft';
@@ -10,7 +9,6 @@ import { prepProgress } from '../domain/recommend-flow/flow';
 import type { RecruitPost } from '../domain/social';
 import type { Activity, ActivityStatus, Axis, CandidateChoice, Confirm, Discovery, DislikeKind, Field, LastDone, NotifyPrefs, PrepItem, Profile, RecordItem, Settings, Visibility } from '../domain/types';
 import { DID_AXES } from '../domain/vocab';
-import { INITIAL_SELF } from '../data/analysis';
 import { INITIAL_REQ_EVIDENCE, PROGRAM_BY_ID } from '../data/catalog';
 import { EMPTY_PROFILE, EXAMPLE_PROFILE, SEED_ACTIVITIES, SEED_RECORDS } from '../data/seed';
 
@@ -43,8 +41,6 @@ export type AppState = {
   drafts: Record<string, InterviewDraft>;
   /** 경험 지도 연결 확인(연결 id → 맞아요/아니에요) */
   edgeAnswers: EdgeAnswers;
-  /** 나의 강점의 '내 생각' */
-  selfLevels: Record<Axis, Level>;
   /** 도전 과제를 처음 달성한 시각(ms). 한 번 알린 과제는 다시 알리지 않는다 */
   challengeAt: Record<string, number>;
   /** 내가 올린 팀원 모집 글. 새 글이 앞이다 */
@@ -65,13 +61,12 @@ export type Action =
   | { type: 'activity/remove'; id: string }
   | { type: 'record/add'; record: RecordItem; activityId?: string }
   | { type: 'record/update'; record: RecordItem }
-  | { type: 'record/setFlags'; id: string; flags: Partial<Pick<RecordItem, 'visibility' | 'useForRecommend' | 'confirmedAxes'>> }
+  | { type: 'record/setFlags'; id: string; flags: Partial<Pick<RecordItem, 'visibility' | 'useForRecommend' | 'confirmedAxes' | 'rejectedAxes'>> }
   | { type: 'record/delete'; id: string }
   | { type: 'draft/save'; activityId: string; draft: InterviewDraft }
   | { type: 'draft/clear'; activityId: string }
   | { type: 'discovery/confirm'; discovery: Discovery; status: 'yes' | 'no' }
   | { type: 'analysis/answers'; answers: EdgeAnswers }
-  | { type: 'analysis/self'; self: Record<Axis, Level> }
   | { type: 'challenge/achieve'; ids: string[]; at: number }
   | { type: 'recruit/post'; post: RecruitPost }
   | { type: 'settings/toggle'; key: keyof Settings }
@@ -106,13 +101,9 @@ export const INITIAL_STATE: AppState = {
   reqEvidence: INITIAL_REQ_EVIDENCE,
   drafts: {},
   edgeAnswers: {},
-  selfLevels: INITIAL_SELF,
   challengeAt: {},
   recruitPosts: []
 };
-
-/** '내 생각'을 아직 적지 않은 새 학생의 기본값 */
-const NEUTRAL_SELF: Record<Axis, Level> = { expertise: 'mid', problem: 'mid', communication: 'mid', collaboration: 'mid', self: 'mid', creative: 'mid' };
 
 /** 처음 연 앱과 가입 인터뷰를 마친 새 학생: 활동·기록·도전 과제·친구 0, 기회(추천 후보)만 있다 */
 export const NEW_STUDENT_STATE: AppState = {
@@ -121,12 +112,11 @@ export const NEW_STUDENT_STATE: AppState = {
   profile: EMPTY_PROFILE,
   activities: [],
   records: [],
-  reqEvidence: {},
-  selfLevels: NEUTRAL_SELF
+  reqEvidence: {}
 };
 
 /** 학생 데이터 조각(활동·기록·고른 것·답한 것)만 예시 또는 빈 값으로 바꾼다 */
-const DATA_KEYS = ['activities', 'records', 'reqEvidence', 'selfLevels', 'choices', 'laterUntil', 'dislikedFields', 'preferEasier', 'confirm', 'lastDone', 'drafts', 'edgeAnswers', 'challengeAt', 'recruitPosts'] as const;
+const DATA_KEYS = ['activities', 'records', 'reqEvidence', 'choices', 'laterUntil', 'dislikedFields', 'preferEasier', 'confirm', 'lastDone', 'drafts', 'edgeAnswers', 'challengeAt', 'recruitPosts'] as const;
 export const dataOf = (demo: boolean): Pick<AppState, (typeof DATA_KEYS)[number] | 'demo'> => {
   const base = demo ? INITIAL_STATE : NEW_STUDENT_STATE;
   return { demo, ...Object.fromEntries(DATA_KEYS.map(k => [k, base[k]])) } as Pick<AppState, (typeof DATA_KEYS)[number] | 'demo'>;
@@ -232,8 +222,6 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, confirm: nextConfirm(state.confirm, action.discovery, action.status) };
     case 'analysis/answers':
       return { ...state, edgeAnswers: action.answers };
-    case 'analysis/self':
-      return { ...state, selfLevels: action.self };
     case 'challenge/achieve': {
       const fresh = action.ids.filter(id => !(id in state.challengeAt));
       if (!fresh.length) return state;
