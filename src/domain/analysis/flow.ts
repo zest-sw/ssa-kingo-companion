@@ -38,6 +38,16 @@ export function clampRange([from, to]: FlowRange, last: number): FlowRange {
   return [Math.max(0, Math.min(from, hi)), hi];
 }
 
+/**
+ * 처음 보여 줄 구간: 첫 기록 학기부터 끝까지. 첫 기록 앞의 빈 학기가 그래프를 차지하지 않게 하고, 넓히고 싶으면 슬라이더로 당긴다.
+ * 기록이 하나도 없으면 축 전체.
+ */
+export function defaultRange(rows: FlowRow[]): FlowRange {
+  const last = Math.max(0, rows.length - 1);
+  const first = rows.findIndex(r => r.total > 0);
+  return [first < 0 ? 0 : first, last];
+}
+
 /** 슬라이더 하나를 옮긴다. 반대쪽 끝이 밀려나서 구간이 뒤집히지 않는다. */
 export function moveRange(range: FlowRange, which: 'from' | 'to', value: number, last: number): FlowRange {
   return clampRange(which === 'from' ? [value, Math.max(value, range[1])] : [Math.min(range[0], value), value], last);
