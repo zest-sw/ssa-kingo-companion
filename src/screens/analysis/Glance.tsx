@@ -69,4 +69,3 @@ export function StrengthPic({ rows }: { rows: StrengthRow[] }) {
   );
 }
 
-export const EmptyPic = ({ text }: { text: string }) => <span className="an-glance__empty">{text}</span>;
