@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button, Icon, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
+import { Button, EmptyState, Icon, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
 import { navigate } from '../../app/router';
 import { openEntity } from '../../app/entity';
 import { useApp } from '../../app/AppState';
 import { useOverviewState } from '../../app/useOverviewState';
 import { CURRENT_TERM } from '../../data/records';
+import { DashedPic } from '../activities/DashedPic';
 import { AddRecordModal } from './AddRecordModal';
 import { Archive } from './Archive';
 import { mapDots, mapRows, mapTerms } from './map';
@@ -28,6 +29,9 @@ export function Overview() {
   const [sel, setSel] = useOverviewState<Sel>('activities/records', { view: 'map' }, isSel);
   const [adding, setAdding] = useState(false);
   const pending = state.activities.filter(a => a.status === 'ended');
+  const step = nextStep(state.activities);
+  const rows = mapRows(state.records);
+  const cols = mapTerms(state.records, CURRENT_TERM.semester);
 
   // 회고를 막 저장하고 왔으면 새 기록의 점을 표시한다.
   useEffect(() => {
@@ -61,20 +65,20 @@ export function Overview() {
         {sel.view === 'archive' && state.records.length > 0 ? (
           <Archive records={state.records} selectedId={focus} onOpen={open} />
         ) : (
-          <section className="rm-card" aria-labelledby="rm-title">
+          <section className={`rm-card${state.records.length === 0 ? ' rm-card--empty' : ''}`} aria-labelledby="rm-title">
             <div className="rm-card__head">
               <h2 id="rm-title" className="rm-card__title">기록 지도</h2>
               <Legend items={LEGEND} />
             </div>
-            <RecordMap
-              label="기록 지도"
-              rows={mapRows(state.records)}
-              cols={mapTerms(state.records, CURRENT_TERM.semester)}
-              items={mapDots(state.records)}
-              selectedId={focus}
-              onSelect={open}
-              empty={pending.length ? '위의 회고 쓰기를 누르면 첫 기록이 점으로 생겨요.' : `${nextStep(state.activities).lead} 분야·학기 칸에 점이 찍혀요.`}
-            />
+            {state.records.length === 0 ? (
+              <EmptyState
+                pic={<DashedPic kind="map" labels={rows.map(r => r.label)} cols={cols.map(c => c.label)} />}
+                message={`${step.lead} 분야·학기 칸에 점이 찍혀요.`}
+                action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>}
+              />
+            ) : (
+              <RecordMap label="기록 지도" rows={rows} cols={cols} items={mapDots(state.records)} selectedId={focus} onSelect={open} />
+            )}
           </section>
         )}
       </div>

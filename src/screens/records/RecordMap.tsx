@@ -5,8 +5,8 @@ import type { DotItem, GridAxisItem } from '../../components';
  * 기록 지도: 가로 = 학기, 세로 = 분야 묶음, 점 = 기록. 점마다 기록 이름을 바로 붙인다(직접 라벨).
  * 채운 점 = 학교 확인, 테두리 점 = 직접 입력. 점을 누르면 오른쪽 보관함에서 그 기록이 펼쳐진다.
  */
-export function RecordMap({ label, rows, cols, items, selectedId, onSelect, empty }: {
-  label: string; rows: GridAxisItem[]; cols: GridAxisItem[]; items: DotItem[]; selectedId?: string; onSelect: (id: string) => void; empty: string;
+export function RecordMap({ label, rows, cols, items, selectedId, onSelect }: {
+  label: string; rows: GridAxisItem[]; cols: GridAxisItem[]; items: DotItem[]; selectedId?: string; onSelect: (id: string) => void;
 }) {
   return (
     <div className="rm" role="group" aria-label={label} style={{ gridTemplateColumns: `fit-content(var(--rm-label-w)) repeat(${cols.length}, minmax(0, 1fr))`, gridTemplateRows: `auto repeat(${rows.length}, minmax(var(--rm-row-min), 1fr))` }}>
@@ -30,7 +30,6 @@ export function RecordMap({ label, rows, cols, items, selectedId, onSelect, empt
           ))}
         </Fragment>
       ))}
-      {items.length === 0 && <p className="rm__empty">{empty}</p>}
     </div>
   );
 }
