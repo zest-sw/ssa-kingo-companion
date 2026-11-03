@@ -1,8 +1,12 @@
 /* 전역 기본값. 컴포넌트 스타일은 src/components/components.css, 틀은 src/app/app.css. */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+/* 페이지는 스크롤하지 않는다. 앱 틀(.app)이 창을 정확히 채우고, 넘치는 내용은 본문 칸(.app-main)이나 그 안 칸이 스크롤한다. */
+html { -webkit-text-size-adjust: 100%; height: 100%; overflow: hidden; }
+#root { height: 100%; }
 body {
   margin: 0;
+  height: 100%;
+  overflow: hidden;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
@@ -31,6 +35,39 @@ img, svg { display: block; }
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
+/* 스크롤바: 모든 칸이 같은 모양. 얇게(6px), 트랙 투명, 화살표 없음. 칸에 올리거나 스크롤하는 동안(data-scrolling, src/app/scrolling.ts)만 진하게.
+   Chromium·Safari 는 ::-webkit-scrollbar 로, Firefox 는 표준 속성으로 그린다(Chromium 은 표준 속성이 있으면 ::-webkit 을 무시해서 나눈다). */
+::-webkit-scrollbar { width: var(--scrollbar-size); height: var(--scrollbar-size); background: transparent; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+::-webkit-scrollbar-thumb { border-radius: var(--radius-full); background: var(--scrollbar-thumb); }
+:hover::-webkit-scrollbar-thumb, [data-scrolling]::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-active); }
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
+  :hover, [data-scrolling] { scrollbar-color: var(--scrollbar-thumb-active) transparent; }
+}
+
+/* 칸 안 스크롤 + 위·아래 가장자리 옅은 그림자로 '더 있음'(스크롤 위치에 따라 나타나고 사라진다).
+   그림자는 칸 바탕(--os-cover)으로 덮었다가 끝에 닿으면 드러나는 방식이라, 흰 카드가 아닌 바탕에서는 --os-cover 를 바꾼다. */
+.os-scroll {
+  --os-cover: var(--surface);
+  overflow-y: auto; min-height: 0; overscroll-behavior: contain;
+  background:
+    linear-gradient(var(--os-cover) 30%, transparent) center top / 100% var(--space-4) no-repeat local,
+    linear-gradient(transparent, var(--os-cover) 70%) center bottom / 100% var(--space-4) no-repeat local,
+    linear-gradient(var(--scroll-shade), transparent) center top / 100% var(--scroll-shade-h) no-repeat scroll,
+    linear-gradient(transparent, var(--scroll-shade)) center bottom / 100% var(--scroll-shade-h) no-repeat scroll;
+}
+/* 카드 밖(페이지 바탕 위)에서 스크롤하는 칸 */
+.os-scroll--page { --os-cover: var(--bg); }
+/* 칸 안 스크롤은 넘친 부분을 잘라서 바깥 링이 가장자리에서 잘린다. 안쪽 링으로 바꿔 끝 줄에서도 보이게 한다. */
+.os-scroll :focus-visible { box-shadow: var(--focus-ring-inset); }
+
+/* 높이 760 이상에서만 보이는 보조 줄(설명 문장, 두 번째 메타 등). 꼭 필요한 정보에는 쓰지 않는다 */
+@media (max-height: 759px) {
+  .only-tall { display: none !important; }
+}
+
 .num { font-variant-numeric: tabular-nums; }
 .readable { max-width: var(--readable); }
 

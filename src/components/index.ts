@@ -11,6 +11,7 @@ export { FieldTag } from './FieldTag';
 export { Icon, ICON_NAMES, type IconName } from './Icon';
 export { Modal } from './Modal';
 export { PageHeader } from './PageHeader';
+export { onPageScroll, pageScroller, pageScrollTop, setPageScrollTop } from './pageScroll';
 export { ProgressBar } from './ProgressBar';
 export { Stat } from './Stat';
 export { SummaryCard } from './SummaryCard';

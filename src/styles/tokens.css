@@ -110,6 +110,23 @@
   --drawer-width: 480px;
   --modal-width: 420px;
   --readable: 72ch;
+  /* 본문 칸 안쪽 여백(위·옆·아래). 높이 760 아래에서 한 단계 줄어든다 */
+  --main-pad-t: var(--space-8);
+  --main-pad-x: var(--space-10);
+  --main-pad-b: var(--space-12);
+  /* 카드 안쪽 여백과 카드 머리 아래 간격 */
+  --card-pad: var(--space-5);
+  --card-head-gap: var(--space-4);
+  /* 이 높이보다 작은 창에서는 줄이거나 숨기지 않고 본문 칸이 스크롤한다 */
+  --app-min-h: 600px;
+
+  /* 스크롤바: 얇게, 트랙 투명. 칸에 올리거나 스크롤하는 동안만 진하게 */
+  --scrollbar-size: 6px;
+  --scrollbar-thumb: rgb(11 14 18 / 0.14);
+  --scrollbar-thumb-active: rgb(11 14 18 / 0.32);
+  /* 스크롤 칸 위·아래 가장자리 '더 있음' 그림자 */
+  --scroll-shade: rgb(11 14 18 / 0.08);
+  --scroll-shade-h: var(--space-2);
 
   /* 다이어그램(src/components/diagram). 조각은 보이는 모양이 작아도 누르는 칸은 --hit-min 이다. */
   --dg-track: var(--bg-sunken);
@@ -139,4 +156,23 @@
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --z-overlay: 50;
   --z-toast: 60;
+}
+
+/* 높이별 밀도 한 단계(노트북 배율: 1280×640, 1366×650, 1536×730). 머리·카드 여백·큰 글자·메뉴 줄을 한 단계 줄인다.
+   본문(14px)과 그 아래 글자, 클릭 대상 32px 은 줄이지 않는다. */
+@media (max-height: 759px) {
+  :root {
+    --text-lg: 15px;
+    --text-xl: 16px;
+    --text-2xl: 18px;
+    --text-3xl: 20px;
+    --text-4xl: 24px;
+    --main-pad-t: var(--space-5);
+    --main-pad-x: var(--space-8);
+    --main-pad-b: var(--space-5);
+    --card-pad: var(--space-4);
+    --card-head-gap: var(--space-3);
+    --nav-item-h: var(--hit-min);
+    --dg-row-h: 36px;
+  }
 }

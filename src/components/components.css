@@ -28,10 +28,10 @@
 .ui-icon-btn:hover { background: var(--surface-hover); color: var(--ink); }
 
 /* Card */
-.ui-card { background: var(--surface); border: var(--border); border-radius: var(--radius-lg); padding: var(--space-5); min-width: 0; }
+.ui-card { background: var(--surface); border: var(--border); border-radius: var(--radius-lg); padding: var(--card-pad); min-width: 0; }
 .ui-card--md { padding: var(--space-4); }
 .ui-card--alt { background: var(--surface-alt); }
-.ui-card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
+.ui-card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--card-head-gap); }
 .ui-card__title { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .ui-card__action { display: flex; align-items: center; gap: var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
 
@@ -200,7 +200,7 @@
 
 /* SummaryCard: 요약 화면의 카드. 이름 한 줄 → 그 학생의 데이터를 그린 그림(남은 높이) → 키워드 한 줄 + 값 한 줄 */
 .ui-sum {
-  display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; min-height: 0; padding: var(--space-4) var(--space-5);
+  display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; min-height: 0; padding: var(--space-4) var(--card-pad);
   background: var(--surface); border: var(--border); border-radius: var(--radius-lg); color: var(--ink); text-decoration: none;
 }
 .ui-sum--link { transition: border-color var(--duration) var(--ease), background var(--duration) var(--ease); }
@@ -213,3 +213,4 @@
 .ui-sum__text { margin-top: auto; display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); min-width: 0; }
 .ui-sum__headline { min-width: 0; font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); overflow-wrap: anywhere; }
 .ui-sum__value { flex: none; color: var(--ink-muted); font-size: var(--text-sm); }
+
