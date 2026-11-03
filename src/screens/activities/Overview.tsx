@@ -26,7 +26,7 @@ export function Overview() {
   return (
     <div className="os">
       <PageHeader title="내 활동" />
-      <div className="os__body os__body--fill act-sum">
+      <div className="os__body act-sum">
         {empty ? (
           // 첫 사용: 같은 세 칸에 그림 틀만 두고, 다음 행동은 첫 칸 한 곳에
           <div className="act-now">

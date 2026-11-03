@@ -83,9 +83,9 @@
 }
 
 /* 내 활동 요약: 위 = 지금 상태 세 칸, 아래 = 일정·기록 카드(그림이 남은 높이를 채운다) */
-.act-sum { grid-template-rows: minmax(0, 1fr); }
-.act-now { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) minmax(0, 0.8fr); gap: var(--os-gap); min-height: 0; }
-.act-now__pic { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: var(--space-3); }
+.act-sum { grid-template-rows: auto; }
+.act-now { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) minmax(0, 0.8fr); gap: var(--os-gap); align-items: stretch; }
+.act-now__pic { display: flex; flex-direction: column; gap: var(--space-3); }
 .act-now__far { margin: 0; color: var(--ink-muted); font-size: var(--text-xs); }
 
 /* 상태 막대 */
@@ -129,4 +129,3 @@
 
 /* 일정 첫 화면(이번 달): 넘친 줄이 있다는 안내 한 줄 */
 .act-more { margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-sm); }
-.act-retro .ui-card__head + .act-retro__cell, .act-retro .ui-card__head + .act-retro__none { margin-block: auto; }
