@@ -3,7 +3,7 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Badge, Button, Card, Chip, Drawer, EmptyState, FieldTag, Funnel, PageHeader, SegmentedControl } from '../../components';
+import { Badge, Button, Card, Chip, Drawer, EmptyState, FieldTag, Funnel, PageHeader } from '../../components';
 import { CATALOG } from '../../data/catalog';
 import { filterLabels, isEmptyFilter, matchesAsk, withoutKey, type AskFilter } from '../../domain/recommend-flow/ask';
 import { funnelDrops, isStepId, STEP_IDS, STEP_LABEL, type StepId } from '../../domain/recommend-flow/drops';
@@ -11,23 +11,22 @@ import { effectiveChoices, emptyReason } from '../../domain/recommend-flow/flow'
 import { pickingLine } from '../../domain/recommend-flow/summary';
 import { takeListIntent, type ListIntent } from '../../domain/recommend-flow/intent';
 import type { Field } from '../../domain/types';
-import { CandidateDetail, type CardActions } from './CandidateDetail';
+import type { CardActions } from './actions';
+import { CandidateCard } from './CandidateCard';
 import { CandidateList } from './CandidateList';
 import { CompareView } from './CompareView';
-import { FunnelMini } from './FunnelMini';
 
 type Sel = { step: StepId | null };
 const isSel = (v: unknown): v is Sel => typeof v === 'object' && v !== null && (('step' in v) && ((v as Sel).step === null || isStepId((v as Sel).step)));
 type Mode = 'detail' | 'table';
-const MODES: { id: Mode; label: string }[] = [{ id: 'detail', label: '목록·상세' }, { id: 'table', label: '비교 표' }];
 
-type Props = { selectId?: string; actions: CardActions; onOpenLater: () => void };
+type Props = { actions: CardActions; onOpenLater: () => void };
 
 /**
- * 추천 한 화면(1440×900 스크롤 없음): 머리에 고른 방법 깔때기, 왼쪽 후보 목록(가장 추천이 맨 위), 오른쪽 선택한 후보 상세와 고정 행동.
- * 비교 표는 같은 후보를 다르게 보는 보기 전환이다. 홈의 질문은 필터 칩으로, '#/recommend/<id>' 는 그 후보를 고른 채로 들어온다.
+ * ① 고르기: 왼쪽 후보 목록(행마다 제목·분야·D-n), 오른쪽 고른 후보의 짧은 카드. 고른 방법 깔때기는 서랍, 비교 표는 보조 보기로 접어 둔다.
+ * 홈의 질문은 필터 칩으로 들어온다. 후보 자세히는 #/recommend/<id>.
  */
-export function Overview({ selectId, actions, onOpenLater }: Props) {
+export function Overview({ actions, onOpenLater }: Props) {
   const { state, view } = useApp();
   const [sel, setSel] = useOverviewState<Sel>('recommend', { step: null }, isSel);
   const f = view.funnel;
@@ -37,7 +36,7 @@ export function Overview({ selectId, actions, onOpenLater }: Props) {
   const [intent] = useState<ListIntent>(() => takeListIntent() ?? {});
   const [filter, setFilter] = useState<AskFilter>(intent.filter ?? {});
   const [mode, setMode] = useState<Mode>(intent.view ?? 'detail');
-  const [picked, setPicked] = useState<string | undefined>(selectId ?? intent.select);
+  const [picked, setPicked] = useState<string | undefined>(intent.select);
 
   const drops = useMemo(() => funnelDrops({
     programs: CATALOG.programs, week: state.week, time: state.profile.time, format: state.profile.format,
@@ -59,7 +58,6 @@ export function Overview({ selectId, actions, onOpenLater }: Props) {
   }, [filtering, matched, view.scored, view.primary]);
   // 처음 열면 가장 추천이 골라진 상태다.
   const current = list.find(s => s.p.id === picked) ?? list[0];
-  const missing = selectId !== undefined && !view.scored.some(s => s.p.id === selectId);
 
   const none = view.scored.length === 0;
 
@@ -81,8 +79,8 @@ export function Overview({ selectId, actions, onOpenLater }: Props) {
   } else {
     body = (
       <div className="os__body os__body--fill rec-split">
-        <CandidateList list={list} primaryId={view.primary?.p.id} currentId={current?.p.id} week={state.week} onPick={setPicked} heading={filtering ? `맞는 후보 ${list.length}개` : `후보 ${list.length}개`} />
-        {current && <CandidateDetail key={current.p.id} primary={current} isPrimary={current.p.id === view.primary?.p.id} week={state.week} records={state.records} activities={state.activities} actions={actions} />}
+        <CandidateList list={list} currentId={current?.p.id} week={state.week} onPick={setPicked} heading={filtering ? `맞는 후보 ${list.length}개` : `후보 ${list.length}개`} />
+        {current && <CandidateCard key={current.p.id} pick={current} isPrimary={current.p.id === view.primary?.p.id} week={state.week} records={state.records} actions={actions} />}
       </div>
     );
   }
@@ -93,13 +91,12 @@ export function Overview({ selectId, actions, onOpenLater }: Props) {
         title="추천"
         actions={
           <>
-            {!none && <FunnelMini funnel={f} onOpen={() => setFunnelOpen(true)} />}
             {view.later.length > 0 && <Button variant="ghost" onClick={onOpenLater}>나중에 보기 <Badge>{view.later.length}</Badge></Button>}
-            {!none && <SegmentedControl label="보기 전환" items={MODES} value={mode} onChange={setMode} />}
+            {!none && <Button variant="ghost" onClick={() => setFunnelOpen(true)} aria-haspopup="dialog">고른 방법</Button>}
+            {!none && <Button variant="ghost" aria-pressed={mode === 'table'} onClick={() => setMode(mode === 'table' ? 'detail' : 'table')}>{mode === 'table' ? '목록으로' : '비교 표'}</Button>}
           </>
         }
       />
-      {missing && <p className="rec-muted rec-note">찾던 후보는 이미 골랐거나 이번 주 후보가 아니에요. 아래 후보에서 골라 주세요.</p>}
       {filtering && (
         <div className="rec-filter" role="group" aria-label="걸러 본 조건">
           {filterLabels(filter).map(c => <Chip key={c.key} selected icon="x" aria-label={`${c.label} 조건 빼기`} onClick={() => setFilter(withoutKey(filter, c.key))}>{c.label}</Chip>)}

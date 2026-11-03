@@ -6,7 +6,7 @@ import { checksOf, dateLabel, formatText, isNearDeadline, prepItemsFor } from '.
 import { ddayText } from '../../domain/text';
 import type { Activity, Interest, Program, RecordItem, Scored } from '../../domain/types';
 import { DID_LABEL, fieldName } from '../../domain/vocab';
-import type { CardActions } from './CandidateDetail';
+import type { CardActions } from './actions';
 
 const MAX_COLUMNS = 5;
 

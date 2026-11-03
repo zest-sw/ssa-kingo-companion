@@ -20,8 +20,8 @@ describe('parseRecommendSub', () => {
     expect(parseRecommendSub('compare')).toEqual({ view: 'compare' });
     expect(parseRecommendSub('prepare/p-chatbot')).toEqual({ view: 'prepare', programId: 'p-chatbot' });
   });
-  it('활동 id 하나만 있으면 그 후보를 연 가장 추천 보기', () => {
-    expect(parseRecommendSub('p-chatbot')).toEqual({ view: 'top', programId: 'p-chatbot' });
+  it('활동 id 하나만 있으면 그 후보의 자세히 화면', () => {
+    expect(parseRecommendSub('p-chatbot')).toEqual({ view: 'detail', programId: 'p-chatbot' });
     expect(candidateHref('p-chatbot')).toBe('recommend/p-chatbot');
   });
   it('prepare 만 있고 활동 id 가 없으면 가장 추천 보기', () => {
