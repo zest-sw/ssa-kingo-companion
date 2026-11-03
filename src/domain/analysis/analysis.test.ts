@@ -254,11 +254,19 @@ describe('재작업: 화면에서 옮긴 계산', () => {
     expect(t.candidates).toHaveLength(4);
     expect(ai.unknown).toBe(true);
   });
-  it('테크 트리: 한 단계에 한 활동이 이미 많으면 후보는 단계 노드 수 상한까지만 그린다', () => {
+  it('테크 트리: 한 단계가 넘치면 +n 자리를 남기고 접는다. 오래된 한 활동부터 접고 마감 걸린 추천은 남긴다', () => {
     const candidates = ['p1', 'p2'].map((id, i) => ({ program: prog(id, { field: 'data', did: ['make'] }), dday: i }));
-    const records = ['a', 'b', 'c'].map(id => rec(id, { field: 'data', did: 'make' }));
+    const records = ['a', 'b', 'c'].map((id, i) => rec(id, { field: 'data', did: 'make', semester: `2026-${i ? 2 : 1}` }));
     const ai = buildTechTree({ records, activities: [], candidates }).rows.find(r => r.group === 'ai')!;
-    expect(ai.cells.filter(c => c.col === 2)).toHaveLength(NODES_PER_STAGE);
-    expect(ai.cells.filter(c => c.kind === 'candidate')).toHaveLength(1);
+    expect(ai.cells.filter(c => c.col === 2).map(c => c.id)).toEqual(['r:c', 'p:p1', 'p:p2']);
+    expect(ai.folds).toEqual([{ col: 2, cells: [expect.objectContaining({ id: 'r:a' }), expect.objectContaining({ id: 'r:b' })] }]);
+    expect(ai.cells.length + ai.folds[0].cells.length).toBe(5);
+    expect(NODES_PER_STAGE).toBe(ai.cells.length + 1);
+  });
+  it('테크 트리: 후보가 한 단계 상한보다 많으면 마감 먼 후보가 접힌다', () => {
+    const candidates = ['p1', 'p2', 'p3'].map((id, i) => ({ program: prog(id, { field: 'data', did: ['make'] }), dday: 3 - i }));
+    const ai = buildTechTree({ records: [], activities: [], candidates }).rows.find(r => r.group === 'ai')!;
+    expect(ai.cells.map(c => c.id)).toEqual(['p:p2', 'p:p3']);
+    expect(ai.folds[0].cells.map(c => c.id)).toEqual(['p:p1']);
   });
 });

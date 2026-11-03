@@ -334,5 +334,10 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
   .an-tree { --an-row-gap: var(--space-2); }
   .an-tree__stage { gap: var(--space-1); }
   .an-tree .an-pill--ongoing { margin-block: var(--an-ring); }
-  .os-scroll + .an-legend { margin-top: var(--space-2); }
+  .os-scroll + .an-legend { margin-top: var(--space-1); }
+  .an-tree .an-pill { padding-block: calc(var(--space-1) / 2); }
 }
+
+/* 한 단계에 다 못 그린 노드를 접은 '+n'. 누르면 그 분야·단계 노드 전체가 서랍으로 열린다 */
+.an-pill--more { min-width: var(--hit-min); border-color: var(--line-strong); background: var(--surface); color: var(--ink-muted); font-weight: var(--weight-medium); }
+.an-pill--more:hover { background: var(--surface-hover); color: var(--ink); }

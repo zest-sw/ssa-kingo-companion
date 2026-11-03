@@ -7,7 +7,9 @@ import { ddayText } from '../../domain/text';
  * 분야마다 왼쪽 시작점에서 오른쪽으로 뻗는 가지. 단계(들어 보기→나누기)는 칸이 아니라 위치로 읽힌다.
  * 같은 분야는 분야색 실선(추천 후보로 가는 선은 옅게), 다른 분야로 건너가는 경로는 점선.
  */
-export function TreeGraph({ tree, onOpen, onCandidate }: { tree: TechTree; onOpen: (cell: TreeCell) => void; onCandidate: (cell: TreeCell) => void }) {
+export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
+  tree: TechTree; onOpen: (cell: TreeCell) => void; onCandidate: (cell: TreeCell) => void; onFold: (row: TreeRow, col: number) => void;
+}) {
   const links = useMemo(() => treeLinks(tree), [tree]);
   const { wrap, nodeRef, paths } = useLinkPaths<HTMLDivElement>(links);
   const { drawn, untried } = splitTreeRows(tree.rows);
@@ -43,6 +45,11 @@ export function TreeGraph({ tree, onOpen, onCandidate }: { tree: TechTree; onOpe
                   {c.kind === 'candidate' && c.dday !== undefined && <span className="an-pill__dday num">{ddayText(c.dday)}</span>}
                 </button>
               ))}
+              {row.folds.filter(f => f.col === col).map(f => (
+                <button key="more" ref={nodeRef(foldId(row, col))} type="button" className="an-pill an-pill--more" aria-haspopup="dialog" onClick={() => onFold(row, col)} aria-label={`${row.label} ${name}: 노드 ${f.cells.length}개 더 보기`}>
+                  +{f.cells.length}
+                </button>
+              ))}
             </div>
           ))}
         </section>
@@ -59,6 +66,7 @@ export function TreeGraph({ tree, onOpen, onCandidate }: { tree: TechTree; onOpe
 }
 
 const rootId = (row: TreeRow) => `root:${row.group}`;
+const foldId = (row: TreeRow, col: number) => `fold:${row.group}:${col}`;
 
 /** 시작점→첫 노드, 노드→노드 선. 선 색은 도착 노드의 분야, 후보로 가는 선은 옅게. */
 function treeLinks(tree: TechTree): LinkSpec[] {
@@ -71,6 +79,14 @@ function treeLinks(tree: TechTree): LinkSpec[] {
   for (const l of tree.links) {
     const to = cellOf.get(l.to);
     if (to) out.push({ key: `${l.from}>${l.to}`, from: l.from, to: l.to, className: cls(to, l.cross) });
+  }
+  // '+n' 노드는 같은 단계의 첫 노드와 같은 곳에서 옅은 선으로 뻗는다(가지 끝에 붙어 보이게).
+  for (const row of tree.rows) {
+    for (const f of row.folds) {
+      const first = row.cells.find(c => c.col === f.col);
+      const from = (first && tree.links.find(l => !l.cross && l.to === first.id)?.from) ?? rootId(row);
+      out.push({ key: `${from}>${foldId(row, f.col)}`, from, to: foldId(row, f.col), className: `an-line an-line--soft an-g--${row.group}` });
+    }
   }
   return out;
 }

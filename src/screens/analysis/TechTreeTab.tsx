@@ -3,7 +3,7 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState, FieldTag, SegmentedControl } from '../../components';
-import { recordOfActivity, relatedRecords, TREE_COLUMNS, type TreeCell } from '../../domain/analysis/techtree';
+import { recordOfActivity, relatedRecords, TREE_COLUMNS, type TreeCell, type TreeRow } from '../../domain/analysis/techtree';
 import { josa } from '../../domain/text';
 import { ddayText } from '../../domain/text';
 import type { RecordItem } from '../../domain/types';
@@ -17,6 +17,7 @@ type View = 'graph' | 'list';
 export default function TechTreeTab({ records }: { records: RecordItem[] }) {
   const [mode, setMode] = useState<View>('graph');
   const [open, setOpen] = useState<TreeCell | null>(null);
+  const [stage, setStage] = useState<{ row: TreeRow; col: number } | null>(null);
   const tree = useTechTree(records);
   const filled = tree.rows.some(r => r.cells.some(c => c.kind !== 'candidate'));
   // 후보 노드는 어디서 눌러도 같은 기회 서랍이 열린다. 서랍의 '자세히 보기'가 추천 화면으로 간다.
@@ -32,7 +33,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
         <>
           <div className="os-scroll">
             {!filled && <p className="an-note an-note--top">아직 한 활동이 없어요. 후보를 눌러 신청을 준비하거나, 끝난 활동의 회고를 써 보세요.</p>}
-            <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} />
+            <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} onFold={(row, col) => setStage({ row, col })} />
           </div>
           <ul className="an-legend" aria-label="그림 표시">
             <li><span className="an-key an-key--done" aria-hidden="true" />한 활동</li>
@@ -46,6 +47,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
         <div className="os-scroll"><CandidateList cells={tree.candidates} onPick={toRecommend} /></div>
       )}
       <CellDrawer cell={open} records={records} onClose={() => setOpen(null)} />
+      <StageDrawer stage={stage} onClose={() => setStage(null)} onPick={c => { setStage(null); if (c.kind === 'candidate') toRecommend(c); else setOpen(c); }} />
     </Card>
   );
 }
@@ -69,6 +71,28 @@ function CandidateList({ cells, onPick }: { cells: TreeCell[]; onPick: (c: TreeC
         </li>
       ))}
     </ul>
+  );
+}
+
+const KIND_LABEL = { done: '한 활동', ongoing: '하는 중', candidate: '지금 신청할 수 있는 추천' } as const;
+
+/** '+n' 노드를 누르면: 그 분야·단계의 노드 전체(그린 것 + 접힌 것). 줄을 누르면 그 노드의 서랍이나 기회 서랍으로 간다. */
+function StageDrawer({ stage, onClose, onPick }: { stage: { row: TreeRow; col: number } | null; onClose: () => void; onPick: (c: TreeCell) => void }) {
+  const cells = stage ? [...stage.row.cells.filter(c => c.col === stage.col), ...(stage.row.folds.find(f => f.col === stage.col)?.cells ?? [])] : [];
+  return (
+    <Drawer open={!!stage} onClose={onClose} eyebrow={stage ? `노드 ${cells.length}개` : undefined} title={stage ? `${stage.row.label}의 ${TREE_COLUMNS[stage.col]}` : ''}>
+      <ul className="an-cands">
+        {cells.map(c => (
+          <li key={c.id}>
+            <button type="button" className="an-cand" onClick={() => onPick(c)}>
+              <span className="an-cand__main"><b>{c.label}</b><span className="an-cand__sub">{KIND_LABEL[c.kind]}</span></span>
+              {c.dday !== undefined && <Badge tone="orange">{ddayText(c.dday)}</Badge>}
+              <span className="an-cand__go">자세히</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </Drawer>
   );
 }
 
