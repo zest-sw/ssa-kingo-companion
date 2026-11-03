@@ -1,0 +1,27 @@
+/* 한 화면 틀(docs/design/ia-navigation.md 6-1절): 머리(고정 높이) → 본문(남은 높이). 페이지는 스크롤하지 않는다.
+   스크롤이 필요한 목록만 .fit__scroll 칸 안에서 스크롤하고, 위아래 경계 그림자로 더 있다는 걸 보여 준다.
+   ponytail: 앱 틀(app-main)의 위아래 여백과 같은 값을 여기서 따로 뺀다. 공용 틀로 올릴 때 합친다. */
+:root { --fit-pad-y: calc(var(--space-8) + var(--space-12)); }
+@media (max-width: 1199px) { :root { --fit-pad-y: calc(var(--space-6) + var(--space-10)); } }
+
+.fit { display: flex; flex-direction: column; height: calc(100vh - var(--fit-pad-y)); min-height: 0; }
+.fit > .ui-page-head { flex: none; margin-bottom: var(--space-4); }
+.fit__body { flex: 1; min-height: 0; display: grid; gap: var(--space-3); }
+.fit__body > * { min-width: 0; min-height: 0; }
+
+.fit__scroll {
+  --fit-cover: var(--surface);
+  overflow-y: auto; min-height: 0;
+  background:
+    linear-gradient(var(--fit-cover) 30%, transparent) center top / 100% var(--space-6) no-repeat local,
+    linear-gradient(transparent, var(--fit-cover) 70%) center bottom / 100% var(--space-6) no-repeat local,
+    radial-gradient(farthest-side at 50% 0, var(--scrim), transparent) center top / 100% var(--space-2) no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, var(--scrim), transparent) center bottom / 100% var(--space-2) no-repeat scroll;
+}
+
+/* 카드 안에서 머리는 고정하고 그림·목록 칸이 남은 높이를 채운다 */
+.fit-card { display: flex; flex-direction: column; min-height: 0; }
+.fit-card > .fit__scroll { flex: 1; }
+.fit__body { grid-template-rows: minmax(0, 1fr); }
+/* 카드 밖(페이지 바탕 위)에서 스크롤하는 칸 */
+.fit__scroll--page { --fit-cover: var(--bg); }
