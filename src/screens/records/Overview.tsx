@@ -7,7 +7,7 @@ import { useOverviewState } from '../../app/useOverviewState';
 import { CURRENT_TERM } from '../../data/records';
 import { AddRecordModal } from './AddRecordModal';
 import { Archive } from './Archive';
-import { mapDots, mapRows, mapTerms } from './map';
+import { mapDots, mapRows, mapTerms, splitMapRows } from './map';
 import { RecordMap } from './RecordMap';
 import { takeMapFocus } from './mapFocus';
 import { nextStep } from '../../domain/nextStep';
@@ -30,6 +30,7 @@ export function Overview() {
   const pending = state.activities.filter(a => a.status === 'ended');
   const step = nextStep(state.activities);
   const rows = mapRows(state.records);
+  const { drawn, empty } = splitMapRows(state.records);
   const cols = mapTerms(state.records, CURRENT_TERM.semester);
 
   // 회고를 막 저장하고 왔으면 새 기록의 점을 표시한다.
@@ -76,7 +77,7 @@ export function Overview() {
                 action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>}
               />
             ) : (
-              <RecordMap label="기록 지도" rows={rows} cols={cols} items={mapDots(state.records)} selectedId={focus} onSelect={open} />
+              <RecordMap label="기록 지도" rows={drawn} empty={empty} cols={cols} items={mapDots(state.records)} selectedId={focus} onSelect={open} />
             )}
           </section>
         )}

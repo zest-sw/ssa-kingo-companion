@@ -20,7 +20,6 @@
   --rec-label-w: 52px;
   --rec-mark: 3px;
   --rm-label-w: 96px;
-  --rm-row-min: 44px;
   --rm-dot: 10px;
   --rm-line-w: 1.5px;
   --rec-empty-max: 640px;
@@ -151,13 +150,16 @@
 /* 기록 화면: 지도(주인공) + 보관함 */
 .rec-home { grid-template-columns: minmax(0, 1fr); }
 
-.rm-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) var(--space-5) var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.rm-card { align-self: start; display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) var(--space-5) var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
 .rm-card__head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
 .rm-card__title { font-size: var(--text-lg); font-weight: var(--weight-bold); }
 
 /* 기록 지도: 칸 선 없이 학기 흐름 위에 분야별 점·이름. 학기 이름은 위 한 줄 눈금, 같은 분야의 앞뒤 기록은 분야색 선으로 잇는다. */
-.rm { flex: 1; min-height: 0; display: grid; position: relative; }
+.rm { display: grid; row-gap: var(--space-3); position: relative; }
 .rm__lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+/* 기록 없는 분야를 모은 한 줄. 분야 이름 열부터 시작한다 */
+.rm__empty { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--space-3); padding-top: var(--space-1); color: var(--ink-subtle); font-size: var(--text-sm); }
+.rm__empty b { color: var(--ink-muted); font-weight: var(--weight-medium); }
 .rm__line { fill: none; stroke: var(--t); stroke-width: var(--rm-line-w); }
 .rm__col { display: flex; align-items: center; gap: var(--space-2); padding: 0 0 var(--space-2) var(--space-2); font-size: var(--text-sm); color: var(--ink-subtle); white-space: nowrap; }
 .rm__col::after { content: ''; flex: 1; border-top: 1px solid var(--line); }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_RECORDS } from '../../data/seed';
-import { mapDots, mapLinks, mapRows, mapTerms, previousTerm } from './map';
+import { mapDots, mapLinks, mapRows, mapTerms, previousTerm, splitMapRows } from './map';
 
 describe('previousTerm', () => {
   it('같은 해 안', () => { expect(previousTerm('2026-2')).toBe('2026-여름'); expect(previousTerm('2026-여름')).toBe('2026-1'); });
@@ -45,5 +45,14 @@ describe('mapLinks', () => {
   });
   it('빈 학기는 건너뛰고 잇는다', () => {
     expect(mapLinks([dot('a', 'ai', '2026-1'), dot('b', 'ai', '2026-2')], cols)).toEqual([{ from: 'a', to: 'b' }]);
+  });
+});
+
+describe('splitMapRows', () => {
+  it('기록 있는 분야만 줄, 나머지는 모은다', () => {
+    const r = { ...SEED_RECORDS[0], field: 'dev' as const };
+    const { drawn, empty } = splitMapRows([r]);
+    expect(drawn.map(x => x.id)).toEqual(['dev']);
+    expect(empty.map(x => x.id)).toEqual(['ai', 'plan', 'mentor', 'global']);
   });
 });

@@ -58,3 +58,10 @@ export function mapLinks(items: DotItem[], cols: GridAxisItem[]): { from: string
   }
   return out;
 }
+
+/** 기록이 있는 분야만 줄로 그리고, 기록 없는 분야는 아래 한 줄로 모은다(빈 줄이 화면을 차지하지 않게). */
+export function splitMapRows(records: RecordItem[]): { drawn: GridAxisItem[]; empty: GridAxisItem[] } {
+  const has = new Set(records.map(r => FIELD_GROUP[r.field]));
+  const rows = mapRows(records);
+  return { drawn: rows.filter(r => has.has(r.id as FieldGroup)), empty: rows.filter(r => !has.has(r.id as FieldGroup)) };
+}

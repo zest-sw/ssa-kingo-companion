@@ -4,11 +4,11 @@ import { mapLinks } from './map';
 
 /**
  * 기록 지도: 학기 흐름(가로) 위에 분야마다 점과 이름이 놓이고, 같은 분야의 앞뒤 학기 기록은 분야색 선으로 이어진다.
- * 칸 선은 그리지 않는다. 학기 이름은 위 한 줄 눈금, 분야 사이는 여백으로 나눈다.
+ * 칸 선은 그리지 않는다. 학기 이름은 위 한 줄 눈금, 분야 사이는 여백으로 나눈다. 기록 없는 분야(empty)는 줄 대신 아래 한 줄에 모은다.
  * 채운 점 = 학교 확인, 테두리 점 = 직접 입력. 점을 누르면 그 기록 서랍이 열린다.
  */
-export function RecordMap({ label, rows, cols, items, selectedId, onSelect }: {
-  label: string; rows: GridAxisItem[]; cols: GridAxisItem[]; items: DotItem[]; selectedId?: string; onSelect: (id: string) => void;
+export function RecordMap({ label, rows, empty = [], cols, items, selectedId, onSelect }: {
+  label: string; rows: GridAxisItem[]; empty?: GridAxisItem[]; cols: GridAxisItem[]; items: DotItem[]; selectedId?: string; onSelect: (id: string) => void;
 }) {
   const links = useMemo(() => {
     const tone = new Map(items.map(i => [i.id, i.tone ?? 'global']));
@@ -17,7 +17,7 @@ export function RecordMap({ label, rows, cols, items, selectedId, onSelect }: {
   const { wrap, nodeRef, paths } = useLinkPaths<HTMLDivElement>(links);
 
   return (
-    <div ref={wrap} className="rm" role="group" aria-label={label} style={{ gridTemplateColumns: `fit-content(var(--rm-label-w)) repeat(${cols.length}, minmax(0, 1fr))`, gridTemplateRows: `auto repeat(${rows.length}, minmax(var(--rm-row-min), 1fr))` }}>
+    <div ref={wrap} className="rm" role="group" aria-label={label} style={{ gridTemplateColumns: `fit-content(var(--rm-label-w)) repeat(${cols.length}, minmax(0, 1fr))`, gridTemplateRows: `auto repeat(${rows.length}, auto)${empty.length ? ' auto' : ''}` }}>
       <svg className="rm__lines" aria-hidden="true">
         {paths.map(p => <path key={p.key} d={p.d} className={p.className} />)}
       </svg>
@@ -41,6 +41,7 @@ export function RecordMap({ label, rows, cols, items, selectedId, onSelect }: {
           ))}
         </Fragment>
       ))}
+      {empty.length > 0 && <p className="rm__empty"><span>기록 없는 분야</span><b>{empty.map(e => e.label).join(' · ')}</b></p>}
     </div>
   );
 }
