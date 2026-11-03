@@ -27,8 +27,8 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
 
   return (
     <div className="an-flow">
-      <Card title="학기별 분야 비율">
-        <ol className="an-flow__rows">
+      <Card title="학기별 분야 비율" className="fit-card">
+        <div className="fit__scroll"><ol className="an-flow__rows">
           {rows.map((r, i) => (
             <li key={r.semester} className={`an-flow__row${inRange(i) ? '' : ' is-out'}`}>
               <span className="an-flow__sem">{semesterLabel(r.semester)}</span>
@@ -53,7 +53,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
               )}
             </li>
           ))}
-        </ol>
+        </ol></div>
         <Legend groups={legendGroups(rows)} />
         {rows.some(r => r.total === 0) && <p className="an-note">비어 있는 칸은 기록이 없는 학기예요. 쉬어 간 학기도 흐름의 일부예요.</p>}
         <div className="an-range">
@@ -66,7 +66,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
         </div>
       </Card>
 
-      <Card title="고른 구간" tone="alt" padding="md">
+      <Card title="고른 구간" tone="alt" padding="md" className="fit-card">
         <p className="an-muted">{semesterLabel(axis[from])}{from !== to && ` ~ ${semesterLabel(axis[to])}`}</p>
         {summary.total === 0 ? (
           <p className="an-muted an-flow__none">이 구간에는 기록이 없어요. 다른 학기를 골라 보세요.</p>

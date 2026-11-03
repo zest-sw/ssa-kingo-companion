@@ -18,8 +18,9 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
   const answer = (id: string, a: 'yes' | 'no') => setAnswers(prev => answerEdge(prev, id, a));
 
   return (
-    <div className="an-stack an-stack--lg">
+    <>
       <Card
+        className="fit-card"
         title="경험 지도"
         action={records.length === 0 ? undefined : (
           <ul className="an-legend an-legend--inline" aria-label="선 표시">
@@ -32,7 +33,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
           <EmptyState icon="records" title="아직 기록이 없어요" message="회고를 쓰면 기록이 점으로 생기고, 같은 일을 한 기록끼리 이어져요." action={<Button variant="primary" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>} />
         ) : (
           <>
-            <MapGraph map={map} answers={answers} picked={pick} onPick={setPick} />
+            <div className="an-mapbox"><MapGraph map={map} answers={answers} picked={pick} onPick={setPick} /></div>
             <p className="an-note">점이나 선을 누르면 이 연결이 맞는지 답할 수 있어요.</p>
             {map.edges.length === 0 && <p className="an-note">아직 이어질 기록이 없어요. 같은 일이나 같은 분야의 회고가 하나 더 생기면 선이 생겨요.</p>}
             {rejected.length > 0 && (
@@ -45,7 +46,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
         )}
       </Card>
       <MapDrawer pick={pick} onClose={() => setPick(null)} map={map} byId={byId} answers={answers} answer={answer} />
-    </div>
+    </>
   );
 }
 

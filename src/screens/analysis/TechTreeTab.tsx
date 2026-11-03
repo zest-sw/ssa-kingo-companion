@@ -23,13 +23,16 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
 
   return (
     <Card
+      className="fit-card"
       title="활동 지도"
       action={<SegmentedControl<View> label="보기 방식" value={mode} onChange={setMode} items={[{ id: 'graph', label: '그림으로 보기' }, { id: 'list', label: '지금 신청할 수 있는 것만' }]} />}
     >
       {mode === 'graph' ? (
         <>
-          {!filled && <p className="an-note an-note--top">아직 한 활동이 없어요. 후보를 눌러 신청을 준비하거나, 끝난 활동의 회고를 써 보세요.</p>}
-          <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} />
+          <div className="fit__scroll">
+            {!filled && <p className="an-note an-note--top">아직 한 활동이 없어요. 후보를 눌러 신청을 준비하거나, 끝난 활동의 회고를 써 보세요.</p>}
+            <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} />
+          </div>
           <ul className="an-legend" aria-label="칸 표시">
             <li><span className="an-key an-key--done" aria-hidden="true" />한 활동</li>
             <li><span className="an-key an-key--ongoing" aria-hidden="true" />하는 중</li>
@@ -37,10 +40,9 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
             <li><span className="an-key an-key--unknown" aria-hidden="true" />?</li><li className="an-legend__sub">아직 안 해 본 분야</li>
             <li><span className="an-key an-key--cross" aria-hidden="true" />다른 분야로 이어진 경로</li>
           </ul>
-          <p className="an-note">유형은 실력 단계가 아니라 활동 방식이에요. 완성률이나 단계 숫자는 없어요.</p>
         </>
       ) : (
-        <CandidateList cells={tree.candidates} onPick={toRecommend} />
+        <div className="fit__scroll"><CandidateList cells={tree.candidates} onPick={toRecommend} /></div>
       )}
       <CellDrawer cell={open} records={records} onClose={() => setOpen(null)} />
     </Card>
