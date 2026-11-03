@@ -10,7 +10,6 @@ import { upcomingItems } from '../../domain/recommend-flow/upcoming';
 import { AskBar } from './AskBar';
 import { HomePick } from './HomePick';
 import { Onboarding } from './Onboarding';
-import { Semester } from './Semester';
 import { TodayList } from './TodayList';
 import { Upcoming } from './Upcoming';
 import './home.css';
@@ -48,8 +47,7 @@ export default function HomeScreen(_props: ScreenProps) {
 
   return (
     <div className="os">
-      <PageHeader title="홈" />
-      <AskBar />
+      <PageHeader title="홈" actions={<AskBar />} />
       <div className="os__body home-grid">
         <TodayList tasks={tasks} fresh={state.activities.length === 0} />
         <Card className="home-top" aria-label="가장 추천">
@@ -59,7 +57,6 @@ export default function HomeScreen(_props: ScreenProps) {
             <EmptyState icon="compass" message="지금은 맞는 후보가 없어요. 관심 분야나 시간을 바꿔 보세요." action={<Button size="sm" onClick={() => navigate('settings/profile')}>관심 분야·시간 바꾸기</Button>} />
           )}
         </Card>
-        <Semester activities={state.activities} interests={state.profile.interests} />
         <Upcoming items={upcoming} week={state.week} />
       </div>
     </div>
