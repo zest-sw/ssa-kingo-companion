@@ -15,8 +15,10 @@ body {
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* 한국어는 낱말(어절) 단위로 줄을 바꾼다. 칸보다 긴 낱말만 글자 단위로 끊어, 긴 이름이 카드를 밀어내거나 넘치지 않게 한다
+     (anywhere 는 break-word 와 달리 flex·grid 칸의 최소 폭 계산에도 들어간다). */
   word-break: keep-all;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; }
 h1, h2, h3, h4 { font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }

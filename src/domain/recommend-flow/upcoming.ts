@@ -11,7 +11,11 @@ export const UPCOMING_FROM = 2;
 export type UpcomingKind = 'deadline' | 'activity';
 export type UpcomingTarget = { kind: 'opportunity' | 'activity'; id: string } | { path: string };
 /** label 은 접근성·툴팁용 문장, short 는 점 옆에 붙일 이름(활동 이름만. 마감은 ◆ 모양이 말한다) */
-export type UpcomingItem = { id: string; date: string; label: string; short: string; kind: UpcomingKind; target: UpcomingTarget };
+/** group 은 한 활동 묶음(같은 기회·활동이면 같은 값). 타임라인이 같은 줄에 두 표식 + 이름표 하나로 그린다 */
+export type UpcomingItem = { id: string; date: string; label: string; short: string; kind: UpcomingKind; group: string; target: UpcomingTarget };
+
+/** 점 옆 이름표는 한 줄이라 길면 콜론 앞까지만 쓴다(전체 이름은 label 과 서랍에 있다). "설문 결과로 말하기: 데이터 시각화 특강" → "설문 결과로 말하기" */
+export const shortName = (title: string) => (title.length > 14 && title.includes(':') ? title.slice(0, title.indexOf(':')).trim() : title);
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const isoAt = (offset: number, week: number) => {
@@ -42,7 +46,7 @@ export function upcomingItems(activities: Activity[], picks: Scored[], week: num
   const taken = new Set(activities.map(a => a.programId).filter((x): x is string => !!x));
   for (const a of activities) {
     const dday = a.due?.dday;
-    if (a.status === 'preparing' && within(dday)) items.push({ id: `due:${a.id}`, date: isoAt(dday, week), label: `${a.title} 마감`, short: a.title, kind: 'deadline', target: { kind: 'activity', id: a.id } });
+    if (a.status === 'preparing' && within(dday)) items.push({ id: `due:${a.id}`, date: isoAt(dday, week), label: `${a.title} 마감`, short: shortName(a.title), kind: 'deadline', group: a.programId ?? a.id, target: { kind: 'activity', id: a.id } });
   }
   for (const { p } of picks) {
     if (!taken.has(p.id)) items.push(...programItems(p, week));
@@ -53,8 +57,9 @@ export function upcomingItems(activities: Activity[], picks: Scored[], week: num
 function programItems(p: Program, week: number): UpcomingItem[] {
   const out: UpcomingItem[] = [];
   const d = ddayOf(p, week);
-  if (within(d)) out.push({ id: `due:${p.id}`, date: isoAt(d, week), label: `${p.title} 마감`, short: p.title, kind: 'deadline', target: { kind: 'opportunity', id: p.id } });
   const at = whenOffset(p.when, week);
-  if (within(at)) out.push({ id: `on:${p.id}`, date: isoAt(at, week), label: p.title, short: p.title, kind: 'activity', target: { kind: 'opportunity', id: p.id } });
+  // 마감과 활동 날짜가 둘 다 있으면 이름은 뒤쪽 ●에만 붙인다. 한 활동이 한 줄에 두 표식으로 보이고 이름표가 두 번 나오지 않는다.
+  if (within(d)) out.push({ id: `due:${p.id}`, date: isoAt(d, week), label: `${p.title} 마감`, short: within(at) ? '' : shortName(p.title), kind: 'deadline', group: p.id, target: { kind: 'opportunity', id: p.id } });
+  if (within(at)) out.push({ id: `on:${p.id}`, date: isoAt(at, week), label: p.title, short: shortName(p.title), kind: 'activity', group: p.id, target: { kind: 'opportunity', id: p.id } });
   return out;
 }

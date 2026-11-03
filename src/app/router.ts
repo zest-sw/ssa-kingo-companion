@@ -48,6 +48,7 @@ const MOVED: Record<string, string> = {
   records: 'activities/records',
   'activities/board': 'activities/schedule/board',
   'activities/list': 'activities/schedule/list',
+  'activities/interview': 'activities/records/interview',
   'recommend/list': 'recommend',
   'recommend/compare': 'recommend'
 };

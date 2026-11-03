@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import {
-  Badge, Button, Card, Chip, ConfirmDot, ConfirmLegend, CountBadge, Drawer, EmptyState, ErrorState, FieldTag, Icon, ICON_NAMES, IconButton,
+  Badge, Button, Card, Chip, ConfirmDot, ConfirmLegend, CountBadge, Drawer, EmptyState, ErrorState, FieldTag, GhostPic, Icon, ICON_NAMES, IconButton,
   LoadingState, Modal, PageHeader, ProgressBar, SegmentedControl, Stat, Switch, TabPanel, Tabs, Toast, useToast
 } from '../../components';
 import type { Field } from '../../domain/types';
@@ -132,8 +132,9 @@ function KitOverview({ sub }: ScreenProps) {
         <Card padding="md" className="kit-card" title={LONG}><FieldTag field="global" /></Card>
       </Section>
 
-      <Section title="EmptyState · ErrorState · LoadingState" usage="<EmptyState message='…해 보세요.' action={…} />">
+      <Section title="EmptyState · ErrorState · LoadingState" usage="<EmptyState pic={<GhostPic kind='bars' />} message='…해 보세요.' action={…} />  (그림 틀은 옅은 점선 윤곽, 속은 비운다)">
         <Card padding="md" className="kit-card"><EmptyState message="아직 회고 대기 활동이 없어요. 끝난 활동이 생기면 여기서 바로 회고를 쓸 수 있어요." action={<Button size="sm" onClick={() => navigate('recommend')}>추천 보기</Button>} /></Card>
+        <Card padding="md" className="kit-card"><EmptyState pic={<GhostPic kind="bars" labels={['할 것', '하는 중', '끝난 것']} />} message="신청 준비를 누르면 막대가 생겨요" action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>} /></Card>
         <Card padding="md" className="kit-card"><ErrorState onRetry={() => { setRetry(n => n + 1); toast(`다시 시도했어요 (${retry + 1})`); }} /></Card>
         <Card padding="md" className="kit-card"><LoadingState message="신청서 초안을 쓰는 중이에요" /></Card>
       </Section>

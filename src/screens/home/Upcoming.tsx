@@ -11,7 +11,7 @@ const LEGEND: LegendItem[] = [{ label: '마감', mark: 'diamond', tone: 'accent'
 /** 곧 있어요: 모레부터 14일 타임라인(오늘·내일은 오늘 할 일 칸). 점마다 이름을 붙이고, 누르면 그 기회·활동의 서랍이 열린다. */
 export function Upcoming({ items, week }: { items: UpcomingItem[]; week: number }) {
   const range = useMemo(() => upcomingRange(week), [week]);
-  const points: TimelineItem[] = items.map(i => ({ id: i.id, date: i.date, label: i.label, short: i.short, ...MARK[i.kind] }));
+  const points: TimelineItem[] = items.map(i => ({ id: i.id, date: i.date, label: i.label, short: i.short, group: i.group, ...MARK[i.kind] }));
   const go = (id: string) => {
     const t = items.find(i => i.id === id)?.target;
     if (!t) return;

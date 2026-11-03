@@ -9,7 +9,7 @@ export function CandidateList({ list, currentId, week, onPick, heading }: {
   list: Scored[]; currentId?: string; week: number; onPick: (id: string) => void; heading: string;
 }) {
   return (
-    <section className="rec-list" aria-label={heading}>
+    <section className="rec-list" data-fill aria-label={heading}>
       <h2 className="rec-list__head">{heading}</h2>
       <ul className="rec-cands os-scroll">
         {list.map(s => {

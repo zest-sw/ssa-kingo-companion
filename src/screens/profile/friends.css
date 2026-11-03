@@ -1,4 +1,4 @@
-:root { --fr-gate-max: 640px; --fr-avatar-lg: var(--space-12); --fr-tile-min: 120px; --fr-retro-min: 220px; --fr-hall-min: 280px; --fr-consent-min: 240px; --fr-edge: 3px; --fr-edge-quote: 2px; }
+:root { --fr-avatar-lg: var(--space-12); --fr-tile-min: 120px; --fr-retro-min: 220px; --fr-hall-min: 280px; --fr-consent-min: 240px; --fr-edge: 3px; --fr-edge-quote: 2px; }
 
 
 .fr-cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--os-gap); align-items: start; }
@@ -11,7 +11,14 @@
 .fr-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
 /* 잠금 안내 */
-.fr-gate { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-5); max-width: var(--fr-gate-max); }
+.fr-gate { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-5); }
+.fr-gate__preview { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--card-pad); border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); color: var(--ink-subtle); }
+.fr-gate__preview-title { font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.fr-gate__ghosts { display: flex; flex-direction: column; gap: var(--space-4); }
+.fr-gate__ghost { display: flex; align-items: center; gap: var(--space-3); }
+.fr-gate__ghost-dot { flex: none; width: var(--fr-avatar-lg); height: var(--fr-avatar-lg); border: 1px dashed var(--line-strong); border-radius: var(--radius-full); box-sizing: border-box; }
+.fr-gate__ghost-lines { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; flex: 1; font-size: var(--text-xs); }
+.fr-gate__ghost-line { height: var(--space-3); border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); box-sizing: border-box; }
 .fr-gate__head { display: flex; flex-direction: column; gap: var(--space-2); }
 .fr-gate__icon { display: inline-flex; color: var(--ink-muted); margin-bottom: var(--space-1); }
 .fr-gate__title { font-size: var(--text-xl); font-weight: var(--weight-bold); }
@@ -152,3 +159,6 @@
 .pf-link__title { font-weight: var(--weight-bold); }
 .pf-link__keyword { flex: 1; min-width: 0; color: var(--ink-muted); font-size: var(--text-sm); text-align: right; overflow-wrap: anywhere; }
 .pf-link .ui-icon:last-child { color: var(--ink-subtle); }
+
+/* 잠금 화면은 안내 카드와 미리보기가 각자 내용 높이 */
+.pf-sub .fr-cols--gate { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: start; }

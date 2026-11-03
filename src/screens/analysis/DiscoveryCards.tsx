@@ -22,15 +22,15 @@ function Converge({ pic }: { pic: DiscoveryPic }) {
         const y = PAD + ROW_H * i + ROW_H / 2;
         return (
           <g key={e.id}>
-            <line x1={134} y1={y} x2={170} y2={mid} className="an-dpic__line" />
+            <line x1={150} y1={y} x2={186} y2={mid} className="an-dpic__line" />
             <circle cx={6} cy={y} r={4} className="an-dpic__dot" />
             <text x={16} y={y} dominantBaseline="central" className="an-dpic__label">{e.label}</text>
           </g>
         );
       })}
       {pic.more > 0 && <text x={16} y={PAD + ROW_H * pic.evidence.length + ROW_H / 2} dominantBaseline="central" className="an-dpic__more">외 {pic.more}개</text>}
-      <circle cx={178} cy={mid} r={8} className="an-dpic__target" />
-      <text x={192} y={mid} dominantBaseline="central" className="an-dpic__name">{pic.target}</text>
+      <circle cx={194} cy={mid} r={8} className="an-dpic__target" />
+      <text x={208} y={mid} dominantBaseline="central" className="an-dpic__name">{pic.target}</text>
     </svg>
   );
 }

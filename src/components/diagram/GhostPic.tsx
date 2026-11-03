@@ -17,8 +17,8 @@ const ROWS = 3;
 const POINTS = [0.12, 0.38, 0.62, 0.86];
 
 /**
- * 아직 데이터가 없을 때의 그림 틀(첫 사용 상태). 축·칸만 옅은 바탕으로 그리고 값은 그리지 않는다.
- * AI 추정(점선)과 헷갈리지 않게 점선은 쓰지 않는다. 스크린 리더에는 message 만 읽힌다.
+ * 아직 데이터가 없을 때의 그림 틀(첫 사용 상태). 축·칸을 옅은 점선 윤곽으로만 그리고 값은 그리지 않는다.
+ * 속이 찬 회색 막대는 로딩 뼈대로 보여 쓰지 않는다(LoadingState 와 모양이 달라야 한다). 스크린 리더에는 message 만 읽힌다.
  */
 export function GhostPic({ kind, labels = [], cols = [], message }: Props) {
   const rows = labels.length ? labels : Array.from({ length: ROWS }, () => '');
