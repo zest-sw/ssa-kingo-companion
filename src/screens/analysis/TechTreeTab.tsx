@@ -19,7 +19,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
   const [open, setOpen] = useState<TreeCell | null>(null);
   const tree = useTechTree(records);
   const filled = tree.rows.some(r => r.cells.some(c => c.kind !== 'candidate'));
-  // 후보 칸은 어디서 눌러도 같은 기회 서랍이 열린다. 서랍의 '자세히 보기'가 추천 화면으로 간다.
+  // 후보 노드는 어디서 눌러도 같은 기회 서랍이 열린다. 서랍의 '자세히 보기'가 추천 화면으로 간다.
   const toRecommend = (c: TreeCell) => (c.programId ? openEntity({ kind: 'opportunity', id: c.programId }) : navigate('recommend'));
 
   return (
@@ -34,11 +34,11 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
             {!filled && <p className="an-note an-note--top">아직 한 활동이 없어요. 후보를 눌러 신청을 준비하거나, 끝난 활동의 회고를 써 보세요.</p>}
             <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} />
           </div>
-          <ul className="an-legend" aria-label="칸 표시">
+          <ul className="an-legend" aria-label="그림 표시">
             <li><span className="an-key an-key--done" aria-hidden="true" />한 활동</li>
             <li><span className="an-key an-key--ongoing" aria-hidden="true" />하는 중</li>
             <li><span className="an-key an-key--candidate" aria-hidden="true" />지금 신청할 수 있는 추천</li>
-            <li><span className="an-key an-key--unknown" aria-hidden="true" />?</li><li className="an-legend__sub">아직 안 해 본 분야</li>
+            <li><span className="an-key an-key--unknown" aria-hidden="true">?</span>아직 안 해 본 분야</li>
             <li><span className="an-key an-key--cross" aria-hidden="true" />다른 분야로 이어진 경로</li>
           </ul>
         </>
@@ -76,7 +76,7 @@ function CellDrawer({ cell, records, onClose }: { cell: TreeCell | null; records
   const { state } = useApp();
   const record = cell?.recordId ? records.find(r => r.id === cell.recordId) : undefined;
   const activity = cell?.activityId ? state.activities.find(a => a.id === cell.activityId) : undefined;
-  // 같은 분야 줄에서 이 칸과 이어진 다른 기록
+  // 같은 분야 가지에서 이 노드와 이어진 다른 기록
   const related = record ? relatedRecords(records, record) : [];
   const written = activity ? recordOfActivity(records, activity) : undefined;
   const column = TREE_COLUMNS[cell?.col ?? 0];
@@ -85,8 +85,8 @@ function CellDrawer({ cell, records, onClose }: { cell: TreeCell | null; records
       {record && (
         <>
           <RecordSummary record={record} />
-          <h3 className="an-sub">이 칸에 놓인 이유</h3>
-          <p>‘{DID_LABEL[record.did]}’{josa(DID_LABEL[record.did], '을', '를')} 주로 한 기록이라 ‘{column}’ 칸에 놓았어요.</p>
+          <h3 className="an-sub">이 자리에 놓인 이유</h3>
+          <p>‘{DID_LABEL[record.did]}’{josa(DID_LABEL[record.did], '을', '를')} 주로 한 기록이라 ‘{column}’ 단계에 놓았어요.</p>
           <h3 className="an-sub">같은 분야의 다른 기록</h3>
           {related.length ? <div className="an-stack">{related.map(r => <RecordSummary key={r.id} record={r} />)}</div> : <p className="an-muted">같은 분야 기록이 아직 하나예요. 회고를 더 쓰면 이어져요.</p>}
         </>
@@ -98,7 +98,7 @@ function CellDrawer({ cell, records, onClose }: { cell: TreeCell | null; records
           <h3 className="an-sub">근거</h3>
           {written ? <RecordSummary record={written} /> : (
             <>
-              <p className="an-muted">아직 회고가 없어요. 회고를 쓰면 한 일과 배운 점이 이 칸의 근거가 돼요.</p>
+              <p className="an-muted">아직 회고가 없어요. 회고를 쓰면 한 일과 배운 점이 이 활동의 근거가 돼요.</p>
               <Button variant="primary" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>
             </>
           )}

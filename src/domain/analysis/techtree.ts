@@ -92,3 +92,10 @@ export const relatedRecords = (records: RecordItem[], record: RecordItem, limit 
 /** 활동에 이어진 기록(있으면). 회고를 썼는지의 근거다. */
 export const recordOfActivity = (records: RecordItem[], a: Activity) =>
   records.find(r => (a.recordId && r.id === a.recordId) || (a.programId && r.programId === a.programId));
+
+/** 분야 가지의 시작점에서 바로 뻗는 노드: 그 분야에서 가장 앞 단계에 놓인 노드들 */
+export function rootTargets(row: TreeRow): string[] {
+  if (!row.cells.length) return [];
+  const first = Math.min(...row.cells.map(c => c.col));
+  return row.cells.filter(c => c.col === first).map(c => c.id);
+}

@@ -8,7 +8,7 @@ import { recordsSig } from './refresh';
 import { sigOf, discoveriesOf } from '../discoveries';
 import { semesterAxis, semesterKey, semesterLabel, sortRecords } from './semester';
 import { buildStrengths, differences, levelOfSeen, seenOf } from './strengths';
-import { buildTechTree, CANDIDATES_PER_CELL, recordOfActivity, relatedRecords } from './techtree';
+import { buildTechTree, CANDIDATES_PER_CELL, recordOfActivity, relatedRecords, rootTargets } from './techtree';
 
 const act = (id: string, over: Partial<Activity> = {}): Activity => ({ id, title: id, field: 'dev', status: 'ongoing', schedule: '', ...over });
 
@@ -67,6 +67,14 @@ describe('테크 트리', () => {
     expect(t.links).toContainEqual({ from: 'r:a', to: 'r:b', cross: false });
     expect(t.links).toContainEqual({ from: 'r:a', to: 'r:c', cross: true });
     expect(t.links.filter(l => l.cross)).toHaveLength(1);
+  });
+  it('가지의 시작점은 그 분야에서 가장 앞 단계의 노드들로 뻗는다', () => {
+    const t = buildTechTree({
+      records: [rec('a', { field: 'dev', did: 'organize' }), rec('b', { field: 'dev', did: 'idea' }), rec('c', { field: 'dev', did: 'make' })],
+      activities: [], candidates: []
+    });
+    expect(rootTargets(t.rows.find(r => r.group === 'dev')!)).toEqual(['r:a', 'r:b']);
+    expect(rootTargets(t.rows.find(r => r.group === 'global')!)).toEqual([]);
   });
 });
 
