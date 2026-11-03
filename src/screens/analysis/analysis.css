@@ -37,7 +37,8 @@
   --an-dot-gap: 5px;
 }
 
-.an-private { flex: none; display: flex; align-items: center; gap: var(--space-2); margin: calc(-1 * var(--space-3)) 0 var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
+.an-private { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); }
+.an-private--icon { color: var(--ink-subtle); }
 .an-note { margin-top: var(--space-4); color: var(--ink-muted); font-size: var(--text-sm); }
 .an-note--top { margin: 0 0 var(--space-4); }
 .an-muted { color: var(--ink-muted); }

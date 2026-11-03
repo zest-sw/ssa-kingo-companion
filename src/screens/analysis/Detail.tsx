@@ -24,8 +24,8 @@ export function Detail({ tab, analysis }: { tab: TabId; analysis: ReturnType<typ
 
   return (
     <div className="os">
-      <PageHeader title={label} />
-      <p className="an-private"><Icon name="eye" size={16} />여기 있는 분석은 나에게만 보여요.</p>
+      {/* 공개 범위는 요약 머리에서 한 번 말한다. 하위 화면은 같은 말 대신 아이콘만 둔다. */}
+      <PageHeader title={label} actions={<span className="an-private an-private--icon" role="img" aria-label="나에게만 보여요" title="나에게만 보여요"><Icon name="eye" size={16} /></span>} />
       <div className="os__body an-detail">
         {analysis.status === 'loading' && <Card><LoadingState message="새 기록을 분석하는 중이에요" lines={5} /></Card>}
         {analysis.status === 'error' && <Card><ErrorState message="새 기록을 분석하지 못했어요. 지난 분석은 그대로예요." onRetry={analysis.retry} /></Card>}
