@@ -141,9 +141,9 @@
 /* 근거 도식: 기록 점들 → 이 활동 */
 .rec-trace { display: grid; grid-template-columns: minmax(0, 1fr) var(--space-6) minmax(0, var(--rec-goal-w)); align-items: center; }
 .rec-trace__nodes { display: flex; flex-direction: column; gap: var(--space-2); }
-.rec-trace__node { position: relative; display: flex; align-items: baseline; gap: var(--space-2); height: var(--rec-node-h); padding: 0 var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: var(--text-sm); white-space: nowrap; }
-.rec-trace__node b { flex: none; font-weight: var(--weight-bold); line-height: var(--rec-node-h); }
-.rec-trace__node span { overflow: hidden; text-overflow: ellipsis; color: var(--ink-muted); line-height: var(--rec-node-h); }
+.rec-trace__node { position: relative; display: flex; align-items: center; gap: var(--space-2); min-height: var(--rec-node-h); padding: var(--space-1) var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: var(--text-sm); line-height: var(--leading-tight); }
+.rec-trace__node b { flex: none; font-weight: var(--weight-bold); }
+.rec-trace__node span { min-width: 0; color: var(--ink-muted); }
 .rec-trace__node[data-record='yes'] { border-color: var(--navy-900); background: var(--navy-100); }
 .rec-trace__node[data-record='yes'] b { color: var(--navy-900); }
 .rec-trace__node::after { content: ''; position: absolute; left: 100%; top: 50%; width: var(--space-3); border-top: 1px solid var(--line-strong); }
@@ -186,10 +186,10 @@
 .rec-cand__bot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .rec-cand__dday { font-size: var(--text-md); font-weight: var(--weight-bold); color: var(--ink); }
 .rec-cand__dday--near { color: var(--accent-ink); }
-.rec-card__meta { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); }
-.rec-card__why { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-alt); font-size: var(--text-md); }
-.rec-card__why span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-muted); }
-.rec-card__why svg { flex: none; color: var(--ink-muted); }
+.rec-pick__meta { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); }
+.rec-pick__why { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-alt); font-size: var(--text-md); }
+.rec-pick__why span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-muted); }
+.rec-pick__why svg { flex: none; color: var(--ink-muted); }
 .rec-detail__kind { color: var(--ink-muted); font-size: var(--text-md); }
 .rec-detail__title { margin-bottom: var(--space-4); font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
 .rec-facts { display: grid; gap: var(--space-3); }
@@ -225,4 +225,4 @@
 .ui-panel__foot > .rec-revise { flex: 1; }
 
 /* 내용이 짧은 패널은 늘이지 않는다: 높이는 내용에 맞추고 행동 막대는 내용 바로 아래. 넘치면 패널 안에서만 스크롤 */
-.rec-split > .rec-card, .os__body--fill > .ui-panel[aria-label="후보 자세히"], .os__body--fill > .ui-panel[aria-label="후보 없음"] { align-self: start; max-height: 100%; }
+.rec-split > .rec-pick, .os__body--fill > .ui-panel[aria-label="후보 자세히"], .os__body--fill > .ui-panel[aria-label="후보 없음"] { align-self: start; max-height: 100%; }

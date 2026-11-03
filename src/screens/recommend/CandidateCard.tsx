@@ -20,7 +20,7 @@ export function CandidateCard({ pick, isPrimary, week, records, actions }: { pic
   const why = traceNodes(pick.reasons, records, p)[0];
   return (
     <Panel
-      className="rec-card"
+      className="rec-pick"
       aria-label="고른 후보"
       footer={
         <>
@@ -30,7 +30,7 @@ export function CandidateCard({ pick, isPrimary, week, records, actions }: { pic
       }
       note={<><Icon name="lock" size={14} />신청은 내가 누를 때만 나가요</>}
     >
-      <div className="rec-card__meta">
+      <div className="rec-pick__meta">
         {isPrimary && <Badge tone="lime">가장 추천</Badge>}
         <span className="rec-detail__kind">{fieldName(p.field)} · {DID_LABEL[p.did[0]]}</span>
       </div>
@@ -40,7 +40,7 @@ export function CandidateCard({ pick, isPrimary, week, records, actions }: { pic
         <Fact icon="clock" label="활동 기간" value={p.durationLabel} sub={p.when} />
         <Fact icon={p.format === 'online' ? 'compass' : 'friends'} label="방식" value={fmt.main} sub={fmt.sub ?? '이동 없이 참여'} />
       </div>
-      {why && <p className="rec-card__why"><Icon name="sparkle" size={16} /><b>{why.label}</b><span>{why.detail}</span></p>}
+      {why && <p className="rec-pick__why"><Icon name="sparkle" size={16} /><b>{why.label}</b><span>{why.detail}</span></p>}
     </Panel>
   );
 }
