@@ -136,8 +136,8 @@ describe('홈 요약 문장', () => {
   it('할 일이 없으면 빈 목록', () => expect(todayTasks([], 1)).toEqual([]));
   it('이번 학기 한 줄', () => {
     expect(semesterLine([])).toContain('아직 없어요');
-    expect(semesterLine([act({ status: 'ongoing', field: 'ai' }), act({ status: 'ended', field: 'data' }), act({ status: 'recorded', field: 'data' })])).toBe('이번 학기 활동 3개, 데이터 분야가 가장 많아요.');
-    expect(semesterLine([act({ status: 'ongoing', field: 'ai' }), act({ status: 'ended', field: 'data' })])).toBe('이번 학기 활동 2개, 분야가 모두 달라요.');
+    expect(semesterLine([act({ status: 'ongoing', field: 'research' }), act({ status: 'ended', field: 'data' }), act({ status: 'recorded', field: 'ai' })])).toBe('이번 학기 활동 3개, AI·데이터 분야가 가장 많아요.');
+    expect(semesterLine([act({ status: 'ongoing', field: 'research' }), act({ status: 'ended', field: 'data' })])).toBe('이번 학기 활동 2개, 분야가 모두 달라요.');
     expect(semesterLine(list)).toContain('활동 2개');
   });
   it('고른 방법 한 줄', () => {

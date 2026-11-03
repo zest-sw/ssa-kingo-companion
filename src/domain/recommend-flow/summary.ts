@@ -1,6 +1,6 @@
 import { ddayText } from '../text';
 import type { Activity, Field, Funnel } from '../types';
-import { FIELD_LABEL } from '../vocab';
+import { FIELD_LABEL, FIELD_GROUP, GROUP_LABEL } from '../vocab';
 import { prepareHref } from './flow';
 import { whenOffset, type UpcomingItem, type UpcomingTarget } from './upcoming';
 
@@ -41,11 +41,12 @@ export const isSemesterActivity = (a: Activity) => a.status === 'ongoing' || a.s
 export function semesterLine(activities: Activity[]): string {
   const mine = activities.filter(isSemesterActivity);
   if (mine.length === 0) return '이번 학기 활동이 아직 없어요. 추천에서 하나 골라 보세요.';
-  const counts = new Map<Field, number>();
-  for (const a of mine) counts.set(a.field, (counts.get(a.field) ?? 0) + 1);
+  // 화면의 분야 색·라벨과 맞추려고 세부 분야가 아니라 분야 묶음으로 센다.
+  const counts = new Map<string, number>();
+  for (const a of mine) { const g = GROUP_LABEL[FIELD_GROUP[a.field]]; counts.set(g, (counts.get(g) ?? 0) + 1); }
   const [field, n] = [...counts.entries()].reduce((best, e) => (e[1] > best[1] ? e : best));
-  if (mine.length === 1) return `이번 학기 활동 1개, ${FIELD_LABEL[field]} 분야예요.`;
-  return n === 1 ? `이번 학기 활동 ${mine.length}개, 분야가 모두 달라요.` : `이번 학기 활동 ${mine.length}개, ${FIELD_LABEL[field]} 분야가 가장 많아요.`;
+  if (mine.length === 1) return `이번 학기 활동 1개, ${field} 분야예요.`;
+  return n === 1 ? `이번 학기 활동 ${mine.length}개, 분야가 모두 달라요.` : `이번 학기 활동 ${mine.length}개, ${field} 분야가 가장 많아요.`;
 }
 
 /** 추천을 어떻게 골랐는지 한 줄. 누르면 깔때기 그림이 서랍으로 열린다. */
