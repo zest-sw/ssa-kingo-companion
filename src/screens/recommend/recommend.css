@@ -8,6 +8,8 @@
   --rec-reason-height: 48px;
   --rec-table-label: 112px;
   --rec-prep-draft: 480px;
+  --rec-done-w: 520px;
+  --rec-done-mark: 40px;
   --rec-prep-draft-narrow: 420px;
   --rec-item-due: 88px;
   --rec-item-height: 52px;
@@ -198,3 +200,22 @@
   .rec-split { grid-template-columns: var(--rec-cands-narrow) minmax(0, 1fr); }
   .rec-fn__steps { gap: var(--space-2); }
 }
+
+/* 고쳐 줘: 방향 칩 + 한 줄 요청 */
+.rec-revise { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-md); background: var(--surface-alt); }
+.rec-revise__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); font-size: var(--text-md); }
+.rec-revise__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.rec-revise__form { display: flex; align-items: center; gap: var(--space-2); }
+.rec-revise__input { flex: 1; min-width: 0; min-height: var(--control-h); padding: 0 var(--space-3); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-md); background: var(--surface); font-size: var(--text-md); }
+.rec-revise__input:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* 신청을 연 뒤: 세 단계 그림 + 갈 곳 하나 */
+.rec-done { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-6); text-align: center; }
+.rec-done__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; max-width: var(--rec-done-w); }
+.rec-done__step { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }
+.rec-done__step b { color: var(--ink); font-size: var(--text-md); }
+.rec-done__step + .rec-done__step::before { content: ''; position: absolute; top: calc(var(--rec-done-mark) / 2); right: 50%; left: -50%; border-top: 2px solid var(--line-strong); }
+.rec-done__step[data-done] + .rec-done__step[data-done]::before { border-color: var(--green-900); }
+.rec-done__mark { position: relative; z-index: 1; display: grid; place-items: center; width: var(--rec-done-mark); height: var(--rec-done-mark); margin-bottom: var(--space-1); border-radius: var(--radius-full); border: 2px solid var(--line-strong); background: var(--surface); color: var(--ink-subtle); }
+.rec-done__step[data-done] .rec-done__mark { border-color: var(--green-900); background: var(--green-900); color: var(--ink-inverse); }
+.rec-done__title { font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }

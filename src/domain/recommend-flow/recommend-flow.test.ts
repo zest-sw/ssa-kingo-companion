@@ -3,6 +3,7 @@ import { dismissEffect } from '../candidates';
 import { discoveriesOf, discState } from '../discoveries';
 import { prog, rec } from '../fixtures.test-util';
 import type { Activity, CandidateChoice } from '../types';
+import { CATALOG } from '../../data/catalog';
 import { relatedRecords, runLog, writeDraft } from './draft';
 import {
   candidateHref, checksOf, clockLabel, dateLabel, effectiveChoices, emptyReason, formatText, funnelSteps, isNearDeadline, laterDateLabel, laterUntilDay, mostUrgent,
@@ -224,7 +225,7 @@ describe('emptyReason', () => {
 });
 
 describe('신청서 초안', () => {
-  const records = [rec('a', { field: 'research', quote: '다시 물어보니 달라졌다', title: '인터뷰 과제', energy: 'up' }), rec('b', { field: 'club', did: 'make' })];
+  const records = [rec('a', { field: 'research', quote: '다시 물어보니 달라졌다', note: '질문지를 만들고 답을 표시했다.', title: '인터뷰 과제', energy: 'up' }), rec('b', { field: 'club', did: 'make' })];
   it('같은 분야 기록을 근거로 삼고 없는 경험은 쓰지 않는다', () => {
     const p = prog('p', { field: 'research', did: ['listen'], title: '워크숍' });
     expect(relatedRecords(p, records).map(r => r.id)).toEqual(['a']);
@@ -237,9 +238,24 @@ describe('신청서 초안', () => {
     expect(d.related).toEqual([]);
     expect(d.motivation).toContain('직접 경험해 보고 싶습니다');
   });
-  it('고쳐 달라고 하면 문장이 달라진다', () => {
+  it('고쳐 달라고 하면 고른 방향대로 바뀐다', () => {
     const p = prog('p');
-    expect(writeDraft(p, records, '', 1).motivation).not.toBe(writeDraft(p, records, '', 0).motivation);
+    const base = writeDraft(p, records, '').motivation;
+    const short = writeDraft(p, records, '', [{ kind: 'shorter' }]).motivation;
+    const specific = writeDraft(p, records, '', [{ kind: 'specific' }]).motivation;
+    expect(short.length).toBeLessThan(base.length);
+    expect(specific.length).toBeGreaterThan(base.length);
+    expect(specific).toMatch(/습니다. /);
+    expect(writeDraft(p, records, '', [{ kind: 'shorter', note: '팀장 경험을 넣어 주세요' }]).motivation).toContain('팀장 경험을 넣어 주세요.');
+  });
+  it('다른 경험 쓰기는 다음 관련 기록을 앞에 둔다', () => {
+    const p = prog('p');
+    const a = writeDraft(p, records, '').related[0];
+    const b = writeDraft(p, records, '', [{ kind: 'other' }]).related[0];
+    if (relatedRecords(p, records, 3).length > 1) expect(b.id).not.toBe(a.id);
+  });
+  it('고친 시각마다 실행 기록에 남는다', () => {
+    expect(runLog([], '09:00', ['09:05']).map(l => l.text)).toEqual(['신청서 초안을 썼어요', '초안을 고쳤어요']);
   });
 });
 
@@ -282,5 +298,21 @@ describe('홈 계산', () => {
   it('확인한 발견은 확인할 발견에서 빠지고 바뀐 근거는 다시 센다', () => {
     expect(homeCounts([], 0, discoveries, () => 'yes').toConfirm).toBe(0);
     expect(homeCounts([], 0, discoveries, () => 'changed').toConfirm).toBe(1);
+  });
+});
+
+describe('밖에서 하는 준비(사전 설문)', () => {
+  it('설문은 열어 본 뒤에만 체크할 수 있고, 실행 기록 문장은 조사가 맞다', async () => {
+    const { markOpened, canCheck, prepItemsFor, toggleItem } = await import('./flow');
+    const { runLog } = await import('./draft');
+    const p = CATALOG.programs.find(x => x.level >= 2)!;
+    const items = prepItemsFor(p, 1, '09:00');
+    const survey = items.find(i => i.id === 'survey')!;
+    expect(survey.outside).toBe('설문 열기');
+    expect(canCheck(survey)).toBe(false);
+    const opened = markOpened(items, 'survey');
+    expect(canCheck(opened.find(i => i.id === 'survey')!)).toBe(true);
+    const done = toggleItem(opened, 'survey', '09:10');
+    expect(runLog(done).map(l => l.text)).toContain('‘사전 설문 답하기’를 끝냈어요');
   });
 });

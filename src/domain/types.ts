@@ -122,6 +122,10 @@ export type PrepItem = {
   hint?: string;
   /** 누르면 가는 곳 */
   link?: { label: string; path: string };
+  /** 학교 사이트에서 직접 하는 일의 버튼 이름(예: '설문 열기'). 주소는 화면이 예시 데이터에서 붙인다 */
+  outside?: string;
+  /** outside 를 한 번 열었는지. 연 뒤에 '했어요'로 체크한다 */
+  opened?: boolean;
 };
 
 export type ActivityStatus = 'preparing' | 'applied' | 'ongoing' | 'ended' | 'recorded' | 'declined';
