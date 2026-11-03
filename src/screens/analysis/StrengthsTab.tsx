@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
 import { nextStep } from '../../domain/nextStep';
+import { josa } from '../../domain/text';
 import { Button, Card, ConfirmLegend, EmptyState, GhostPic } from '../../components';
 import { buildStrengths, chancesFor, samplesOf, splitStrengths, strengthHeadline, withAnswers } from '../../domain/analysis/strengths';
 import { AXES } from '../../domain/vocab';
@@ -69,7 +70,7 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
         </div>
         {few.length > 0 && <p className="an-sfew">아직 근거가 적어요: {few.map(f => f.label).join(' · ')}</p>}
       </Card>
-      <Card className="os-card" title={`${top.label} 살릴 기회`}>
+      <Card className="os-card" title={`${top.label}${josa(top.label, "을", "를")} 살릴 기회`}>
         <ChanceList axis={top.axis} label={top.label} chances={chances} />
       </Card>
       <StrengthDrawer strength={rows.find(r => r.axis === open)} records={live} programs={programs} onClose={() => setOpen(null)} />
