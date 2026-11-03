@@ -8,7 +8,7 @@ import { recordsSig } from './refresh';
 import { sigOf, discoveriesOf } from '../discoveries';
 import { semesterAxis, semesterKey, semesterLabel, sortRecords } from './semester';
 import { buildStrengths, differences, levelOfSeen, seenOf } from './strengths';
-import { buildTechTree, CANDIDATES_PER_CELL, recordOfActivity, relatedRecords, rootTargets } from './techtree';
+import { buildTechTree, CANDIDATES_PER_CELL, NODES_PER_STAGE, recordOfActivity, relatedRecords, rootTargets, splitTreeRows } from './techtree';
 
 const act = (id: string, over: Partial<Activity> = {}): Activity => ({ id, title: id, field: 'dev', status: 'ongoing', schedule: '', ...over });
 
@@ -75,6 +75,12 @@ describe('테크 트리', () => {
     });
     expect(rootTargets(t.rows.find(r => r.group === 'dev')!)).toEqual(['r:a', 'r:b']);
     expect(rootTargets(t.rows.find(r => r.group === 'global')!)).toEqual([]);
+  });
+  it('노드도 후보도 없는 분야만 한 줄로 모으고, 후보만 있는 분야는 가지로 그린다', () => {
+    const t = buildTechTree({ records: [rec('a', { field: 'dev', did: 'make' })], activities: [], candidates: [{ program: prog('p1', { field: 'data', did: ['make'] }), dday: 9 }] });
+    const { drawn, untried } = splitTreeRows(t.rows);
+    expect(drawn.map(r => r.group)).toEqual(['ai', 'dev']);
+    expect(untried.map(r => r.group)).toEqual(['plan', 'mentor', 'global', 'other']);
   });
 });
 
@@ -247,5 +253,12 @@ describe('재작업: 화면에서 옮긴 계산', () => {
     expect(ai.cells).toHaveLength(CANDIDATES_PER_CELL);
     expect(t.candidates).toHaveLength(4);
     expect(ai.unknown).toBe(true);
+  });
+  it('테크 트리: 한 단계에 한 활동이 이미 많으면 후보는 단계 노드 수 상한까지만 그린다', () => {
+    const candidates = ['p1', 'p2'].map((id, i) => ({ program: prog(id, { field: 'data', did: ['make'] }), dday: i }));
+    const records = ['a', 'b', 'c'].map(id => rec(id, { field: 'data', did: 'make' }));
+    const ai = buildTechTree({ records, activities: [], candidates }).rows.find(r => r.group === 'ai')!;
+    expect(ai.cells.filter(c => c.col === 2)).toHaveLength(NODES_PER_STAGE);
+    expect(ai.cells.filter(c => c.kind === 'candidate')).toHaveLength(1);
   });
 });

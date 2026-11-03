@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLinkPaths, type LinkSpec } from '../../components';
-import { TREE_COLUMNS, rootTargets, type TechTree, type TreeCell, type TreeRow } from '../../domain/analysis/techtree';
+import { TREE_COLUMNS, rootTargets, splitTreeRows, type TechTree, type TreeCell, type TreeRow } from '../../domain/analysis/techtree';
 import { ddayText } from '../../domain/text';
 
 /**
@@ -10,6 +10,7 @@ import { ddayText } from '../../domain/text';
 export function TreeGraph({ tree, onOpen, onCandidate }: { tree: TechTree; onOpen: (cell: TreeCell) => void; onCandidate: (cell: TreeCell) => void }) {
   const links = useMemo(() => treeLinks(tree), [tree]);
   const { wrap, nodeRef, paths } = useLinkPaths<HTMLDivElement>(links);
+  const { drawn, untried } = splitTreeRows(tree.rows);
 
   return (
     <div ref={wrap} className="an-tree">
@@ -20,14 +21,13 @@ export function TreeGraph({ tree, onOpen, onCandidate }: { tree: TechTree; onOpe
         <span /><span />
         {TREE_COLUMNS.map(c => <span key={c} className="an-tree__tick"><span>{c}</span></span>)}
       </div>
-      {tree.rows.map(row => (
+      {drawn.map(row => (
         <section key={row.group} className={`an-tree__row an-g--${row.group}`} aria-label={row.label}>
           <h3 className="an-tree__label">{row.label}</h3>
           {row.unknown
             ? <span ref={nodeRef(rootId(row))} className="an-tree__root an-tree__root--unknown" role="img" aria-label={`${row.label}: 아직 안 해 본 분야`}>?</span>
             : <span ref={nodeRef(rootId(row))} className="an-tree__root" aria-hidden="true" />}
-          {!row.cells.length && <span className="an-tree__hint" aria-hidden="true">아직 안 해 본 분야</span>}
-          {row.cells.length > 0 && TREE_COLUMNS.map((name, col) => (
+          {TREE_COLUMNS.map((name, col) => (
             <div key={name} className="an-tree__stage">
               {row.cells.filter(c => c.col === col).map(c => (
                 <button
@@ -47,6 +47,13 @@ export function TreeGraph({ tree, onOpen, onCandidate }: { tree: TechTree; onOpe
           ))}
         </section>
       ))}
+      {untried.length > 0 && (
+        <p className="an-tree__untried">
+          <span>안 해 본 분야</span>
+          <span className="an-tree__root an-tree__root--unknown" aria-hidden="true">?</span>
+          <b>{untried.map(r => r.label).join(' · ')}</b>
+        </p>
+      )}
     </div>
   );
 }

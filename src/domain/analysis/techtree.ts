@@ -30,6 +30,8 @@ export type TreeLink = { from: string; to: string; cross: boolean };
 export type TechTree = { rows: TreeRow[]; links: TreeLink[]; candidates: TreeCell[] };
 /** 한 칸에 쌓는 후보는 이만큼까지만 그린다. 나머지는 목록 보기에 있다. */
 export const CANDIDATES_PER_CELL = 2;
+/** 한 단계에 쌓는 노드는 이만큼까지(한 활동이 먼저). 낮은 노트북 화면에서도 트리가 한 화면에 들어오게 한다. 넘친 후보는 목록 보기에 있다. */
+export const NODES_PER_STAGE = 4;
 export type CandidateRef = { program: Program; dday: number };
 
 export function buildTechTree(input: { records: RecordItem[]; activities: Activity[]; candidates: CandidateRef[] }): TechTree {
@@ -52,11 +54,16 @@ export function buildTechTree(input: { records: RecordItem[]; activities: Activi
     });
   }
   const shown = new Map<string, number>();
+  const taken = new Map<string, number>();
+  const keyOf = (c: TreeCell) => `${c.group}:${c.col}`;
+  for (const c of cells) taken.set(keyOf(c), (taken.get(keyOf(c)) ?? 0) + 1);
   for (const c of candidateCells) {
-    const k = `${c.group}:${c.col}`;
+    const k = keyOf(c);
     const n = shown.get(k) ?? 0;
+    if (n >= CANDIDATES_PER_CELL || (taken.get(k) ?? 0) >= NODES_PER_STAGE) continue;
     shown.set(k, n + 1);
-    if (n < CANDIDATES_PER_CELL) cells.push(c);
+    taken.set(k, (taken.get(k) ?? 0) + 1);
+    cells.push(c);
   }
 
   const rows: TreeRow[] = TREE_GROUPS.map(group => {
@@ -98,4 +105,9 @@ export function rootTargets(row: TreeRow): string[] {
   if (!row.cells.length) return [];
   const first = Math.min(...row.cells.map(c => c.col));
   return row.cells.filter(c => c.col === first).map(c => c.id);
+}
+
+/** 가지로 그릴 분야(노드가 하나라도 있음)와, 한 줄로 모을 안 해 본 분야(노드도 후보도 없음) */
+export function splitTreeRows(rows: TreeRow[]): { drawn: TreeRow[]; untried: TreeRow[] } {
+  return { drawn: rows.filter(r => r.cells.length), untried: rows.filter(r => !r.cells.length) };
 }
