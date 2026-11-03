@@ -18,8 +18,6 @@
   --rec-tile-min: 280px;
   --rec-tile-h: 168px;
   --rec-label-w: 52px;
-  --rec-side-w: 380px;
-  --rec-side-w-narrow: 320px;
   --rec-mark: 3px;
   --rm-label-w: 96px;
   --rm-row-min: 44px;
@@ -147,8 +145,7 @@
 .rec-band .ui-icon:last-child { color: var(--ink-subtle); }
 
 /* 기록 화면: 지도(주인공) + 보관함 */
-.rec-headline { color: var(--ink-muted); font-size: var(--text-md); }
-.rec-home { grid-template-columns: minmax(0, 1fr) var(--rec-side-w); }
+.rec-home { grid-template-columns: minmax(0, 1fr); }
 
 .rm-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) var(--space-5) var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
 .rm-card__head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
@@ -180,8 +177,8 @@
 .ra__title { font-size: var(--text-lg); font-weight: var(--weight-bold); }
 .ra__title .num { color: var(--ink-subtle); font-weight: var(--weight-medium); }
 .ra__filters, .ra__chips { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-.ra__filters { flex-direction: column; }
-.ra__list { flex: 1; padding: 0 var(--space-4); }
+.ra__filters { flex-direction: row; justify-content: space-between; gap: var(--space-3); }
+.ra__list { position: relative; flex: 1; padding: 0 var(--space-4); }
 .ra__list > .ui-empty { padding: var(--space-8) 0; }
 .ra__sem { position: sticky; top: 0; z-index: 1; display: flex; gap: var(--space-2); padding: var(--space-3) 0 var(--space-1); background: var(--surface); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
 .ra-row { border-bottom: var(--border); }
@@ -189,14 +186,8 @@
 .ra-row__title { font-size: var(--text-md); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
 .ra-row__meta { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-xs); color: var(--ink-muted); }
 .ra-row[data-open='true'] { background: var(--surface-alt); margin: 0 calc(-1 * var(--space-4)); padding: 0 var(--space-4); box-shadow: inset var(--rec-mark) 0 0 var(--ink); }
-.ra-row__body { display: flex; flex-direction: column; gap: var(--space-2); padding-bottom: var(--space-3); }
-.ra-row__lines { display: flex; flex-direction: column; gap: var(--space-1); }
-.ra-row__lines > div { display: grid; grid-template-columns: var(--rec-label-w) minmax(0, 1fr); gap: var(--space-2); font-size: var(--text-sm); }
-.ra-row__lines dt { font-size: var(--text-xs); color: var(--ink-subtle); padding-top: 2px; }
-.ra-row__foot { display: flex; align-items: center; gap: var(--space-2); }
-.ra-row__flags { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); font-size: var(--text-xs); color: var(--ink-muted); }
-.ra-row__flags > span { display: inline-flex; align-items: center; gap: var(--space-1); }
 
-@media (max-width: 1199px) {
-  .rec-home { grid-template-columns: minmax(0, 1fr) var(--rec-side-w-narrow); }
-}
+
+/* 저장 전 확인 단계: 왼쪽 패널(근거·공개 범위) + 오른쪽 기록 카드 */
+.rec-confirm { min-width: 0; min-height: 0; }
+.rec-confirm__body { display: flex; flex-direction: column; gap: var(--space-3); }
