@@ -15,7 +15,7 @@ export function HomePick({ pick, week, records, onPrepare }: { pick: Scored; wee
     <div className="home-pick">
       <div className="home-pick__meta">
         <Badge tone="lime">가장 추천</Badge>
-        <FieldTag field={p.field} detail />
+        <FieldTag field={p.field} />
       </div>
       <h2 className="home-pick__title"><a href={hrefOf(candidateHref(p.id))}>{p.title}</a></h2>
       <div className="home-pick__dl">

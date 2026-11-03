@@ -1,6 +1,6 @@
 import { josa } from '../text';
 import type { Program, RecordItem } from '../types';
-import { FIELD_LABEL } from '../vocab';
+import { fieldName } from '../vocab';
 import type { PrepItem } from './flow';
 
 // 신청서 초안. 실제 AI 대신 기록 카드에 있는 말만 이어 붙인다(수치·경험을 지어내지 않는다).
@@ -17,7 +17,7 @@ export function relatedRecords(p: Program, records: RecordItem[]): RecordItem[] 
 export function writeDraft(p: Program, records: RecordItem[], goal: string, revision = 0): Draft {
   const related = relatedRecords(p, records);
   const first = related[0];
-  const field = FIELD_LABEL[p.field];
+  const field = fieldName(p.field);
   const lead = first ? `${first.title}에서 ‘${first.quote}’라는 것을 느꼈습니다.` : `${field} 분야를 직접 경험해 보고 싶습니다.`;
   const aim = goal ? ` ${goal}${josa(goal, '을', '를')} 목표로 하고 있어` : '';
   const close = revision > 0

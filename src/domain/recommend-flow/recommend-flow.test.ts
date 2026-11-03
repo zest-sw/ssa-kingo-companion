@@ -30,15 +30,15 @@ describe('parseRecommendSub', () => {
 
 describe('관심 분야 토글', () => {
   it('최대 3개까지만 고른다', () => {
-    expect(toggleInterest(['data', 'ai', 'dev'], 'research')).toEqual(['data', 'ai', 'dev']);
-    expect(toggleInterest(['data', 'ai'], 'research')).toEqual(['data', 'ai', 'research']);
+    expect(toggleInterest(['plan', 'ai', 'dev'], 'global')).toEqual(['plan', 'ai', 'dev']);
+    expect(toggleInterest(['plan', 'ai'], 'global')).toEqual(['plan', 'ai', 'global']);
   });
   it('이미 고른 것을 누르면 뺀다', () => {
-    expect(toggleInterest(['data', 'ai'], 'data')).toEqual(['ai']);
+    expect(toggleInterest(['plan', 'ai'], 'plan')).toEqual(['ai']);
   });
   it('아직 모르겠어요는 다른 것과 같이 못 고른다', () => {
-    expect(toggleInterest(['data', 'ai'], 'unknown')).toEqual(['unknown']);
-    expect(toggleInterest(['unknown'], 'data')).toEqual(['data']);
+    expect(toggleInterest(['plan', 'ai'], 'unknown')).toEqual(['unknown']);
+    expect(toggleInterest(['unknown'], 'plan')).toEqual(['plan']);
     expect(toggleInterest(['unknown'], 'unknown')).toEqual([]);
   });
 });

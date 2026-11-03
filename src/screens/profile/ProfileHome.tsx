@@ -9,7 +9,7 @@ import { showcaseable } from '../../domain/challenges';
 import { canUseSocial, publicActivities, publicRecords } from '../../domain/social';
 import { myTopGroup } from '../../domain/social/summary';
 import { friendsKeyword, hallKeyword, hallRoute, recruitBars, recruitKeyword } from '../../domain/social/visual';
-import { FIELD_GROUP, FIELD_LABEL, STATUS_LABEL } from '../../domain/vocab';
+import { FIELD_GROUP, GROUP_LABEL, STATUS_LABEL } from '../../domain/vocab';
 import { FRIENDS, HALL, INCOMING, OPPORTUNITY_BY_ID, SEED_POSTS } from '../../data/friends';
 import { ChallengeList } from './ChallengeList';
 import { ChallengeProgress } from './ChallengeProgress';
@@ -38,7 +38,7 @@ export function ProfileHome() {
   const publicIds = new Set(publicActivities(state.activities, v).map(a => a.id));
   const retros = publicRecords(state.records, v).slice(0, RETROS);
   const recent = state.activities.filter(a => a.status === 'ongoing' || a.status === 'ended' || a.status === 'recorded').slice(0, RECENT);
-  const interests = state.profile.interests.filter(i => i !== 'unknown').map(i => FIELD_LABEL[i]).join(', ');
+  const interests = state.profile.interests.filter(i => i !== 'unknown').map(i => GROUP_LABEL[i]).join(', ');
   const posts = [...state.recruitPosts, ...SEED_POSTS];
   const route = hallRoute(HALL, myTopGroup(state.records));
   const toVisibility = () => navigate('settings/visibility');

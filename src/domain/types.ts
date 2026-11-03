@@ -6,7 +6,8 @@ export type Energy = 'up' | 'same' | 'down';
 export type Field = 'research' | 'product' | 'data' | 'ai' | 'dev' | 'career' | 'startup' | 'mentor' | 'global' | 'club' | 'etc';
 /** 화면 색 의미가 고정된 분야 묶음 (명세 2절). */
 export type FieldGroup = 'dev' | 'ai' | 'plan' | 'mentor' | 'global' | 'other';
-export type Interest = Field | 'unknown';
+/** 가입·설정에서 고르는 관심 분야. 학생에게는 분야 묶음 이름만 보인다 */
+export type Interest = FieldGroup | 'unknown';
 export type Axis = 'expertise' | 'problem' | 'communication' | 'collaboration' | 'self' | 'creative';
 export type Format = 'offline' | 'online' | 'any';
 export type Mode = 'explore' | 'focus';

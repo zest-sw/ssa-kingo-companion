@@ -1,7 +1,8 @@
 import { parseAnswers, pruneAnswers, type EdgeAnswers } from '../domain/analysis/map';
 import { parseSelf, type Level } from '../domain/analysis/strengths';
 import { parseDrafts, type InterviewDraft } from '../domain/interview/draft';
-import type { Activity, Axis, CandidateChoice, Field, NotifyHour, NotifyPrefs, Profile, Settings, Visibility } from '../domain/types';
+import { FIELD_GROUP, GROUP_ORDER } from '../domain/vocab';
+import type { Activity, Axis, CandidateChoice, Field, Interest, NotifyHour, NotifyPrefs, Profile, Settings, Visibility } from '../domain/types';
 import { SEED_ACTIVITIES } from '../data/seed';
 import { DEFAULT_NOTIFY, DEFAULT_SETTINGS, DEFAULT_VISIBILITY, INITIAL_STATE, type AppState } from './state';
 
@@ -37,6 +38,12 @@ function readJson(key: string): unknown {
   return raw === null ? null : JSON.parse(raw);
 }
 
+/** 옛 저장값(세부 분야 'research' 등)은 분야 묶음으로 바꾼다. 모르는 값은 버린다. */
+export function toInterests(raw: unknown[]): Interest[] {
+  const out = raw.map(x => (x === 'unknown' || (GROUP_ORDER as unknown[]).includes(x) ? x : FIELD_GROUP[x as Field])).filter((x): x is Interest => typeof x === 'string');
+  return [...new Set(out)];
+}
+
 const HOURS: readonly unknown[] = [9, 12, 19] satisfies NotifyHour[];
 
 /** 기본값에 있는 켬/끔 키 중 불린인 것만 */
@@ -60,7 +67,7 @@ export function restoreSaved(s: unknown, legacy: { answers?: unknown; self?: unk
   const self = saved.selfLevels ?? legacy.self;
   return {
     ...INITIAL_STATE,
-    profile: { ...INITIAL_STATE.profile, ...saved.profile },
+    profile: { ...INITIAL_STATE.profile, ...saved.profile, interests: toInterests(saved.profile.interests) },
     onboarded: saved.onboarded === true,
     visibility: { ...DEFAULT_VISIBILITY, ...(isObj(saved.visibility) ? saved.visibility : {}) },
     settings: { ...DEFAULT_SETTINGS, ...pickFlags(saved.settings, DEFAULT_SETTINGS) },

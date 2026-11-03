@@ -37,7 +37,7 @@ describe('groupByColumn', () => {
 describe('buildCandidates', () => {
   const base = {
     catalog: catalog([prog('a', { field: 'research' }), prog('b', { field: 'research' }), prog('c', { field: 'data' }), prog('d', { field: 'ai' })]),
-    week: 1, profile: profile({ interests: ['research'] }), records: [rec('r1')], confirm: {}, settings: { discover: true, career: true },
+    week: 1, profile: profile({ interests: ['plan'] }), records: [rec('r1')], confirm: {}, settings: { discover: true, career: true },
     choices: {}, dislikedFields: [], preferEasier: false, last: null
   };
 

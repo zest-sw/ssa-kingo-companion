@@ -13,7 +13,7 @@ describe('traceNodes', () => {
   it('기록이 없으면 문장 속 낱말, 그것도 없으면 분야 이름', () => {
     const rs: Reason[] = [{ kind: 'interest', text: '처음에 고른 관심 ‘UX·리서치’와 맞아요.' }, { kind: 'bridge', text: '문장만' }];
     const nodes = traceNodes(rs, [], p);
-    expect(nodes.map(n => n.detail)).toEqual(['UX·리서치', 'UX·리서치']);
+    expect(nodes.map(n => n.detail)).toEqual(['UX·리서치', '창업·기획']);
     expect(nodes.every(n => n.recordId === undefined)).toBe(true);
   });
   it('이유는 최대 4개', () => {

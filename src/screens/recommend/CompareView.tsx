@@ -5,7 +5,7 @@ import { traceNodes } from '../../domain/recommend-flow/trace';
 import { checksOf, dateLabel, formatText, isNearDeadline, prepItemsFor } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import type { Activity, Interest, Program, RecordItem, Scored } from '../../domain/types';
-import { DID_LABEL, FIELD_LABEL } from '../../domain/vocab';
+import { DID_LABEL, fieldName } from '../../domain/vocab';
 import type { CardActions } from './CandidateDetail';
 
 const MAX_COLUMNS = 5;
@@ -46,7 +46,7 @@ export function CompareView({ scored, week, records, interests, activities, acti
                   <th key={c.p.id} scope="col" className={i === 0 ? 'rec-col--top' : undefined}>
                     <Badge tone={i === 0 ? 'lime' : 'neutral'}>{i === 0 ? '가장 추천' : '대안'}</Badge>
                     <span className="rec-table__title">{c.p.title}</span>
-                    <span className="rec-table__kind">{FIELD_LABEL[c.p.field]} · {DID_LABEL[c.p.did[0]]}</span>
+                    <span className="rec-table__kind">{fieldName(c.p.field)} · {DID_LABEL[c.p.did[0]]}</span>
                     {i > 0 && <span className="rec-table__diff">{diffLabel(c.p, base, tried, interests)}</span>}
                   </th>
                 ))}

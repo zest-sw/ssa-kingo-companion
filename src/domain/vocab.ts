@@ -13,17 +13,17 @@ export const ENERGY: { id: Energy; label: string; sub: string }[] = [
 ];
 export const ENERGY_SENTENCE: Record<Energy, string> = { up: '끝난 뒤 에너지가 더 생겼다', same: '에너지는 평소와 비슷했다', down: '끝난 뒤 조금 지쳤다' };
 
-export const FIELD_LABEL: Record<Field, string> = {
-  research: 'UX·리서치', product: '서비스 기획', data: '데이터', ai: 'AI', dev: '개발', career: '진로·취업 준비',
-  startup: '창업', mentor: '멘토링', global: '글로벌', club: '동아리·봉사', etc: '기타'
-};
-
 // ponytail: 세부 분야를 색 묶음 5개(+기타)로 접는 기준은 임시다. 테크 트리 분야 기준이 정해지면 고친다.
 export const FIELD_GROUP: Record<Field, FieldGroup> = {
   dev: 'dev', data: 'ai', ai: 'ai', product: 'plan', startup: 'plan', research: 'plan',
   mentor: 'mentor', club: 'mentor', global: 'global', career: 'other', etc: 'other'
 };
 export const GROUP_LABEL: Record<FieldGroup, string> = { dev: '개발', ai: 'AI·데이터', plan: '창업·기획', mentor: '멘토링', global: '글로벌', other: '기타' };
+export const GROUP_ORDER: FieldGroup[] = ['dev', 'ai', 'plan', 'mentor', 'global', 'other'];
+/** 학생에게 보이는 분야 이름은 묶음 이름 하나다. 세부 분야(Field)는 추천 규칙 안에서만 쓴다. */
+export const fieldName = (f: Field) => GROUP_LABEL[FIELD_GROUP[f]];
+/** 관심 분야(묶음)에 이 세부 분야가 들어가는지 */
+export const inInterests = (interests: readonly string[], f: Field) => interests.includes(FIELD_GROUP[f]);
 
 export const UP_STATEMENT: Record<Did, string> = {
   listen: '사람 이야기를 듣고 정리할 때 에너지가 올라가요', ask: '질문을 바꿔 가며 답을 찾을 때 에너지가 올라가요', organize: '의견을 묶고 조율할 때 에너지가 올라가요',

@@ -8,7 +8,7 @@ export function RecordSummary({ record }: { record: RecordItem }) {
     <article className="an-rec">
       <div className="an-rec__top">
         <b className="an-rec__title">{record.title}</b>
-        <FieldTag field={record.field} detail />
+        <FieldTag field={record.field} />
       </div>
       <p className="an-rec__meta">{record.kind} · {record.date}</p>
       {record.quote && <p className="an-rec__quote">“{record.quote}”</p>}

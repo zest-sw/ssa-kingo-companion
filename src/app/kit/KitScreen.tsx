@@ -94,7 +94,6 @@ function KitOverview({ sub }: ScreenProps) {
 
       <Section title="FieldTag" usage="<FieldTag field={p.field} />">
         {FIELDS.map(f => <FieldTag key={f} field={f} />)}
-        <Cell label="detail"><FieldTag field="research" detail /></Cell>
       </Section>
 
       <Section title="ConfirmDot" usage="<ConfirmDot state='estimated' />">

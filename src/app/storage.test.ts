@@ -102,3 +102,12 @@ describe('설정 화면에서 바꾼 것', () => {
     expect(r.notify).toEqual(INITIAL_STATE.notify);
   });
 });
+
+describe('관심 분야 옮기기', () => {
+  it('옛 세부 분야는 분야 묶음으로 바꾸고 겹치면 하나로 둔다', async () => {
+    const { toInterests } = await import('./storage');
+    expect(toInterests(['research', 'product', 'ai'])).toEqual(['plan', 'ai']);
+    expect(toInterests(['unknown'])).toEqual(['unknown']);
+    expect(toInterests(['dev', 'nope'])).toEqual(['dev']);
+  });
+});

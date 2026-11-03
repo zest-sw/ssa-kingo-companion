@@ -92,7 +92,7 @@ function CellDrawer({ cell, records, onClose }: { cell: TreeCell | null; records
       )}
       {activity && (
         <>
-          <p className="an-rec__meta"><FieldTag field={activity.field} detail /> · {STATUS_LABEL[activity.status]}</p>
+          <p className="an-rec__meta"><FieldTag field={activity.field} /> · {STATUS_LABEL[activity.status]}</p>
           <p>{activity.schedule}</p>
           <h3 className="an-sub">근거</h3>
           {written ? <RecordSummary record={written} /> : (

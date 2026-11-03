@@ -1,11 +1,11 @@
 import { josa } from './text';
 import type { Catalog, Did, Direction, Field, Funnel, Interest, LastDone, Mode, Profile, Program, Reason, ReasonKind, RecordItem, Scored } from './types';
-import { DID_LABEL, FIELD_LABEL, UP_STATEMENT } from './vocab';
+import { DID_LABEL, FIELD_GROUP, fieldName, inInterests, UP_STATEMENT } from './vocab';
 
 // 추천 규칙. v0.7 rank 를 그대로 옮겼다. 점수는 정렬에만 쓰고 화면에 내지 않는다.
 
 export const ddayOf = (p: Program, week: number) => p.ddayW1 - 7 * (week - 1);
-export const directionsOf = (profile: Profile, directions: Direction[]) => directions.filter(d => profile.interests.includes(d.field));
+export const directionsOf = (profile: Profile, directions: Direction[]) => directions.filter(d => inInterests(profile.interests, d.field));
 
 export type RankCtx = {
   catalog: Catalog;
@@ -38,7 +38,8 @@ export function rank(ctx: RankCtx): { scored: Scored[]; funnel: Funnel } {
   const eligible = open.filter(p => p.eligible);
   const fit = eligible.filter(p => p.hours <= ctx.profile.time && (ctx.profile.format === 'any' || p.format === ctx.profile.format));
   const fresh = fit.filter(p => !ctx.doneIds.includes(p.id) && !ctx.excluded.includes(p.id));
-  const tried = new Set(ctx.records.map(r => r.field));
+  // 해 본 분야는 학생에게 보이는 이름과 같게 분야 묶음으로 센다.
+  const tried = new Set(ctx.records.map(r => FIELD_GROUP[r.field]));
   const upDids = new Set(ctx.reflectOn ? ctx.records.filter(r => r.energy === 'up').map(r => r.did).filter(d => !ctx.rejectedDids.includes(d)) : []);
   const downDids = new Set(ctx.reflectOn ? ctx.records.filter(r => r.energy === 'down').map(r => r.did) : []);
   const unknown = ctx.profile.interests.includes('unknown');
@@ -69,8 +70,8 @@ export function rank(ctx: RankCtx): { scored: Scored[]; funnel: Funnel } {
         });
       }
     }
-    if (ctx.mode === 'explore' && !tried.has(p.field)) { score += unknown ? 2 : 1; reasons.push({ kind: 'novelty', text: `아직 해 보지 않은 ‘${FIELD_LABEL[p.field]}’ 분야예요. 넓게 탐색하는 중이라 섞었어요.` }); }
-    if (ctx.profile.interests.includes(p.field)) { score += 3; reasons.push({ kind: 'interest', text: `처음에 고른 관심 ‘${FIELD_LABEL[p.field]}’${josa(FIELD_LABEL[p.field], '과', '와')} 맞아요.` }); }
+    if (ctx.mode === 'explore' && !tried.has(FIELD_GROUP[p.field])) { score += unknown ? 2 : 1; reasons.push({ kind: 'novelty', text: `아직 해 보지 않은 ‘${fieldName(p.field)}’ 분야예요. 넓게 탐색하는 중이라 섞었어요.` }); }
+    if (inInterests(ctx.profile.interests, p.field)) { score += 3; reasons.push({ kind: 'interest', text: `처음에 고른 관심 ‘${fieldName(p.field)}’${josa(fieldName(p.field), '과', '와')} 맞아요.` }); }
     if (ctx.dislikedFields.includes(p.field)) score -= 4;
     if (ctx.preferEasier && p.level > 1) score -= 2;
     if (ctx.last && p.field === ctx.last.field) score -= 2;
@@ -100,10 +101,10 @@ export function pickAlternatives(scored: Scored[], base: Program): Scored[] {
 
 /** 비교 화면에서 가장 추천과 무엇이 다른지 한 줄 */
 export function diffLabel(a: Program, base: Program, tried: Set<Field>, interests: Interest[]) {
-  if (a.field !== base.field && !tried.has(a.field)) return `새로운 분야 · ${FIELD_LABEL[a.field]}`;
+  if (FIELD_GROUP[a.field] !== FIELD_GROUP[base.field] && ![...tried].some(f => FIELD_GROUP[f] === FIELD_GROUP[a.field])) return `새로운 분야 · ${fieldName(a.field)}`;
   if (a.hours < base.hours) return `더 가볍게 · ${a.format !== base.format && a.format === 'online' ? '온라인 ' : ''}${a.durationLabel}`;
   if (a.format !== base.format) return a.format === 'online' ? '온라인으로' : '직접 만나서';
   if (a.level > base.level) return '한 단계 도전';
-  if (interests.includes(a.field)) return `관심 분야 · ${FIELD_LABEL[a.field]}`;
+  if (inInterests(interests, a.field)) return `관심 분야 · ${fieldName(a.field)}`;
   return `다른 일정 · ${a.when}`;
 }

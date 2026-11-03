@@ -1,6 +1,6 @@
 import { ddayText } from '../text';
 import type { Activity, FieldGroup, Funnel } from '../types';
-import { FIELD_LABEL, FIELD_GROUP, GROUP_LABEL } from '../vocab';
+import { FIELD_GROUP, GROUP_LABEL, GROUP_ORDER } from '../vocab';
 import { prepareHref } from './flow';
 import { whenOffset, type UpcomingItem, type UpcomingTarget } from './upcoming';
 
@@ -65,8 +65,7 @@ export type SemesterBar = { group: FieldGroup; label: string; count: number };
 export function semesterBars(activities: Activity[]): SemesterBar[] {
   const counts = new Map<FieldGroup, number>();
   for (const a of activities.filter(isSemesterActivity)) { const g = FIELD_GROUP[a.field]; counts.set(g, (counts.get(g) ?? 0) + 1); }
-  const order: FieldGroup[] = ['dev', 'ai', 'plan', 'mentor', 'global', 'other'];
-  return order.filter(g => counts.has(g)).map(g => ({ group: g, label: GROUP_LABEL[g], count: counts.get(g)! })).sort((a, b) => b.count - a.count);
+  return GROUP_ORDER.filter(g => counts.has(g)).map(g => ({ group: g, label: GROUP_LABEL[g], count: counts.get(g)! })).sort((a, b) => b.count - a.count);
 }
 
 /** 이번 학기 막대 머리말(15자 안팎): '활동 4개 · AI·데이터 중심' */
