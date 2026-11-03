@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { setPageScrollTop } from './pageScroll';
 
 type Props = {
   title: ReactNode;
@@ -24,7 +25,7 @@ export function PageHeader({ eyebrow, title, actions, parent, crumb }: Props) {
   const isFlow = parent !== undefined;
   useEffect(() => {
     if (!isFlow) return;
-    window.scrollTo({ top: 0 });
+    setPageScrollTop(0);
     h1.current?.focus({ preventScroll: true });
   }, [isFlow]);
 

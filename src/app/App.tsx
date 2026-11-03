@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ComponentType } from 'react';
-import { ToastProvider } from '../components';
+import { setPageScrollTop, ToastProvider } from '../components';
 import Activities from '../screens/activities';
 import Analysis from '../screens/analysis';
 import Home from '../screens/home';
@@ -11,6 +11,7 @@ import { useChallengeToasts } from './challenges';
 import { EntityProvider } from './entity';
 import KitScreen from './kit/KitScreen';
 import { canonicalPath, navigate, screenLabel, useRoute, type RouteName, type ScreenProps } from './router';
+import { useScrollingMark } from './scrolling';
 import { Sidebar } from './Sidebar';
 import './app.css';
 
@@ -22,6 +23,7 @@ function Shell() {
   const route = useRoute();
   const first = useRef(true);
   useChallengeToasts();
+  useScrollingMark();
   // 화면 하나 = 메뉴 + 하위 경로 첫 토막('activities/records'). 그 아래 id 가 바뀌어도 같은 화면이 아니면 새로 그린다.
   const page = route.sub ? `${route.name}/${route.sub.split('/')[0]}` : route.name;
 
@@ -36,7 +38,7 @@ function Shell() {
     const label = screenLabel(route) ?? (route.name === 'settings' ? '설정' : '컴포넌트 목록');
     document.title = `${label} · 킹고 컴패니언`;
     if (first.current) { first.current = false; return; }
-    window.scrollTo({ top: 0 });
+    setPageScrollTop(0);
     document.querySelector<HTMLElement>('[data-page-title]')?.focus({ preventScroll: true });
   }, [page]);
 
@@ -45,7 +47,7 @@ function Shell() {
     <div className="app">
       <button type="button" className="app-skip" onClick={() => document.querySelector<HTMLElement>('[data-page-title]')?.focus()}>본문으로 건너뛰기</button>
       <Sidebar route={route} />
-      <main className="app-main">
+      <main className="app-main" data-scroll-root>
         <Screen key={page} sub={route.sub} />
       </main>
     </div>

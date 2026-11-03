@@ -39,7 +39,7 @@ export function CandidateDetail({ primary, isPrimary, week, records, activities,
 
   return (
     <Card className="rec-detail" aria-labelledby="rec-detail-title">
-      <div className="rec-detail__main">
+      <div className="rec-detail__main os-scroll">
         <div className="rec-detail__meta">
           <Badge tone={isPrimary ? 'lime' : 'neutral'}>{isPrimary ? '가장 추천' : '고른 후보'}</Badge>
           <span className="rec-detail__kind">{fieldName(p.field)} · {DID_LABEL[p.did[0]]}</span>
@@ -73,7 +73,7 @@ export function CandidateDetail({ primary, isPrimary, week, records, activities,
         </section>
       </div>
 
-      <div className="rec-detail__go">
+      <div className="rec-detail__go" data-action-bar>
         <Button variant="primary" onClick={() => actions.onPrepare(p)}>신청 준비</Button>
         <Button onClick={() => actions.onLater(p)}>나중에 보기</Button>
         <Button onClick={() => actions.onDismiss(p)}>관심 없음</Button>

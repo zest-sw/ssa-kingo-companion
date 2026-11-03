@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { onPageScroll, pageScrollTop, setPageScrollTop } from '../components';
 import { createOverviewStore, restoreSel, shouldRestoreScroll } from './overview';
 import { previousRoute } from './router';
 
@@ -28,19 +29,19 @@ export function useOverviewState<T>(menu: string, initial: T, isValid?: (v: unkn
     if (!shouldRestoreScroll(menu, previousRoute())) return;
     const y = store.get(menu).scrollY;
     if (!y) return;
-    const id = requestAnimationFrame(() => window.scrollTo({ top: y }));
+    const id = requestAnimationFrame(() => setPageScrollTop(y));
     return () => cancelAnimationFrame(id);
   }, [menu]);
 
-  // 이 화면이 떠 있는 동안 스크롤을 따라 적는다. 떠날 때 적으면 다음 화면이 이미 그려져 위치가 바뀐 뒤일 수 있다.
+  // 이 화면이 떠 있는 동안 본문 칸 스크롤을 따라 적는다. 떠날 때 적으면 다음 화면이 이미 그려져 위치가 바뀐 뒤일 수 있다.
   useEffect(() => {
     let frame = 0;
     const onScroll = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => store.setScroll(menu, window.scrollY));
+      frame = requestAnimationFrame(() => store.setScroll(menu, pageScrollTop()));
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', onScroll); };
+    const off = onPageScroll(onScroll);
+    return () => { cancelAnimationFrame(frame); off(); };
   }, [menu]);
 
   return [sel, setSel] as const;

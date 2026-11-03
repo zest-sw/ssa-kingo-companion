@@ -1,5 +1,6 @@
-/* 앱 틀: 왼쪽 사이드바 220px + 본문. 1200px 아래에서는 사이드바를 아이콘만 남긴다. */
-.app { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); min-height: 100vh; }
+/* 앱 틀: 왼쪽 사이드바 220px + 본문. 1200px 아래에서는 사이드바를 아이콘만 남긴다.
+   틀은 창 높이를 정확히 채우고(페이지 스크롤 0), 넘치는 내용은 본문 칸만 스크롤한다. 높이 760 아래에서는 밀도를 한 단계 줄인다(tokens.css). */
+.app { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); height: 100vh; height: 100dvh; }
 
 .app-skip {
   position: fixed; top: var(--space-2); left: var(--space-2); z-index: var(--z-toast);
@@ -9,7 +10,7 @@
 .app-skip:focus-visible { transform: none; }
 
 .app-side {
-  position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: var(--space-4);
+  min-height: 0; display: flex; flex-direction: column; gap: var(--space-4);
   padding: var(--space-4) var(--space-3) var(--space-3); background: var(--surface); border-right: var(--border); overflow-y: auto;
 }
 .app-brand { display: flex; align-items: center; gap: var(--space-2); min-height: var(--control-h); padding: 0 var(--space-2); text-decoration: none; }
@@ -56,7 +57,20 @@
 .app-gear:hover { background: var(--surface-hover); color: var(--ink); }
 .app-gear[aria-current='page'] { background: var(--grey-100); color: var(--ink); }
 
-.app-main { min-width: 0; padding: var(--space-8) var(--space-10) var(--space-12); }
+/* 본문 칸. 화면 틀(.os)이 남은 높이를 채우고, 넘칠 때만(창 높이가 --app-min-h 아래이거나 긴 화면) 여기가 스크롤한다. */
+.app-main {
+  position: relative; min-width: 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column;
+  padding: var(--main-pad-t) var(--main-pad-x) var(--main-pad-b);
+  scroll-padding-block: var(--main-pad-t) var(--main-pad-b);
+}
+.app-main > * { flex-shrink: 0; }
+
+/* 낮은 높이: 메뉴 줄·간격·학생 카드를 한 단계 줄인다. 학생 카드는 이름 한 줄만 남긴다 */
+@media (max-height: 759px) {
+  .app-side { gap: var(--space-3); padding: var(--space-3) var(--space-3) var(--space-2); }
+  .app-side__foot { padding-top: var(--space-2); }
+  .app-student__text > span { display: none; }
+}
 
 @media (max-width: 1199px) {
   .app { grid-template-columns: var(--sidebar-width-compact) minmax(0, 1fr); }
@@ -70,7 +84,7 @@
   .app-nav__link--parent { background: var(--grey-100); }
   .app-side__foot { flex-direction: column; gap: var(--space-2); }
   .app-student { flex: none; padding: 0; border-radius: var(--radius-full); }
-  .app-main { padding: var(--space-6) var(--space-6) var(--space-10); }
+  .app-main { --main-pad-x: var(--space-6); }
 }
 
 /* 공용 서랍 기본 내용(entity.tsx) */

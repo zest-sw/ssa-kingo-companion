@@ -18,14 +18,24 @@ export function registerEntityView(kind: EntityKind, view: EntityView) {
   VIEWS[kind] = view;
 }
 
-type Ctx = { current: EntityRef | null; open: (ref: EntityRef) => void; close: () => void };
+/**
+ * 상세('자세히')로 여는 법. 요약 → 상세 뎁스의 공용 진입 규칙(docs/design/web-desktop.md 7절).
+ * - drawer(기본): 같은 화면 위 오른쪽 서랍. 닫으면 제자리. 훑어보고 고르는 곳(목록·보드·다이어그램 조각)에서.
+ * - page: 그 항목의 상세 경로(하위 경로)로 옮긴다. 빵부스러기 한 줄로 돌아온다. 그 안에서 할 일이 이어지는 곳(신청 준비, 회고)에서.
+ */
+export type OpenMode = { as?: 'drawer' | 'page' };
+
+type Ctx = { current: EntityRef | null; open: (ref: EntityRef, mode?: OpenMode) => void; close: () => void };
 const EntityContext = createContext<Ctx | null>(null);
 // React 밖(다이어그램 onSelect 같은 콜백)에서도 부를 수 있게 공급자의 open 을 붙잡아 둔다.
-let openOutside: ((ref: EntityRef) => void) | undefined;
+let openOutside: ((ref: EntityRef, mode?: OpenMode) => void) | undefined;
 
-/** 기회·활동·기록 서랍을 연다. 어디서 불러도 같은 서랍 하나가 열린다. */
-export function openEntity(ref: EntityRef) {
-  openOutside?.(ref);
+/**
+ * 기회·활동·기록의 상세를 연다. 어디서 불러도 같은 서랍 하나가 열린다.
+ * openEntity(ref, { as: 'page' }) 는 서랍 대신 상세 경로로 바로 간다(못 찾으면 서랍이 '찾지 못했어요'를 보여 준다).
+ */
+export function openEntity(ref: EntityRef, mode?: OpenMode) {
+  openOutside?.(ref, mode);
 }
 
 export function useEntity(): Ctx {
@@ -37,7 +47,12 @@ export function useEntity(): Ctx {
 // ponytail: 열린 서랍은 주소에 남기지 않는다(새로고침하면 닫힘). 서랍을 링크로 공유할 일이 생기면 ?open=kind:id 로 옮긴다.
 export function EntityProvider({ children }: { children: ReactNode }) {
   const [current, setCurrent] = useState<EntityRef | null>(null);
-  const open = useCallback((ref: EntityRef) => setCurrent(ref), []);
+  const { state } = useApp();
+  const open = useCallback((ref: EntityRef, mode?: OpenMode) => {
+    const href = mode?.as === 'page' ? entitySummary(ref, { programs: PROGRAM_BY_ID, activities: state.activities, records: state.records })?.href : undefined;
+    if (href) navigate(href);
+    else setCurrent(ref);
+  }, [state.activities, state.records]);
   const close = useCallback(() => setCurrent(null), []);
   const route = useRoute();
 
