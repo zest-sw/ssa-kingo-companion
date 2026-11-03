@@ -17,14 +17,17 @@
 .home-ask__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .home-ask__hint { font-size: var(--text-sm); color: var(--accent-ink); }
 
-/* 홈 L1: 기본은 한 줄로 쌓고, 1440 이상에서 오른쪽 보조 패널(타임라인·고리)을 둔다. */
+/* 홈 L1: 기본은 한 줄로 쌓고, 1440 이상에서 오른쪽 보조 패널(곧 있어요 타임라인)을 둔다. */
 .home-l1 { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); align-items: start; }
 .home-l1__main, .home-l1__side { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
 .home-top .rec-pick__title { font-size: var(--text-4xl); }
-.home-alts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
-.home-alt { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); width: 100%; height: 100%; padding: var(--space-4); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); text-align: left; font: inherit; cursor: pointer; }
-.home-alt:hover { background: var(--surface-alt); border-color: var(--line-strong); }
-.home-alt__title { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+.home-today__list { display: flex; flex-direction: column; }
+.home-task { display: flex; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--hit-min); padding: var(--space-3) 0; border: 0; border-bottom: var(--border); background: none; text-align: left; font: inherit; font-size: var(--text-md); cursor: pointer; }
+.home-today__list li:last-child .home-task { border-bottom: 0; }
+.home-task:hover { background: var(--surface-hover); }
+.home-task__text { flex: 1; min-width: 0; font-weight: var(--weight-bold); }
+.home-task__arrow { display: inline-flex; color: var(--ink-muted); }
+.home-sem__line { font-size: var(--text-lg); font-weight: var(--weight-bold); }
 @media (min-width: 1440px) {
   .home-l1 { grid-template-columns: minmax(0, 1fr) var(--home-side); }
 }
