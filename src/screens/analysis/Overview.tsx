@@ -44,7 +44,7 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
         {analysis.status === 'ready' && (
           <>
             <section className="an-board" aria-label="내 기록 그림 넷">
-              <SummaryCard href={hrefOf('analysis/techtree')} title="테크 트리" headline={treeHeadline(tree)} value={treeValue(tree)} visual={none ? <GhostPic kind="grid" labels={TREE_GROUPS.slice(0, 3).map(g => GROUP_LABEL[g])} cols={[...TREE_COLUMNS]} /> : <TreePic rows={glance.rows} />} />
+              <SummaryCard href={hrefOf('analysis/techtree')} title="테크 트리" headline={treeHeadline(tree)} value={treeValue(tree)} visual={none ? <GhostPic kind="branches" labels={TREE_GROUPS.slice(0, 3).map(g => GROUP_LABEL[g])} cols={[...TREE_COLUMNS]} /> : <TreePic rows={glance.rows} />} />
               <SummaryCard href={hrefOf('analysis/map')} title="경험 지도" headline={mapHeadline(records)} value={none ? undefined : `확인한 연결 ${confirmed}개`} visual={none ? <GhostPic kind="network" /> : <MapPic records={records} answers={state.edgeAnswers} />} />
               <SummaryCard href={hrefOf('analysis/flow')} title="관심 흐름" headline={flowHeadline(flow)} value={flow.length ? `기록 있는 학기 ${flow.length}개` : undefined} visual={none ? <GhostPic kind="bars" labels={[SEMESTER_NOW.replace(/^20/, '')]} /> : <FlowPic rows={flow} />} />
               <SummaryCard href={hrefOf('analysis/strengths')} title="나의 강점" headline={strengthHeadline(strengths)} value={seen ? `기록에서 보인 역량 ${seen}개` : undefined} visual={seenAxes(strengths) ? <StrengthPic rows={strengths} /> : <GhostPic kind="bars" labels={AXES.slice(0, 3).map(a => a.label)} />} />

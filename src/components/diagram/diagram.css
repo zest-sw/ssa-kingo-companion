@@ -174,9 +174,13 @@
 .ui-ghost__row { display: flex; align-items: center; gap: var(--space-3); min-height: var(--dg-bar-h); }
 .ui-ghost__dot { flex: none; width: var(--dg-dot); height: var(--dg-dot); border-radius: var(--radius-full); border: 1px dashed var(--line-strong); }
 .ui-ghost__line { flex: 1; min-height: var(--dg-bar-h); border-radius: var(--radius-xs); border: 1px dashed var(--line-strong); padding: 0 var(--space-2); line-height: var(--dg-bar-h); }
-.ui-ghost__grid { display: grid; gap: var(--space-1); align-items: center; }
-.ui-ghost__col { text-align: center; }
-.ui-ghost__cell { height: var(--dg-bar-h); border-radius: var(--radius-xs); border: 1px dashed var(--line-strong); }
+/* 가지 틀: 위 한 줄 눈금 + 분야마다 옅은 점선 가지와 빈 점. 칸 선은 그리지 않는다. */
+.ui-ghost__branches { display: flex; flex-direction: column; gap: var(--space-2); }
+.ui-ghost__brow { display: flex; align-items: center; gap: var(--space-3); min-height: var(--dg-bar-h); }
+.ui-ghost__btrack { position: relative; flex: 1; align-self: stretch; min-height: var(--dg-bar-h); }
+.ui-ghost__btrack--line::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed var(--line-strong); }
+.ui-ghost__bcol { position: absolute; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; }
+.ui-ghost__bdot { position: absolute; top: 50%; width: var(--dg-dot); height: var(--dg-dot); border-radius: var(--radius-full); border: 1px dashed var(--line-strong); background: var(--surface); transform: translate(-50%, -50%); box-sizing: border-box; }
 .ui-ghost__axis { display: flex; justify-content: space-between; padding-top: var(--space-2); border-top: 2px dashed var(--line-strong); }
 .ui-ghost__tick { position: relative; }
 .ui-ghost__tick::before { content: ''; position: absolute; left: 50%; top: calc(-1 * var(--space-2) - 2px); height: var(--space-2); border-left: 1px solid var(--line-strong); }
