@@ -1,5 +1,6 @@
 import type { Field } from '../domain/types';
 import type { RecruitPost } from '../domain/social';
+import type { FeedLike } from '../domain/social/summary';
 
 // 친구·모집·명예의 전당 예시 데이터. 이름은 모두 지어낸 가공 이름이다(실제 인물 아님).
 
@@ -21,12 +22,18 @@ export const FRIENDS: Peer[] = [
 /** 나에게 온 친구 요청 */
 export const INCOMING: Peer[] = [{ id: 'req-a', name: '하람', dept: '미디어커뮤니케이션학과', year: 2, note: '같은 활동 1개', field: 'research' }];
 
-export type FeedItem = { id: string; who: string; text: string; cheers: number };
+export type FeedItem = FeedLike & { id: string; friendId: string; cheers: number };
 export const FEED: FeedItem[] = [
-  { id: 'feed-a', who: '다온', text: '다온님이 AI 데이터 분석 경진대회에 신청했어요', cheers: 4 },
-  { id: 'feed-b', who: '지후', text: '지후님이 숨은 도전 과제를 찾았어요', cheers: 2 },
-  { id: 'feed-c', who: '아린', text: '아린님이 데이터 시각화 회고를 공개했어요', cheers: 0 }
+  { id: 'feed-a', friendId: 'friend-a', who: '다온', kind: 'achieved', subject: '첫 회고', cheers: 4 },
+  { id: 'feed-b', friendId: 'friend-b', who: '지후', kind: 'hidden', cheers: 2 },
+  { id: 'feed-c', friendId: 'friend-a', who: '다온', kind: 'applied', subject: 'AI 데이터 분석 경진대회', cheers: 0 }
 ];
+
+/** 친구 프로필 서랍에 보일 것: 친구가 전시한 도전 과제(id)와 한 활동 하나. 친구가 공개한 것만 예시로 둔다 */
+export const FRIEND_PROFILES: Record<string, { showcase: string[]; activity: { title: string; field: Field } }> = {
+  'friend-a': { showcase: ['first-retro', 'three-paths'], activity: { title: 'AI 프로젝트 학회', field: 'ai' } },
+  'friend-b': { showcase: ['first-retro', 'explainer'], activity: { title: '리서치 스터디', field: 'research' } }
+};
 
 /** 이 활동을 해 본 친구·선배. 내 활동 이름으로 찾는다 */
 export type DoneBy = { activityTitle: string; people: { name: string; label: string }[] };

@@ -15,6 +15,8 @@
   --an-track-h: var(--hit-min);
   --an-track-sum-h: var(--space-2);
   --an-str-label-w: 120px;
+  --an-aid-w: 96px;
+  --an-aid-h: 72px;
   --an-dot-sm: 10px;
   --an-dot-md: 12px;
   --an-dot-lg: var(--space-3);
@@ -203,9 +205,12 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 
 .an-str__hint { color: var(--ink-subtle); font-weight: var(--weight-regular); }
 
-/* L1 개요: 확인할 발견 띠 + 2×2 작은 그림 타일 */
+/* L1 개요: 한 줄 통찰 카드 2×2 + 확인할 발견. 그림은 문장 옆 작은 보조 */
 .an-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-.an-glance { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: var(--space-3); }
+.an-glance { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.an-aid { display: grid; place-items: center; min-width: var(--an-aid-w); height: var(--an-aid-h); }
+.an-aid .an-gdot { width: var(--an-dot-sm); height: var(--an-dot-sm); }
+.an-aid .an-gbar { height: var(--an-dot-md); }
 .an-glance__empty { color: var(--ink-subtle); font-size: var(--text-sm); }
 .an-glance--tree { flex-direction: column; gap: var(--an-dot-gap); }
 .an-glance__line { display: flex; gap: var(--an-dot-gap); }
@@ -225,3 +230,6 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 .an-gcol { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
 .an-gcol__dots { display: flex; flex-direction: column; gap: var(--an-dot-gap); }
 .an-gcol__label { color: var(--ink-muted); font-size: var(--text-xs); }
+/* 요약 카드의 보조 그림은 작아서 역량 이름은 빼고 점만 둔다. 이름은 문장에 있다. */
+.an-aid .an-glance--str { gap: var(--space-2); }
+.an-aid .an-gcol__label { display: none; }

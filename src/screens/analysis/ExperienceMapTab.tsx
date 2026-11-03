@@ -5,7 +5,6 @@ import { answerEdge, buildMap, clearRejected, edgesOf, edgeState, type EdgeAnswe
 import { semesterLabel } from '../../domain/analysis/semester';
 import type { RecordItem } from '../../domain/types';
 import { DID_LABEL, FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
-import { DiscoveryCards } from './DiscoveryCards';
 import { MapGraph, type MapPick } from './MapGraph';
 import { RecordSummary } from './RecordSummary';
 
@@ -20,7 +19,6 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
 
   return (
     <div className="an-stack an-stack--lg">
-      <DiscoveryCards />
       <Card
         title="경험 지도"
         action={records.length === 0 ? undefined : (

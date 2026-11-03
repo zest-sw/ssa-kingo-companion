@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useApp } from '../../app/AppState';
 import { Badge, Button, Card, Chip, EmptyState, useToast } from '../../components';
+import { interestedIds, recruitLine } from '../../domain/social/summary';
 import { NOTE_MAX, SLOT_RANGE, orderPosts, toggled, validatePost, type RecruitPost } from '../../domain/social';
 import { APPLICANTS, OPPORTUNITY_BY_ID, TEAM_OPPORTUNITIES } from '../../data/friends';
 
@@ -24,8 +25,7 @@ export function RecruitView({ posts, onPost }: Props) {
 
   // ponytail: 정렬은 '내가 관심 표시한 기회의 글이 먼저'이다. 내 글이 관심 표시한 학생에게 먼저 보이는 건 숫자(interested)로만 알린다. 실제 배포는 서버가 정할 일이다.
   // 관심 표시한 기회: 내가 직접 표시했거나, 신청 준비 중인 추천 후보와 같은 기회.
-  const preparing = new Set(state.activities.map(a => a.programId));
-  const interested = [...interest, ...TEAM_OPPORTUNITIES.filter(o => o.programId && preparing.has(o.programId)).map(o => o.id)];
+  const interested = interestedIds(TEAM_OPPORTUNITIES, state.activities, interest);
   const ordered = orderPosts(posts, interested);
 
   const submit = (e: FormEvent) => {
@@ -45,6 +45,8 @@ export function RecruitView({ posts, onPost }: Props) {
   };
 
   return (
+    <>
+    <p className="fr-headline">{recruitLine(posts, interested)}</p>
     <div className="fr-cols fr-cols--recruit">
       <Card className="fr-col-side" title="모집 글 올리기">
         <form className="fr-form" onSubmit={submit} noValidate>
@@ -121,5 +123,6 @@ export function RecruitView({ posts, onPost }: Props) {
         )}
       </Card>
     </div>
+    </>
   );
 }

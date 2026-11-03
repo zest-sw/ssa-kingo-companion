@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { Badge, Button, Card, useToast } from '../../components';
+import { friendsLine } from '../../domain/social/summary';
 import { DONE_BY, FRIENDS, INCOMING, SIMILAR_PEERS, type Peer } from '../../data/friends';
 
 const Avatar = ({ name }: { name: string }) => <span className="fr-avatar" aria-hidden="true">{name.slice(0, 1)}</span>;
@@ -23,6 +24,8 @@ export function FriendsView() {
   };
 
   return (
+    <>
+    <p className="fr-headline">{friendsLine(friends.length, incoming.length)}</p>
     <div className="fr-cols">
       <div className="fr-col-main fr-stack">
         <Card padding="md" title="친구">
@@ -75,5 +78,6 @@ export function FriendsView() {
         </Card>
       </div>
     </div>
+    </>
   );
 }
