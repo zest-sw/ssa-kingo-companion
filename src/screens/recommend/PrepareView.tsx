@@ -104,7 +104,7 @@ export function PrepareView({ programId }: { programId: string }) {
     <div className="os">
       <PageHeader parent={parentLink('recommend')} crumb="신청 준비" title={p.title} actions={submitted ? <Badge tone="green">결과 대기</Badge> : <Badge tone="orange">마감 {ddayText(dday)} · {dateLabel(dday, state.week)}</Badge>} />
       <div className="os__body os__body--fill rec-prep">
-        {submitted ? <PrepDone result={activity?.schedule ? `${activity.schedule} · 일정에서 확인` : '일정에서 확인'} /> : (
+        {submitted ? <PrepDone /> : (
         <Card className="rec-prep__list" title="준비할 것" action={<span>{left > 0 ? `${left}개 남음` : '모두 끝났어요'}</span>}>
           {urgent && urgent.dday !== undefined && (
             <p className="rec-urgent"><Icon name="bell" size={18} />가장 급한 것 · {dateLabel(urgent.dday, state.week)}까지 {urgent.label}</p>
