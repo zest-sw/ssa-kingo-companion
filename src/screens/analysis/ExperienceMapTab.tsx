@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Sketch } from './Sketch';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, Drawer, EmptyState } from '../../components';
+import { Badge, Button, Card, Drawer, EmptyState, GhostPic } from '../../components';
 import { nextStep } from '../../domain/nextStep';
 import { answerEdge, buildMap, clearRejected, edgesOf, edgeState, type EdgeAnswers, type MapEdge } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
@@ -34,7 +33,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
         )}
       >
         {records.length === 0 ? (
-          <EmptyState pic={<div className="an-skframe"><Sketch kind="network" /></div>} message={`${step.lead} 기록이 점으로 생기고 같은 일을 한 기록끼리 이어져요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
+          <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 기록이 점으로 생기고 같은 일을 한 기록끼리 이어져요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
         ) : (
           <>
             <div className="an-mapbox"><MapGraph map={map} answers={answers} picked={pick} onPick={setPick} /></div>

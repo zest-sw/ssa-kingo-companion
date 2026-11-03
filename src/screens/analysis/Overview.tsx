@@ -2,7 +2,9 @@ import { useMemo } from 'react';
 import { useApp } from '../../app/AppState';
 import { hrefOf } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Card, ErrorState, Icon, LoadingState, PageHeader, SummaryCard } from '../../components';
+import { Card, ErrorState, GhostPic, Icon, LoadingState, PageHeader, SummaryCard } from '../../components';
+import { TREE_COLUMNS, TREE_GROUPS } from '../../domain/analysis/techtree';
+import { AXES, GROUP_LABEL } from '../../domain/vocab';
 import { buildFlow } from '../../domain/analysis/flow';
 import { recentFlow, seenAxes, treeGlance } from '../../domain/analysis/glance';
 import { buildMap } from '../../domain/analysis/map';
@@ -13,7 +15,6 @@ import { edgeState } from '../../domain/analysis/map';
 import { SEMESTER_FROM, SEMESTER_NOW } from '../../data/analysis';
 import { DiscoveryCards } from './DiscoveryCards';
 import { FlowPic, MapPic, StrengthPic, TreePic } from './Glance';
-import { Sketch } from './Sketch';
 import type { useAnalysis } from './useAnalysis';
 import { useTechTree } from './useTechTree';
 
@@ -43,10 +44,10 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
         {analysis.status === 'ready' && (
           <>
             <section className="an-board" aria-label="내 기록 그림 넷">
-              <SummaryCard href={hrefOf('analysis/techtree')} title="테크 트리" headline={treeHeadline(tree)} value={treeValue(tree)} visual={none ? <Sketch kind="tree" /> : <TreePic rows={glance.rows} />} />
-              <SummaryCard href={hrefOf('analysis/map')} title="경험 지도" headline={mapHeadline(records)} value={none ? undefined : `확인한 연결 ${confirmed}개`} visual={none ? <Sketch kind="network" /> : <MapPic records={records} answers={state.edgeAnswers} />} />
-              <SummaryCard href={hrefOf('analysis/flow')} title="관심 흐름" headline={flowHeadline(flow)} value={flow.length ? `기록 있는 학기 ${flow.length}개` : undefined} visual={none ? <Sketch kind="flow" /> : <FlowPic rows={flow} />} />
-              <SummaryCard href={hrefOf('analysis/strengths')} title="나의 강점" headline={strengthHeadline(strengths)} value={seen ? `기록에서 보인 역량 ${seen}개` : undefined} visual={seenAxes(strengths) ? <StrengthPic rows={strengths} /> : <Sketch kind="strengths" />} />
+              <SummaryCard href={hrefOf('analysis/techtree')} title="테크 트리" headline={treeHeadline(tree)} value={treeValue(tree)} visual={none ? <GhostPic kind="grid" labels={TREE_GROUPS.slice(0, 3).map(g => GROUP_LABEL[g])} cols={[...TREE_COLUMNS]} /> : <TreePic rows={glance.rows} />} />
+              <SummaryCard href={hrefOf('analysis/map')} title="경험 지도" headline={mapHeadline(records)} value={none ? undefined : `확인한 연결 ${confirmed}개`} visual={none ? <GhostPic kind="network" /> : <MapPic records={records} answers={state.edgeAnswers} />} />
+              <SummaryCard href={hrefOf('analysis/flow')} title="관심 흐름" headline={flowHeadline(flow)} value={flow.length ? `기록 있는 학기 ${flow.length}개` : undefined} visual={none ? <GhostPic kind="bars" labels={[SEMESTER_NOW.replace(/^20/, '')]} /> : <FlowPic rows={flow} />} />
+              <SummaryCard href={hrefOf('analysis/strengths')} title="나의 강점" headline={strengthHeadline(strengths)} value={seen ? `기록에서 보인 역량 ${seen}개` : undefined} visual={seenAxes(strengths) ? <StrengthPic rows={strengths} /> : <GhostPic kind="bars" labels={AXES.slice(0, 3).map(a => a.label)} />} />
             </section>
             <DiscoveryCards />
           </>
