@@ -9,7 +9,7 @@ import { funnelDrops, STEP_IDS } from './drops';
 import { parseRecommendSub } from './flow';
 import { setListIntent, takeListIntent } from './intent';
 import { pickingLine, semesterLine, todayTasks } from './summary';
-import { upcomingItems, upcomingRange, whenOffset } from './upcoming';
+import { shortName, upcomingItems, upcomingRange, whenOffset } from './upcoming';
 
 const act = (over: Partial<Activity>): Activity => ({ id: 'a', title: 'A', field: 'dev', status: 'preparing', schedule: '', ...over });
 const pick = (id: string, over = {}): Scored => ({ p: prog(id, over), score: 1, reasons: [] });
@@ -64,6 +64,13 @@ describe('upcomingItems', () => {
   it('후보는 마감과 활동 날짜를 올리고 이미 활동이 된 후보는 건너뛴다', () => {
     const items = upcomingItems([act({ id: 'a1', programId: 'p2', status: 'applied' })], [pick('p1', { ddayW1: 2, when: '10.16(금) 18:30' }), pick('p2')], 1);
     expect(items.map(i => [i.id, i.date])).toEqual([['due:p1', '2026-10-15'], ['on:p1', '2026-10-16']]);
+    // 같은 활동의 두 표식 중 이름은 뒤쪽 한 번만 붙는다
+    expect(items[0].short).toBe('');
+    expect(items[1].short).not.toBe('');
+  });
+  it('긴 이름은 콜론 앞까지만 점 옆 이름표로 쓴다', () => {
+    expect(shortName('설문 결과로 말하기: 데이터 시각화 특강')).toBe('설문 결과로 말하기');
+    expect(shortName('포트폴리오 1:1 피드백')).toBe('포트폴리오 1:1 피드백');
   });
   it('범위와 날짜 읽기', () => {
     expect(upcomingRange(1)).toEqual({ start: '2026-10-15', end: '2026-10-29' });
