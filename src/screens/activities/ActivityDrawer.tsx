@@ -64,7 +64,7 @@ export function ActivityDrawer({ a, onClose }: { a: Activity | undefined; onClos
         <>
           {a.status === 'preparing' && <Button variant="primary" onClick={() => go(`recommend/prepare/${a.programId ?? a.id}`)}>신청 준비 이어서 하기</Button>}
           {a.status === 'ended' && <Button variant="primary" onClick={() => { onClose(); goInterview(a.id); }}>회고 쓰기</Button>}
-          {a.status === 'recorded' && <Button variant="primary" onClick={() => go('records')}>기록 보관함에서 보기</Button>}
+          {a.status === 'recorded' && <Button variant="primary" onClick={() => go('activities/records')}>기록에서 보기</Button>}
           {a && canQuit(a) && <Button variant="ghost" onClick={quit}>활동 그만두기</Button>}
         </>
       )}

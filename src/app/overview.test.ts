@@ -52,8 +52,11 @@ describe('선택 되살리기', () => {
 });
 
 describe('스크롤 되살릴 때', () => {
-  it('같은 메뉴 L2 에서 돌아올 때만', () => {
-    expect(shouldRestoreScroll('activities', { name: 'activities', sub: 'board' })).toBe(true);
+  it('이 화면 아래 경로에서 돌아올 때만', () => {
+    expect(shouldRestoreScroll('activities', { name: 'activities', sub: 'schedule' })).toBe(true);
+    expect(shouldRestoreScroll('activities/records', { name: 'activities', sub: 'records/interview/a-1' })).toBe(true);
+    expect(shouldRestoreScroll('activities/records', { name: 'activities', sub: 'records' })).toBe(false);
+    expect(shouldRestoreScroll('activities/records', { name: 'activities', sub: 'schedule' })).toBe(false);
     expect(shouldRestoreScroll('activities', { name: 'activities' })).toBe(false);
     expect(shouldRestoreScroll('activities', { name: 'home' })).toBe(false);
     expect(shouldRestoreScroll('activities', undefined)).toBe(false);

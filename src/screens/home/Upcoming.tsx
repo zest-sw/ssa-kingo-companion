@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
-import { Card, Legend, Loop, Timeline, type LegendItem, type TimelineItem } from '../../components';
+import { Card, Legend, Timeline, type LegendItem, type TimelineItem } from '../../components';
 import type { UpcomingItem } from '../../domain/recommend-flow/upcoming';
 import { upcomingRange, todayIso } from '../../domain/recommend-flow/upcoming';
 
@@ -23,25 +23,6 @@ export function Upcoming({ items, week }: { items: UpcomingItem[]; week: number 
   return (
     <Card title="곧 있어요" action={<Legend items={LEGEND} />} className="home-upcoming">
       <Timeline label="앞으로 14일" range={range} today={todayIso(week)} items={points} onSelect={go} empty="앞으로 14일은 비어 있어요. 추천에서 마음에 드는 활동을 골라 보세요." />
-    </Card>
-  );
-}
-
-type LoopProps = { records: number; toConfirm: number; recommend: number };
-
-/** 과거·현재·미래 고리: 기록 → 분석 → 추천. 노드를 누르면 그 메뉴로 간다. */
-export function PastPresentFuture({ records, toConfirm, recommend }: LoopProps) {
-  return (
-    <Card title="나의 흐름" className="home-loop">
-      <Loop
-        label="기록, 분석, 추천이 이어지는 고리"
-        nodes={[
-          { id: 'records', label: '기록', value: `${records}개` },
-          { id: 'analysis', label: '분석', value: `발견 ${toConfirm}개` },
-          { id: 'recommend', label: '추천', value: `${recommend}개` }
-        ]}
-        onSelect={id => navigate(id)}
-      />
     </Card>
   );
 }

@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { Badge, Button, Card, EmptyState } from '../../components';
-import { navigate } from '../../app/router';
 import { ddayOf, diffLabel, mainReason } from '../../domain/recommend';
 import { checksOf, dateLabel, formatText, isNearDeadline, prepItemsFor } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
@@ -16,7 +15,7 @@ export function CompareView({ scored, week, records, interests, activities, acti
 }) {
   const cols = scored.slice(0, MAX_COLUMNS);
   if (cols.length === 0) {
-    return <Card><EmptyState icon="compass" message="비교할 후보가 없어요. 추천으로 돌아가 관심 분야나 시간을 바꿔 보세요." action={<Button onClick={() => navigate('recommend')}>추천으로 가기</Button>} /></Card>;
+    return <Card><EmptyState icon="compass" message="비교할 후보가 없어요. 위의 조건을 빼거나 설정에서 관심 분야·시간을 바꿔 보세요." /></Card>;
   }
   const base = cols[0].p;
   const tried = new Set(records.map(r => r.field));

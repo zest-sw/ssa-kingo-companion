@@ -25,7 +25,7 @@ export function DiscoveryCards() {
   return (
     <Card title="확인할 발견" action={<span>확인한 것만 추천에 써요 · 지금 <b className="num">{used}</b>개 반영 중</span>}>
       {view.discoveries.length === 0 ? (
-        <EmptyState icon="sparkle" message="같은 일을 한 기록이 둘 이상이면 발견이 생겨요. 회고를 더 남겨 보세요." action={<Button size="sm" onClick={() => navigate('records')}>회고 쓰러 가기</Button>} />
+        <EmptyState icon="sparkle" message="같은 일을 한 기록이 둘 이상이면 발견이 생겨요. 회고를 더 남겨 보세요." action={<Button size="sm" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>} />
       ) : (
         <ul className="an-disc">
           {view.discoveries.map(d => {

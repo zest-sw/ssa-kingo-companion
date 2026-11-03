@@ -153,3 +153,7 @@
 .rec-band:focus-visible { box-shadow: var(--focus-ring); }
 .rec-band__text { flex: 1; }
 .rec-band .ui-icon:last-child { color: var(--ink-subtle); }
+
+/* 기록 화면 아래 보관함 */
+.rec-archive { margin-top: var(--space-8); }
+.rec-archive__title { margin-bottom: var(--space-4); font-size: var(--text-xl); font-weight: var(--weight-bold); }

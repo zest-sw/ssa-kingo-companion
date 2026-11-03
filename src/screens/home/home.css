@@ -22,7 +22,6 @@
 .home-l1__main, .home-l1__side { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
 .home-top .rec-pick__title { font-size: var(--text-4xl); }
 .home-alts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
-.home-alts__none { grid-column: 1 / -1; }
 .home-alt { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); width: 100%; height: 100%; padding: var(--space-4); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); text-align: left; font: inherit; cursor: pointer; }
 .home-alt:hover { background: var(--surface-alt); border-color: var(--line-strong); }
 .home-alt__title { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); }

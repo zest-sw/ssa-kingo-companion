@@ -1,4 +1,4 @@
-// 메뉴별 L1 개요의 선택과 스크롤 위치. L2 에서 돌아오면 그대로 되살린다.
+// 화면 경로별 선택과 스크롤 위치. 그 아래 흐름 화면에서 돌아오면 그대로 되살린다.
 // 이번 탭(sessionStorage)에만 둔다. 새로고침해도 남고, 탭을 닫으면 사라진다. 학생 데이터가 아니라 화면 위치라 app 저장 키와 따로 둔다.
 
 export type OverviewSnap = { sel?: unknown; scrollY?: number };
@@ -46,7 +46,11 @@ export function restoreSel<T>(snap: OverviewSnap, initial: T, isValid?: (v: unkn
   return typeof snap.sel === typeof initial && Array.isArray(snap.sel) === Array.isArray(initial) && (snap.sel === null) === (initial === null) ? (snap.sel as T) : initial;
 }
 
-/** 스크롤을 되살릴지: 바로 전 화면이 같은 메뉴의 L2 였을 때만(사이드바로 새로 들어오면 맨 위부터). */
-export function shouldRestoreScroll(menu: string, previous: { name: string; sub?: string } | undefined): boolean {
-  return previous !== undefined && previous.name === menu && previous.sub !== undefined;
+/**
+ * 스크롤을 되살릴지: 바로 전 화면이 이 화면 아래 경로였을 때만(사이드바로 새로 들어오면 맨 위부터).
+ * page 는 'activities/records' 처럼 그 화면의 경로다.
+ */
+export function shouldRestoreScroll(page: string, previous: { name: string; sub?: string } | undefined): boolean {
+  if (!previous?.sub) return false;
+  return `${previous.name}/${previous.sub}`.startsWith(page + '/');
 }

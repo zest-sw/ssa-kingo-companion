@@ -5,23 +5,20 @@ import { useOverviewState } from '../../app/useOverviewState';
 import { Badge, Button, Card, EmptyState, FieldTag, PageHeader } from '../../components';
 import { EXAMPLE_PROFILE } from '../../data/seed';
 import { ddayOf } from '../../domain/recommend';
-import { homeCounts } from '../../domain/recommend-flow/home';
-import { isNearDeadline, prepareHref } from '../../domain/recommend-flow/flow';
-import { setListIntent } from '../../domain/recommend-flow/intent';
+import { candidateHref, isNearDeadline, prepareHref } from '../../domain/recommend-flow/flow';
 import { upcomingItems } from '../../domain/recommend-flow/upcoming';
 import { ddayText } from '../../domain/text';
 import { TopPick } from '../recommend/TopPick';
 import { AskBar } from './AskBar';
 import { Onboarding } from './Onboarding';
-import { PastPresentFuture, Upcoming } from './Upcoming';
+import { Upcoming } from './Upcoming';
 import './home.css';
 
 export default function HomeScreen(_props: ScreenProps) {
-  const { state, view, discStateOf, run } = useApp();
-  // 선택할 값은 없고, 다른 메뉴 L2 에서 돌아왔을 때 스크롤만 되살린다.
+  const { state, view, run } = useApp();
+  // 선택할 값은 없고, 아래 흐름 화면에서 돌아왔을 때 스크롤만 되살린다.
   useOverviewState('home', null);
 
-  const counts = useMemo(() => homeCounts(state.activities, view.newCount, view.discoveries, discStateOf), [state.activities, view.newCount, view.discoveries, discStateOf]);
   const upcoming = useMemo(
     () => upcomingItems(state.activities, view.primary ? [view.primary, ...view.alternatives] : [], state.week),
     [state.activities, view.primary, view.alternatives, state.week]
@@ -42,17 +39,17 @@ export default function HomeScreen(_props: ScreenProps) {
     run({ type: 'candidate/choose', programId: top.p.id, choice: 'preparing' });
     navigate(prepareHref(top.p.id));
   };
-  const toList = (select: string) => { setListIntent({ select }); navigate('recommend/list'); };
+  const pending = state.activities.filter(a => a.status === 'ended').length;
 
   return (
     <>
-      <PageHeader title="나의 상태창" actions={<Button variant="primary" icon="pencil" onClick={() => navigate('records')}>회고 쓰기</Button>} />
+      <PageHeader title="나의 상태창" actions={pending > 0 && <Button variant="primary" icon="pencil" onClick={() => navigate('activities/records/interview')}>회고 쓰기</Button>} />
       <AskBar />
       <div className="home-l1">
         <div className="home-l1__main">
           <Card className="home-top" aria-label="이번에 할 것">
             {top ? (
-              <TopPick pick={top} week={state.week} onPrepare={prepare} />
+              <TopPick pick={top} week={state.week} onPrepare={prepare} href={candidateHref(top.p.id)} />
             ) : (
               <EmptyState icon="compass" message="지금은 맞는 후보가 없어요. 관심 분야나 시간을 바꿔 보세요." action={<Button size="sm" onClick={() => navigate('settings/profile')}>관심 분야·시간 바꾸기</Button>} />
             )}
@@ -62,7 +59,7 @@ export default function HomeScreen(_props: ScreenProps) {
               const d = ddayOf(a.p, state.week);
               return (
                 <li key={a.p.id}>
-                  <button type="button" className="home-alt" onClick={() => toList(a.p.id)}>
+                  <button type="button" className="home-alt" onClick={() => navigate(candidateHref(a.p.id))}>
                     <FieldTag field={a.p.field} />
                     <span className="home-alt__title">{a.p.title}</span>
                     <Badge tone={isNearDeadline(d) ? 'orange' : 'neutral'}>{ddayText(d)}</Badge>
@@ -70,12 +67,10 @@ export default function HomeScreen(_props: ScreenProps) {
                 </li>
               );
             })}
-            {top && view.alternatives.length === 0 && <li className="home-alts__none"><Button size="sm" variant="ghost" onClick={() => navigate('recommend/list')}>후보 목록 보기</Button></li>}
           </ul>
         </div>
         <div className="home-l1__side">
           <Upcoming items={upcoming} week={state.week} />
-          <PastPresentFuture records={state.records.length} toConfirm={counts.toConfirm} recommend={counts.newRecommend} />
         </div>
       </div>
     </>

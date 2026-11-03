@@ -16,7 +16,7 @@ export function ActivityMeta({ a }: { a: Activity }): ReactNode {
   return m.kind === 'today' ? <><Badge tone="solid-orange">오늘</Badge> {m.label}</> : m.text;
 }
 
-export const goInterview = (id: string) => navigate(`records/interview/${id}`);
+export const goInterview = (id: string) => navigate(`activities/records/interview/${id}`);
 
 export function ActivityCard({ a, onOpen }: { a: Activity; onOpen: (id: string) => void }) {
   return (

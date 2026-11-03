@@ -5,7 +5,8 @@ import { ASK_EXAMPLES, parseAsk } from '../../domain/recommend-flow/ask';
 import { setListIntent } from '../../domain/recommend-flow/intent';
 
 /**
- * 에이전트에게 묻기. 실제 AI 없이 낱말을 추천 필터 조건으로 바꿔 후보 목록(#/recommend/list)에 넘긴다.
+ * 에이전트에게 묻기. 실제 AI 없이 낱말을 추천 필터 조건으로 바꿔 추천 화면(#/recommend)에 넘긴다.
+ * 질문 칸이라 role="search" 다. 예시 질문 칩은 서로 다른 질문이라 진입점 점검(audit)에서 세지 않는다.
  * 입력을 비우고 보내면 아무 일도 없다(안내만 보인다).
  */
 export function AskBar() {
@@ -16,12 +17,12 @@ export function AskBar() {
     const t = q.trim();
     if (!t) { setHint(true); return; }
     setListIntent({ filter: parseAsk(t), view: 'detail' });
-    navigate('recommend/list');
+    navigate('recommend');
   };
   const submit = (e: FormEvent) => { e.preventDefault(); ask(text); };
 
   return (
-    <section className="home-ask" aria-label="에이전트에게 묻기">
+    <section className="home-ask" role="search" aria-label="에이전트에게 묻기">
       <form className="home-ask__form" onSubmit={submit}>
         <span className="home-ask__icon"><Icon name="sparkle" size={18} /></span>
         <input

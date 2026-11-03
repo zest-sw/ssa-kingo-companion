@@ -1,30 +1,24 @@
 import { useMemo } from 'react';
 import { useApp } from '../../app/AppState';
-import { l1Of, navigate, type ScreenProps } from '../../app/router';
-import { Button, PageHeader, TabPanel, Tabs, type TabItem } from '../../components';
+import type { ScreenProps } from '../../app/router';
+import { PageHeader, type IconName } from '../../components';
 import { canUseSocial } from '../../domain/social';
 import { SEED_POSTS } from '../../data/friends';
+import { FriendsView } from './FriendsView';
 import { Gate } from './Gate';
 import { HallView } from './HallView';
-import { Locked } from './Locked';
-import { Overview } from './Overview';
-import { ProfileView } from './ProfileView';
+import { ProfileHome } from './ProfileHome';
 import { RecruitView } from './RecruitView';
+import './challenges.css';
 import './friends.css';
 
-// 공개 설정은 설정(#/settings/visibility)으로 옮겼다. 예전 경로는 router 가 넘겨 준다.
-type Sub = 'profile' | 'recruit' | 'hall';
+// 공개 설정은 설정(#/settings/visibility)에 있다. 예전 친구·도전 과제 경로는 router 가 여기로 넘긴다.
+type Sub = 'friends' | 'recruit' | 'hall';
+const SUBS: readonly Sub[] = ['friends', 'recruit', 'hall'];
+const TITLE: Record<Sub, string> = { friends: '친구', recruit: '팀원 모집', hall: '명예의 전당' };
 
-const TABS: TabItem<Sub>[] = [
-  { id: 'profile', label: '프로필' },
-  { id: 'recruit', label: '팀원 모집' },
-  { id: 'hall', label: '명예의 전당' }
-];
-const TITLE: Record<Sub, string> = { profile: '내 프로필', recruit: '팀원 모집', hall: '명예의 전당' };
-
-const OPENS: Record<Sub, { icon: 'friends' | 'flag' | 'trophy' | 'doc'; title: string; sub: string }[]> = {
-  profile: [
-    { icon: 'doc', title: '친구에게 이렇게 보여요', sub: '한 활동 목록과 고른 회고, 전시할 도전 과제' },
+const OPENS: Record<Sub, { icon: IconName; title: string; sub: string }[]> = {
+  friends: [
     { icon: 'friends', title: '친구 찾기', sub: '비슷한 학생과 서로 수락해서 친구 맺기' },
     { icon: 'flag', title: '이 활동을 해 본 친구·선배', sub: '내 활동을 먼저 해 본 사람 보기' }
   ],
@@ -38,30 +32,25 @@ const OPENS: Record<Sub, { icon: 'friends' | 'flag' | 'trophy' | 'doc'; title: s
   ]
 };
 
-export default function FriendsScreen({ sub }: ScreenProps) {
+/** 하위 경로: (없음) = 프로필 요약, friends·recruit·hall = 소셜 하위 화면. 비공개면 하위 화면 대신 '공개하면 열려요' 한 화면. */
+export default function ProfileScreen({ sub }: ScreenProps) {
   const { state, run } = useApp();
   const open = canUseSocial(state.visibility);
-  const current = TABS.find(t => t.id === sub?.split('/')[0])?.id;
+  const current = SUBS.find(s => s === sub?.split('/')[0]);
   // 내가 올린 모집 글은 전역 상태에 둔다(새로고침하면 사라진다). 예시 글 앞에 새 글이 온다.
   const posts = useMemo(() => [...state.recruitPosts, ...SEED_POSTS], [state.recruitPosts]);
 
-  if (!current) return open ? <Overview /> : <Locked />;
+  if (!current) return <ProfileHome />;
 
   const body = !open ? <Gate opens={OPENS[current]} />
-    : current === 'profile' ? <ProfileView />
+    : current === 'friends' ? <FriendsView />
     : current === 'recruit' ? <RecruitView posts={posts} onPost={post => run({ type: 'recruit/post', post })} />
     : <HallView />;
 
   return (
     <>
-      <PageHeader
-        parent={l1Of('friends')}
-        title={TITLE[current]}
-        crumb={TABS.find(t => t.id === current)?.label}
-        actions={current === 'profile' && open ? <Button icon="pencil" onClick={() => navigate('settings/visibility')}>공개 범위 설정</Button> : undefined}
-      />
-      <Tabs id="friends" label="친구 화면" items={TABS} value={current} onChange={id => navigate(`friends/${id}`)} />
-      <TabPanel id="friends" active={current}>{body}</TabPanel>
+      <PageHeader title={TITLE[current]} />
+      {body}
     </>
   );
 }

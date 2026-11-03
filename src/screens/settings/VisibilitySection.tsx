@@ -56,7 +56,7 @@ export function VisibilitySection() {
             : <Button variant="primary" onClick={() => setAsking(true)}>프로필 공개하기</Button>}
         </div>
         <div className="st-cols">
-          <Group title="공개하면 쓸 수 있어요" action={v.profilePublic ? <Button size="sm" variant="ghost" icon="chevron" onClick={() => navigate('friends')}>친구 화면</Button> : undefined}>
+          <Group title="공개하면 쓸 수 있어요" action={v.profilePublic ? <Button size="sm" variant="ghost" icon="chevron" onClick={() => navigate('profile')}>프로필</Button> : undefined}>
             <ul className="st-rows">
               {UNLOCKS.map(u => (
                 <Row key={u.title} title={<><Icon name={u.icon} />{u.title}</>} sub={u.sub}>

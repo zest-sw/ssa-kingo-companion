@@ -97,4 +97,4 @@ export function TreeGraph({ tree, onOpen, onCandidate }: { tree: TechTree; onOpe
 }
 
 const labelOf = (c: TreeCell, col: string) =>
-  c.kind === 'candidate' ? `${c.label}, ${col}, 지금 신청할 수 있는 추천. 추천 화면으로 가요` : c.kind === 'ongoing' ? `${c.label}, ${col}, 하는 중. 자세히 보기` : `${c.label}, ${col}, 한 활동. 자세히 보기`;
+  c.kind === 'candidate' ? `${c.label}, ${col}, 지금 신청할 수 있는 추천. 자세히 보기` : c.kind === 'ongoing' ? `${c.label}, ${col}, 하는 중. 자세히 보기` : `${c.label}, ${col}, 한 활동. 자세히 보기`;

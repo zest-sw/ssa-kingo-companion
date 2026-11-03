@@ -17,7 +17,7 @@ export type EntitySummary = {
   facts: [string, string][];
   /** 한 줄 인용·요약 */
   note?: string;
-  /** '자세히 보기'가 가는 L2 */
+  /** '자세히 보기'가 가는 화면 */
   href: string;
 };
 
@@ -38,12 +38,12 @@ export function entitySummary(ref: EntityRef, src: Sources): EntitySummary | und
     const facts: [string, string][] = [['상태', STATUS_LABEL[a.status]], ['일정', a.schedule]];
     if (a.due) facts.push([a.due.label, a.due.dday === 0 ? '오늘' : `D-${a.due.dday}`]);
     if (a.prep) facts.push(['준비', `${a.prep.done} / ${a.prep.total}`]);
-    return { eyebrow, title: a.title, field: a.field, facts, href: 'activities/list' };
+    return { eyebrow, title: a.title, field: a.field, facts, href: 'activities/schedule' };
   }
   const r = src.records.find(x => x.id === ref.id);
   return r && {
     eyebrow, title: r.title, field: r.field,
     facts: [['학기', semesterLabel(r.semester)], ['종류', r.kind], ['확인', r.verification === 'school' ? '학교 확인' : '직접 입력']],
-    note: r.quote, href: 'records/archive'
+    note: r.quote, href: 'activities/records'
   };
 }

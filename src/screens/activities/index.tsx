@@ -1,34 +1,17 @@
-import { PageHeader, SegmentedControl } from '../../components';
-import { navigate, l1Of, type ScreenProps } from '../../app/router';
-import { openEntity } from '../../app/entity';
-import { useApp } from '../../app/AppState';
-import { BoardView } from './BoardView';
-import { ListView } from './ListView';
-import { Overview } from './Overview';
+import type { ScreenProps } from '../../app/router';
+import RecordsPage from '../records';
 import './ActivityEntity';
+import { Overview } from './Overview';
+import { Schedule } from './Schedule';
 import './activities.css';
 
-type View = 'board' | 'list';
-
-const open = (id: string) => openEntity({ kind: 'activity', id });
-
-/** 하위 경로: (없음) = 개요(L1), board = 보드, list = 목록. 활동 서랍은 어디서든 openEntity 로 연다. */
+/**
+ * 하위 경로: (없음) = 내 활동 요약, schedule = 일정(타임라인·보드·목록), records = 기록, records/interview[/<활동 id>] = 회고 인터뷰.
+ * 기록 화면은 screens/records 폴더에 있고 여기서 그린다. 활동 서랍은 어디서든 openEntity 로 연다.
+ */
 export default function ActivitiesScreen({ sub }: ScreenProps) {
-  if (sub === 'board' || sub === 'list') return <Detail view={sub} />;
+  const [head, ...rest] = (sub ?? '').split('/');
+  if (head === 'schedule') return <Schedule />;
+  if (head === 'records') return <RecordsPage sub={rest.join('/') || undefined} />;
   return <Overview />;
-}
-
-function Detail({ view }: { view: View }) {
-  const { state } = useApp();
-  return (
-    <>
-      <PageHeader
-        parent={l1Of('activities')}
-        crumb={view === 'board' ? '보드' : '목록'}
-        title={view === 'board' ? '활동 보드' : '활동 목록'}
-        actions={<SegmentedControl<View> label="보기 방식" value={view} onChange={v => navigate(`activities/${v}`, { replace: true })} items={[{ id: 'board', label: '보드' }, { id: 'list', label: '목록' }]} />}
-      />
-      {view === 'board' ? <BoardView activities={state.activities} onOpen={open} /> : <ListView activities={state.activities} onOpen={open} />}
-    </>
-  );
 }

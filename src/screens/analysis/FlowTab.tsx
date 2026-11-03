@@ -22,7 +22,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   const inRange = (i: number) => i >= from && i <= to;
 
   if (records.length === 0) {
-    return <Card><EmptyState icon="analysis" title="아직 기록이 없어요" message="회고를 쓰면 학기마다 어떤 분야에 시간을 썼는지 보여 줘요." action={<Button variant="primary" onClick={() => navigate('records')}>회고 쓰러 가기</Button>} /></Card>;
+    return <Card><EmptyState icon="analysis" title="아직 기록이 없어요" message="회고를 쓰면 학기마다 어떤 분야에 시간을 썼는지 보여 줘요." action={<Button variant="primary" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>} /></Card>;
   }
 
   return (

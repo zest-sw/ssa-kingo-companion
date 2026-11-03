@@ -1,9 +1,16 @@
 import { CountBadge, Icon } from '../components';
 import { useApp } from './AppState';
-import { hrefOf, NAV, type RouteName } from './router';
+import { hrefOf, NAV, navMatch, type Route } from './router';
 
-export function Sidebar({ current }: { current: RouteName }) {
+/**
+ * 메뉴 트리. 지금 위치의 부모만 하위 항목을 펼친다. 하위 화면은 그 항목이, 흐름 화면(신청 준비·회고 인터뷰)은 가장 가까운 항목이 활성이다.
+ * 좁은 폭(아이콘만)에서는 하위 항목을 숨기고, 부모를 누르면 요약 화면의 카드로 하위에 간다.
+ */
+export function Sidebar({ route }: { route: Route }) {
   const { view } = useApp();
+  const at = navMatch(route);
+  // 화면 자체면 'page', 그 아래 흐름 화면이면 'location'
+  const mark = (on: boolean) => (on ? (at.exact ? 'page' : 'location') : undefined);
   return (
     <aside className="app-side">
       <a className="app-brand" href={hrefOf('home')}>
@@ -15,15 +22,32 @@ export function Sidebar({ current }: { current: RouteName }) {
       </a>
       <nav aria-label="주 메뉴">
         <ul className="app-nav">
-          {NAV.map(item => (
-            <li key={item.id}>
-              <a className="app-nav__link" href={hrefOf(item.id)} aria-current={current === item.id ? 'page' : undefined} title={item.label}>
-                <Icon name={item.icon} />
-                <span className="app-nav__label">{item.label}</span>
-                {item.id === 'recommend' && <CountBadge count={view.newCount} label="새 후보" />}
-              </a>
-            </li>
-          ))}
+          {NAV.map(item => {
+            const open = at.item?.id === item.id;
+            return (
+              <li key={item.id}>
+                <a
+                  className={`app-nav__link${open && at.child ? ' app-nav__link--parent' : ''}`}
+                  href={hrefOf(item.path)}
+                  aria-current={mark(open && !at.child)}
+                  title={item.label}
+                >
+                  <Icon name={item.icon} />
+                  <span className="app-nav__label">{item.label}</span>
+                  {item.id === 'recommend' && <CountBadge count={view.newCount} label="새 후보" />}
+                </a>
+                {open && item.children && (
+                  <ul className="app-nav__sub" aria-label={`${item.label} 하위 메뉴`}>
+                    {item.children.map(c => (
+                      <li key={c.path}>
+                        <a className="app-nav__sublink" href={hrefOf(c.path)} aria-current={mark(at.child?.path === c.path)}>{c.label}</a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </nav>
       <div className="app-side__foot">
@@ -34,7 +58,7 @@ export function Sidebar({ current }: { current: RouteName }) {
             <span>3학년 · 예시 학생</span>
           </span>
         </div>
-        <a className="app-gear" href={hrefOf('settings')} aria-label="설정" title="설정" aria-current={current === 'settings' ? 'page' : undefined}>
+        <a className="app-gear" href={hrefOf('settings')} aria-label="설정" title="설정" aria-current={route.name === 'settings' ? 'page' : undefined}>
           <Icon name="settings" />
         </a>
       </div>

@@ -31,7 +31,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
         )}
       >
         {records.length === 0 ? (
-          <EmptyState icon="records" title="아직 기록이 없어요" message="회고를 쓰면 기록이 점으로 생기고, 같은 일을 한 기록끼리 이어져요." action={<Button variant="primary" onClick={() => navigate('records')}>회고 쓰러 가기</Button>} />
+          <EmptyState icon="records" title="아직 기록이 없어요" message="회고를 쓰면 기록이 점으로 생기고, 같은 일을 한 기록끼리 이어져요." action={<Button variant="primary" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>} />
         ) : (
           <>
             <MapGraph map={map} answers={answers} picked={pick} onPick={setPick} />
