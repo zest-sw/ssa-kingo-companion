@@ -1,4 +1,5 @@
-import { Badge, Button, Card, EmptyState, FieldTag, PageHeader } from '../../components';
+import { Badge, Button, Card, EmptyState, FieldTag, GhostPic, PageHeader } from '../../components';
+import { nextStep } from '../../domain/nextStep';
 import { navigate, parentLink } from '../../app/router';
 import { useApp } from '../../app/AppState';
 
@@ -7,12 +8,14 @@ export function Pending() {
   const { state } = useApp();
   const drafts = Object.keys(state.drafts);
   const list = state.activities.filter(a => a.status === 'ended');
+  // 여기가 비면 끝난 활동이 없다는 뜻이라, 하는 활동이 있으면 일정, 없으면 추천으로 보낸다.
+  const step = nextStep(state.activities);
   return (
     <div className="os">
       <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title="회고 쓰기" />
       <>
         {list.length === 0 ? (
-          <Card className="rec-empty"><EmptyState icon="records" message="회고를 기다리는 활동이 없어요. 활동이 끝나면 여기에 나타나요. 지금 하는 활동은 일정에서 볼 수 있어요." action={<Button variant="primary" onClick={() => navigate('activities/schedule')}>일정 보기</Button>} /></Card>
+          <Card className="rec-empty"><EmptyState pic={<GhostPic kind="rows" labels={['', '']} />} message={step.to === 'recommend' ? '활동을 고르고, 끝나면 여기서 회고를 써요.' : '하는 활동이 끝나면 여기서 회고를 써요.'} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} /></Card>
         ) : (
           <ul className="rec-pending os-scroll">
             {list.map(a => (

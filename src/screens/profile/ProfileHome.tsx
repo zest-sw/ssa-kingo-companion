@@ -90,7 +90,7 @@ export function ProfileHome() {
                   </li>
                 ))}
               </ul>
-            ) : <GhostPic kind="rows" labels={['', '']} message="활동을 시작하면 여기에 모여요" />}
+            ) : <GhostPic kind="rows" labels={['', '']} message={state.activities.length ? '신청한 활동이 시작되면 여기에 모여요' : '활동을 시작하면 여기에 모여요'} />}
             {open && retros.length > 0 && (
               <ul className="fr-retros">
                 {retros.map(r => <li key={r.id} className="fr-retro"><p className="fr-retro__label">{r.title} 회고</p><p>“{r.quote}”</p></li>)}

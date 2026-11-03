@@ -10,6 +10,7 @@ import { mapDots, mapRows, mapTerms } from './map';
 import { RecordMap } from './RecordMap';
 import { recordHeadline } from '../activities/summary';
 import { takeMapFocus } from './mapFocus';
+import { nextStep } from '../../domain/nextStep';
 
 const LEGEND: LegendItem[] = [{ label: '학교 확인', mark: 'dot', tone: 'ink' }, { label: '직접 입력', mark: 'ring', tone: 'ink' }];
 
@@ -38,7 +39,7 @@ export function Overview() {
         title="기록"
         actions={
           <>
-            <span className="rec-headline">{recordHeadline(state.records)}</span>
+            {state.records.length > 0 && <span className="rec-headline">{recordHeadline(state.records)}</span>}
             <Button icon="plus" onClick={() => setAdding(true)}>직접 기록 추가</Button>
           </>
         }
@@ -63,7 +64,7 @@ export function Overview() {
             items={mapDots(state.records)}
             selectedId={focus}
             onSelect={id => setSel({ focus: focus === id ? undefined : id })}
-            empty={pending.length ? '위의 회고 쓰기를 누르면 첫 기록이 점으로 생겨요.' : '아직 기록이 없어요. 활동이 끝나면 회고를 써서 점을 채워 보세요.'}
+            empty={pending.length ? '위의 회고 쓰기를 누르면 첫 기록이 점으로 생겨요.' : `${nextStep(state.activities).lead} 분야·학기 칸에 점이 찍혀요.`}
           />
         </section>
         <Archive records={state.records} selectedId={focus} onSelect={id => setSel({ focus: id })} />

@@ -110,13 +110,14 @@
 .ui-page-head__actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; justify-content: flex-end; }
 .ui-crumbs { display: flex; align-items: center; gap: var(--space-2); min-width: 0; font-size: var(--text-sm); color: var(--ink-subtle); }
 /* 빵부스러기 부모 칸이 흐름 화면에서 돌아가는 유일한 길이라 누르는 칸을 32px 로 둔다 */
-.ui-crumbs a { display: inline-flex; align-items: center; min-height: var(--hit-min); border-radius: var(--radius-sm); color: var(--ink-muted); text-decoration: none; white-space: nowrap; }
+.ui-crumbs a { display: inline-flex; align-items: center; justify-content: center; min-height: var(--hit-min); min-width: var(--hit-min); border-radius: var(--radius-sm); color: var(--ink-muted); text-decoration: none; white-space: nowrap; }
 .ui-crumbs a:hover { color: var(--ink); text-decoration: underline; }
 .ui-crumbs [aria-current] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-muted); }
 
 /* States: 장식 원 없이 작은 선 아이콘 + 문장 */
 .ui-state { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-8) var(--space-6); text-align: center; color: var(--ink-muted); font-size: var(--text-sm); }
 .ui-state__icon { display: grid; place-items: center; color: var(--ink-subtle); margin-bottom: var(--space-2); }
+.ui-state__pic { width: min(100%, var(--dg-ghost-empty-w)); margin-bottom: var(--space-3); text-align: left; }
 .ui-state__title { font-size: var(--text-md); font-weight: var(--weight-bold); color: var(--ink); }
 .ui-state__msg { max-width: 40ch; }
 .ui-state__action { margin-top: var(--space-3); }

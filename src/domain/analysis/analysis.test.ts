@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { prog, rec } from '../fixtures.test-util';
 import type { Activity } from '../types';
 import { usedCount } from './discovery';
-import { buildFlow, clampRange, legendGroups, moveRange, summarizeFlow } from './flow';
+import { buildFlow, clampRange, defaultRange, legendGroups, moveRange, summarizeFlow } from './flow';
 import { answerEdge, buildMap, clearRejected, edgeState, edgesOf, layoutMap, parseAnswers, pruneAnswers, visibleEdges } from './map';
 import { recordsSig } from './refresh';
 import { sigOf, discoveriesOf } from '../discoveries';
@@ -207,6 +207,13 @@ describe('재작업: 화면에서 옮긴 계산', () => {
     expect(moveRange([1, 3], 'from', 5, 6)).toEqual([5, 5]);
     expect(moveRange([2, 3], 'to', 0, 6)).toEqual([0, 0]);
     expect(moveRange([2, 3], 'to', 6, 6)).toEqual([2, 6]);
+  });
+  it('처음 구간은 첫 기록 학기부터 끝까지', () => {
+    const axis = ['2025-1', '2025-여름', '2025-2', '2025-겨울', '2026-1', '2026-여름', '2026-2'];
+    expect(defaultRange(buildFlow([rec('a', { semester: '2026-1' }), rec('b', { semester: '2026-2' })], axis))).toEqual([4, 6]);
+    // 첫 기록 뒤의 빈 학기는 구간 안에 그대로 둔다(쉬어 간 학기도 흐름의 일부)
+    expect(defaultRange(buildFlow([rec('a', { semester: '2025-2' }), rec('b', { semester: '2026-2' })], axis))).toEqual([2, 6]);
+    expect(defaultRange(buildFlow([], axis))).toEqual([0, 6]);
   });
   it('범례는 기록이 있는 분야만 고정 순서로', () => {
     const rows = buildFlow([rec('a', { field: 'mentor' }), rec('b', { field: 'dev' })], ['2026-2']);

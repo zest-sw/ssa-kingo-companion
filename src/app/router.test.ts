@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { inProfile, movedPath, NAV, navMatch, parentLink, parseHash, screenLabel } from './router';
+import { canonicalPath, inProfile, movedPath, NAV, navMatch, parentLink, parseHash, screenLabel } from './router';
 
 describe('메뉴 트리', () => {
   it('메인 4개, 하위 6개 (프로필은 메뉴가 아니라 학생 카드)', () => {
@@ -78,6 +78,31 @@ describe('옛 경로 넘김', () => {
   it('새 경로와 비슷한 이름은 넘기지 않는다', () => {
     for (const p of ['#/friendsx', '#/recordsx', '#/challengesx', '#/activities/records', '#/activities/schedule', '#/recommend/p-ai', '#/recommend/prepare/p-ai', '#/profile/friends']) {
       expect(movedPath(p)).toBeUndefined();
+    }
+  });
+});
+
+describe('모르는 하위 경로는 주소를 맞는 자리로 바꾼다', () => {
+  it.each([
+    ['#/settings/notify', 'settings/profile'],
+    ['#/settings/x/y', 'settings/profile'],
+    ['#/analysis/nope', 'analysis'],
+    ['#/analysis/map/x', 'analysis/map'],
+    ['#/activities/schedule/x', 'activities/schedule'],
+    ['#/activities/records/interview/a-1/x', 'activities/records/interview/a-1'],
+    ['#/activities/zzz', 'activities'],
+    ['#/profile/zzz', 'profile'],
+    ['#/home/x', 'home'],
+    ['#/recommend/prepare', 'recommend'],
+    ['#/nowhere', 'home'],
+    ['#/records/archive', 'activities/records']
+  ])('%s → %s', (from, to) => {
+    expect(canonicalPath(from)).toBe(to);
+  });
+  it('아는 경로는 그대로 둔다', () => {
+    for (const p of ['', '#/', '#/home', '#/recommend', '#/recommend/p-ai', '#/recommend/prepare/p-ai', '#/activities/schedule/board', '#/activities/records/interview',
+      '#/activities/records/interview/a-1', '#/analysis/flow', '#/profile/hall', '#/settings', '#/settings/notifications', '#/_kit/detail']) {
+      expect(canonicalPath(p)).toBeUndefined();
     }
   });
 });

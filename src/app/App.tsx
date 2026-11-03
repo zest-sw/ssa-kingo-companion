@@ -10,7 +10,7 @@ import { AppStateProvider } from './AppState';
 import { useChallengeToasts } from './challenges';
 import { EntityProvider } from './entity';
 import KitScreen from './kit/KitScreen';
-import { movedPath, navigate, screenLabel, useRoute, type RouteName, type ScreenProps } from './router';
+import { canonicalPath, navigate, screenLabel, useRoute, type RouteName, type ScreenProps } from './router';
 import { Sidebar } from './Sidebar';
 import './app.css';
 
@@ -25,10 +25,10 @@ function Shell() {
   // 화면 하나 = 메뉴 + 하위 경로 첫 토막('activities/records'). 그 아래 id 가 바뀌어도 같은 화면이 아니면 새로 그린다.
   const page = route.sub ? `${route.name}/${route.sub.split('/')[0]}` : route.name;
 
-  // 옮긴 경로(#/records/archive)로 들어오면 주소도 새 자리로 바꿔 둔다. 화면은 parseHash 가 이미 새 자리로 그린다.
+  // 옮긴 경로(#/records/archive)나 모르는 하위 경로(#/settings/notify)로 들어오면 주소를 화면이 그리는 자리로 바꿔 둔다.
   useEffect(() => {
-    const moved = movedPath(location.hash);
-    if (moved) navigate(moved, { replace: true });
+    const fixed = canonicalPath(location.hash);
+    if (fixed) navigate(fixed, { replace: true });
   });
 
   // 화면이 바뀌면 맨 위로, 제목으로 포커스.

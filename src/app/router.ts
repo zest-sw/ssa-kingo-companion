@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { IconName } from '../components';
+import { SETTINGS_NAV } from '../data/settings';
 
 /** 사이드바 메인 메뉴 순서 그대로(docs/design/ia-navigation.md 1절) */
 export const SCREENS = ['home', 'recommend', 'activities', 'analysis', 'profile'] as const;
@@ -59,6 +60,47 @@ export function movedPath(hash: string): string | undefined {
   const path = clean(hash);
   const from = MOVED_KEYS.find(k => path === k || path.startsWith(k + '/'));
   return from && MOVED[from] + path.slice(from.length);
+}
+
+/**
+ * 메뉴마다 화면이 아는 하위 경로 모양. '*' 는 아무 한 토막(기회·활동 id)이고, 같은 자리의 정해진 이름(예: 'prepare')과는 맞지 않는다.
+ * 여기 없는 모양은 화면이 조용히 기본 화면을 그리므로, 주소도 맞는 자리로 바꿔 둔다(canonicalPath).
+ */
+const KNOWN_SUBS: Record<RouteName, string[]> = {
+  home: [],
+  recommend: ['*', 'prepare/*'],
+  activities: ['schedule', 'schedule/timeline', 'schedule/board', 'schedule/list', 'records', 'records/interview', 'records/interview/*'],
+  analysis: ['techtree', 'map', 'flow', 'strengths'],
+  profile: ['friends', 'recruit', 'hall'],
+  settings: SETTINGS_NAV.map(n => n.id),
+  _kit: ['*']
+};
+/** 하위 경로가 있어야 하는 메뉴의 기본 하위(설정은 첫 칸 '프로필·추천 조건'을 그린다) */
+const DEFAULT_SUB: Partial<Record<RouteName, string>> = { settings: SETTINGS_NAV[0].id };
+
+function knownSub(name: RouteName, parts: string[]): boolean {
+  const patterns = KNOWN_SUBS[name].map(p => p.split('/'));
+  return patterns.some(pat => pat.length === parts.length && pat.every((seg, i) =>
+    seg === '*' ? !patterns.some(o => o.length > i && o[i] !== '*' && o[i] === parts[i]) : seg === parts[i]));
+}
+
+/**
+ * 주소를 바꿔야 하면 바꿀 경로, 맞으면 undefined. 옮긴 경로는 새 자리로, 모르는 메뉴는 홈으로,
+ * 모르는 하위 경로는 그 메뉴 안에서 아는 가장 긴 앞부분(없으면 메뉴의 기본 경로)으로.
+ * canonicalPath('#/settings/notify') → 'settings/profile', canonicalPath('#/activities/schedule/x') → 'activities/schedule'
+ */
+export function canonicalPath(hash: string): string | undefined {
+  const moved = movedPath(hash);
+  const path = moved ?? clean(hash);
+  if (!path) return undefined;
+  const [head, ...parts] = path.split('/');
+  const name = parseHash(path).name;
+  if (name !== head) return 'home';
+  for (let n = parts.length; n > 0; n--) {
+    if (knownSub(name, parts.slice(0, n))) return n === parts.length ? moved : [name, ...parts.slice(0, n)].join('/');
+  }
+  if (!parts.length) return moved;
+  return DEFAULT_SUB[name] ? `${name}/${DEFAULT_SUB[name]}` : name;
 }
 
 /** 화면 컴포넌트가 받는 값. sub 는 '#/analysis/techtree' 의 'techtree'(없으면 undefined). */

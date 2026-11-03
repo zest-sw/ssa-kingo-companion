@@ -62,7 +62,7 @@ export function Archive({ records, selectedId, onSelect }: { records: RecordItem
       </div>
       <div className="ra__list os-scroll">
         {records.length === 0 ? (
-          <EmptyState icon="records" message="아직 기록이 없어요. 활동이 끝나면 회고를 써서 보관함을 채워 보세요." />
+          <EmptyState icon="records" message="기록이 생기면 학기별로 여기에 모여요." />
         ) : groups.length === 0 ? (
           <EmptyState icon="records" message="이 조건에 맞는 기록이 없어요. 필터를 바꿔 보세요." action={<Button onClick={() => setFilter(ALL)}>필터 지우기</Button>} />
         ) : groups.map(g => (

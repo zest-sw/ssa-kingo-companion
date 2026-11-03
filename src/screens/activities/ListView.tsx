@@ -10,7 +10,7 @@ const SORTS: { id: SortKey; label: string }[] = [{ id: 'due', label: '마감순'
 export function ListView({ activities, onOpen }: { activities: Activity[]; onOpen: (id: string) => void }) {
   const [sort, setSort] = useState<SortKey>('due');
   if (activities.length === 0) {
-    return <Card><EmptyState icon="board" message="추천에서 신청 준비를 누르면 여기에 생겨요." action={<Button variant="primary" onClick={() => navigate('recommend')}>추천 보러 가기</Button>} /></Card>;
+    return <Card><EmptyState icon="board" message="추천에서 신청 준비를 누르면 여기에 생겨요." action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>} /></Card>;
   }
   return (
     <Card padding="md" className="os-card">

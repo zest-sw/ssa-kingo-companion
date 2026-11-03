@@ -237,6 +237,8 @@ describe('신청서 초안', () => {
     const d = writeDraft(prog('p', { field: 'data', did: ['make'] }), [], '');
     expect(d.related).toEqual([]);
     expect(d.motivation).toContain('직접 경험해 보고 싶습니다');
+    expect(d.motivation).toContain('첫 경험을 쌓고');
+    expect(d.motivation).not.toContain('이어 가고');
   });
   it('고쳐 달라고 하면 고른 방향대로 바뀐다', () => {
     const p = prog('p');

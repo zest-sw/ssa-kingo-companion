@@ -3,13 +3,13 @@ import { Button, Card, Icon } from '../../components';
 
 /**
  * 신청을 연 뒤의 완료 상태: 준비 → 신청 화면 열기 → 결과 세 단계 그림과 '일정에서 보기' 하나.
- * 결과는 학교 사이트에서 나오고 일정 화면에 결과 대기로 보인다.
+ * 결과는 학교 사이트에서 나오고 일정 화면에 결과 대기로 보인다. '일정'은 제목 한 번과 버튼 하나로만 말한다.
  */
-export function PrepDone({ result }: { result: string }) {
+export function PrepDone() {
   const steps = [
     { label: '준비 끝', sub: '체크리스트·초안', done: true },
     { label: '신청 화면 열기', sub: '내가 눌렀어요', done: true },
-    { label: '결과', sub: result, done: false }
+    { label: '결과', sub: '기다리는 중', done: false }
   ];
   return (
     <Card className="rec-done" aria-labelledby="rec-done-title">

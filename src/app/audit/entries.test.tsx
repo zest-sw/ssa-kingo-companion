@@ -22,7 +22,7 @@ vi.mock('../router', async importOriginal => {
 
 import App from '../App';
 import { movedPath } from '../router';
-import { INITIAL_STATE, type AppState } from '../state';
+import { INITIAL_STATE, NEW_STUDENT_STATE, type AppState } from '../state';
 import { saveState } from '../storage';
 import { CATALOG } from '../../data/catalog';
 import { buildCandidates } from '../../domain/candidates';
@@ -35,7 +35,8 @@ const top = view.primary?.p.id ?? 'none';
 const alt = view.alternatives[0]?.p.id ?? 'none';
 const ended = INITIAL_STATE.activities.find(a => a.status === 'ended')?.id ?? 'none';
 
-type Case = { path: string; public?: boolean; overview?: Record<string, unknown> };
+/** fresh: 가입 인터뷰를 마친 새 학생(활동·기록 0). 빈 상태 버튼이 같은 화면의 다른 진입점과 겹치지 않는지 본다. */
+type Case = { path: string; public?: boolean; fresh?: boolean; overview?: Record<string, unknown> };
 const CASES: Case[] = [
   { path: 'home' },
   { path: 'recommend' }, { path: `recommend/${top}` }, { path: `recommend/${alt}` }, { path: `recommend/prepare/${top}` },
@@ -47,7 +48,9 @@ const CASES: Case[] = [
   { path: 'analysis' }, { path: 'analysis/techtree' }, { path: 'analysis/map' }, { path: 'analysis/flow' }, { path: 'analysis/strengths' },
   { path: 'profile' }, { path: 'profile/friends' }, { path: 'profile/recruit' }, { path: 'profile/hall' },
   { path: 'profile', public: true }, { path: 'profile/friends', public: true }, { path: 'profile/recruit', public: true }, { path: 'profile/hall', public: true },
-  { path: 'settings/profile' }, { path: 'settings/visibility' }, { path: 'settings/data' }, { path: 'settings/notify' }, { path: 'settings/about' }
+  { path: 'settings/profile' }, { path: 'settings/visibility' }, { path: 'settings/data' }, { path: 'settings/notifications' }, { path: 'settings/about' },
+  ...['home', 'recommend', 'activities', 'activities/schedule', 'activities/schedule/board', 'activities/schedule/list', 'activities/records', 'activities/records/interview',
+    'analysis', 'analysis/techtree', 'analysis/map', 'analysis/flow', 'analysis/strengths', 'profile'].map(path => ({ path, fresh: true }))
 ];
 
 const SKIP = '.app-side, .app-skip, [role="search"]';
@@ -62,7 +65,8 @@ async function mount(c: Case) {
   document.body.innerHTML = '';
   localStorage.clear();
   sessionStorage.clear();
-  const state: AppState = { ...INITIAL_STATE, onboarded: true, visibility: { ...INITIAL_STATE.visibility, profilePublic: !!c.public } };
+  const base = c.fresh ? NEW_STUDENT_STATE : INITIAL_STATE;
+  const state: AppState = { ...base, onboarded: true, visibility: { ...base.visibility, profilePublic: !!c.public } };
   saveState(state);
   if (c.overview) sessionStorage.setItem('kingo-companion:overview', JSON.stringify(c.overview));
   history.replaceState(null, '', '#/' + c.path);
@@ -100,7 +104,7 @@ async function entriesOf(c: Case): Promise<Map<string, string[]>> {
   return found;
 }
 
-const label = (c: Case) => `${c.path}${c.public ? ' (공개)' : ''}${c.overview ? ` (${JSON.stringify(Object.values(c.overview)[0])})` : ''}`;
+const label = (c: Case) => `${c.path}${c.public ? ' (공개)' : ''}${c.fresh ? ' (새 학생)' : ''}${c.overview ? ` (${JSON.stringify(Object.values(c.overview)[0])})` : ''}`;
 
 describe('진입점 점검: 같은 목적지는 화면마다 하나', () => {
   const report: string[] = [];
