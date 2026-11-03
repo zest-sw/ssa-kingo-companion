@@ -50,10 +50,10 @@ export function PrepareView({ programId }: { programId: string }) {
 
   if (!p) {
     return (
-      <>
+      <div className="os">
         <PageHeader parent={parentLink('recommend')} crumb="신청 준비" title="활동을 찾지 못했어요" />
-        <Card><EmptyState message="이 활동은 이번 주 후보에 없어요. 위의 추천에서 다시 골라 주세요." /></Card>
-      </>
+        <Card className="rec-empty"><EmptyState message="이 활동은 이번 주 후보에 없어요. 위의 추천에서 다시 골라 주세요." /></Card>
+      </div>
     );
   }
 
@@ -86,9 +86,9 @@ export function PrepareView({ programId }: { programId: string }) {
   };
 
   return (
-    <>
+    <div className="os">
       <PageHeader parent={parentLink('recommend')} crumb="신청 준비" title={p.title} actions={<Badge tone="orange">마감 {ddayText(dday)} · {dateLabel(dday, state.week)}</Badge>} />
-      <div className="rec-prep">
+      <div className="os__body rec-prep">
         <Card className="rec-prep__list" title="준비할 것" action={<span>{left > 0 ? `${left}개 남음` : '모두 끝났어요'}</span>}>
           {urgent && urgent.dday !== undefined && (
             <p className="rec-urgent"><Icon name="bell" size={18} />가장 급한 것 · {dateLabel(urgent.dday, state.week)}까지 {urgent.label}</p>
@@ -121,12 +121,13 @@ export function PrepareView({ programId }: { programId: string }) {
               ))}
             </ul>
           </section>
+          <p className="rec-foot"><Icon name="lock" size={14} />‘이대로 신청’을 누를 때만 신청이 나가요.</p>
         </Card>
 
         <Card className="rec-prep__draft" aria-labelledby="rec-draft-title">
           <p className="rec-draft__eyebrow"><Icon name="doc" size={16} />에이전트가 쓴 신청서 초안</p>
           <h2 id="rec-draft-title" className="rec-draft__title">지원서</h2>
-          <div className="rec-draft__body" aria-live="polite">
+          <div className="rec-draft__body os-scroll" aria-live="polite">
             {draft.status === 'writing' && <LoadingState message="초안 쓰는 중이에요" lines={4} />}
             {draft.status === 'error' && <ErrorState message="초안을 쓰지 못했어요." onRetry={() => setAttempt(attempt + 1)} />}
             {draft.status === 'ready' && (
@@ -160,7 +161,6 @@ export function PrepareView({ programId }: { programId: string }) {
           )}
         </Card>
       </div>
-      <p className="rec-foot"><Icon name="check" size={14} />‘이대로 신청’을 누를 때만 신청이 나가요. 경험은 기록 카드에 있는 것만 써요.</p>
-    </>
+    </div>
   );
 }

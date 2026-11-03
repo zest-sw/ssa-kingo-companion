@@ -7,6 +7,7 @@ import type { DislikeKind, Program } from '../../domain/types';
 import { DismissModal, LaterDrawer, LaterModal } from './Dialogs';
 import { Overview } from './Overview';
 import { PrepareView } from './PrepareView';
+import '../one-screen.css';
 import './recommend.css';
 
 /** 하위 경로: (없음) = 추천 한 화면, <활동 id> = 그 후보를 고른 추천 화면, prepare/<id> = 신청 준비(흐름 화면). 옛 list·compare 는 router 가 여기로 넘긴다. */
