@@ -29,7 +29,8 @@
 /* 회고 인터뷰: 왼쪽 대화, 오른쪽 기록 카드 */
 .rec-interview { grid-template-columns: minmax(0, 1fr) minmax(var(--rec-side-min), var(--rec-side-max)); }
 .rec-chat { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; padding: var(--space-4) var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); min-width: 0; }
-.rec-steps { flex: none; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.rec-steps { flex: none; display: flex; flex-wrap: wrap; gap: var(--space-1); }
+@media (max-width: 1399px) { .rec-step { padding: 0 var(--space-1); font-size: var(--text-xs); } }
 .rec-step { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); padding: 0 var(--space-2); border: var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-subtle); font-size: var(--text-sm); font-weight: var(--weight-medium); }
 .rec-step[data-state='done'] { background: var(--surface); border-color: var(--green-900); color: var(--green-900); }
 .rec-step[data-state='current'] { background: var(--grey-100); border-color: var(--ink); color: var(--ink); font-weight: var(--weight-bold); }
@@ -55,7 +56,7 @@
 /* 기록 카드 */
 .rec-side { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .rec-side > .rec-card { flex: 1; min-height: 0; padding: var(--space-4); gap: var(--space-3); }
-.rec-side .rec-field { display: grid; grid-template-columns: var(--rec-label-w) minmax(0, 1fr); gap: var(--space-2); align-items: baseline; padding: var(--space-2); }
+.rec-side .rec-field { display: grid; grid-template-columns: var(--rec-label-w) minmax(0, 1fr); gap: var(--space-2); align-items: center; padding: 0 var(--space-2); }
 .rec-side .rec-field dd { margin-top: 0; }
 .rec-side .rec-evidence { gap: var(--space-1); padding-top: var(--space-2); }
 .rec-side .rec-evidence__text { margin-bottom: 0; }
