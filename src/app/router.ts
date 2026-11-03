@@ -11,7 +11,7 @@ const OTHER_ROUTES: readonly string[] = ['settings', '_kit'];
 export type NavChild = { path: string; label: string };
 export type NavItem = { id: ScreenName; path: string; label: string; icon: IconName; children?: NavChild[] };
 
-/** 메뉴 트리. 사이드바가 유일한 이동 수단이고, 하위 항목은 지금 보고 있는 부모 아래에만 펼친다. */
+/** 메인 메뉴 4개. 사이드바가 유일한 이동 수단이고, 하위 항목은 지금 보고 있는 부모 아래에만 펼친다. */
 export const NAV: NavItem[] = [
   { id: 'home', path: 'home', label: '홈', icon: 'home' },
   { id: 'recommend', path: 'recommend', label: '추천', icon: 'compass' },
@@ -25,12 +25,12 @@ export const NAV: NavItem[] = [
       { path: 'analysis/techtree', label: '테크 트리' }, { path: 'analysis/map', label: '경험 지도' },
       { path: 'analysis/flow', label: '관심 흐름' }, { path: 'analysis/strengths', label: '나의 강점' }
     ]
-  },
-  {
-    id: 'profile', path: 'profile', label: '프로필', icon: 'user',
-    children: [{ path: 'profile/friends', label: '친구' }, { path: 'profile/recruit', label: '팀원 모집' }, { path: 'profile/hall', label: '명예의 전당' }]
   }
 ];
+
+/** 프로필은 메인 메뉴가 아니라 사이드바 왼쪽 아래 학생 카드로 연다. 친구·팀원 모집·명예의 전당은 프로필 요약의 카드로만 간다. */
+export const PROFILE = { path: 'profile', label: '프로필' };
+const PROFILE_SUBS: NavChild[] = [{ path: 'profile/friends', label: '친구' }, { path: 'profile/recruit', label: '팀원 모집' }, { path: 'profile/hall', label: '명예의 전당' }];
 
 /**
  * 자리를 옮긴 경로. 예전 링크와 북마크가 새 자리로 열린다. 가장 긴 앞부분이 먼저 맞는다.
@@ -78,9 +78,19 @@ export function navMatch(route: Route): { item?: NavItem; child?: NavChild; exac
   return { item, child, exact: path === (child ?? item)?.path };
 }
 
+/** 프로필 화면(요약과 친구·팀원 모집·명예의 전당)인지. 학생 카드의 활성 표시에 쓴다. */
+export const inProfile = (route: Route) => route.name === 'profile';
+
+/** 지금 화면 이름(문서 제목용). 프로필 하위는 하위 이름. */
+export function screenLabel(route: Route): string | undefined {
+  if (route.name === 'profile') return PROFILE_SUBS.find(c => within(pathOf(route), c.path))?.label ?? PROFILE.label;
+  const at = navMatch(route);
+  return (at.child ?? at.item)?.label;
+}
+
 /** 흐름 화면의 빵부스러기 첫 칸. parentLink('activities/records') → { label: '기록', href: '#/activities/records' } */
 export function parentLink(path: string): { label: string; href: string } {
-  const label = NAV.flatMap(n => [n, ...(n.children ?? [])]).find(n => n.path === path)?.label ?? path;
+  const label = [...NAV.flatMap(n => [n, ...(n.children ?? [])]), PROFILE, ...PROFILE_SUBS].find(n => n.path === path)?.label ?? path;
   return { label, href: hrefOf(path) };
 }
 

@@ -1,10 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { movedPath, NAV, navMatch, parentLink, parseHash } from './router';
+import { inProfile, movedPath, NAV, navMatch, parentLink, parseHash, screenLabel } from './router';
 
 describe('메뉴 트리', () => {
-  it('메인 5개, 하위 9개', () => {
-    expect(NAV.map(n => n.label)).toEqual(['홈', '추천', '내 활동', '나의 분석', '프로필']);
-    expect(NAV.flatMap(n => n.children ?? []).length).toBe(9);
+  it('메인 4개, 하위 6개 (프로필은 메뉴가 아니라 학생 카드)', () => {
+    expect(NAV.map(n => n.label)).toEqual(['홈', '추천', '내 활동', '나의 분석']);
+    expect(NAV.flatMap(n => n.children ?? []).length).toBe(6);
+  });
+  it('프로필 화면 전체에서 학생 카드가 활성이고 메뉴는 활성이 없다', () => {
+    for (const h of ['#/profile', '#/profile/friends', '#/profile/recruit', '#/profile/hall']) {
+      expect(inProfile(parseHash(h))).toBe(true);
+      expect(navMatch(parseHash(h)).item).toBeUndefined();
+    }
+    expect(inProfile(parseHash('#/settings'))).toBe(false);
+  });
+  it('문서 제목 이름', () => {
+    expect(screenLabel(parseHash('#/profile'))).toBe('프로필');
+    expect(screenLabel(parseHash('#/profile/hall'))).toBe('명예의 전당');
+    expect(screenLabel(parseHash('#/analysis/map'))).toBe('경험 지도');
   });
   it('하위 경로는 부모 경로 아래에 있다', () => {
     for (const n of NAV) for (const c of n.children ?? []) expect(c.path.startsWith(n.path + '/')).toBe(true);
@@ -13,12 +25,12 @@ describe('메뉴 트리', () => {
     expect(navMatch(parseHash('#/analysis/map'))).toMatchObject({ item: { id: 'analysis' }, child: { path: 'analysis/map' }, exact: true });
     expect(navMatch(parseHash('#/activities/records/interview/a-1'))).toMatchObject({ item: { id: 'activities' }, child: { path: 'activities/records' }, exact: false });
     expect(navMatch(parseHash('#/recommend/prepare/p-ai'))).toMatchObject({ item: { id: 'recommend' }, child: undefined, exact: false });
-    expect(navMatch(parseHash('#/profile'))).toMatchObject({ item: { id: 'profile' }, child: undefined, exact: true });
     expect(navMatch(parseHash('#/settings/data')).item).toBeUndefined();
   });
   it('빵부스러기 첫 칸', () => {
     expect(parentLink('activities/records')).toEqual({ label: '기록', href: '#/activities/records' });
     expect(parentLink('recommend')).toEqual({ label: '추천', href: '#/recommend' });
+    expect(parentLink('profile')).toEqual({ label: '프로필', href: '#/profile' });
   });
 });
 

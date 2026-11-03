@@ -10,7 +10,7 @@ import { AppStateProvider } from './AppState';
 import { useChallengeToasts } from './challenges';
 import { EntityProvider } from './entity';
 import KitScreen from './kit/KitScreen';
-import { movedPath, navigate, navMatch, useRoute, type RouteName, type ScreenProps } from './router';
+import { movedPath, navigate, screenLabel, useRoute, type RouteName, type ScreenProps } from './router';
 import { Sidebar } from './Sidebar';
 import './app.css';
 
@@ -33,8 +33,7 @@ function Shell() {
 
   // 화면이 바뀌면 맨 위로, 제목으로 포커스.
   useEffect(() => {
-    const at = navMatch(route);
-    const label = (at.child ?? at.item)?.label ?? (route.name === 'settings' ? '설정' : '컴포넌트 목록');
+    const label = screenLabel(route) ?? (route.name === 'settings' ? '설정' : '컴포넌트 목록');
     document.title = `${label} · 킹고 컴패니언`;
     if (first.current) { first.current = false; return; }
     window.scrollTo({ top: 0 });
