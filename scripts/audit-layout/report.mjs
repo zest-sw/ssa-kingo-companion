@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const KIND = {
-  'page-scroll': '페이지·본문 칸 세로 스크롤', 'page-hscroll': '가로 넘침', 'escapes-box': '카드·패널 밖으로 삐져나옴',
+  'page-scroll': '페이지·본문 칸 세로 스크롤', 'page-hscroll': '가로 넘침', 'box-hscroll': '칸 안 가로 스크롤 막대', 'escapes-box': '카드·패널 밖으로 삐져나옴',
   'clipped-y': '잘림(세로)', 'clipped-x': '잘림(가로)', 'clipped-svg': '그림 잘림', overlap: '버튼과 글자 겹침', 'ctrl-overlap': '버튼끼리 겹침',
   'text-overlap': '글자끼리 겹침', offscreen: '창 밖 버튼', 'stretched-empty': '늘어난 빈 칸', 'tiny-text': '작은 글자', 'dup-label': '차트 이름표 중복',
   'skeleton-look': '로딩 뼈대 같은 빈 상태', 'half-empty': '오른쪽이 빈 화면', 'console-error': '콘솔 에러', 'run-error': '검사 실행 오류', truncated: '말줄임(경고)', 'route-changed': '주소 바뀜(경고)'
