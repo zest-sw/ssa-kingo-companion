@@ -2,55 +2,57 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { hrefOf, navigate } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Card, Icon, PageHeader, SummaryCard } from '../../components';
+import { Button, Card, EmptyState, PageHeader, SummaryCard } from '../../components';
 import { CURRENT_TERM } from '../../data/records';
-import { ddayText } from '../../domain/text';
-import { nextDues, ongoingTitles, pendingRetros, recordSentence, scheduleSentence, todoSentence } from './summary';
+import { pendingRetros } from './summary';
+import { MiniGanttPic, RecordGridPic, StatusBarsPic, WeekPic } from './Pictures';
+import { miniGantt, recordGrid, recordKeyword, scheduleKeyword, statusBars, weekHeadline, weekOf } from './visual';
 
 /**
- * 내 활동 요약: 지금 상태를 문장으로(할 것·다음 마감·회고 대기·진행 중), 아래에 일정·기록 카드.
+ * 내 활동 요약: 위쪽에 지금 상태(상태 막대·이번 주 타임라인·회고 대기), 아래에 일정·기록 카드.
  * 카드를 누르면 그 하위 화면으로 간다. 같은 곳으로 가는 다른 버튼은 두지 않는다.
  */
 export function Overview() {
   const { state } = useApp();
   useOverviewState<null>('activities', null);
-  const dues = nextDues(state.activities);
   const retros = pendingRetros(state.activities);
-  const going = ongoingTitles(state.activities);
   const empty = state.activities.length === 0;
+  const week = weekOf(state.activities);
+  const bars = statusBars(state.activities);
+  const grid = recordGrid(state.records);
 
   const toRetro = () => navigate(retros.length === 1 ? `activities/records/interview/${retros[0].id}` : 'activities/records/interview');
 
   return (
-    <>
+    <div className="fit">
       <PageHeader title="내 활동" />
-      <Card className="act-now">
-        <p className="act-now__sentence">{empty ? '추천에서 신청 준비를 누르면 활동이 생겨요' : todoSentence(state.activities)}</p>
-        {dues.length > 0 && (
-          <ul className="act-now__list" aria-label="다음 마감">
-            {dues.map(d => (
-              <li key={d.id}>
-                <button type="button" className="act-now__row" onClick={() => openEntity({ kind: 'activity', id: d.id })}>
-                  <span className="act-now__name">{d.title}</span>
-                  <span className="act-now__dday num">{ddayText(d.dday)}</span>
+      <div className="fit__body act-sum">
+        {empty ? (
+          <Card className="act-sum__empty"><EmptyState icon="board" message="추천에서 신청 준비를 누르면 활동이 생겨요." action={<Button variant="primary" onClick={() => navigate('recommend')}>추천 보러 가기</Button>} /></Card>
+        ) : (
+          <div className="act-now">
+            <Card className="fit-card" title="할 일 상태" aria-label="할 일 상태"><div className="act-now__pic"><StatusBarsPic bars={bars} /></div></Card>
+            <Card className="fit-card" title={weekHeadline(week)} aria-label="이번 주 마감">
+              <div className="act-now__pic">
+                <WeekPic week={week} onOpen={id => openEntity({ kind: 'activity', id })} />
+                {week.farther > 0 && <p className="act-now__far">이번 주 밖 마감 {week.farther}개 · 일정에서 볼 수 있어요</p>}
+              </div>
+            </Card>
+            <Card className={`fit-card act-retro${retros.length ? ' is-on' : ''}`} title="회고 대기" aria-label="회고 대기">
+              {retros.length ? (
+                <button type="button" className="act-retro__cell" onClick={toRetro}>
+                  <b className="act-retro__n num">{retros.length}</b>
+                  <span className="act-retro__label">회고 쓰기</span>
                 </button>
-              </li>
-            ))}
-          </ul>
+              ) : <p className="act-retro__none">끝난 활동이 생기면 여기서 회고를 시작해요.</p>}
+            </Card>
+          </div>
         )}
-        {retros.length > 0 && (
-          <button type="button" className="act-now__row act-now__row--retro" onClick={toRetro}>
-            <Icon name="pencil" size={18} />
-            <span className="act-now__name">회고 쓸 활동 <b className="num">{retros.length}</b>개</span>
-            <Icon name="chevron" size={16} />
-          </button>
-        )}
-        {going.length > 0 && <p className="act-now__going"><span className="act-now__label">진행 중</span>{going.join(', ')}</p>}
-      </Card>
-      <div className="act-sums">
-        <SummaryCard href={hrefOf('activities/schedule')} title="일정" sentence={scheduleSentence(state.activities)} />
-        <SummaryCard href={hrefOf('activities/records')} title="기록" sentence={recordSentence(state.records, CURRENT_TERM.semester)} />
+        <div className="act-sums">
+          <SummaryCard href={hrefOf('activities/schedule')} title="일정" headline={empty ? '신청 준비를 시작해 보세요' : scheduleKeyword(state.activities)} value={state.activities.length ? `활동 ${state.activities.length}개` : undefined} visual={empty ? undefined : <MiniGanttPic gantt={miniGantt(state.activities)} />} />
+          <SummaryCard href={hrefOf('activities/records')} title="기록" headline={recordKeyword(state.records, CURRENT_TERM.semester)} value={state.records.length ? `기록 ${state.records.length}개` : undefined} visual={grid.rows.length ? <RecordGridPic grid={grid} /> : undefined} />
+        </div>
       </div>
-    </>
+    </div>
   );
 }
