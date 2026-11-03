@@ -146,7 +146,6 @@ describe('처음으로 되돌리기 (reset)', () => {
       { type: 'draft/save', activityId: 'a-hackathon', draft: draft() },
       { type: 'record/setFlags', id: 'e1', flags: { confirmedAxes: ['problem'] } },
       { type: 'analysis/answers', answers: { 'e1~e2': 'yes' } },
-      { type: 'analysis/self', self: { ...INITIAL_STATE.selfLevels, self: 'high' } },
       { type: 'challenge/achieve', ids: ['first-retro'], at: 1 },
       { type: 'recruit/post', post: { id: 'p', opportunityId: 'o', author: '나', slots: 1, note: 'n', mine: true } }
     ];

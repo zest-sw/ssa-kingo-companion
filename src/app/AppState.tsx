@@ -36,7 +36,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { saveState(state); }, [
     state.demo, state.records, state.profile, state.onboarded, state.visibility, state.settings, state.notify, state.choices, state.laterUntil, state.dislikedFields, state.preferEasier,
-    state.activities, state.drafts, state.edgeAnswers, state.selfLevels
+    state.activities, state.drafts, state.edgeAnswers
   ]);
 
   const run = useCallback((action: Action | Action[], opts: RunOptions = {}) => {

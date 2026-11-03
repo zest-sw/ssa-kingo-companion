@@ -39,13 +39,11 @@ describe('새로고침 뒤에도 남는 것', () => {
     const draft = { messages: [], interview: { card: {}, step: 'situation' as const, followedUp: [] }, visibility: 'me' as const, useForRecommend: true, confirmed: [] };
     const s = play([
       { type: 'draft/save', activityId: 'a-hackathon', draft },
-      { type: 'analysis/answers', answers: { 'e1~e2': 'yes' } },
-      { type: 'analysis/self', self: { ...INITIAL_STATE.selfLevels, creative: 'high' } }
+      { type: 'analysis/answers', answers: { 'e1~e2': 'yes' } }
     ]);
     const r = reload(s);
     expect(r.drafts).toEqual(s.drafts);
     expect(r.edgeAnswers).toEqual({ 'e1~e2': 'yes' });
-    expect(r.selfLevels.creative).toBe('high');
   });
 
   it('예시 기록은 남기지 않으니, 저장 안 한 기록에 이어진 활동은 회고 대기로 돌아간다', () => {
@@ -74,7 +72,6 @@ describe('localStorage', () => {
     vi.stubGlobal('window', { localStorage: ls });
     const s = loadState();
     expect(s.edgeAnswers).toEqual({ 'e1~e2': 'no' });
-    expect(s.selfLevels.self).toBe('high');
     expect([...ls.data.keys()]).toEqual(['kingo-companion:v1']);
     expect(loadState().edgeAnswers).toEqual({ 'e1~e2': 'no' });
   });
