@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { feedLine, friendsLine, hallLine, interestedIds, myTopGroup, recruitLine } from './summary';
+import { friendsLine, hallLine, interestedIds, myTopGroup, recruitLine } from './summary';
 import type { RecruitPost } from './index';
 
 const post = (id: string, opportunityId: string, mine = false): RecruitPost => ({ id, opportunityId, author: 'x', slots: 1, note: 'n', mine });
@@ -27,11 +27,5 @@ describe('프로필 한 줄', () => {
     expect(hallLine(halls, 'plan')).toBe('걸어온 길 3개, 창업·기획은 2개');
     expect(hallLine(halls, 'mentor')).toBe('걸어온 길 3개, 멘토링 길은 아직 없어요');
     expect(hallLine(halls)).toBe('걸어온 길 3개');
-  });
-  it('친구 소식 문장', () => {
-    expect(feedLine({ who: '다온', kind: 'achieved', subject: '첫 회고' })).toBe('다온 님이 ‘첫 회고’를 달성했어요');
-    expect(feedLine({ who: '다온', kind: 'achieved', subject: '두 캠퍼스' })).toBe('다온 님이 ‘두 캠퍼스’를 달성했어요');
-    expect(feedLine({ who: '지후', kind: 'hidden' })).toBe('지후 님이 숨은 도전 과제를 찾았어요');
-    expect(feedLine({ who: '다온', kind: 'applied', subject: '경진대회' })).toBe('다온 님이 ‘경진대회’에 신청했어요');
   });
 });

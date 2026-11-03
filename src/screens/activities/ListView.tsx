@@ -13,11 +13,11 @@ export function ListView({ activities, onOpen }: { activities: Activity[]; onOpe
     return <Card><EmptyState icon="board" message="추천에서 신청 준비를 누르면 여기에 생겨요." action={<Button variant="primary" onClick={() => navigate('recommend')}>추천 보러 가기</Button>} /></Card>;
   }
   return (
-    <Card padding="md">
+    <Card padding="md" className="fit-card">
       <div className="act-list__tools" role="group" aria-label="정렬">
         {SORTS.map(s => <Chip key={s.id} selected={sort === s.id} onClick={() => setSort(s.id)}>{s.label}</Chip>)}
       </div>
-      <table className="act-table">
+      <div className="fit__scroll"><table className="act-table">
         <caption className="sr-only">내 활동 목록, {SORTS.find(s => s.id === sort)?.label}</caption>
         <thead>
           <tr><th scope="col">활동</th><th scope="col">분야</th><th scope="col">상태</th><th scope="col">일정·마감</th><th scope="col"><span className="sr-only">행동</span></th></tr>
@@ -33,7 +33,7 @@ export function ListView({ activities, onOpen }: { activities: Activity[]; onOpe
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     </Card>
   );
 }

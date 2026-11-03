@@ -3,6 +3,7 @@ import RecordsPage from '../records';
 import './ActivityEntity';
 import { Overview } from './Overview';
 import { Schedule } from './Schedule';
+import '../fit.css';
 import './activities.css';
 
 /**

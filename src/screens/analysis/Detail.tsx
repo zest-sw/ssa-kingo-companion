@@ -23,10 +23,10 @@ export function Detail({ tab, analysis }: { tab: TabId; analysis: ReturnType<typ
   const label = TABS.find(t => t.id === tab)?.label ?? '';
 
   return (
-    <>
+    <div className="fit">
       <PageHeader title={label} />
       <p className="an-private"><Icon name="eye" size={16} />여기 있는 분석은 나에게만 보여요.</p>
-      <div className="an-detail">
+      <div className="fit__body an-detail">
         {analysis.status === 'loading' && <Card><LoadingState message="새 기록을 분석하는 중이에요" lines={5} /></Card>}
         {analysis.status === 'error' && <Card><ErrorState message="새 기록을 분석하지 못했어요. 지난 분석은 그대로예요." onRetry={analysis.retry} /></Card>}
         {analysis.status === 'ready' && tab === 'techtree' && <TechTreeTab records={analysis.records} />}
@@ -34,6 +34,6 @@ export function Detail({ tab, analysis }: { tab: TabId; analysis: ReturnType<typ
         {analysis.status === 'ready' && tab === 'flow' && <FlowTab records={analysis.records} />}
         {analysis.status === 'ready' && tab === 'strengths' && <StrengthsTab records={analysis.records} self={state.selfLevels} setSelf={setSelf} />}
       </div>
-    </>
+    </div>
   );
 }

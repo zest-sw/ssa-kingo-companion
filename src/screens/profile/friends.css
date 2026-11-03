@@ -74,12 +74,12 @@
 .fr-consent__sub { color: var(--ink-muted); font-size: var(--text-sm); }
 .fr-hall-filter { margin-bottom: var(--space-3); overflow-x: auto; }
 .fr-hall { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--fr-hall-min), 1fr)); gap: var(--space-3); }
-.fr-hall__card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); }
+.fr-hall__card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); }
 .fr-hall__start { font-size: var(--text-sm); color: var(--ink-muted); }
 .fr-hall__btn { margin-top: auto; }
 .fr-reason { padding: var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--surface-alt); }
 .fr-reason__label { font-size: var(--text-sm); color: var(--ink-muted); }
-.fr-timeline { display: flex; flex-direction: column; gap: var(--space-3); }
+.fr-timeline { display: flex; flex-direction: column; gap: var(--space-2); }
 .fr-timeline__item { display: flex; align-items: center; gap: var(--space-3); }
 .fr-timeline__title { flex: 1; min-width: 0; font-weight: var(--weight-bold); overflow-wrap: anywhere; }
 .fr-timeline__when { color: var(--ink-subtle); font-size: var(--text-sm); }
@@ -88,7 +88,14 @@
 .fr-field select, .fr-field input { border-color: var(--line-strong); }
 
 /* 프로필 요약: 왼쪽 나·도전 과제, 오른쪽 소셜 요약 카드 */
-.pf-cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--space-3); align-items: start; }
+.pf-cols { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+.pf-left { display: grid; grid-template-rows: auto auto auto; align-content: start; gap: var(--space-3); min-height: 0; }
+.pf-right { display: grid; grid-template-rows: auto auto; align-content: start; gap: var(--space-3); min-height: 0; }
+.pf-right > .pf-locked { grid-row: 1; }
+.pf-all { max-height: calc(100vh - 560px); }
+.pf-showcase { margin-top: var(--space-3); }
+.pf-prog { display: flex; flex-direction: column; }
+.pf-prog .ui-progress__track { height: var(--space-3); }
 .pf-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
 .pf-more { display: flex; justify-content: center; margin-top: var(--space-4); }
 .pf-all { margin-top: var(--space-4); padding-top: var(--space-4); border-top: var(--border); }
@@ -100,10 +107,11 @@
 /* 프로필: 도전 과제 진행, 최근 활동, 친구 소식 */
 :root { --pf-q: var(--space-8); }
 .pf-sentence { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); overflow-wrap: anywhere; }
-.pf-next { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-4); }
+.pf-next { display: flex; flex-direction: column; gap: var(--space-6); margin-top: var(--space-6); }
 .pf-next__item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; gap: var(--space-4); }
-.pf-next__name { font-weight: var(--weight-medium); overflow-wrap: anywhere; }
-.pf-hidden { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-4); color: var(--ink-muted); font-size: var(--text-sm); }
+.pf-next__name { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: var(--weight-medium); overflow-wrap: anywhere; }
+.pf-next__name .ui-icon { color: var(--ink-muted); flex: none; }
+.pf-hidden { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-6); color: var(--ink-muted); font-size: var(--text-sm); }
 .pf-hidden__marks { display: inline-flex; gap: var(--space-1); }
 .pf-hidden__q { display: grid; place-items: center; width: var(--pf-q); height: var(--pf-q); border: 1px dashed var(--ink-subtle); border-radius: var(--radius-sm); font-weight: var(--weight-bold); }
 .pf-recent { display: flex; flex-direction: column; }
@@ -116,3 +124,44 @@
 .fr-sub-title--first { margin-top: 0; }
 @media (max-width: 1100px) { .pf-next__item { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } }
 .fr-headline { margin-bottom: var(--space-4); font-size: var(--text-lg); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
+
+/* 친구 소식: 아바타 + 과제 배지 + 짧은 라벨 */
+.pf-feed { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.pf-feed__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-1) 0; }
+.pf-feed__row + .pf-feed__row { border-top: var(--border); }
+.pf-feed__open { all: unset; box-sizing: border-box; flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-3); min-height: var(--space-10); cursor: pointer; border-radius: var(--radius-sm); }
+.pf-feed__open:hover .pf-feed__text b { color: var(--primary); }
+.pf-feed__open:focus-visible { box-shadow: var(--focus-ring); }
+.pf-feed__badge { display: grid; place-items: center; flex: none; width: var(--space-8); height: var(--space-8); border: var(--border); border-radius: var(--radius-sm); background: var(--lime-100); color: var(--green-900); }
+.pf-feed__text { display: flex; flex-direction: column; min-width: 0; font-size: var(--text-sm); color: var(--ink-muted); }
+.pf-feed__text b { color: var(--ink); font-size: var(--text-md); }
+.pf-face { display: grid; place-items: center; flex: none; width: var(--space-8); height: var(--space-8); border-radius: var(--radius-full); background: var(--green-100); color: var(--green-900); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.pf-face--more { background: var(--grey-100); color: var(--ink-muted); }
+.pf-face--empty { background: transparent; border: 1px dashed var(--ink-subtle); color: var(--ink-subtle); }
+.pf-face--req { background: var(--accent-soft); color: var(--accent-ink); }
+
+/* 소셜 요약 카드 셋: 아바타 줄 / 모집 글 수 막대 / 전당 경로 */
+.pf-social { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.pf-faces { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.pf-faces__row { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
+.pf-faces__row.is-req { color: var(--accent-ink); }
+.pf-rb { display: flex; flex-direction: column; gap: var(--space-4); margin: 0; padding: 0; list-style: none; width: 100%; }
+.pf-rb__row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'kind n' 'track track'; align-items: center; gap: var(--space-1) var(--space-2); font-size: var(--text-sm); color: var(--ink-muted); }
+.pf-rb__kind { grid-area: kind; }
+.pf-rb__n { grid-area: n; color: var(--ink); }
+.pf-rb__track { grid-area: track; height: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-sunken); overflow: hidden; }
+.pf-rb__bar { display: block; height: 100%; background: var(--primary); }
+.pf-hp { position: relative; display: flex; flex-direction: column; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+.pf-hp::before { content: ''; position: absolute; left: calc(var(--space-2) - 1px); top: var(--space-2); bottom: var(--space-2); border-left: 2px dotted var(--ink-subtle); }
+.pf-hp__step { position: relative; display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-sm); color: var(--ink); }
+.pf-hp__dot { flex: none; width: var(--space-4); height: var(--space-4); border-radius: var(--radius-full); background: var(--c); border: 2px solid var(--surface); box-sizing: border-box; box-shadow: 0 0 0 1px var(--surface); }
+
+/* 프로필 하위 화면(친구·팀원 모집·명예의 전당): 머리 한 줄 → 칸들이 남은 높이를 채운다 */
+.pf-sub { grid-template-rows: auto minmax(0, 1fr); }
+.pf-sub > .fr-headline { margin-bottom: 0; }
+.pf-sub .fr-cols { align-items: stretch; min-height: 0; }
+.pf-sub .fr-cols > * { min-height: 0; }
+.fr-hall-body { display: flex; flex-direction: column; min-height: 0; }
+.fr-hall-body > .fr-hall { flex: 1; align-content: start; }
+.fr-hall-body > :not(.fr-hall) { flex: none; }
+.fr-hall-body .fr-note { margin-top: var(--space-2); }
