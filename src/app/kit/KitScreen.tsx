@@ -7,6 +7,7 @@ import type { Field } from '../../domain/types';
 import { useApp } from '../AppState';
 import { navigate, type ScreenProps } from '../router';
 import { KitDiagrams } from './KitDiagrams';
+import { KitLayout } from './KitLayout';
 import './kit.css';
 
 const LONG = '아주 긴 활동 이름이 들어와도 카드 밖으로 넘치지 않고 줄을 바꿔야 해요: 2026 하계 글로벌 소프트웨어 융합 리더십 집중 캠프 및 산학 협력 프로젝트 발표회';
@@ -53,6 +54,8 @@ function KitOverview({ sub }: ScreenProps) {
   return (
     <div className="kit">
       <PageHeader title="컴포넌트 목록" actions={<Button variant="primary" icon="pencil">주 행동 1개</Button>} />
+
+      <KitLayout />
 
       <KitDiagrams />
 
