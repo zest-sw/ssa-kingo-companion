@@ -25,7 +25,7 @@ export function BoardView({ activities, onOpen }: { activities: Activity[]; onOp
         const empty = EMPTY[c.id];
         const cta = empty.cta;
         return (
-          <section key={c.id} className="act-col" data-focus={focus === c.id || undefined} aria-labelledby={`col-${c.id}`}>
+          <section key={c.id} className="act-col" data-fill data-focus={focus === c.id || undefined} aria-labelledby={`col-${c.id}`}>
             <h2 id={`col-${c.id}`} tabIndex={-1} className="act-col__head">
               {c.label}
               <span className="act-col__count num"><span className="sr-only">{cols[c.id].length}개</span><span aria-hidden="true">{cols[c.id].length}</span></span>
