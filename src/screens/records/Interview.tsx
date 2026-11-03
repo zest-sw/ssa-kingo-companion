@@ -172,7 +172,7 @@ export function Interview({ activity }: { activity: Activity }) {
               </div>
             )}
           </Panel>
-          <aside className="rec-side" aria-label="기록 카드 미리보기">{cardView}</aside>
+          <aside className="rec-side" data-fill aria-label="기록 카드 미리보기">{cardView}</aside>
         </div>
       </div>
     );
@@ -225,7 +225,7 @@ export function Interview({ activity }: { activity: Activity }) {
             )}
           </section>
 
-          <aside className="rec-side" aria-label="기록 카드 미리보기">
+          <aside className="rec-side" data-fill aria-label="기록 카드 미리보기">
             {cardView}
           </aside>
         </div>

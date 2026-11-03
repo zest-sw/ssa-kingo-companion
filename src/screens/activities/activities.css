@@ -129,3 +129,8 @@
 
 /* 일정 첫 화면(이번 달): 넘친 줄이 있다는 안내 한 줄 */
 .act-more { margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-sm); }
+
+/* 첫 사용 요약: 세 칸이 같은 모양이라 칸을 줄 높이로 늘리지 않는다(회고 대기 칸이 혼자 늘어나 비던 것). */
+.act-now:has(.ui-state--pic) { align-items: start; }
+.act-now .ui-state--pic { padding: var(--space-4) var(--space-2) var(--space-2); }
+.act-now .ui-state__pic { width: 100%; }
