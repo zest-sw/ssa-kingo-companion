@@ -59,6 +59,7 @@ describe('옛 경로 넘김', () => {
     ['#/records/interview/a-hackathon', 'activities/records/interview/a-hackathon'],
     ['#/activities/board', 'activities/schedule/board'],
     ['#/activities/list', 'activities/schedule/list'],
+    ['#/activities/interview', 'activities/records/interview'],
     ['#/challenges', 'profile'],
     ['#/challenges/list', 'profile'],
     ['#/friends', 'profile'],
