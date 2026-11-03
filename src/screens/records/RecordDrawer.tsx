@@ -9,6 +9,7 @@ import { FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
 import { cardOf } from '../../domain/interview/record';
 import { RecordCardView } from './RecordCardView';
 import { toggleAxis } from '../../domain/interview/draft';
+import { liveAxes } from '../../domain/analysis/strengths';
 
 type Props = { record: RecordItem | undefined; onClose: () => void; onDelete: (r: RecordItem) => void };
 
@@ -43,7 +44,8 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
         meta={meta}
         verification={r.verification}
         card={card}
-        evidence={evidenceOf(r.axes, card.action)}
+        // '아니에요'라고 한 역량은 근거에서 뺀다(나의 강점 서랍과 같은 기준).
+        evidence={evidenceOf(liveAxes(r), card.action)}
         confirmed={confirmed}
         onToggleAxis={a => run({ type: 'record/setFlags', id: r.id, flags: { confirmedAxes: toggleAxis(confirmed, a) } })}
         visibility={r.visibility}
