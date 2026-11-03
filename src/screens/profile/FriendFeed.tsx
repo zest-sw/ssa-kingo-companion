@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Card, Icon, type IconName } from '../../components';
 import { CHALLENGES } from '../../data/challenges';
-import { FEED } from '../../data/friends';
+import { useFriends } from './useFriends';
 import { initialOf } from '../../domain/social/glance';
 import type { FeedKind } from '../../domain/social/summary';
 import { feedTag } from '../../domain/social/visual';
@@ -11,13 +11,14 @@ const KIND_ICON: Record<FeedKind, IconName> = { achieved: 'check', hidden: 'spar
 
 /** 친구 소식: 아바타 + 과제 배지 + 짧은 라벨. 행을 누르면 그 친구의 프로필 서랍이 열린다. */
 export function FriendFeed() {
+  const { feed } = useFriends();
   const [cheered, setCheered] = useState<string[]>([]);
   const [friend, setFriend] = useState<string | null>(null);
   return (
     <Card padding="md" title="친구 소식" className="os-card">
-      {FEED.length === 0 ? <p className="fr-empty">친구를 맺으면 친구 소식이 여기에 보여요.</p> : (
+      {feed.length === 0 ? <p className="fr-empty">친구를 맺으면 친구 소식이 여기에 보여요.</p> : (
         <ul className="pf-feed os-scroll">
-          {FEED.map(f => {
+          {feed.map(f => {
             const on = cheered.includes(f.id);
             const n = f.cheers + (on ? 1 : 0);
             const icon = CHALLENGES.find(c => c.name === f.subject)?.icon ?? KIND_ICON[f.kind];

@@ -1,15 +1,17 @@
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
-import { Card, EmptyState } from '../../components';
+import { Card, EmptyState, GhostPic } from '../../components';
 import { timelineOrder, type TodayTask } from '../../domain/recommend-flow/summary';
 
 /** 오늘 할 일: 가까운 날·이른 시각 순의 세로 타임라인. 점 하나가 한 일이고, 이름과 무슨 일인지만 짧게 붙인다. 누르면 그 일을 하는 화면이나 서랍으로 간다. */
-export function TodayList({ tasks }: { tasks: TodayTask[] }) {
+export function TodayList({ tasks, fresh }: { tasks: TodayTask[]; fresh: boolean }) {
   const go = (t: TodayTask) => ('path' in t.target ? navigate(t.target.path) : openEntity(t.target));
   return (
     <Card title="오늘 할 일" className="home-today">
-      {tasks.length === 0 ? (
-        <EmptyState icon="check" message="오늘 할 일은 다 했어요. 오른쪽 추천을 살펴보세요." />
+      {tasks.length === 0 && fresh ? (
+        <GhostPic kind="rows" labels={['', '']} message="신청 준비를 누르면 할 일이 여기에 생겨요" />
+      ) : tasks.length === 0 ? (
+        <EmptyState icon="check" message="오늘·내일 할 일은 다 했어요. 오른쪽 추천을 살펴보세요." />
       ) : (
         <ol className="home-rail">
           {timelineOrder(tasks).map(t => (

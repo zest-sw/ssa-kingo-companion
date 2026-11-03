@@ -12,9 +12,11 @@ import type { Activity, ActivityStatus, Axis, CandidateChoice, Confirm, Discover
 import { DID_AXES } from '../domain/vocab';
 import { INITIAL_SELF } from '../data/analysis';
 import { INITIAL_REQ_EVIDENCE, PROGRAM_BY_ID } from '../data/catalog';
-import { EXAMPLE_PROFILE, SEED_ACTIVITIES, SEED_RECORDS } from '../data/seed';
+import { EMPTY_PROFILE, EXAMPLE_PROFILE, SEED_ACTIVITIES, SEED_RECORDS } from '../data/seed';
 
 export type AppState = {
+  /** 예시 학생의 활동·기록·친구로 둘러보는 중인지. false 면 가입 인터뷰를 마친 새 학생이다(활동·기록 0, 기회만 있음) */
+  demo: boolean;
   /** 예시 기회 데이터의 주차(1~3). 마감 계산 기준 */
   week: number;
   profile: Profile;
@@ -51,7 +53,10 @@ export type AppState = {
 
 export type Action =
   | { type: 'profile/save'; profile: Profile }
-  | { type: 'profile/complete'; profile: Profile }
+  /** 가입 인터뷰를 마친다. demo 면 예시 학생 데이터로, 아니면 새 학생으로 시작한다 */
+  | { type: 'profile/complete'; profile: Profile; demo: boolean }
+  /** 설정 › 프로토타입 정보: 예시 데이터로 보기 / 새 학생으로 시작. 프로필과 설정은 그대로 둔다 */
+  | { type: 'data/mode'; demo: boolean }
   | { type: 'candidate/choose'; programId: string; choice: CandidateChoice; reason?: DislikeKind; until?: number }
   | { type: 'candidate/clear'; programId: string }
   | { type: 'activity/update'; id: string; patch: Partial<Omit<Activity, 'id'>> }
@@ -81,7 +86,9 @@ export const DEFAULT_VISIBILITY: Visibility = { profilePublic: false, hallOfFame
 export const DEFAULT_SETTINGS: Settings = { discover: true, career: true };
 export const DEFAULT_NOTIFY: NotifyPrefs = { newCandidates: true, dayBefore: true, retro: true, hour: 9 };
 
+/** 예시로 둘러보기: 예시 학생의 활동·기록이 채워진 상태 */
 export const INITIAL_STATE: AppState = {
+  demo: true,
   week: 1,
   profile: EXAMPLE_PROFILE,
   onboarded: false,
@@ -104,6 +111,27 @@ export const INITIAL_STATE: AppState = {
   recruitPosts: []
 };
 
+/** '내 생각'을 아직 적지 않은 새 학생의 기본값 */
+const NEUTRAL_SELF: Record<Axis, Level> = { expertise: 'mid', problem: 'mid', communication: 'mid', collaboration: 'mid', self: 'mid', creative: 'mid' };
+
+/** 처음 연 앱과 가입 인터뷰를 마친 새 학생: 활동·기록·도전 과제·친구 0, 기회(추천 후보)만 있다 */
+export const NEW_STUDENT_STATE: AppState = {
+  ...INITIAL_STATE,
+  demo: false,
+  profile: EMPTY_PROFILE,
+  activities: [],
+  records: [],
+  reqEvidence: {},
+  selfLevels: NEUTRAL_SELF
+};
+
+/** 학생 데이터 조각(활동·기록·고른 것·답한 것)만 예시 또는 빈 값으로 바꾼다 */
+const DATA_KEYS = ['activities', 'records', 'reqEvidence', 'selfLevels', 'choices', 'laterUntil', 'dislikedFields', 'preferEasier', 'confirm', 'lastDone', 'drafts', 'edgeAnswers', 'challengeAt', 'recruitPosts'] as const;
+export const dataOf = (demo: boolean): Pick<AppState, (typeof DATA_KEYS)[number] | 'demo'> => {
+  const base = demo ? INITIAL_STATE : NEW_STUDENT_STATE;
+  return { demo, ...Object.fromEntries(DATA_KEYS.map(k => [k, base[k]])) } as Pick<AppState, (typeof DATA_KEYS)[number] | 'demo'>;
+};
+
 const without = <T,>(list: T[], x: T) => list.filter(v => v !== x);
 const withItem = <T,>(list: T[], x: T) => (list.includes(x) ? list : [...list, x]);
 const omit = <T,>(map: Record<string, T>, key: string) => {
@@ -122,7 +150,9 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'profile/save':
       return { ...state, profile: action.profile };
     case 'profile/complete':
-      return { ...state, profile: action.profile, onboarded: true };
+      return { ...state, ...dataOf(action.demo), profile: action.profile, onboarded: true };
+    case 'data/mode':
+      return state.demo === action.demo ? state : { ...state, ...dataOf(action.demo) };
 
     case 'candidate/choose': {
       const p = PROGRAM_BY_ID[action.programId];
@@ -225,7 +255,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'undo':
       return { ...state, ...action.patch };
     case 'reset':
-      return INITIAL_STATE;
+      return NEW_STUDENT_STATE;
   }
 }
 

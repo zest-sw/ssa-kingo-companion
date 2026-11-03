@@ -4,13 +4,15 @@ import { useChallenges } from '../../app/challenges';
 import { openEntity } from '../../app/entity';
 import { hrefOf, navigate } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Badge, Button, Card, Icon, PageHeader, SummaryCard, type IconName } from '../../components';
+import { Badge, Button, Card, GhostPic, Icon, PageHeader, SummaryCard, type IconName } from '../../components';
 import { showcaseable } from '../../domain/challenges';
 import { canUseSocial, publicActivities, publicRecords } from '../../domain/social';
 import { myTopGroup } from '../../domain/social/summary';
 import { friendsKeyword, hallKeyword, hallRoute, recruitBars, recruitKeyword } from '../../domain/social/visual';
-import { FIELD_GROUP, GROUP_LABEL, STATUS_LABEL } from '../../domain/vocab';
-import { FRIENDS, HALL, INCOMING, OPPORTUNITY_BY_ID, SEED_POSTS } from '../../data/friends';
+import { FIELD_GROUP, STATUS_LABEL } from '../../domain/vocab';
+import { HALL, OPPORTUNITY_BY_ID, SEED_POSTS } from '../../data/friends';
+import { interestLine } from '../../app/student';
+import { useFriends } from './useFriends';
 import { ChallengeList } from './ChallengeList';
 import { ChallengeProgress } from './ChallengeProgress';
 import { FriendFeed } from './FriendFeed';
@@ -38,7 +40,9 @@ export function ProfileHome() {
   const publicIds = new Set(publicActivities(state.activities, v).map(a => a.id));
   const retros = publicRecords(state.records, v).slice(0, RETROS);
   const recent = state.activities.filter(a => a.status === 'ongoing' || a.status === 'ended' || a.status === 'recorded').slice(0, RECENT);
-  const interests = state.profile.interests.filter(i => i !== 'unknown').map(i => GROUP_LABEL[i]).join(', ');
+  const { friends, incoming } = useFriends();
+  const interests = interestLine(state.profile);
+  const sub = state.demo ? `소프트웨어학과 3학년${interests && ` · ${interests}`}` : interests || '관심 분야는 설정에서 고를 수 있어요';
   const posts = [...state.recruitPosts, ...SEED_POSTS];
   const route = hallRoute(HALL, myTopGroup(state.records));
   const toVisibility = () => navigate('settings/visibility');
@@ -54,7 +58,7 @@ export function ProfileHome() {
                 <span className="fr-avatar fr-avatar--lg" aria-hidden="true">나</span>
                 <div>
                   <p className="fr-me__name">나</p>
-                  <p className="fr-me__sub">소프트웨어학과 3학년{interests && ` · ${interests}`}</p>
+                  <p className="fr-me__sub">{sub}</p>
                 </div>
               </div>
               {open ? <Badge tone="green" icon="friends">공개 중</Badge> : <Badge icon="lock">나만 보기</Badge>}
@@ -86,7 +90,7 @@ export function ProfileHome() {
                   </li>
                 ))}
               </ul>
-            ) : <p className="fr-empty">활동을 시작하면 최근 활동이 여기에 모여요.</p>}
+            ) : <GhostPic kind="rows" labels={['', '']} message="활동을 시작하면 여기에 모여요" />}
             {open && retros.length > 0 && (
               <ul className="fr-retros">
                 {retros.map(r => <li key={r.id} className="fr-retro"><p className="fr-retro__label">{r.title} 회고</p><p>“{r.quote}”</p></li>)}
@@ -100,7 +104,7 @@ export function ProfileHome() {
             <>
               <FriendFeed />
               <div className="pf-social">
-                <SummaryCard href={hrefOf('profile/friends')} title="친구" headline={friendsKeyword(FRIENDS.length, INCOMING.length)} visual={<FacesPic friends={FRIENDS.map(f => f.name)} incoming={INCOMING.map(f => f.name)} />} />
+                <SummaryCard href={hrefOf('profile/friends')} title="친구" headline={friendsKeyword(friends.length, incoming.length)} visual={<FacesPic friends={friends.map(f => f.name)} incoming={incoming.map(f => f.name)} />} />
                 <SummaryCard href={hrefOf('profile/recruit')} title="팀원 모집" headline={recruitKeyword(posts)} visual={<RecruitPic bars={recruitBars(posts, id => OPPORTUNITY_BY_ID[id]?.kind)} />} />
                 <SummaryCard href={hrefOf('profile/hall')} title="명예의 전당" headline={hallKeyword(HALL)} visual={route ? <HallPic route={route} /> : undefined} />
               </div>

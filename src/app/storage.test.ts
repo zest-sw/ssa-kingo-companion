@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { INITIAL_STATE, reducer, type Action, type AppState } from './state';
+import { INITIAL_STATE, NEW_STUDENT_STATE, reducer, type Action, type AppState } from './state';
 import { clearSaved, loadState, restoreSaved, saveState, toSaved } from './storage';
 
 /** 새로고침: 저장한 모양을 JSON 으로 오가게 한 뒤 다시 읽는다 */
@@ -64,7 +64,7 @@ describe('새로고침 뒤에도 남는 것', () => {
     expect(r.choices).toEqual({ b: 'later' });
     expect(r.laterUntil).toEqual({});
     expect(r.drafts).toEqual({});
-    expect(restoreSaved('깨진 값')).toBe(INITIAL_STATE);
+    expect(restoreSaved('깨진 값')).toBe(NEW_STUDENT_STATE);
   });
 });
 
@@ -85,7 +85,7 @@ describe('localStorage', () => {
     saveState(play([{ type: 'candidate/choose', programId: 'p-talk', choice: 'later', until: 3 }]));
     clearSaved();
     expect(ls.data.size).toBe(0);
-    expect(loadState()).toBe(INITIAL_STATE);
+    expect(loadState()).toBe(NEW_STUDENT_STATE);
   });
 });
 
@@ -109,5 +109,22 @@ describe('관심 분야 옮기기', () => {
     expect(toInterests(['research', 'product', 'ai'])).toEqual(['plan', 'ai']);
     expect(toInterests(['unknown'])).toEqual(['unknown']);
     expect(toInterests(['dev', 'nope'])).toEqual(['dev']);
+  });
+});
+
+describe('새 학생 저장', () => {
+  it('새 학생은 자기가 쓴 기록과 그 활동을 새로고침 뒤에도 갖는다', () => {
+    const rec = { ...INITIAL_STATE.records[0], id: 'mine-1' };
+    const act = { id: 'act-x', title: 'x', field: 'ai' as const, status: 'recorded' as const, schedule: '', recordId: 'mine-1' };
+    const s: AppState = { ...NEW_STUDENT_STATE, onboarded: true, records: [rec], activities: [act] };
+    const back = restoreSaved(JSON.parse(JSON.stringify(toSaved(s))));
+    expect(back.demo).toBe(false);
+    expect(back.records.map(r => r.id)).toEqual(['mine-1']);
+    expect(back.activities).toEqual([act]);
+  });
+  it('demo 가 없는 옛 저장값은 예시로 본다', () => {
+    const back = restoreSaved({ profile: INITIAL_STATE.profile, onboarded: true, visibility: INITIAL_STATE.visibility });
+    expect(back.demo).toBe(true);
+    expect(back.records).toBe(INITIAL_STATE.records);
   });
 });

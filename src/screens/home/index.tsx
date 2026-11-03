@@ -31,8 +31,8 @@ export default function HomeScreen(_props: ScreenProps) {
       <div className="os">
         <div className="os__body home-onbwrap">
           <Onboarding
-            onDone={profile => run({ type: 'profile/complete', profile })}
-            onExample={() => run({ type: 'profile/complete', profile: EXAMPLE_PROFILE }, { toast: '예시 프로필로 둘러보고 있어요. 프로필은 언제든 바꿀 수 있어요.' })}
+            onDone={profile => run({ type: 'profile/complete', profile, demo: false })}
+            onExample={() => run({ type: 'profile/complete', profile: EXAMPLE_PROFILE, demo: true }, { toast: '예시 프로필로 둘러보고 있어요. 프로필은 언제든 바꿀 수 있어요.' })}
           />
         </div>
       </div>
@@ -51,7 +51,7 @@ export default function HomeScreen(_props: ScreenProps) {
       <PageHeader title="나의 상태창" />
       <AskBar />
       <div className="os__body home-grid">
-        <TodayList tasks={tasks} />
+        <TodayList tasks={tasks} fresh={state.activities.length === 0} />
         <Card className="home-top" aria-label="가장 추천">
           {top ? (
             <HomePick pick={top} week={state.week} records={state.records} onPrepare={prepare} />
@@ -59,7 +59,7 @@ export default function HomeScreen(_props: ScreenProps) {
             <EmptyState icon="compass" message="지금은 맞는 후보가 없어요. 관심 분야나 시간을 바꿔 보세요." action={<Button size="sm" onClick={() => navigate('settings/profile')}>관심 분야·시간 바꾸기</Button>} />
           )}
         </Card>
-        <Semester activities={state.activities} />
+        <Semester activities={state.activities} interests={state.profile.interests} />
         <Upcoming items={upcoming} week={state.week} />
       </div>
     </div>

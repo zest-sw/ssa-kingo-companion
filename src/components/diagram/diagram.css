@@ -161,3 +161,23 @@
   margin: 0 calc((100% - 2 * var(--space-10)) / 6 - 1px); border: 2px solid var(--ink-subtle); border-top: 0; border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 .ui-dg-loop__back::after { content: ''; position: absolute; left: -6px; top: -2px; width: 10px; height: 10px; border-top: 2px solid var(--ink-subtle); border-left: 2px solid var(--ink-subtle); transform: rotate(45deg); transform-origin: 30% 30%; }
+
+/* 그림 틀(첫 사용 상태): 축·칸만 옅게, 값은 없다 */
+.ui-ghost { position: relative; display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.ui-ghost__pic { display: flex; flex-direction: column; gap: var(--space-2); color: var(--ink-subtle); font-size: var(--text-xs); }
+.ui-ghost__label { flex: none; width: var(--dg-ghost-label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ui-ghost__bar { display: flex; align-items: center; gap: var(--space-3); }
+.ui-ghost__track { flex: 1; height: var(--dg-bar-h); border-radius: var(--radius-xs); background: var(--dg-track); }
+.ui-ghost__row { display: flex; align-items: center; gap: var(--space-3); min-height: var(--dg-bar-h); }
+.ui-ghost__dot { flex: none; width: var(--dg-dot); height: var(--dg-dot); border-radius: var(--radius-full); border: 2px solid var(--line-strong); }
+.ui-ghost__line { flex: 1; min-height: var(--space-2); border-radius: var(--radius-xs); background: var(--dg-track); padding: 0 var(--space-2); line-height: var(--dg-bar-h); }
+.ui-ghost__grid { display: grid; gap: var(--space-1); align-items: center; }
+.ui-ghost__col { text-align: center; }
+.ui-ghost__cell { height: var(--dg-bar-h); border-radius: var(--radius-xs); background: var(--dg-track); }
+.ui-ghost__axis { display: flex; justify-content: space-between; padding-top: var(--space-2); border-top: 2px solid var(--line-strong); }
+.ui-ghost__tick { position: relative; }
+.ui-ghost__tick::before { content: ''; position: absolute; left: 50%; top: calc(-1 * var(--space-2) - 2px); height: var(--space-2); border-left: 1px solid var(--line-strong); }
+.ui-ghost__net { width: 100%; height: var(--dg-ghost-net-h); }
+.ui-ghost__net line { stroke: var(--line-strong); stroke-width: 1; }
+.ui-ghost__net circle { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.5; }
+.ui-ghost__msg { color: var(--ink-muted); font-size: var(--text-sm); text-align: center; }

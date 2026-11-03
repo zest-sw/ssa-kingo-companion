@@ -4,7 +4,7 @@ import type { InterviewDraft } from '../domain/interview/draft';
 import { effectiveChoices, laterUntilDay } from '../domain/recommend-flow/flow';
 import type { RecordItem } from '../domain/types';
 import { SEED_RECORDS } from '../data/seed';
-import { applyWithUndo, INITIAL_STATE, reducer, type Action } from './state';
+import { applyWithUndo, INITIAL_STATE, NEW_STUDENT_STATE, reducer, type Action } from './state';
 
 describe('reducer', () => {
   it('신청 준비를 고르면 할 것 칸에 활동이 생기고, 두 번 골라도 하나다', () => {
@@ -153,7 +153,7 @@ describe('처음으로 되돌리기 (reset)', () => {
     const s = actions.reduce(reducer, INITIAL_STATE);
     expect(s.drafts).not.toEqual({});
     const r = reducer(s, { type: 'reset' });
-    expect(r).toBe(INITIAL_STATE);
+    expect(r).toBe(NEW_STUDENT_STATE);
     expect(r).toMatchObject({ choices: {}, laterUntil: {}, drafts: {}, edgeAnswers: {}, challengeAt: {}, recruitPosts: [] });
     expect(r.records.some(x => x.confirmedAxes)).toBe(false);
     expect(r.activities.some(a => a.prepItems)).toBe(false);
@@ -167,3 +167,32 @@ function draft(): InterviewDraft {
 function written(): RecordItem {
   return { ...SEED_RECORDS[0], id: 'r-a-hackathon', title: '가을 데이터 해커톤', source: 'agent' };
 }
+
+describe('새 학생과 예시 데이터', () => {
+  const profile = { ...INITIAL_STATE.profile, interests: ['ai' as const] };
+  it('가입 인터뷰를 마치면 새 학생으로 시작한다: 활동·기록 0', () => {
+    const s = reducer(NEW_STUDENT_STATE, { type: 'profile/complete', profile, demo: false });
+    expect(s.onboarded).toBe(true);
+    expect(s.demo).toBe(false);
+    expect(s.activities).toEqual([]);
+    expect(s.records).toEqual([]);
+    expect(s.profile.interests).toEqual(['ai']);
+  });
+  it('예시로 둘러보기는 예시 활동·기록을 채운다', () => {
+    const s = reducer(NEW_STUDENT_STATE, { type: 'profile/complete', profile, demo: true });
+    expect(s.demo).toBe(true);
+    expect(s.records).toBe(INITIAL_STATE.records);
+    expect(s.activities).toBe(INITIAL_STATE.activities);
+  });
+  it('전환하면 데이터만 바뀌고 프로필·공개 설정은 그대로다', () => {
+    const me = reducer(NEW_STUDENT_STATE, { type: 'profile/complete', profile, demo: false });
+    const pub = reducer(me, { type: 'visibility/set', patch: { profilePublic: true } });
+    const demo = reducer(pub, { type: 'data/mode', demo: true });
+    expect(demo.records.length).toBeGreaterThan(0);
+    expect(demo.profile).toBe(pub.profile);
+    expect(demo.visibility.profilePublic).toBe(true);
+    const back = reducer(demo, { type: 'data/mode', demo: false });
+    expect(back.records).toEqual([]);
+    expect(reducer(back, { type: 'data/mode', demo: false })).toBe(back);
+  });
+});

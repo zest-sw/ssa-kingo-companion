@@ -3,7 +3,7 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Button, Card, EmptyState, GanttRows, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
+import { Button, Card, GanttRows, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
 import { PROTOTYPE_TODAY } from '../../domain/today';
 import { FIELD_GROUP } from '../../domain/vocab';
 import { BoardView } from './BoardView';
@@ -34,7 +34,12 @@ export function Schedule({ sub }: { sub?: string }) {
 
   let body;
   if (state.activities.length === 0) {
-    body = <Card><EmptyState icon="board" message="추천에서 신청 준비를 누르면 여기에 생겨요." action={<Button variant="primary" onClick={() => navigate('recommend')}>추천 보러 가기</Button>} /></Card>;
+    // 첫 사용: 학기 축만 있는 빈 타임라인(그림 틀) + 다음 행동 한 줄
+    body = (
+      <Card className="act-overview" title="이번 학기" action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천 보러 가기</Button>}>
+        <GanttRows label="이번 학기 활동" range={SEMESTER} today={PROTOTYPE_TODAY} rows={[]} onSelect={open} empty="추천에서 신청 준비를 누르면 여기에 막대가 생겨요." />
+      </Card>
+    );
   } else if (sel.view === 'board') {
     body = <div className="os-scroll"><BoardView activities={state.activities} onOpen={open} /></div>;
   } else if (sel.view === 'list') {
