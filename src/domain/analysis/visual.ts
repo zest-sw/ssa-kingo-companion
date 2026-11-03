@@ -28,7 +28,7 @@ export function treeHeadline(tree: TechTree): string {
   const rows = tree.rows.filter(r => r.group !== 'other');
   const done = rows.map(r => ({ r, n: r.cells.filter(c => c.kind !== 'candidate').length })).filter(x => x.n > 0);
   const top = topBy(done, x => x.n);
-  if (!top) return '회고를 쓰면 칸이 채워져요';
+  if (!top) return '회고를 쓰면 가지가 자라요';
   const blank = rows.find(r => r.unknown);
   return blank ? `${top.r.label} 집중 · ${blank.label} 미경험` : `${top.r.label} 집중`;
 }

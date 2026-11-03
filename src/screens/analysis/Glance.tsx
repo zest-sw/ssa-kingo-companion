@@ -13,21 +13,33 @@ import type { RecordItem } from '../../domain/types';
 
 const KIND_CLASS = { done: 'is-done', ongoing: 'is-ongoing', candidate: 'is-candidate' } as const;
 
-/** 분야(행) × 유형 4칸(열) 격자. 해 본 칸 채움, 하는 중 겹테두리, 후보 테두리, 안 해 본 분야는 '?'. */
+/** 단계 i 의 가로 위치(%). 네 단계를 같은 간격으로 둔다. */
+const stageAt = (i: number) => `${((i + 0.5) / TREE_COLUMNS.length) * 100}%`;
+
+/**
+ * 분야마다 짧은 가지 하나: 시작점에서 가장 뒤 단계의 점까지 선을 긋고, 단계 위치에 점을 찍는다.
+ * 해 본 단계 채운 점, 하는 중 겹테두리, 후보 점선 테두리. 안 해 본 분야는 시작점이 '?'. 칸·격자 선은 그리지 않는다.
+ */
 export function TreePic({ rows }: { rows: TreeGlanceRow[] }) {
   // 기타 줄은 해 본 칸이 있을 때만 그린다(없는 줄을 그려 카드를 키우지 않는다).
   const shown = rows.filter(r => r.group !== 'other' || r.cells.some(c => c === 'done' || c === 'ongoing'));
   return (
-    <span className="an-tp" role="img" aria-label="분야별로 해 본 활동 유형 격자">
-      <span className="an-tp__corner" />
-      {TREE_COLUMNS.map(c => <span key={c} className="an-tp__col">{c}</span>)}
+    <span className="an-tp" role="img" aria-label="분야별로 해 본 활동 단계 가지">
+      <span className="an-tp__row an-tp__row--axis">
+        <span />
+        <span className="an-tp__track">{TREE_COLUMNS.map((c, i) => <span key={c} className="an-tp__tick" style={{ left: stageAt(i) }}>{c}</span>)}</span>
+      </span>
       {shown.map(r => {
-        // 해 본 칸이 하나도 없는 분야는 빈 칸마다 '?'를 둔다(후보 테두리는 그대로 보인다).
         const unknown = !r.cells.some(c => c === 'done' || c === 'ongoing');
+        const last = r.cells.reduce((n, c, i) => (c ? i : n), -1);
         return (
-          <span key={r.group} className={`an-tp__row an-g--${r.group}`}>
+          <span key={r.group} className={`an-tp__row an-g--${r.group}${unknown ? ' is-unknown' : ''}`}>
             <span className="an-tp__name">{r.label}</span>
-            {r.cells.map((c, i) => <span key={i} className={`an-tp__cell ${c ? KIND_CLASS[c] : unknown ? 'is-unknown' : 'is-blank'}`}>{!c && unknown ? '?' : null}</span>)}
+            <span className="an-tp__track">
+              {last >= 0 && <span className="an-tp__line" style={{ width: stageAt(last) }} />}
+              <span className="an-tp__root">{unknown ? '?' : null}</span>
+              {r.cells.map((c, i) => c && <span key={i} className={`an-tp__dot ${KIND_CLASS[c]}`} style={{ left: stageAt(i) }} />)}
+            </span>
           </span>
         );
       })}

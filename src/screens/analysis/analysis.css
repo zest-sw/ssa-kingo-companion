@@ -8,6 +8,8 @@
   --an-pill-h: var(--hit-min);
   --an-pill-max: 168px;
   --an-root: 24px;
+  --an-tp-row-h: 20px;
+  --an-tp-q: 18px;
   --an-row-gap: var(--space-5);
   --an-cand-h: var(--space-12);
   --an-disc-min: 380px;
@@ -17,7 +19,6 @@
   --an-track-h: var(--hit-min);
   --an-track-sum-h: var(--space-2);
   --an-str-label-w: 120px;
-  --an-cell-h: 14px;
   --an-bar-h: 28px;
   --an-sem-w-sm: 48px;
   --an-sp-row-h: 24px;
@@ -236,18 +237,25 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 .an-gdot.is-self { box-shadow: inset 0 0 0 var(--an-line-w-thin) var(--ink-subtle); background: var(--surface); }
 .an-gdot.is-blank { border: 1px dashed var(--line-strong); background: transparent; }
 
-/* 테크 트리 그림: 분야(행) × 유형(열) */
-.an-tp { display: grid; grid-template-columns: max-content repeat(4, minmax(0, 1fr)); gap: var(--space-1) var(--space-2); align-items: center; width: 100%; padding-block: var(--an-halo); font-size: var(--text-xs); color: var(--ink-muted); }
+/* 테크 트리 그림: 분야마다 짧은 가지와 단계 위치의 점. 칸 격자 없이 위 한 줄 눈금만. */
+.an-tp { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-1) var(--space-3); width: 100%; padding-block: var(--an-halo); font-size: var(--text-xs); color: var(--ink-muted); }
 .an-tp__row { display: contents; }
-.an-tp__col { text-align: center; white-space: nowrap; }
-.an-tp__name { padding-right: var(--space-2); color: var(--ink); font-weight: var(--weight-medium); white-space: nowrap; }
-.an-tp__cell { height: var(--an-cell-h); border-radius: var(--radius-sm); box-sizing: border-box; display: grid; place-items: center; font-size: var(--text-xs); color: var(--ink-subtle); }
-.an-tp__cell.is-done { background: var(--fill); }
-.an-tp__cell.is-ongoing { background: var(--fill); box-shadow: 0 0 0 var(--an-gap-thin) var(--surface), 0 0 0 calc(var(--an-gap-thin) + var(--an-line-w-thin)) var(--c); }
-.an-tp__cell.is-candidate { border: var(--an-line-w-thin) solid var(--c); }
-.an-tp__cell.is-blank { background: var(--bg-sunken); }
-.an-tp__cell.is-unknown { border: 1px dashed var(--line-strong); }
-.an-g--other .an-tp__cell.is-done, .an-g--other .an-tp__cell.is-ongoing { background: var(--grey-500); }
+.an-tp__name, .an-tp__track { min-height: var(--an-tp-row-h); }
+.an-tp__name { display: flex; align-items: center; }
+.an-tp__row--axis .an-tp__track { color: var(--ink-subtle); }
+.an-tp__name { color: var(--ink); font-weight: var(--weight-medium); white-space: nowrap; }
+.an-tp__track { position: relative; align-self: stretch; }
+.an-tp__tick { position: absolute; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; }
+.an-tp__line { position: absolute; left: 0; top: 50%; border-top: var(--an-line-w-thin) solid var(--c); transform: translateY(-50%); }
+.an-tp__row.is-unknown .an-tp__line { border-top: 1px solid var(--line-strong); }
+.an-tp__root { position: absolute; left: 0; top: 50%; width: var(--an-dot-sm); height: var(--an-dot-sm); border-radius: var(--radius-full); background: var(--c); transform: translate(-50%, -50%); }
+.an-g--other .an-tp__root { background: var(--surface); border: var(--an-line-w-thin) solid var(--c); }
+.an-tp__row.is-unknown .an-tp__root { display: grid; place-items: center; width: var(--an-tp-q); height: var(--an-tp-q); border: 1px dashed var(--line-strong); background: var(--surface); color: var(--ink-subtle); font-size: var(--text-xs); line-height: 1; }
+.an-tp__dot { position: absolute; top: 50%; width: var(--an-dot-md); height: var(--an-dot-md); border-radius: var(--radius-full); box-sizing: border-box; transform: translate(-50%, -50%); }
+.an-tp__dot.is-done { background: var(--fill); }
+.an-tp__dot.is-ongoing { background: var(--fill); box-shadow: 0 0 0 var(--an-gap-thin) var(--surface), 0 0 0 calc(var(--an-gap-thin) + var(--an-line-w-thin)) var(--c); }
+.an-tp__dot.is-candidate { background: var(--surface); border: var(--an-line-w-thin) dashed var(--c); }
+.an-g--other .an-tp__dot.is-done, .an-g--other .an-tp__dot.is-ongoing { background: var(--grey-500); }
 
 /* 경험 지도 그림 */
 .an-mp { display: block; height: auto; }

@@ -24,7 +24,7 @@ describe('분석 요약 그림', () => {
   it('테크 트리 머리말은 가장 많이 한 분야와 안 해 본 분야를 말한다', () => {
     const tree = buildTechTree({ records: recs, activities: [], candidates: [] });
     expect(treeHeadline(tree)).toBe('창업·기획 집중 · AI·데이터 미경험');
-    expect(treeHeadline(buildTechTree({ records: [], activities: [], candidates: [] }))).toBe('회고를 쓰면 칸이 채워져요');
+    expect(treeHeadline(buildTechTree({ records: [], activities: [], candidates: [] }))).toBe('회고를 쓰면 가지가 자라요');
   });
   it('경험 지도는 최근 기록 max 개만 노드로 두고 같은 학기는 세로로 쌓는다', () => {
     const pic = mapPic(recs, {}, 2);
