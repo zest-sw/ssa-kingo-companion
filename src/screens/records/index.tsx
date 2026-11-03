@@ -6,7 +6,6 @@ import './RecordEntity';
 import { Interview } from './Interview';
 import { Overview } from './Overview';
 import { Pending } from './Pending';
-import '../one-screen.css';
 import './records.css';
 
 /**

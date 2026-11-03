@@ -88,7 +88,7 @@ export function PrepareView({ programId }: { programId: string }) {
   return (
     <div className="os">
       <PageHeader parent={parentLink('recommend')} crumb="신청 준비" title={p.title} actions={<Badge tone="orange">마감 {ddayText(dday)} · {dateLabel(dday, state.week)}</Badge>} />
-      <div className="os__body rec-prep">
+      <div className="os__body os__body--fill rec-prep">
         <Card className="rec-prep__list" title="준비할 것" action={<span>{left > 0 ? `${left}개 남음` : '모두 끝났어요'}</span>}>
           {urgent && urgent.dday !== undefined && (
             <p className="rec-urgent"><Icon name="bell" size={18} />가장 급한 것 · {dateLabel(urgent.dday, state.week)}까지 {urgent.label}</p>

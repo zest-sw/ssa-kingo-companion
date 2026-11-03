@@ -3,7 +3,6 @@ import type { ScreenProps } from '../../app/router';
 import { Detail, TABS } from './Detail';
 import { Overview } from './Overview';
 import { useAnalysis } from './useAnalysis';
-import '../fit.css';
 import './analysis.css';
 
 /** '#/analysis/map/x' 의 'map/x' 에서 첫 토막만 본다. 모르는 값이면 undefined(L1). */

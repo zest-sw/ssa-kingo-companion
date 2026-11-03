@@ -14,9 +14,9 @@ export function FriendFeed() {
   const [cheered, setCheered] = useState<string[]>([]);
   const [friend, setFriend] = useState<string | null>(null);
   return (
-    <Card padding="md" title="친구 소식" className="fit-card">
+    <Card padding="md" title="친구 소식" className="os-card">
       {FEED.length === 0 ? <p className="fr-empty">친구를 맺으면 친구 소식이 여기에 보여요.</p> : (
-        <ul className="pf-feed fit__scroll">
+        <ul className="pf-feed os-scroll">
           {FEED.map(f => {
             const on = cheered.includes(f.id);
             const n = f.cheers + (on ? 1 : 0);

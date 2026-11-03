@@ -57,7 +57,7 @@ export function HallView() {
       {list.length === 0 ? (
         <Card><EmptyState icon="trophy" message="이 분야의 경로는 아직 없어요. 다른 분야를 살펴보세요." action={<Button size="sm" onClick={() => setFilter('all')}>전체 보기</Button>} /></Card>
       ) : (
-        <ul className="fr-hall fit__scroll fit__scroll--page">
+        <ul className="fr-hall os-scroll os-scroll--page">
           {list.map(h => (
             <li key={h.id} className="ui-card fr-hall__card">
               <div className="fr-person">

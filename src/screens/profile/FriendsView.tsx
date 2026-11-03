@@ -26,7 +26,7 @@ export function FriendsView() {
   return (
     <>
     <p className="fr-headline">{friendsLine(friends.length, incoming.length)}</p>
-    <div className="fr-cols fit__scroll fit__scroll--page">
+    <div className="fr-cols os-scroll os-scroll--page">
       <div className="fr-col-main fr-stack">
         <Card padding="md" title="친구">
           {incoming.length > 0 && (

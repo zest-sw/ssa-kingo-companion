@@ -7,7 +7,6 @@ import { EXAMPLE_PROFILE } from '../../data/seed';
 import { prepareHref } from '../../domain/recommend-flow/flow';
 import { todayTasks, withoutTasks } from '../../domain/recommend-flow/summary';
 import { upcomingItems } from '../../domain/recommend-flow/upcoming';
-import '../one-screen.css';
 import { AskBar } from './AskBar';
 import { HomePick } from './HomePick';
 import { Onboarding } from './Onboarding';

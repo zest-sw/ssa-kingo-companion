@@ -36,14 +36,14 @@ export function Schedule({ sub }: { sub?: string }) {
   if (state.activities.length === 0) {
     body = <Card><EmptyState icon="board" message="추천에서 신청 준비를 누르면 여기에 생겨요." action={<Button variant="primary" onClick={() => navigate('recommend')}>추천 보러 가기</Button>} /></Card>;
   } else if (sel.view === 'board') {
-    body = <div className="fit__scroll"><BoardView activities={state.activities} onOpen={open} /></div>;
+    body = <div className="os-scroll"><BoardView activities={state.activities} onOpen={open} /></div>;
   } else if (sel.view === 'list') {
     body = <ListView activities={state.activities} onOpen={open} />;
   } else {
     const { rows, undated } = timelineOf(state.activities);
     body = (
-      <Card className="act-overview fit-card" title="이번 학기" action={<Legend items={LEGEND} />}>
-        <div className="fit__scroll">
+      <Card className="act-overview os-card" title="이번 학기" action={<Legend items={LEGEND} />}>
+        <div className="os-scroll">
         <GanttRows label="이번 학기 활동" range={SEMESTER} today={PROTOTYPE_TODAY} rows={rows} selectedId={sel.focus} onSelect={open} empty="날짜가 있는 활동이 아직 없어요. 활동 날짜가 정해지면 막대로 보여요." />
         {undated.length > 0 && (
           <div className="act-undated">
@@ -66,10 +66,10 @@ export function Schedule({ sub }: { sub?: string }) {
   }
 
   return (
-    <div className="fit">
+    <div className="os">
       <PageHeader title="일정" actions={state.activities.length > 0 && <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={v => setSel(s => ({ ...s, view: v }))} items={VIEWS} />} />
       {state.activities.length > 0 && <p className="act-headline">{scheduleHeadline(state.activities)}</p>}
-      <div className="fit__body">{body}</div>
+      <div className="os__body">{body}</div>
     </div>
   );
 }

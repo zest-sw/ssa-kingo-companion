@@ -44,9 +44,9 @@ export function ProfileHome() {
   const toVisibility = () => navigate('settings/visibility');
 
   return (
-    <div className="fit">
+    <div className="os">
       <PageHeader title="프로필" actions={open ? <Button icon="pencil" onClick={toVisibility}>공개 범위 설정</Button> : undefined} />
-      <div className="fit__body pf-cols">
+      <div className="os__body pf-cols">
         <div className="pf-left">
           <Card aria-label="나" padding="md">
             <div className="pf-head">
@@ -66,10 +66,10 @@ export function ProfileHome() {
             ) : <p className="fr-empty pf-showcase">{challenges.some(c => c.achieved) ? '전체 목록에서 전시할 과제를 골라 보세요.' : '과제를 달성하면 여기에 전시할 수 있어요.'}</p>}
           </Card>
 
-          <Card className="fit-card" title="도전 과제" padding="md" action={
+          <Card className="os-card" title="도전 과제" padding="md" action={
             <Button variant="ghost" icon={all ? 'down' : 'chevron'} aria-expanded={all} onClick={() => setAll(x => !x)}>{all ? '접기' : '전체 목록'}</Button>
           }>
-            <div className={all ? 'fit__scroll pf-all' : 'pf-prog'}>{all ? <ChallengeList /> : <ChallengeProgress />}</div>
+            <div className={all ? 'os-scroll pf-all' : 'pf-prog'}>{all ? <ChallengeList /> : <ChallengeProgress />}</div>
           </Card>
 
           <Card title="최근 활동" padding="md">

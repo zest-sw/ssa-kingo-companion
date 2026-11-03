@@ -23,13 +23,13 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
 
   return (
     <Card
-      className="fit-card"
+      className="os-card"
       title="활동 지도"
       action={<SegmentedControl<View> label="보기 방식" value={mode} onChange={setMode} items={[{ id: 'graph', label: '그림으로 보기' }, { id: 'list', label: '지금 신청할 수 있는 것만' }]} />}
     >
       {mode === 'graph' ? (
         <>
-          <div className="fit__scroll">
+          <div className="os-scroll">
             {!filled && <p className="an-note an-note--top">아직 한 활동이 없어요. 후보를 눌러 신청을 준비하거나, 끝난 활동의 회고를 써 보세요.</p>}
             <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} />
           </div>
@@ -42,7 +42,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
           </ul>
         </>
       ) : (
-        <div className="fit__scroll"><CandidateList cells={tree.candidates} onPick={toRecommend} /></div>
+        <div className="os-scroll"><CandidateList cells={tree.candidates} onPick={toRecommend} /></div>
       )}
       <CellDrawer cell={open} records={records} onClose={() => setOpen(null)} />
     </Card>

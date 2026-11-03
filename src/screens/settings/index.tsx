@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import { hrefOf, type ScreenProps } from '../../app/router';
 import { Icon, PageHeader } from '../../components';
 import { SETTINGS_NAV, type SettingsSection } from '../../data/settings';
-import '../one-screen.css';
 import { AboutSection } from './AboutSection';
 import { DataSection } from './DataSection';
 import { NotifySection } from './NotifySection';
@@ -24,7 +23,7 @@ export default function SettingsScreen({ sub }: ScreenProps) {
   return (
     <div className="os">
       <PageHeader eyebrow="설정" title={current.label} />
-      <div className="os__body st-layout">
+      <div className="os__body os__body--fill st-layout">
         <nav className="st-nav" aria-label="설정 메뉴">
           <ul>
             {SETTINGS_NAV.map(n => (

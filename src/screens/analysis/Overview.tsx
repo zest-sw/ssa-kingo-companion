@@ -34,9 +34,9 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
   const seen = strengths.filter(r => r.count > 0).length;
 
   return (
-    <div className="fit">
+    <div className="os">
       <PageHeader title="나의 분석" />
-      <div className="fit__body an-sum">
+      <div className="os__body an-sum">
         {analysis.status === 'loading' && <Card><LoadingState message="새 기록을 분석하는 중이에요" lines={5} /></Card>}
         {analysis.status === 'error' && <Card><ErrorState message="새 기록을 분석하지 못했어요. 지난 분석은 그대로예요." onRetry={analysis.retry} /></Card>}
         {analysis.status === 'ready' && (
