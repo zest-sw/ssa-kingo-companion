@@ -80,3 +80,18 @@
 
 /* 요약: 하위 화면 카드 두 개 */
 .act-sums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+
+/* 내 활동 요약: 지금 상태 문장 */
+.act-now { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-3); }
+.act-now__sentence { margin: 0; font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
+.act-now__list { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+.act-now__row { display: flex; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--hit-min); padding: var(--space-2) var(--space-3); border: 0; border-radius: var(--radius-md); background: var(--surface-alt); color: var(--ink); font-size: var(--text-md); text-align: left; cursor: pointer; }
+.act-now__row:hover { background: var(--line); }
+.act-now__row:focus-visible { box-shadow: var(--focus-ring); }
+.act-now__row--retro { font-weight: var(--weight-medium); }
+.act-now__row .ui-icon:last-child { color: var(--ink-subtle); }
+.act-now__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.act-now__dday { flex: none; color: var(--ink-muted); font-weight: var(--weight-bold); }
+.act-now__going { margin: 0; color: var(--ink-muted); font-size: var(--text-sm); }
+.act-now__label { margin-right: var(--space-2); font-weight: var(--weight-bold); color: var(--ink); }
+.act-headline { margin: calc(-1 * var(--space-2)) 0 var(--space-4); color: var(--ink-muted); font-size: var(--text-md); }

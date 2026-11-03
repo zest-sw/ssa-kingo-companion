@@ -8,6 +8,7 @@ import { CURRENT_TERM } from '../../data/records';
 import { AddRecordModal } from './AddRecordModal';
 import { Archive } from './Archive';
 import { mapDots, mapRows, mapTerms } from './map';
+import { recordHeadline } from '../activities/summary';
 import { takeMapFocus } from './mapFocus';
 
 const LEGEND: LegendItem[] = [{ label: '학교 확인', mark: 'dot', tone: 'ink' }, { label: '직접 입력', mark: 'ring', tone: 'ink' }];
@@ -31,6 +32,7 @@ export function Overview() {
   return (
     <>
       <PageHeader title="기록" actions={<Button icon="plus" onClick={() => setAdding(true)}>직접 기록 추가</Button>} />
+      <p className="rec-headline">{recordHeadline(state.records)}</p>
       {pending.length > 0 && (
         <button type="button" className="rec-band" onClick={toRetro}>
           <Icon name="pencil" size={18} />
