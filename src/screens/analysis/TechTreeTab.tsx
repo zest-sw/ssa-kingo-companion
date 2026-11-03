@@ -52,7 +52,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
 
 function CandidateList({ cells, onPick }: { cells: TreeCell[]; onPick: (c: TreeCell) => void }) {
   if (!cells.length) {
-    return <EmptyState icon="compass" message="지금 신청할 수 있는 활동이 없어요. 관심 분야나 시간을 바꾸면 후보가 생겨요." action={<Button variant="primary" onClick={() => navigate('home')}>홈에서 확인하기</Button>} />;
+    return <EmptyState icon="compass" message="지금 신청할 수 있는 활동이 없어요. 관심 분야나 시간을 바꾸면 후보가 생겨요." action={<Button size="sm" variant="primary" onClick={() => navigate('settings/profile')}>관심 분야·시간 바꾸기</Button>} />;
   }
   return (
     <ul className="an-cands">

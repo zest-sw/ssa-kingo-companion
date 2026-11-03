@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
+import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
+import { nextStep } from '../../domain/nextStep';
 import { Badge, Button, Card, Chip, EmptyState } from '../../components';
 import { buildStrengths, differences, levelLabel, levelOfSeen, LEVELS, type Level, type StrengthRow } from '../../domain/analysis/strengths';
 import type { Axis, RecordItem } from '../../domain/types';
@@ -10,6 +12,8 @@ export default function StrengthsTab({ records, self, setSelf }: Props) {
   const rows = useMemo(() => buildStrengths(records, self), [records, self]);
   const diffs = differences(rows);
   const set = (axis: Axis, level: Level) => setSelf(prev => ({ ...prev, [axis]: level }));
+  const step = nextStep(useApp().state.activities);
+  const none = records.length === 0;
 
   return (
     <div className="an-str-cols">
@@ -27,17 +31,19 @@ export default function StrengthsTab({ records, self, setSelf }: Props) {
                     {LEVELS.map(l => <Chip key={l.id} selected={r.self === l.id} onClick={() => set(r.axis, l.id)}>{l.label}</Chip>)}
                   </div>
                 </td>
-                <td><DotRow row={r} /></td>
+                <td><DotRow row={r} bare={none} /></td>
               </tr>
             ))}
           </tbody>
         </table></div>
-        {records.length === 0 && <EmptyState icon="records" message="기록이 쌓이면 내 생각과 나란히 볼 수 있어요. 회고를 하나 써 보세요." action={<Button size="sm" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>} />}
+        {none && <EmptyState icon="records" message={`${step.lead} 내 생각 옆에 기록에서 보이는 수준이 채워져요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />}
       </Card>
 
       {/* 기록으로 가는 길은 카드 머리에 하나만 둔다(행마다 같은 버튼을 두지 않는다). 기록이 없으면 위 빈 상태가 그 길이다. */}
       <Card className="os-card" title="내 생각과 기록이 달라요" action={records.length > 0 && diffs.some(r => r.gap === 'self-more') && <Button size="sm" onClick={() => navigate('activities/records')}>경험 추가하기</Button>}>
-        {diffs.length === 0 ? (
+        {none ? (
+          <p className="an-muted">기록이 생기면 내 생각과 다른 역량을 여기서 알려 드려요.</p>
+        ) : diffs.length === 0 ? (
           <p className="an-muted">내 생각과 기록이 같아요. 기록이 늘면 달라지는 게 있는지 알려 드릴게요.</p>
         ) : (
           <div className="os-scroll"><ul className="an-diff">
@@ -66,14 +72,14 @@ export default function StrengthsTab({ records, self, setSelf }: Props) {
 }
 
 /** 적음·중간·많음 세 점 중 기록에서 보이는 수준을 채운다. 기록이 없으면 점선 점 셋. */
-function DotRow({ row }: { row: StrengthRow }) {
+function DotRow({ row, bare }: { row: StrengthRow; bare?: boolean }) {
   const at = row.seen === 'none' ? -1 : LEVELS.findIndex(l => l.id === row.seen);
   return (
     <div className="an-dots" role="img" aria-label={row.seen === 'none' ? `${row.label}: 기록에 아직 없어요` : `${row.label}: 기록 ${row.count}개, ${levelLabel(levelOfSeen(row.seen) ?? 'low')}쯤`}>
       <span className="an-dots__row" aria-hidden="true">
         {LEVELS.map((l, i) => <span key={l.id} className={`an-dot${i === at ? ' is-on' : ''}${at < 0 ? ' is-none' : ''}`} />)}
       </span>
-      <span className="an-dots__text" aria-hidden="true">{row.seen === 'none' ? '기록 없음' : `기록 ${row.count}개 · ${levelLabel(levelOfSeen(row.seen) ?? 'low')}쯤`}</span>
+      {!bare && <span className="an-dots__text" aria-hidden="true">{row.seen === 'none' ? '기록 없음' : `기록 ${row.count}개 · ${levelLabel(levelOfSeen(row.seen) ?? 'low')}쯤`}</span>}
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, ConfirmDot, Drawer, EmptyState } from '../../components';
+import { Badge, Button, Card, ConfirmDot, Drawer, EmptyState, GhostPic } from '../../components';
+import { nextStep } from '../../domain/nextStep';
 import { usedCount } from '../../domain/analysis/discovery';
 import { discoveryPic, type DiscoveryPic } from '../../domain/analysis/visual';
 import type { Discovery } from '../../domain/types';
@@ -39,6 +40,7 @@ export function DiscoveryCards() {
   const { state, view, discStateOf, run } = useApp();
   const [seeing, setSeeing] = useState<Discovery | null>(null);
   const used = usedCount(view.discoveries, state.confirm);
+  const step = nextStep(state.activities);
 
   const answer = (d: Discovery, status: 'yes' | 'no') => {
     const cancel = discStateOf(d) === status;
@@ -50,7 +52,7 @@ export function DiscoveryCards() {
   return (
     <Card className="os-card" title="확인할 발견" action={<span>확인한 것만 추천에 써요 · 지금 <b className="num">{used}</b>개 반영 중</span>} padding="md">
       {view.discoveries.length === 0 ? (
-        <EmptyState icon="sparkle" message="같은 일을 한 기록이 둘 이상이면 발견이 생겨요. 회고를 더 남겨 보세요." action={<Button size="sm" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>} />
+        <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 같은 일을 한 기록끼리 묶어 발견을 보여 줘요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
       ) : (
         <ul className="an-disc-grid os-scroll">
           {view.discoveries.map(d => {

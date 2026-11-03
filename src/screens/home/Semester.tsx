@@ -14,7 +14,7 @@ export function Semester({ activities, interests }: { activities: Activity[]; in
   const bars = semesterBars(activities);
   const max = Math.max(1, ...bars.map(b => b.count));
   return (
-    <Card title="이번 학기" action={<span>{semesterTag(bars)}</span>} className="home-sem">
+    <Card title="이번 학기" action={bars.length > 0 && <span>{semesterTag(bars)}</span>} className="home-sem">
       {bars.length === 0 ? (
         // 첫 사용: 관심 분야(없으면 앞의 세 묶음) 막대 틀만
         <GhostPic kind="bars" labels={ghostRows(interests)} message="활동을 하나 시작하면 막대가 생겨요" />

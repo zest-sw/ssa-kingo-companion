@@ -33,13 +33,13 @@ export function Overview() {
         {empty ? (
           // 첫 사용: 같은 세 칸에 그림 틀만 두고, 다음 행동은 첫 칸 한 곳에
           <div className="act-now">
-            <Card className="os-card" title="할 일 상태" action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천 보러 가기</Button>}>
+            <Card className="os-card" title="할 일 상태" action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>}>
               <GhostPic kind="bars" labels={STATUS_ROWS} message="신청 준비를 누르면 막대가 생겨요" />
             </Card>
             <Card className="os-card" title="이번 주 마감">
               <GhostPic kind="timeline" labels={week.days.map(d => d.label)} message="이번 주 마감이 여기에 찍혀요" />
             </Card>
-            <Card className="os-card act-retro" title="회고 대기"><p className="act-retro__none">끝난 활동이 생기면 여기서 회고를 시작해요.</p></Card>
+            <Card className="os-card act-retro" title="회고 대기"><GhostPic kind="rows" labels={['']} message="끝난 활동이 생기면 여기서 회고를 시작해요" /></Card>
           </div>
         ) : (
           <div className="act-now">

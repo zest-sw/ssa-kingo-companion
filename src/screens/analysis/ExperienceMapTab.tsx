@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
+import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, Drawer, EmptyState } from '../../components';
+import { Badge, Button, Card, Drawer, EmptyState, GhostPic } from '../../components';
+import { nextStep } from '../../domain/nextStep';
 import { answerEdge, buildMap, clearRejected, edgesOf, edgeState, type EdgeAnswers, type MapEdge } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
 import type { RecordItem } from '../../domain/types';
@@ -13,6 +15,7 @@ type Props = { records: RecordItem[]; answers: EdgeAnswers; setAnswers: (next: (
 export default function ExperienceMapTab({ records, answers, setAnswers }: Props) {
   const map = useMemo(() => buildMap(records), [records]);
   const [pick, setPick] = useState<MapPick | null>(null);
+  const step = nextStep(useApp().state.activities);
   const rejected = map.edges.filter(e => edgeState(e, answers) === 'rejected');
   const byId = useMemo(() => Object.fromEntries(records.map(r => [r.id, r])), [records]);
   const answer = (id: string, a: 'yes' | 'no') => setAnswers(prev => answerEdge(prev, id, a));
@@ -30,7 +33,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
         )}
       >
         {records.length === 0 ? (
-          <EmptyState icon="records" title="아직 기록이 없어요" message="회고를 쓰면 기록이 점으로 생기고, 같은 일을 한 기록끼리 이어져요." action={<Button variant="primary" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>} />
+          <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 기록이 점으로 생기고 같은 일을 한 기록끼리 이어져요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
         ) : (
           <>
             <div className="an-mapbox"><MapGraph map={map} answers={answers} picked={pick} onPick={setPick} /></div>

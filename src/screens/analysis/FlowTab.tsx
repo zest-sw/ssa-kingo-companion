@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { navigate } from '../../app/router';
-import { Button, Card, Drawer, EmptyState } from '../../components';
+import { useApp } from '../../app/AppState';
+import { Button, Card, Drawer, EmptyState, GhostPic } from '../../components';
+import { nextStep } from '../../domain/nextStep';
 import { buildFlow, clampRange, defaultRange, legendGroups, moveRange, summarizeFlow, type FlowRange, type FlowSegment } from '../../domain/analysis/flow';
 import { semesterAxis, semesterLabel } from '../../domain/analysis/semester';
 import type { FieldGroup, RecordItem } from '../../domain/types';
@@ -18,12 +20,13 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   const [range, setRange] = useState<FlowRange>(() => defaultRange(rows));
   const [from, to] = clampRange(range, last);
   const [pick, setPick] = useState<Pick | null>(null);
+  const step = nextStep(useApp().state.activities);
   const summary = summarizeFlow(rows, from, to);
   // 구간 밖 학기는 그리지 않는다. 시작 학기 슬라이더를 앞으로 당기면 그 학기가 다시 보인다.
   const shown = rows.slice(from, to + 1);
 
   if (records.length === 0) {
-    return <Card><EmptyState icon="analysis" title="아직 기록이 없어요" message="회고를 쓰면 학기마다 어떤 분야에 시간을 썼는지 보여 줘요." action={<Button variant="primary" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>} /></Card>;
+    return <Card><EmptyState pic={<GhostPic kind="bars" labels={[semesterLabel(SEMESTER_NOW)]} />} message={`${step.lead} 학기마다 어떤 분야를 했는지 보여요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} /></Card>;
   }
 
   return (
