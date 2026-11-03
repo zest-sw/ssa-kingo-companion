@@ -74,6 +74,9 @@
 .ui-dg-tl { padding: var(--space-5) var(--space-4) 0; }
 .ui-dg-tl__track { position: relative; min-height: var(--dg-lane-h); border-bottom: 1px solid var(--dg-grid); }
 .ui-dg-tl__pt { position: absolute; width: var(--hit-min); height: var(--dg-lane-h); transform: translateX(-50%); }
+/* 한 활동 묶음(마감 ◆ ~ 활동 ●)을 잇는 얇은 선. 표식 뒤에 깔린다 */
+.ui-dg-tl__link { position: absolute; height: var(--dg-lane-h); pointer-events: none; }
+.ui-dg-tl__link::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 2px solid var(--line-strong); transform: translateY(-50%); }
 .ui-dg-tl__span { position: absolute; height: var(--dg-lane-h); min-width: var(--hit-min); }
 .ui-dg-tl__span::before { justify-self: stretch; height: var(--dg-bar-h); border-radius: var(--radius-xs); background: var(--dg-c); }
 

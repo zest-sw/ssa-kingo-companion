@@ -67,6 +67,9 @@ describe('upcomingItems', () => {
     // 같은 활동의 두 표식 중 이름은 뒤쪽 한 번만 붙는다
     expect(items[0].short).toBe('');
     expect(items[1].short).not.toBe('');
+    // 두 표식은 한 활동 묶음이라 타임라인이 같은 줄에 놓는다
+    expect(items[0].group).toBe('p1');
+    expect(items[1].group).toBe('p1');
   });
   it('긴 이름은 콜론 앞까지만 점 옆 이름표로 쓴다', () => {
     expect(shortName('설문 결과로 말하기: 데이터 시각화 특강')).toBe('설문 결과로 말하기');

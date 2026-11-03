@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { assignLanes, dateLabel, dayNumber, edgeAlign, fractionOf, funnelRatios, isoOf, layoutGrid, pickTicks, segmentPercents } from './geometry';
+import { assignLanes, dateLabel, dayNumber, edgeAlign, fractionOf, funnelRatios, groupIndices, isoOf, layoutGrid, pickTicks, segmentPercents, spreadPoints } from './geometry';
 
 const OCT = { start: '2026-10-01', end: '2026-10-31' };
 
@@ -47,6 +47,22 @@ describe('줄 나누기', () => {
     expect(assignLanes([{ from: 100, to: 100 }, { from: 0, to: 50 }, { from: 60, to: 80 }], 16)).toEqual([0, 0, 1]);
   });
   it('빈 입력', () => expect(assignLanes([], 8)).toEqual([]));
+});
+
+describe('한 활동 묶음', () => {
+  it('같은 키는 한 묶음, 키 없는 것은 혼자', () => {
+    const keys = ['p1', undefined, 'p1', 'p2'];
+    expect(groupIndices(keys.length, i => keys[i])).toEqual([[0, 2], [1], [3]]);
+  });
+  it('가까운 점은 최소 간격만큼 벌리고 가운데는 그대로', () => {
+    const dx = spreadPoints([100, 110], 32);
+    expect(dx[0]).toBe(-11);
+    expect(dx[1]).toBe(11);
+  });
+  it('충분히 떨어진 점과 점 하나는 그대로', () => {
+    expect(spreadPoints([0, 100], 32)).toEqual([0, 0]);
+    expect(spreadPoints([50], 32)).toEqual([0]);
+  });
 });
 
 describe('격자 배치', () => {

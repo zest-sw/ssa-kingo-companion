@@ -61,6 +61,37 @@ export type Span = { from: number; to: number };
  * 겹치는 조각을 줄(lane)로 나눈다. 입력 순서대로 줄 번호를 돌려준다.
  * 왼쪽부터 놓으면서, 앞 조각 끝과 gap 이상 떨어진 가장 위 줄에 넣는다.
  */
+/**
+ * 같은 묶음 키끼리 모은다. 입력 순서를 지킨 묶음 목록(각 묶음은 입력 번호들).
+ * groupOf(i) 가 undefined 면 혼자 한 묶음.
+ */
+export function groupIndices(count: number, groupOf: (i: number) => string | undefined): number[][] {
+  const units: number[][] = [];
+  const at = new Map<string, number[]>();
+  for (let i = 0; i < count; i++) {
+    const key = groupOf(i);
+    const found = key === undefined ? undefined : at.get(key);
+    if (found) { found.push(i); continue; }
+    const unit = [i];
+    units.push(unit);
+    if (key !== undefined) at.set(key, unit);
+  }
+  return units;
+}
+
+/**
+ * 한 줄에 놓는 점들(x 오름차순 px)이 서로 minGap 보다 가까우면 벌린다. 벌린 뒤 가운데가 원래 가운데와 같게 맞춘다.
+ * 돌려주는 값은 점마다 옮긴 거리(px). 같은 날 마감·활동 표식이 한 점에 포개지지 않게 쓴다.
+ */
+export function spreadPoints(xs: number[], minGap: number): number[] {
+  if (xs.length < 2) return xs.map(() => 0);
+  const adj = [xs[0]];
+  for (let i = 1; i < xs.length; i++) adj.push(Math.max(xs[i], adj[i - 1] + minGap));
+  const mean = (a: number[]) => a.reduce((s, v) => s + v, 0) / a.length;
+  const shift = mean(xs) - mean(adj);
+  return adj.map((v, i) => v + shift - xs[i]);
+}
+
 /** 짧은 라벨의 대략 폭(px). 한글은 글자 크기만큼, 그 밖은 0.6배. 줄 나누기에만 쓴다(정확할 필요 없음) */
 export function textWidth(s: string, px: number): number {
   let w = 0;
