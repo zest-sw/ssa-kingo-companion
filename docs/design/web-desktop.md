@@ -119,3 +119,17 @@
 ## 6. 만들지 않는 것
 
 점수·레벨·XP·순위표, 교과 학습 지원(코스 에이전트 몫), 대리 신청, 실제 AI·학교 API·챌린지스퀘어 연동, 로그인.
+
+## 7. 높이 단계 · 스크롤바 · 패널 (v1.4, `docs/design/ia-navigation.md` 9절)
+
+기준 크기는 노트북 배율인 **1280×640, 1366×650, 1536×730** 과 1440×900 이다. 모든 경로에서 `document.scrollHeight ≤ innerHeight`(페이지 스크롤 0)여야 한다.
+
+- **틀 높이**: `html`·`body` 는 스크롤하지 않고, `.app` 이 `100dvh` 를 정확히 채운다. 사이드바와 본문 칸(`.app-main`, `data-scroll-root`)이 각자 높이를 갖는다. 화면 틀 `.os` 는 본문 칸의 남은 높이를 채운다. 내용이 넘치면 페이지가 아니라 **본문 칸만** 스크롤한다(최후 수단). 창 높이가 `--app-min-h`(600px)보다 낮으면 숨기거나 자르지 않고 본문 칸이 스크롤한다.
+- **스크롤 위치**: 맨 위로 보내기나 스크롤 되살리기는 `window` 대신 `setPageScrollTop` / `pageScrollTop` / `onPageScroll`(`src/components`)을 쓴다.
+- **높이별 밀도 한 단계**(`@media (max-height: 759px)`, `tokens.css`): `--main-pad-t/x/b`, `--card-pad`, `--card-head-gap`, 머리 높이 `--os-head-h` 44→36, 간격 `--os-gap` 16→12, 큰 글자 `--text-lg`~`--text-4xl` 한 단계(화면 제목 24→20), 메뉴 줄 `--nav-item-h` 34→32. 본문 14px 이하 글자와 32px 클릭 대상은 줄이지 않는다. 사이드바 간격을 줄이고, 학생 카드는 이름 한 줄만 남긴다. 화면 CSS 는 카드 여백에 값을 박지 말고 `--card-pad` 를 쓴다. 낮은 높이에서 빼도 되는 보조 줄은 `.only-tall` 로 둔다(꼭 필요한 정보에는 쓰지 않는다).
+- **스크롤바**: 전역 한 가지 모양. 6px(`--scrollbar-size`), 트랙 투명, 썸은 옅은 회색(`--scrollbar-thumb`)이고 칸에 마우스를 올리거나 스크롤하는 동안만 진하게(`--scrollbar-thumb-active`, 스크롤 중에는 `data-scrolling` 이 붙는다: `src/app/scrolling.ts`). 화살표 버튼 없음. Firefox 는 `scrollbar-width: thin` + `scrollbar-color`.
+- **더 있음 그림자** `.os-scroll`: 칸 안 스크롤 + 위·아래 가장자리 옅은 그림자(`--scroll-shade`). 끝에 닿으면 그 쪽 그림자가 사라진다. 흰 카드가 아닌 바탕 위에서는 `.os-scroll--page`(또는 `--os-cover` 를 바탕색으로).
+- **패널 레이아웃** `<Panel title eyebrow action footer note>`(또는 클래스 `ui-panel` / `ui-panel__head` / `ui-panel__body` / `ui-panel__foot`): 머리 / 내용(칸 안 스크롤) / 행동 막대. 행동 막대는 내용과 같은 흐름에 있어 내용을 덮지 않는다. 부모가 높이를 정해 줘야 내용 칸이 스크롤한다(`.os__body--fill` 칸, 그리드 칸). 고정 행동 막대에는 `data-action-bar` 를 붙여 겹침 측정에 잡히게 한다.
+- **단계 표시** `<Stepper label steps current onStep>`: ① 고르기 › ② 자세히 › ③ 준비 › ④ 신청 처럼 흐름을 나눌 때 머리에 한 줄. 지금 단계만 진하고, 지난 단계는 체크로 바뀌어 누르면 돌아간다(다음 단계로 건너뛰지 않는다). 한 화면에서 한 가지 결정만 한다.
+- **'자세히' 진입 규칙** `openEntity(ref, { as })`: 기본(`drawer`)은 같은 화면 위 오른쪽 서랍, 닫으면 제자리. 훑어보고 고르는 곳(목록·보드·그림 조각)에서 쓴다. `{ as: 'page' }` 는 그 항목의 상세 경로로 옮기고 빵부스러기 한 줄로 돌아온다. 그 안에서 할 일이 이어지는 곳에서 쓴다. 상세를 같은 화면 오른쪽 칸 교체로 만들지 않는다.
+- **측정**: `public/qa-frame.html?w=1280&h=640&s=0.6&path=%23%2Frecommend`(h 는 iframe 높이, s 는 좁은 창에서 한 장에 담는 축소 배율). 숫자는 DOM 실측(`document.documentElement.scrollHeight`, 본문 칸 `scrollHeight - clientHeight`, 행동 막대와 내용 사각형 교차)으로 댄다.
