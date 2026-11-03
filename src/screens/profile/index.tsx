@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useApp } from '../../app/AppState';
-import type { ScreenProps } from '../../app/router';
+import { parentLink, type ScreenProps } from '../../app/router';
 import { PageHeader, type IconName } from '../../components';
 import { canUseSocial } from '../../domain/social';
 import { SEED_POSTS } from '../../data/friends';
@@ -49,7 +49,7 @@ export default function ProfileScreen({ sub }: ScreenProps) {
 
   return (
     <>
-      <PageHeader title={TITLE[current]} />
+      <PageHeader parent={parentLink('profile')} crumb={TITLE[current]} title={TITLE[current]} />
       {body}
     </>
   );
