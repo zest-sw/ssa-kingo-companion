@@ -23,7 +23,7 @@ export function DataSection() {
               </Row>
             ))}
             <Row title="기록마다 추천에 쓰기" sub="기록 카드마다 따로 고를 수 있어요">
-              <Button size="sm" variant="ghost" icon="chevron" onClick={() => navigate('records/archive')}>기록 보관함</Button>
+              <Button size="sm" variant="ghost" icon="chevron" onClick={() => navigate('activities/records')}>기록</Button>
             </Row>
           </ul>
         </Group>

@@ -108,16 +108,9 @@
 .ui-page-head__title { font-size: var(--text-3xl); font-weight: var(--weight-heavy); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .ui-page-head__title:focus-visible { box-shadow: none; outline: none; }
 .ui-page-head__actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; justify-content: flex-end; }
-.ui-page-head--l2 { justify-content: flex-start; gap: var(--space-3); }
-.ui-page-head--l2 .ui-page-head__text { flex: 1; }
-.ui-page-head__back {
-  display: inline-grid; place-items: center; width: var(--control-h); height: var(--control-h); flex: none; align-self: flex-end;
-  border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-muted);
-  transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
-}
-.ui-page-head__back:hover { background: var(--surface-hover); color: var(--ink); }
-.ui-crumbs { display: flex; align-items: center; gap: var(--space-2); min-width: 0; margin-bottom: 2px; font-size: var(--text-sm); color: var(--ink-subtle); }
-.ui-crumbs a { color: var(--ink-muted); text-decoration: none; white-space: nowrap; }
+.ui-crumbs { display: flex; align-items: center; gap: var(--space-2); min-width: 0; font-size: var(--text-sm); color: var(--ink-subtle); }
+/* 빵부스러기 부모 칸이 흐름 화면에서 돌아가는 유일한 길이라 누르는 칸을 32px 로 둔다 */
+.ui-crumbs a { display: inline-flex; align-items: center; min-height: var(--hit-min); border-radius: var(--radius-sm); color: var(--ink-muted); text-decoration: none; white-space: nowrap; }
 .ui-crumbs a:hover { color: var(--ink); text-decoration: underline; }
 .ui-crumbs [aria-current] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-muted); }
 
@@ -203,3 +196,20 @@
 .ui-switch[aria-checked='true'] .ui-switch__track { background: var(--primary); }
 .ui-switch[aria-checked='true'] .ui-switch__thumb { transform: translateX(calc(var(--sw-w) - var(--sw-thumb) - 2 * var(--sw-gap))); }
 .ui-switch__label { font-weight: var(--weight-medium); }
+
+/* SummaryCard: 요약 화면의 카드. 이름 한 줄, 핵심 문장, 값, 오른쪽 작은 보조 그림 */
+.ui-sum {
+  display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; padding: var(--space-5);
+  background: var(--surface); border: var(--border); border-radius: var(--radius-lg); color: var(--ink); text-decoration: none;
+}
+.ui-sum--link { transition: border-color var(--duration) var(--ease), background var(--duration) var(--ease); }
+.ui-sum--link:hover { border-color: var(--line-strong); background: var(--surface-alt); }
+.ui-sum--link:focus-visible { border-radius: var(--radius-lg); }
+.ui-sum__head { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.ui-sum__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ui-sum__arrow { margin-left: auto; display: inline-grid; color: var(--ink-subtle); }
+.ui-sum__body { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); min-width: 0; }
+.ui-sum__text { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.ui-sum__sentence { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); overflow-wrap: anywhere; }
+.ui-sum__value { color: var(--ink-muted); font-size: var(--text-sm); }
+.ui-sum__aid { flex: none; display: grid; place-items: center; max-width: 40%; min-width: 0; overflow: hidden; }

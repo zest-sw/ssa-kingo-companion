@@ -1,8 +1,8 @@
 import { openEntity } from '../../app/entity';
-import { hrefOf, navigate } from '../../app/router';
+import { hrefOf } from '../../app/router';
 import { Badge, Button, FieldTag, Piece } from '../../components';
 import { ddayOf, mainReason } from '../../domain/recommend';
-import { candidateHref, dateLabel, isNearDeadline } from '../../domain/recommend-flow/flow';
+import { dateLabel, isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import type { Scored } from '../../domain/types';
 import { FIELD_LABEL } from '../../domain/vocab';
@@ -38,10 +38,12 @@ type Props = {
   onPrepare: () => void;
   /** 가장 추천이 아닌 후보를 크게 보여 줄 때 */
   label?: string;
+  /** 제목을 누르면 갈 곳(홈에서 추천 화면의 그 후보). 추천 화면 안에서는 주지 않는다 */
+  href?: string;
 };
 
-/** 가장 추천 하나: 제목·분야·마감 막대·이유 한 줄·신청 준비. 홈과 추천 L1 이 함께 쓴다. */
-export function TopPick({ pick, week, onPrepare, label = '가장 추천' }: Props) {
+/** 가장 추천 하나: 제목·분야·마감 막대·이유 한 줄·신청 준비. 홈과 추천 화면이 함께 쓴다. 자세히 가는 길은 제목 링크 하나다. */
+export function TopPick({ pick, week, onPrepare, label = '가장 추천', href }: Props) {
   const { p } = pick;
   const dday = ddayOf(p, week);
   const reason = mainReason(pick.reasons)?.text ?? `${FIELD_LABEL[p.field]} 분야의 이번 주 활동이에요.`;
@@ -51,12 +53,11 @@ export function TopPick({ pick, week, onPrepare, label = '가장 추천' }: Prop
         <Badge tone="lime">{label}</Badge>
         <FieldTag field={p.field} detail />
       </div>
-      <h2 className="rec-pick__title"><a href={hrefOf(candidateHref(p.id))}>{p.title}</a></h2>
+      <h2 className="rec-pick__title">{href ? <a href={hrefOf(href)}>{p.title}</a> : p.title}</h2>
       <DeadlineBar programId={p.id} title={p.title} dday={dday} week={week} />
       <p className="rec-pick__why">{reason}</p>
       <div className="rec-pick__go">
         <Button variant="primary" onClick={onPrepare}>신청 준비</Button>
-        <Button variant="ghost" icon="chevron" onClick={() => navigate(candidateHref(p.id))}>자세히</Button>
       </div>
     </div>
   );

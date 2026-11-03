@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
+import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState, FieldTag, SegmentedControl } from '../../components';
 import { recordOfActivity, relatedRecords, TREE_COLUMNS, type TreeCell } from '../../domain/analysis/techtree';
@@ -17,7 +18,8 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
   const [open, setOpen] = useState<TreeCell | null>(null);
   const tree = useTechTree(records);
   const filled = tree.rows.some(r => r.cells.some(c => c.kind !== 'candidate'));
-  const toRecommend = () => navigate('recommend');
+  // 후보 칸은 어디서 눌러도 같은 기회 서랍이 열린다. 서랍의 '자세히 보기'가 추천 화면으로 간다.
+  const toRecommend = (c: TreeCell) => (c.programId ? openEntity({ kind: 'opportunity', id: c.programId }) : navigate('recommend'));
 
   return (
     <Card
@@ -45,7 +47,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
   );
 }
 
-function CandidateList({ cells, onPick }: { cells: TreeCell[]; onPick: () => void }) {
+function CandidateList({ cells, onPick }: { cells: TreeCell[]; onPick: (c: TreeCell) => void }) {
   if (!cells.length) {
     return <EmptyState icon="compass" message="지금 신청할 수 있는 활동이 없어요. 관심 분야나 시간을 바꾸면 후보가 생겨요." action={<Button variant="primary" onClick={() => navigate('home')}>홈에서 확인하기</Button>} />;
   }
@@ -53,13 +55,13 @@ function CandidateList({ cells, onPick }: { cells: TreeCell[]; onPick: () => voi
     <ul className="an-cands">
       {cells.map(c => (
         <li key={c.id}>
-          <button type="button" className="an-cand" onClick={onPick}>
+          <button type="button" className="an-cand" aria-haspopup="dialog" onClick={() => onPick(c)}>
             <span className="an-cand__main">
               <b>{c.label}</b>
               <span className="an-cand__sub"><FieldTag field={c.field} />{TREE_COLUMNS[c.col]}</span>
             </span>
             {c.dday !== undefined && <Badge tone="orange">{ddayText(c.dday)}</Badge>}
-            <span className="an-cand__go">추천에서 보기</span>
+            <span className="an-cand__go">자세히</span>
           </button>
         </li>
       ))}
@@ -94,7 +96,7 @@ function CellDrawer({ cell, records, onClose }: { cell: TreeCell | null; records
           {written ? <RecordSummary record={written} /> : (
             <>
               <p className="an-muted">아직 회고가 없어요. 회고를 쓰면 한 일과 배운 점이 이 칸의 근거가 돼요.</p>
-              <Button variant="primary" onClick={() => navigate('records')}>회고 쓰러 가기</Button>
+              <Button variant="primary" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>
             </>
           )}
         </>

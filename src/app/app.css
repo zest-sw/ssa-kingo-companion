@@ -23,10 +23,19 @@
   transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
 }
 .app-nav__link:hover { background: var(--surface-hover); color: var(--ink); }
-.app-nav__link[aria-current='page'] { background: var(--grey-100); color: var(--ink); font-weight: var(--weight-bold); }
-.app-nav__link[aria-current='page'] svg { color: var(--primary); }
+.app-nav__link[aria-current], .app-nav__sublink[aria-current] { background: var(--grey-100); color: var(--ink); font-weight: var(--weight-bold); }
+.app-nav__link[aria-current] svg, .app-nav__link--parent svg { color: var(--primary); }
+/* 하위 항목이 활성일 때 부모는 글자만 진하게(바탕은 하위 항목에) */
+.app-nav__link--parent { color: var(--ink); font-weight: var(--weight-bold); }
 .app-nav__label { flex: 1; white-space: nowrap; }
-.app-nav__link:focus-visible, .app-brand:focus-visible, .app-gear:focus-visible { border-radius: var(--radius-sm); }
+.app-nav__sub { display: flex; flex-direction: column; gap: 1px; margin: 1px 0 var(--space-1); }
+.app-nav__sublink {
+  display: flex; align-items: center; min-height: var(--nav-item-h); padding: 0 var(--space-2) 0 calc(var(--space-2) + var(--space-4) + var(--space-2));
+  border-radius: var(--radius-sm); color: var(--ink-muted); text-decoration: none; font-size: var(--text-sm); font-weight: var(--weight-medium); white-space: nowrap;
+  transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+.app-nav__sublink:hover { background: var(--surface-hover); color: var(--ink); }
+.app-nav__link:focus-visible, .app-nav__sublink:focus-visible, .app-brand:focus-visible, .app-gear:focus-visible { border-radius: var(--radius-sm); }
 
 .app-side__foot { margin-top: auto; display: flex; align-items: center; gap: var(--space-1); padding-top: var(--space-3); border-top: var(--border); }
 .app-student { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-2) var(--space-1) var(--space-1); }
@@ -50,6 +59,9 @@
   .app-brand__name, .app-nav__label, .app-student__text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .app-nav__link { position: relative; justify-content: center; width: var(--control-h); padding: 0; }
   .app-nav__link .ui-count { position: absolute; top: calc(var(--space-1) * -1); right: calc(var(--space-2) * -1); }
+  /* 아이콘만 남는 폭에서는 하위 항목을 숨긴다. 부모를 누르면 요약 화면의 카드로 하위에 간다. 부모에 활성 바탕을 준다. */
+  .app-nav__sub { display: none; }
+  .app-nav__link--parent { background: var(--grey-100); }
   .app-side__foot { flex-direction: column; gap: var(--space-2); }
   .app-student { flex: none; padding: 0; }
   .app-main { padding: var(--space-6) var(--space-6) var(--space-10); }

@@ -8,10 +8,12 @@
 2026-10-29 리디자인: "둥글고 유아틱하다"는 피드백으로 업무 도구처럼 정돈된 톤(Linear, Vercel·Stripe 대시보드, 토스 비즈니스 화면)으로 바꿨다.
 
 - 왼쪽 사이드바 220px 고정 + 오른쪽 본문. 본문은 가로를 채운다(좁은 폭 상한을 두지 않는다). 읽을 글 단락만 72ch 로 제한한다.
-- 사이드바: 로고(은행잎) + 킹고 컴패니언 / 메뉴 7개(높이 34px, 아이콘 16px) / 맨 아래 학생 카드와 그 옆 **톱니바퀴(설정)**.
-- 메뉴: 홈, 추천(새 후보 개수 배지), 내 활동, 기록, 나의 분석, 도전 과제, 친구. 활성 메뉴는 옅은 회색 바탕 + 진한 글자(테두리 없음).
+- 사이드바(v1.0, `docs/design/ia-navigation.md` 1절): 로고(은행잎) + 킹고 컴패니언 / 메뉴 트리(높이 34px, 아이콘 16px) / 맨 아래 학생 카드와 그 옆 **톱니바퀴(설정)**. 사이드바가 유일한 이동 수단이다.
+- 메인 메뉴 5개: 홈, 추천(새 후보 개수 배지), 내 활동, 나의 분석, 프로필. 하위 9개: 내 활동 › 일정·기록 / 나의 분석 › 테크 트리·경험 지도·관심 흐름·나의 강점 / 프로필 › 친구·팀원 모집·명예의 전당. 트리는 `NAV`(`src/app/router.ts`) 한 곳에 있다.
+- 지금 위치의 부모만 하위 항목을 펼친다(들여 쓴 13px 줄). 활성 항목은 옅은 회색 바탕 + 진한 글자, 하위가 활성이면 부모는 글자만 진하게. `aria-current` 는 그 화면이면 `page`, 그 아래 흐름 화면(신청 준비·회고 인터뷰)이면 `location`.
+- 1200px 아래(아이콘만)에서는 하위 항목을 숨기고 부모에 활성 바탕을 준다. 부모를 누르면 요약 화면으로 가고, 요약 화면의 카드가 하위 화면으로 간다.
 - 설정(`#/settings/<id>`, 기본 `profile`): 왼쪽 하위 메뉴, 오른쪽 내용. 프로필·추천 조건 / 공개 범위 / 데이터·개인정보 / 알림 / 프로토타입 정보. 예전 `#/friends/visibility` 는 `#/settings/visibility` 로 넘어간다. 항목 하나에 붙은 스위치(기록 카드의 '추천에 쓰기' 등)는 그 자리에 둔다.
-- 본문 머리: 위에 작은 회색 글씨(학기 또는 구역 이름, 13px), 그 아래 제목(24px). 오른쪽에 그 화면의 주요 행동 1~2개.
+- 본문 머리: 제목(24px)과 오른쪽 주요 행동 1개(보기 전환 세그먼트는 여기). 뒤로 버튼은 없다. 빵부스러기는 흐름 화면에만 한 줄.
 - 지원 폭: 1280 / 1440 / 1920 에서 완성. 1024 에서는 사이드바를 아이콘만 남기고 본문이 깨지지 않으면 된다. 모바일은 이번 범위가 아니다.
 - 상세는 모달이 아니라 **오른쪽 서랍(drawer, 폭 480px)** 이 기본이다. 확인이 필요한 짧은 질문만 가운데 모달.
 - 라우팅은 해시(`#/home`, `#/recommend`, ...). 새로고침해도 같은 화면이 열린다.
@@ -61,11 +63,28 @@
 
 모든 그림은 `label`(그림 전체 이름)과 선택 표시용 `selectedId?` 를 받는다.
 
-**머리와 깊이.** `PageHeader` 는 `parent` 가 없으면 L1(제목 + 주 행동 1개, 설명 문단 없음), 있으면 L2(빵부스러기 '메뉴 › 상세' + 뒤로 버튼 + 제목). L2 는 열릴 때 맨 위에서 시작하고 제목에 포커스. `parent={l1Of('activities')}` 처럼 쓰고, 뒤로는 그 메뉴 L1 로 간다. 빵부스러기 끝 이름은 `crumb` 또는 `SUB_LABEL`.
+**머리와 위치(v1.0).** `PageHeader` 는 제목 + 주 행동 1개. 사이드바에 있는 화면은 제목만 둔다(위치는 사이드바가 보여 준다). 흐름 화면(신청 준비, 회고 인터뷰)만 `parent={parentLink('activities/records')}` 로 빵부스러기 '부모 › 이 화면' 한 줄을 그리고, 부모 칸이 돌아가는 유일한 길이다. 뒤로 버튼과 하위 화면 안의 탭(사이드바 항목을 다시 부르는 것)은 없다. 흐름 화면은 열릴 때 맨 위에서 시작하고 제목에 포커스.
 
-**하위 경로.** `SUB_ROUTES`(`src/app/router.ts`): recommend `list`·`compare`·`prepare/:id`·`:id`, activities `board`·`list`, records `archive`·`interview/:id`, analysis `techtree`·`map`·`flow`·`strengths`, challenges `list`, friends `profile`·`recruit`·`hall`. 화면은 지금처럼 `sub` 를 받고, `matchSub(name, sub)` 로 `{ pattern, id }` 를 얻는다. 모르는 sub 면 L1 을 그린다.
+**진입점은 하나.** 한 화면 안에서 같은 목적지로 가는 링크·버튼·탭은 1개 이하(사이드바 제외). 남길 하나는 내용이 붙은 쪽(요약 카드, 할 일 항목). `npm run audit:entries`(`src/app/audit/entries.test.tsx`, `npm run check` 에도 포함)가 경로마다 앱을 그려 목적지별로 센다. 버튼은 눌러서 `navigate()` 를 센다. `replace` 로 부른 이동(그만두기 뒤 돌아가기)과 질문 칸(`role="search"`)은 세지 않는다. 새 경로를 만들면 `CASES` 에 더한다.
 
-**뒤로 상태 보존.** L1 컴포넌트에서 `const [sel, setSel] = useOverviewState('activities', 초기값)`. 메뉴별 선택은 탭(sessionStorage)에 남고, 같은 메뉴 L2 에서 돌아오면(뒤로 버튼·브라우저 뒤로 가기) 스크롤도 되살린다. 다른 메뉴에서 들어오면 맨 위부터. L2 를 그릴 때는 부르지 않는다.
+**요약 카드.** 요약 화면(내 활동, 나의 분석, 프로필)의 카드는 `SummaryCard`(`title`, `sentence`, `value?`, `badge?`, `aid?`, `href?`). 카드 전체가 하위 화면 링크이고, `sentence` 는 그 학생의 상태에서 계산한 핵심 문장 한 줄, `aid` 는 문장 옆 작은 보조 그림(누르는 요소 없음). `href` 가 없으면 누르지 않는 카드.
+
+**경로.** 메뉴 트리 `NAV`(`src/app/router.ts`)가 경로 표다. 화면은 `sub` 를 받는다. `navMatch(route)` 는 지금 위치(메인·하위·흐름 여부), `parentLink(path)` 는 빵부스러기 첫 칸.
+
+| 경로 | 화면 |
+| --- | --- |
+| `#/home` | 홈 |
+| `#/recommend`, `#/recommend/<id>` | 추천 한 화면(가장 추천 + 나머지 후보 목록-상세, 비교 표는 보기 전환). `<id>` 는 그 후보를 고른 채로 |
+| `#/recommend/prepare/<id>` | 신청 준비(흐름 화면) |
+| `#/activities` · `/schedule` · `/records` | 내 활동 요약 · 일정(타임라인·보드·목록 보기 전환) · 기록(기록 지도 + 보관함) |
+| `#/activities/records/interview[/<활동 id>]` | 회고 대기 목록 · 회고 인터뷰(흐름 화면) |
+| `#/analysis` · `/techtree` · `/map` · `/flow` · `/strengths` | 나의 분석 요약 · 하위 넷 |
+| `#/profile` · `/friends` · `/recruit` · `/hall` | 프로필(나, 도전 과제, 친구 소식) · 친구 · 팀원 모집 · 명예의 전당. 비공개면 하위 화면은 '공개하면 열려요' |
+| `#/settings/<id>` | 설정 |
+
+옛 경로는 `MOVED` 로 새 경로에 넘긴다(주소도 바꿔 둔다): `#/records`·`/archive` → `#/activities/records`, `#/records/interview/*` → `#/activities/records/interview/*`, `#/activities/board`·`/list` → `#/activities/schedule`, `#/challenges/*` → `#/profile`, `#/friends` → `#/profile`, `#/friends/profile` → `#/profile/friends`, `#/friends/recruit`·`/hall` → `#/profile/…`, `#/friends/visibility` → `#/settings/visibility`, `#/recommend/list`·`/compare` → `#/recommend`.
+
+**상태 보존.** 요약·목록 화면에서 `const [sel, setSel] = useOverviewState('activities/records', 초기값)`. 화면 경로별 선택은 탭(sessionStorage)에 남고, 그 아래 흐름 화면에서 돌아오면(빵부스러기·브라우저 뒤로 가기) 스크롤도 되살린다.
 
 **공용 서랍.** `openEntity({ kind: 'opportunity' | 'activity' | 'record', id })` 를 어디서 불러도 서랍 하나가 열린다(React 밖 콜백에서도 됨). 화면이 `registerEntityView(kind, ({ id, onClose }) => <기존 서랍 … />)` 로 기존 서랍을 등록하면 그게 열리고, 등록 전에는 기본 서랍(요약 몇 줄 + '자세히 보기')이 열린다. 화면을 옮기면 닫힌다.
 
@@ -73,14 +92,13 @@
 
 | 경로 | 화면 | 목업 | 담당 |
 | --- | --- | --- | --- |
-| `#/home` | 나의 상태창: 오늘 챙길 것, 이번 학기 숫자 4개, 역량 근거, 관심 흐름, 확인할 발견, 이번 주 추천 | `home-status.png` | home-recommend |
-| `#/recommend` | 가장 추천 1개 + 다른 대안 2개, 비교해서 고르기, 나중에 보기, 신청 준비(체크리스트·승인 요청) | `recommend-top` `recommend-compare` `recommend-prepare` | home-recommend |
+| `#/home` | 나의 상태창: 오늘 할 일, 가장 추천, 이번 학기 한 줄, 곧 있어요 14일 | `home-status.png` | home-recommend |
+| `#/recommend` | 가장 추천 1개 + 나머지 후보 목록-상세(비교 표는 보기 전환), 나중에 보기, 신청 준비(체크리스트·승인 요청) | `recommend-top` `recommend-compare` `recommend-prepare` | home-recommend |
 | (가입) | 가입 인터뷰: 관심 분야, 목표, 가능한 시간. 처음 한 번 | (목업 없음, 기존 Onboarding 이식) | home-recommend |
-| `#/activities` | 내 활동: 할 것 / 하는 중 / 끝난 것 세 칸 보드, 목록 보기 전환 | `activities-board.png` | activities-records |
-| `#/records` | 기록: 회고 인터뷰(왼쪽 대화, 오른쪽 기록 카드), 기록 보관함(학기·분야로 모음) | `record-interview` `record-archive` | activities-records |
-| `#/analysis` | 나의 분석: 탭 4개 (테크 트리, 경험 지도, 관심 흐름, 나의 강점) + 확인할 발견 | `analysis-*.png` | analysis |
-| `#/challenges` | 도전 과제: 공개·숨은 과제, 희귀도, 진행도 막대, 전시할 과제 고르기 | `challenges.png` | challenges-friends |
-| `#/friends` | 친구: 프로필·친구, 팀원 모집, 명예의 전당 | `friends-profile` `friends-hall-of-fame` | challenges-friends |
+| `#/activities` | 내 활동 요약 › 일정(타임라인·보드·목록) | `activities-board.png` | activities-records |
+| `#/activities/records` | 기록: 기록 지도 + 보관함(학기·분야로 모음), 회고 인터뷰(왼쪽 대화, 오른쪽 기록 카드) | `record-interview` `record-archive` | activities-records |
+| `#/analysis` | 나의 분석 요약 › 테크 트리, 경험 지도, 관심 흐름, 나의 강점 + 확인할 발견 | `analysis-*.png` | analysis |
+| `#/profile` | 프로필(스팀식): 나, 전시한 도전 과제, 도전 과제(배지 벽 + 전체 목록 펼치기), 친구 소식 › 친구, 팀원 모집, 명예의 전당 | `challenges.png` `friends-profile` `friends-hall-of-fame` | challenges-friends |
 | `#/settings` | 설정(톱니바퀴): 프로필·추천 조건, 공개 범위, 데이터·개인정보, 알림, 프로토타입 정보 | `friends-visibility`(공개 범위) | design-system |
 
 ## 4. 화면별 요점 (기준 문서에서)

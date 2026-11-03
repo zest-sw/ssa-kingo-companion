@@ -12,17 +12,20 @@
     "build": "vite build",
     "check": "tsc --noEmit && vitest run",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "audit:entries": "vitest run src/app/audit --silent=false"
   },
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.0",
+    "jsdom": "^26.1.0",
     "typescript": "^5.7.0",
     "vite": "^8.0.5",
     "vitest": "^5.0.5"

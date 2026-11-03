@@ -5,7 +5,6 @@
   --rec-count: 20px;
   --rec-top-side: 340px;
   --rec-top-side-narrow: 300px;
-  --rec-alt-height: var(--hit-min);
   --rec-flow-label: 150px;
   --rec-flow-count: 40px;
   --rec-reason-height: 48px;
@@ -59,13 +58,6 @@
 .rec-aside__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
 .rec-aside__note { text-align: center; font-size: var(--text-sm); color: var(--ink-muted); }
 
-.rec-alts { margin-top: var(--space-4); display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
-.rec-alts__title { font-size: var(--text-md); font-weight: var(--weight-bold); }
-.rec-alts__list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.rec-alt { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--rec-alt-height); padding: 0 var(--space-4); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-md); background: var(--surface); font-size: var(--text-md); font-weight: var(--weight-medium); }
-.rec-alt:hover { background: var(--surface-alt); }
-.rec-alt__d { color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
-.rec-alts__go { margin-left: auto; color: var(--green-900); }
 
 /* 서랍·모달 */
 .rec-drawer__sec + .rec-drawer__sec { margin-top: var(--space-8); }
@@ -190,3 +182,8 @@
   .rec-cands { position: static; }
   .rec-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* 가장 추천 아래 나머지 후보 */
+.rec-others { margin-top: var(--space-6); scroll-margin-top: var(--space-6); }
+.rec-others__title { margin-bottom: var(--space-3); font-size: var(--text-lg); font-weight: var(--weight-bold); }
+.rec-missing { margin-bottom: var(--space-3); }

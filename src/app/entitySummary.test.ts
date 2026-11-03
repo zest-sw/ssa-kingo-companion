@@ -10,10 +10,10 @@ describe('공용 서랍 기본 내용', () => {
     const p = PROGRAMS[0];
     expect(entitySummary({ kind: 'opportunity', id: p.id }, src)).toMatchObject({ eyebrow: '기회', title: p.title, href: `recommend/${p.id}` });
     const a = SEED_ACTIVITIES[0];
-    expect(entitySummary({ kind: 'activity', id: a.id }, src)).toMatchObject({ eyebrow: '내 활동', title: a.title, href: 'activities/list' });
+    expect(entitySummary({ kind: 'activity', id: a.id }, src)).toMatchObject({ eyebrow: '내 활동', title: a.title, href: 'activities/schedule' });
     const r = SEED_RECORDS[0];
     const rs = entitySummary({ kind: 'record', id: r.id }, src);
-    expect(rs).toMatchObject({ eyebrow: '기록', title: r.title, note: r.quote, href: 'records/archive' });
+    expect(rs).toMatchObject({ eyebrow: '기록', title: r.title, note: r.quote, href: 'activities/records' });
     expect(rs?.facts.map(f => f[0])).toEqual(['학기', '종류', '확인']);
   });
   it('마감이 있는 활동은 남은 날을 함께', () => {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, Card, Chip, ErrorState, Icon, LoadingState, PageHeader, useToast } from '../../components';
-import { l1Of, navigate } from '../../app/router';
+import { navigate, parentLink } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { factsOf } from '../../data/activities';
 import { CURRENT_TERM, QUICK_ANSWERS } from '../../data/records';
@@ -71,7 +71,7 @@ export function Interview({ activity }: { activity: Activity }) {
     const rest = drain().map(text => ({ id: nextId.current++, from: 'agent' as const, text }));
     run({ type: 'draft/save', activityId: activity.id, draft: { messages: [...messages, ...rest], interview: iv, energy, visibility, useForRecommend, confirmed } });
     toast('초안을 저장했어요. 다시 열면 이어서 쓸 수 있어요.');
-    navigate('records/interview');
+    navigate('activities/records/interview');
   };
 
   const did = inferDid(`${iv.card.role ?? ''} ${iv.card.action ?? ''}`);
@@ -105,19 +105,22 @@ export function Interview({ activity }: { activity: Activity }) {
   if (phase === 'done' && summary) {
     return (
       <>
-        <PageHeader parent={l1Of('records')} crumb="회고 인터뷰" title={activity.title} />
+        <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title={activity.title} />
         <>
           <Card className="rec-done">
             <span className="rec-done__icon"><Icon name="check" size={28} /></span>
             <h2 ref={doneTitle} tabIndex={-1} className="rec-done__title">기록 카드를 만들었어요</h2>
             <ul className="rec-done__list">
-              <li><Icon name="doc" size={18} />‘{activity.title}’ 기록 카드가 기록 보관함에 생겼어요.</li>
+              <li><Icon name="doc" size={18} />‘{activity.title}’ 기록 카드가 기록에 생겼어요.</li>
               <li><Icon name="sparkle" size={18} />{summary.newDiscoveries.length ? `새 발견 후보가 ${summary.newDiscoveries.length}개 생겼어요. 나의 분석에서 맞는지 확인해 주세요.` : '발견은 그대로예요. 같은 일을 한 기록이 더 쌓이면 새로 생겨요.'}</li>
               <li><Icon name="compass" size={18} />{summary.usedForRecommend ? '다음 추천에 이 기록을 반영해요.' : '추천에 쓰지 않기로 해서 다음 추천은 그대로예요.'}</li>
             </ul>
-            <div className="rec-done__actions">
-              <Button variant="primary" onClick={() => navigate('records')}>기록 지도에서 보기</Button>
-            </div>
+            {/* 기록으로 돌아가는 길은 빵부스러기 하나다. 새 기록의 점은 기록 지도에 표시돼 있다. */}
+            {summary.newDiscoveries.length > 0 && (
+              <div className="rec-done__actions">
+                <Button variant="primary" onClick={() => navigate('analysis/map')}>새 발견 확인하기</Button>
+              </div>
+            )}
           </Card>
         </>
       </>
@@ -127,7 +130,7 @@ export function Interview({ activity }: { activity: Activity }) {
   const status = stepStatuses(iv);
   return (
     <>
-      <PageHeader parent={l1Of('records')} crumb="회고 인터뷰" title={activity.title} actions={phase === 'talk' && <Button onClick={pause}>나중에 이어 하기</Button>} />
+      <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title={activity.title} actions={phase === 'talk' && <Button onClick={pause}>나중에 이어 하기</Button>} />
       <>
         <div className="rec-interview">
           <section className="rec-chat" aria-label="회고 대화">

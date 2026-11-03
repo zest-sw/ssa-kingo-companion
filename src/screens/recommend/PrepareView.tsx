@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
-import { hrefOf, l1Of, navigate } from '../../app/router';
+import { hrefOf, navigate, parentLink } from '../../app/router';
 import { Badge, Button, Card, EmptyState, ErrorState, Icon, LoadingState, PageHeader } from '../../components';
 import { APPLY_URL, DRAFT_DELAY } from '../../data/recommend';
 import { PROGRAM_BY_ID } from '../../data/catalog';
@@ -51,8 +51,8 @@ export function PrepareView({ programId }: { programId: string }) {
   if (!p) {
     return (
       <>
-        <PageHeader parent={l1Of('recommend')} crumb="신청 준비" title="활동을 찾지 못했어요" />
-        <Card><EmptyState message="이 활동은 이번 주 후보에 없어요. 추천에서 다시 골라 주세요." action={<Button variant="primary" onClick={() => navigate('recommend')}>추천으로 가기</Button>} /></Card>
+        <PageHeader parent={parentLink('recommend')} crumb="신청 준비" title="활동을 찾지 못했어요" />
+        <Card><EmptyState message="이 활동은 이번 주 후보에 없어요. 위의 추천에서 다시 골라 주세요." /></Card>
       </>
     );
   }
@@ -81,12 +81,13 @@ export function PrepareView({ programId }: { programId: string }) {
   const giveUp = () => {
     // 활동이 있으면 지우고(후보는 관심 없음으로), 아직 활동이 아니면 후보만 관심 없음으로 둔다.
     run(activity ? { type: 'activity/remove', id: activity.id } : { type: 'candidate/choose', programId, choice: 'dismissed' }, { toast: '신청 준비를 그만뒀어요.', undoable: true });
-    navigate('recommend');
+    // 그만둔 활동의 준비 화면은 다시 올 곳이 아니라서 기록을 남기지 않고 추천으로 돌아간다.
+    navigate('recommend', { replace: true });
   };
 
   return (
     <>
-      <PageHeader parent={l1Of('recommend')} crumb="신청 준비" title={p.title} actions={<Badge tone="orange">마감 {ddayText(dday)} · {dateLabel(dday, state.week)}</Badge>} />
+      <PageHeader parent={parentLink('recommend')} crumb="신청 준비" title={p.title} actions={<Badge tone="orange">마감 {ddayText(dday)} · {dateLabel(dday, state.week)}</Badge>} />
       <div className="rec-prep">
         <Card className="rec-prep__list" title="준비할 것" action={<span>{left > 0 ? `${left}개 남음` : '모두 끝났어요'}</span>}>
           {urgent && urgent.dday !== undefined && (
@@ -143,8 +144,8 @@ export function PrepareView({ programId }: { programId: string }) {
           </div>
           {submitted ? (
             <div className="rec-draft__done" role="status">
-              <p><b>신청 화면을 열었어요.</b> 결과는 내 활동에서 확인해요.</p>
-              <Button variant="primary" block onClick={() => navigate('activities')}>내 활동 보기</Button>
+              <p><b>신청 화면을 열었어요.</b> 결과는 일정에서 확인해요.</p>
+              <Button variant="primary" block onClick={() => navigate('activities/schedule')}>일정 보기</Button>
             </div>
           ) : (
             <div className="rec-draft__acts">

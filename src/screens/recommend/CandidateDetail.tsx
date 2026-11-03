@@ -46,7 +46,7 @@ export function CandidateDetail({ primary, isPrimary, week, records, activities,
             <li><Badge tone="green" icon="check">{checks.eligible ? (p.target === '전 학년' ? '신청 대상 맞음' : `${p.target} 신청 대상 맞음`) : '신청 대상이 아니에요'}</Badge></li>
             {!checks.overlap && <li><Badge tone="green" icon="check">시간표와 안 겹침</Badge></li>}
             {checks.overlap && <li><Badge tone="orange">다른 활동과 일정이 겹쳐요</Badge></li>}
-            {checks.team && <li className="rec-checks__team"><Badge>팀이 필요해요</Badge><a className="rec-link" href={hrefOf('friends/recruit')}>팀원 모집 보기</a></li>}
+            {checks.team && <li className="rec-checks__team"><Badge>팀이 필요해요</Badge><a className="rec-link" href={hrefOf('profile/recruit')}>팀원 모집 보기</a></li>}
           </ul>
 
           <div className="rec-why">

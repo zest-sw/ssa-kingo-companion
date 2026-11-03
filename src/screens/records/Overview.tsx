@@ -6,30 +6,31 @@ import { useApp } from '../../app/AppState';
 import { useOverviewState } from '../../app/useOverviewState';
 import { CURRENT_TERM } from '../../data/records';
 import { AddRecordModal } from './AddRecordModal';
+import { Archive } from './Archive';
 import { mapDots, mapRows, mapTerms } from './map';
 import { takeMapFocus } from './mapFocus';
 
 const LEGEND: LegendItem[] = [{ label: '학교 확인', mark: 'dot', tone: 'ink' }, { label: '직접 입력', mark: 'ring', tone: 'ink' }];
 
-/** 기록 L1: 회고 대기 띠 한 줄 + 기록 지도. 점을 누르면 기록 카드 서랍이 열린다. */
+/** 내 활동 › 기록: 회고 대기 띠 한 줄 + 기록 지도 + 보관함. 점·카드를 누르면 같은 기록 서랍이 열린다. */
 export function Overview() {
   const { state } = useApp();
-  const [sel, setSel] = useOverviewState('records', { focus: undefined as string | undefined });
+  const [sel, setSel] = useOverviewState('activities/records', { focus: undefined as string | undefined });
   const [adding, setAdding] = useState(false);
   const pending = state.activities.filter(a => a.status === 'ended');
 
-  // 회고를 막 저장하고 '기록 지도에서 보기'로 왔으면 새 기록의 점을 표시한다.
+  // 회고를 막 저장하고 왔으면 새 기록의 점을 표시한다.
   useEffect(() => {
     const fresh = takeMapFocus();
     if (fresh) setSel({ focus: fresh });
   }, [setSel]);
 
-  const toRetro = () => navigate(pending.length === 1 ? `records/interview/${pending[0].id}` : 'records/interview');
+  const toRetro = () => navigate(pending.length === 1 ? `activities/records/interview/${pending[0].id}` : 'activities/records/interview');
   const open = (id: string) => { setSel({ focus: id }); openEntity({ kind: 'record', id }); };
 
   return (
     <>
-      <PageHeader title="기록" actions={<Button variant="primary" icon="records" onClick={() => navigate('records/archive')}>보관함 보기</Button>} />
+      <PageHeader title="기록" actions={<Button icon="plus" onClick={() => setAdding(true)}>직접 기록 추가</Button>} />
       {pending.length > 0 && (
         <button type="button" className="rec-band" onClick={toRetro}>
           <Icon name="pencil" size={18} />
@@ -37,7 +38,7 @@ export function Overview() {
           <Icon name="chevron" size={18} />
         </button>
       )}
-      <Card title="기록 지도" action={<Button size="sm" variant="ghost" icon="plus" onClick={() => setAdding(true)}>직접 기록 추가</Button>}>
+      <Card title="기록 지도">
         <Legend items={LEGEND} />
         <DotGrid
           label="기록 지도"
@@ -46,9 +47,10 @@ export function Overview() {
           items={mapDots(state.records)}
           selectedId={sel.focus && state.records.some(r => r.id === sel.focus) ? sel.focus : undefined}
           onSelect={open}
-          empty="아직 기록이 없어요. 끝난 활동의 회고를 쓰면 점이 생겨요."
+          empty={pending.length ? '위의 회고 쓰기를 누르면 첫 기록이 점으로 생겨요.' : '아직 기록이 없어요. 활동이 끝나면 회고를 써서 점을 채워 보세요.'}
         />
       </Card>
+      <Archive />
       <AddRecordModal open={adding} onClose={() => setAdding(false)} />
     </>
   );

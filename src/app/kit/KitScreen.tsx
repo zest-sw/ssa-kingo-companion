@@ -28,7 +28,7 @@ const Cell = ({ label, children }: { label: string; children: ReactNode }) => (
 function KitDetail() {
   return (
     <div className="kit">
-      <PageHeader parent={{ label: '컴포넌트 목록', href: '#/_kit' }} crumb="L2 머리" title="PageHeader L2 예시" actions={<Button variant="primary">주 행동</Button>} />
+      <PageHeader parent={{ label: '컴포넌트 목록', href: '#/_kit' }} crumb="흐름 화면 머리" title="PageHeader 흐름 화면 예시" actions={<Button variant="primary">주 행동</Button>} />
       <Card><p className="kit-muted">뒤로 버튼, 빵부스러기 첫 칸, 브라우저 뒤로 가기 모두 같은 자리로 돌아가요.</p></Card>
     </div>
   );

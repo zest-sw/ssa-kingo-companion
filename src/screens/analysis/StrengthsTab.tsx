@@ -32,10 +32,11 @@ export default function StrengthsTab({ records, self, setSelf }: Props) {
             ))}
           </tbody>
         </table>
-        {records.length === 0 && <EmptyState icon="records" message="기록이 쌓이면 내 생각과 나란히 볼 수 있어요. 회고를 하나 써 보세요." action={<Button size="sm" onClick={() => navigate('records')}>회고 쓰러 가기</Button>} />}
+        {records.length === 0 && <EmptyState icon="records" message="기록이 쌓이면 내 생각과 나란히 볼 수 있어요. 회고를 하나 써 보세요." action={<Button size="sm" onClick={() => navigate('activities/records')}>회고 쓰러 가기</Button>} />}
       </Card>
 
-      <Card title="내 생각과 기록이 달라요">
+      {/* 기록으로 가는 길은 카드 머리에 하나만 둔다(행마다 같은 버튼을 두지 않는다). 기록이 없으면 위 빈 상태가 그 길이다. */}
+      <Card title="내 생각과 기록이 달라요" action={records.length > 0 && diffs.some(r => r.gap === 'self-more') && <Button size="sm" onClick={() => navigate('activities/records')}>경험 추가하기</Button>}>
         {diffs.length === 0 ? (
           <p className="an-muted">내 생각과 기록이 같아요. 기록이 늘면 달라지는 게 있는지 알려 드릴게요.</p>
         ) : (
@@ -54,7 +55,6 @@ export default function StrengthsTab({ records, self, setSelf }: Props) {
                 )}
                 <div className="an-diff__act">
                   <FixButton row={r} set={set} />
-                  {r.gap === 'self-more' && <Button size="sm" onClick={() => navigate('records')}>경험 추가하기</Button>}
                 </div>
               </li>
             ))}
