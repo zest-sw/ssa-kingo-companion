@@ -9,11 +9,11 @@ import { FIELD_GROUP } from '../../domain/vocab';
 import { BoardView } from './BoardView';
 import { ListView } from './ListView';
 import { scheduleHeadline } from './summary';
-import { SEMESTER, timelineOf } from './timeline';
+import { clipRows, monthRange, SEMESTER, timelineOf } from './timeline';
 
 type View = 'timeline' | 'board' | 'list';
 const VIEWS: { id: View; label: string }[] = [{ id: 'timeline', label: '타임라인' }, { id: 'board', label: '보드' }, { id: 'list', label: '목록' }];
-type Sel = { view: View; focus?: string };
+type Sel = { view: View; focus?: string; full?: boolean };
 const isSel = (v: unknown): v is Sel => typeof v === 'object' && v !== null && VIEWS.some(x => x.id === (v as Sel).view);
 
 const LEGEND: LegendItem[] = [
@@ -21,7 +21,10 @@ const LEGEND: LegendItem[] = [
   { label: '신청 마감', mark: 'diamond', tone: 'ink' }, { label: '결과 발표', mark: 'circle', tone: 'ink' }, { label: '오늘', mark: 'today' }
 ];
 
-/** 내 활동 › 일정: 같은 활동을 타임라인·보드·목록으로 바꿔 본다. 보기 전환은 머리의 세그먼트 한 곳에만 둔다. */
+/**
+ * 내 활동 › 일정: 같은 활동을 타임라인·보드·목록으로 바꿔 본다. 보기 전환은 머리의 세그먼트 한 곳에만 둔다.
+ * 타임라인의 첫 화면은 이번 달만(최대 5줄). 학기 전체는 카드 머리의 '학기 전체 보기'로 한 단계 더 들어간다. 막대를 누르면 활동 서랍.
+ */
 /** sub: 보기 방식(board, list). 옛 #/activities/board·list 링크가 이 경로로 열린다. */
 export function Schedule({ sub }: { sub?: string }) {
   const { state } = useApp();
@@ -45,12 +48,17 @@ export function Schedule({ sub }: { sub?: string }) {
   } else if (sel.view === 'list') {
     body = <ListView activities={state.activities} onOpen={open} />;
   } else {
-    const { rows, undated } = timelineOf(state.activities);
+    const { rows: all, undated } = timelineOf(state.activities);
+    const month = monthRange();
+    const clipped = clipRows(all, month);
+    const rows = sel.full ? all : clipped.rows;
+    const toggle = <Button size="sm" onClick={() => setSel(s => ({ ...s, full: !s.full }))}>{sel.full ? '이번 달만 보기' : '학기 전체 보기'}</Button>;
     body = (
-      <Card className="act-overview os-card" title="이번 학기" action={<Legend items={LEGEND} />}>
+      <Card className="act-overview os-card" title={sel.full ? '이번 학기' : '이번 달'} action={<><Legend items={LEGEND} />{toggle}</>}>
         <div className="os-scroll">
-        <GanttRows label="이번 학기 활동" range={SEMESTER} today={PROTOTYPE_TODAY} rows={rows} selectedId={sel.focus} onSelect={open} empty="날짜가 있는 활동이 아직 없어요. 활동 날짜가 정해지면 막대로 보여요." />
-        {undated.length > 0 && (
+        <GanttRows label={sel.full ? '이번 학기 활동' : '이번 달 활동'} range={sel.full ? SEMESTER : month} today={PROTOTYPE_TODAY} rows={rows} selectedId={sel.focus} onSelect={open} empty={sel.full ? '날짜가 있는 활동이 아직 없어요. 활동 날짜가 정해지면 막대로 보여요.' : '이번 달에 걸친 활동이 없어요. 학기 전체에서 다른 달을 볼 수 있어요.'} />
+        {!sel.full && clipped.hidden > 0 && <p className="act-more">이번 달 활동 {clipped.hidden}개가 더 있어요 · 학기 전체에서 볼 수 있어요</p>}
+        {sel.full && undated.length > 0 && (
           <div className="act-undated">
             <span className="act-undated__label">날짜 미정</span>
             <ul className="act-undated__list">

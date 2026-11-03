@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_ACTIVITIES } from '../../data/seed';
 import { PROTOTYPE_TODAY } from '../../domain/today';
-import { addDays, columnCounts, parseSchedule, timelineOf } from './timeline';
+import { addDays, clipRows, columnCounts, monthRange, parseSchedule, timelineOf } from './timeline';
 
 describe('parseSchedule', () => {
   it('날짜 범위', () => expect(parseSchedule('9월 4일 ~ 12월 10일 · 매주 목')).toEqual({ start: '2026-09-04', end: '2026-12-10' }));
@@ -45,4 +45,30 @@ describe('timelineOf', () => {
 
 describe('columnCounts', () => {
   it('보드 세 칸 개수', () => expect(columnCounts(SEED_ACTIVITIES)).toEqual({ todo: 3, doing: 2, done: 3 }));
+});
+
+describe('monthRange', () => {
+  it('오늘이 속한 달의 첫날과 끝날', () => expect(monthRange('2026-10-13')).toEqual({ start: '2026-10-01', end: '2026-10-31' }));
+  it('2월은 28일까지', () => expect(monthRange('2027-02-03')).toEqual({ start: '2027-02-01', end: '2027-02-28' }));
+});
+
+describe('clipRows', () => {
+  const { rows } = timelineOf(SEED_ACTIVITIES);
+  const oct = monthRange(PROTOTYPE_TODAY);
+  it('범위 밖 막대는 빼고, 걸친 막대는 범위 안으로 자른다', () => {
+    const { rows: out } = clipRows(rows, oct, 9);
+    expect(out.every(r => r.start >= oct.start && r.end <= oct.end)).toBe(true);
+    expect(out.find(r => r.id === 'a-ai-club')).toMatchObject({ start: '2026-10-01', end: '2026-10-31' });
+  });
+  it('범위 밖 마감 표시는 지운다', () => {
+    const one = [{ id: 'x', label: 'x', start: '2026-10-20', end: '2026-11-10', state: 'prep' as const, deadline: '2026-11-10' }];
+    expect(clipRows(one, oct).rows[0].deadline).toBeUndefined();
+  });
+  it('limit 을 넘으면 끝난 활동부터 빼고 빠진 수를 알린다', () => {
+    const many = Array.from({ length: 7 }, (_, i) => ({ id: `r${i}`, label: `r${i}`, start: '2026-10-05', end: '2026-10-06', state: i < 2 ? ('done' as const) : ('active' as const) }));
+    const out = clipRows(many, oct, 5);
+    expect(out.hidden).toBe(2);
+    expect(out.rows.map(r => r.id)).toEqual(['r2', 'r3', 'r4', 'r5', 'r6']);
+  });
+  it('limit 이하면 그대로', () => expect(clipRows([], oct)).toEqual({ rows: [], hidden: 0 }));
 });

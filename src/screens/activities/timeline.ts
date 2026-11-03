@@ -85,3 +85,26 @@ export function columnCounts(activities: Activity[]): Record<'todo' | 'doing' | 
   for (const a of activities) out[COLUMN_OF[a.status]] += 1;
   return out;
 }
+
+/** 오늘이 속한 달 전체. 일정의 첫 화면은 이 범위만 그린다. */
+export function monthRange(today: string = PROTOTYPE_TODAY): DateRange {
+  const [y, m] = today.split('-').map(Number);
+  const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return { start: `${y}-${pad(m)}-01`, end: `${y}-${pad(m)}-${pad(last)}` };
+}
+
+export type Clipped = { rows: GanttRow[]; hidden: number };
+
+/**
+ * 범위와 겹치는 행만 남기고 막대를 범위 안으로 자른다(범위 밖 마감·발표 표시는 뺀다).
+ * 한 번에 limit 줄까지만 보여 준다. 넘치면 끝난 활동부터 빼고, 빠진 수를 hidden 으로 알린다.
+ */
+export function clipRows(rows: GanttRow[], range: DateRange, limit = 5): Clipped {
+  const inside = (d?: string) => (d && d >= range.start && d <= range.end ? d : undefined);
+  const hit = rows
+    .filter(r => r.end >= range.start && r.start <= range.end)
+    .map(r => ({ ...r, start: r.start < range.start ? range.start : r.start, end: r.end > range.end ? range.end : r.end, deadline: inside(r.deadline), result: inside(r.result) }));
+  if (hit.length <= limit) return { rows: hit, hidden: 0 };
+  const keep = new Set(hit.map((r, i) => ({ r, i })).sort((a, b) => Number(a.r.state === 'done') - Number(b.r.state === 'done') || a.i - b.i).slice(0, limit).map(x => x.i));
+  return { rows: hit.filter((_, i) => keep.has(i)), hidden: hit.length - limit };
+}
