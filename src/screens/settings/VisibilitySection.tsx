@@ -43,7 +43,7 @@ export function VisibilitySection() {
   const set = (patch: Partial<typeof v>) => run({ type: 'visibility/set', patch });
 
   return (
-    <div className="st-stack">
+    <div className="st-stack st-vis">
       <Card className="st-card">
         <div className="st-status">
           <span className={v.profilePublic ? 'st-status__dot st-status__dot--on' : 'st-status__dot'} aria-hidden="true" />
