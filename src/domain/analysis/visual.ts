@@ -123,7 +123,7 @@ export type DiscoveryPic = { question: string; evidence: { id: string; label: st
 export function discoveryPic(d: Discovery, shown = 3): DiscoveryPic {
   const did = DID_LABEL[d.did];
   const question = d.kind === 'up' ? `${did}, 하면 힘이 나요?` : `${did}${josa(did, '을', '를')} 자주 맡나요?`;
-  return { question, evidence: d.evidence.slice(0, shown).map(r => ({ id: r.id, label: shortName(r.title, 9) })), more: Math.max(0, d.evidence.length - shown), target: did };
+  return { question, evidence: d.evidence.slice(0, shown).map(r => ({ id: r.id, label: shortName(r.title, 11) })), more: Math.max(0, d.evidence.length - shown), target: did };
 }
 
 /** 카드에 다 못 그릴 때: 기록과 내 생각이 다른 줄을 먼저, 그다음 기록이 많은 순으로 n줄만 고르고 나머지 수를 돌려준다. */
