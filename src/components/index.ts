@@ -13,6 +13,7 @@ export { Modal } from './Modal';
 export { PageHeader } from './PageHeader';
 export { ProgressBar } from './ProgressBar';
 export { Stat } from './Stat';
+export { SummaryCard } from './SummaryCard';
 export { EmptyState, ErrorState, LoadingState } from './States';
 export { Switch } from './Switch';
 export { SegmentedControl, TabPanel, Tabs, type TabItem } from './Tabs';

@@ -1,15 +1,14 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Icon } from './Icon';
 
 type Props = {
   title: ReactNode;
-  /** 오른쪽 주 행동. L1 에서는 하나만 둔다 */
+  /** 오른쪽 주 행동. 하나만 둔다 */
   actions?: ReactNode;
-  /** 작은 회색 구역 이름. L1 개요에서는 쓰지 않는다(설명 문단 없음) */
+  /** 작은 회색 구역 이름(설정 화면처럼). 요약 화면에서는 쓰지 않는다 */
   eyebrow?: ReactNode;
   /**
-   * 있으면 L2(상세) 머리다. 빵부스러기 '메뉴 › 상세'와 뒤로 버튼을 그리고, 뒤로는 parent.href(그 메뉴의 L1)로 간다.
-   * 앱 쪽에서는 l1Of('activities') 로 만든다.
+   * 흐름 화면(신청 준비, 회고 인터뷰)에서만 준다. 빵부스러기 '부모 › 이 화면' 한 줄을 그리고, 부모 칸이 돌아가는 유일한 길이다.
+   * 사이드바에 있는 화면은 주지 않는다(사이드바가 위치를 보여 준다). 앱 쪽에서는 parentLink('activities/records') 로 만든다.
    */
   parent?: { label: string; href: string };
   /** 빵부스러기 끝 이름. 제목이 길 때 짧게. 없으면 제목 */
@@ -17,25 +16,20 @@ type Props = {
 };
 
 /**
- * 본문 머리. L1: 제목 + 오른쪽 주 행동 1개. L2: 빵부스러기 + 뒤로 버튼 + 제목.
- * 제목(h1)은 화면을 옮길 때 앱 틀이 포커스를 준다(data-page-title). L2 는 열릴 때 맨 위에서 시작하고 제목에 포커스가 간다.
+ * 본문 머리: 제목 + 오른쪽 주 행동 1개. 흐름 화면이면 제목 위에 빵부스러기 한 줄. 뒤로 버튼은 두지 않는다(브라우저 뒤로 가기는 그대로 된다).
+ * 제목(h1)은 화면을 옮길 때 앱 틀이 포커스를 준다(data-page-title). 흐름 화면은 열릴 때 맨 위에서 시작하고 제목에 포커스가 간다.
  */
 export function PageHeader({ eyebrow, title, actions, parent, crumb }: Props) {
   const h1 = useRef<HTMLHeadingElement>(null);
-  const isL2 = parent !== undefined;
+  const isFlow = parent !== undefined;
   useEffect(() => {
-    if (!isL2) return;
+    if (!isFlow) return;
     window.scrollTo({ top: 0 });
     h1.current?.focus({ preventScroll: true });
-  }, [isL2]);
+  }, [isFlow]);
 
   return (
-    <header className={['ui-page-head', isL2 && 'ui-page-head--l2'].filter(Boolean).join(' ')}>
-      {parent && (
-        <a className="ui-page-head__back" href={parent.href} aria-label={`${parent.label}(으)로 돌아가기`} title={`${parent.label}(으)로`}>
-          <Icon name="back" />
-        </a>
-      )}
+    <header className="ui-page-head">
       <div className="ui-page-head__text">
         {parent && (
           <nav className="ui-crumbs" aria-label="현재 위치">
