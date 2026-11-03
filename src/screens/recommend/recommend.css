@@ -223,3 +223,6 @@
 .rec-apply__mark { display: inline-grid; place-items: center; flex: none; width: var(--space-6); height: var(--space-6); border-radius: var(--radius-full); background: var(--orange-100); color: var(--accent-ink); }
 .rec-apply__rows li[data-ok] .rec-apply__mark { background: var(--green-900); color: var(--ink-inverse); }
 .ui-panel__foot > .rec-revise { flex: 1; }
+
+/* 내용이 짧은 패널은 늘이지 않는다: 높이는 내용에 맞추고 행동 막대는 내용 바로 아래. 넘치면 패널 안에서만 스크롤 */
+.rec-split > .rec-card, .os__body--fill > .ui-panel[aria-label="후보 자세히"], .os__body--fill > .ui-panel[aria-label="후보 없음"] { align-self: start; max-height: 100%; }
