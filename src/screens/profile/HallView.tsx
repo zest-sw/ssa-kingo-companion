@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { Badge, Button, Card, Drawer, EmptyState, Icon, Modal, SegmentedControl } from '../../components';
 import { FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
+import { hallLine, myTopGroup } from '../../domain/social/summary';
 import { HALL, type HallEntry } from '../../data/friends';
 
 type Filter = 'all' | HallEntry['group'];
@@ -40,6 +41,7 @@ export function HallView() {
 
   return (
     <>
+      <p className="fr-headline">{hallLine(HALL, myTopGroup(state.records))}</p>
       <Card className="fr-consent" padding="md">
         <div className="fr-consent__text">
           <p className="fr-consent__title">{consent ? '내가 명예의 전당에 올라가 있어요' : '명예의 전당에 올라갈지 정해요'}</p>

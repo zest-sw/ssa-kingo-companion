@@ -96,3 +96,23 @@
 .pf-locked__item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; color: var(--ink-muted); }
 .pf-locked__item + .pf-locked__item { border-top: var(--border); }
 .pf-locked__name { flex: 1; color: var(--ink); font-weight: var(--weight-bold); }
+
+/* 프로필: 도전 과제 진행, 최근 활동, 친구 소식 */
+:root { --pf-q: var(--space-8); }
+.pf-sentence { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); overflow-wrap: anywhere; }
+.pf-next { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-4); }
+.pf-next__item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; gap: var(--space-4); }
+.pf-next__name { font-weight: var(--weight-medium); overflow-wrap: anywhere; }
+.pf-hidden { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-4); color: var(--ink-muted); font-size: var(--text-sm); }
+.pf-hidden__marks { display: inline-flex; gap: var(--space-1); }
+.pf-hidden__q { display: grid; place-items: center; width: var(--pf-q); height: var(--pf-q); border: 1px dashed var(--ink-subtle); border-radius: var(--radius-sm); font-weight: var(--weight-bold); }
+.pf-recent { display: flex; flex-direction: column; }
+.pf-recent__item { display: flex; align-items: center; gap: var(--space-2); width: 100%; min-height: var(--hit-min); padding: var(--space-2) 0; background: none; border: 0; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.pf-recent__item:hover { color: var(--primary); }
+.pf-recent__title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.pf-recent__state { color: var(--ink-muted); font-size: var(--text-sm); }
+.fr-feed__open { min-height: var(--hit-min); background: none; border: 0; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.fr-feed__open:hover { color: var(--primary); }
+.fr-sub-title--first { margin-top: 0; }
+@media (max-width: 1100px) { .pf-next__item { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } }
+.fr-headline { margin-bottom: var(--space-4); font-size: var(--text-lg); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
