@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_RECORDS } from '../../data/seed';
-import { mapDots, mapRows, mapTerms, previousTerm } from './map';
+import { mapDots, mapLinks, mapRows, mapTerms, previousTerm } from './map';
 
 describe('previousTerm', () => {
   it('같은 해 안', () => { expect(previousTerm('2026-2')).toBe('2026-여름'); expect(previousTerm('2026-여름')).toBe('2026-1'); });
@@ -30,5 +30,20 @@ describe('mapDots', () => {
   });
   it('학교 확인만 채운 점', () => {
     for (const r of SEED_RECORDS) expect(dots.find(d => d.id === r.id)?.filled).toBe(r.verification === 'school');
+  });
+});
+
+describe('mapLinks', () => {
+  const cols = mapTerms([], '2026-2');
+  const dot = (id: string, row: string, col: string) => ({ id, row, col, filled: true, label: id });
+  it('같은 분야의 앞 학기 점에서 다음 학기 점으로 잇는다. 다른 분야끼리는 잇지 않는다', () => {
+    const items = [dot('a', 'plan', '2026-1'), dot('b', 'plan', '2026-1'), dot('c', 'plan', '2026-2'), dot('d', 'plan', '2026-2'), dot('e', 'plan', '2026-2'), dot('x', 'dev', '2026-2')];
+    expect(mapLinks(items, cols)).toEqual([{ from: 'a', to: 'c' }, { from: 'b', to: 'd' }, { from: 'b', to: 'e' }]);
+  });
+  it('앞 학기 점이 더 많으면 남는 점은 다음 학기 마지막 점으로 모인다', () => {
+    expect(mapLinks([dot('a', 'ai', '2026-1'), dot('b', 'ai', '2026-1'), dot('c', 'ai', '2026-2')], cols)).toEqual([{ from: 'a', to: 'c' }, { from: 'b', to: 'c' }]);
+  });
+  it('빈 학기는 건너뛰고 잇는다', () => {
+    expect(mapLinks([dot('a', 'ai', '2026-1'), dot('b', 'ai', '2026-2')], cols)).toEqual([{ from: 'a', to: 'b' }]);
   });
 });

@@ -22,6 +22,7 @@
   --rm-label-w: 96px;
   --rm-row-min: 44px;
   --rm-dot: 10px;
+  --rm-line-w: 1.5px;
   --rec-empty-max: 640px;
 }
 
@@ -154,25 +155,28 @@
 .rm-card__head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
 .rm-card__title { font-size: var(--text-lg); font-weight: var(--weight-bold); }
 
+/* 기록 지도: 칸 선 없이 학기 흐름 위에 분야별 점·이름. 학기 이름은 위 한 줄 눈금, 같은 분야의 앞뒤 기록은 분야색 선으로 잇는다. */
 .rm { flex: 1; min-height: 0; display: grid; position: relative; }
-.rm__corner, .rm__col { border-bottom: 1px solid var(--dg-grid); }
-.rm__col { padding: 0 var(--space-1) var(--space-2); text-align: center; font-size: var(--text-sm); color: var(--ink-muted); }
-.rm__row { display: flex; align-items: center; padding-right: var(--space-3); border-bottom: 1px solid var(--dg-grid); font-size: var(--text-sm); font-weight: var(--weight-medium); white-space: nowrap; }
-.rm__cell { display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: var(--space-1); min-width: 0; padding: var(--space-1); border-bottom: 1px solid var(--dg-grid); border-left: 1px solid var(--dg-grid); }
-.rm__item { display: flex; align-items: center; gap: var(--space-2); min-width: 0; min-height: var(--hit-min); padding: 0 var(--space-2); border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; text-align: left; font-size: var(--text-sm); }
+.rm__lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.rm__line { fill: none; stroke: var(--t); stroke-width: var(--rm-line-w); }
+.rm__col { display: flex; align-items: center; gap: var(--space-2); padding: 0 0 var(--space-2) var(--space-2); font-size: var(--text-sm); color: var(--ink-subtle); white-space: nowrap; }
+.rm__col::after { content: ''; flex: 1; border-top: 1px solid var(--line); }
+.rm__col:last-child::after { visibility: hidden; }
+.rm__row { display: flex; align-items: center; padding-right: var(--space-4); font-size: var(--text-sm); font-weight: var(--weight-bold); white-space: nowrap; }
+.rm__cell { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: var(--space-1); min-width: 0; padding: var(--space-1) var(--space-4) var(--space-1) 0; }
+.rm__item { position: relative; display: flex; align-items: center; gap: var(--space-2); max-width: 100%; min-width: 0; min-height: var(--hit-min); padding: 0 var(--space-2); border: 1px solid transparent; border-radius: var(--radius-sm); background: var(--surface); text-align: left; font-size: var(--text-sm); }
 .rm__item:hover { background: var(--surface-hover); }
 .rm__item[aria-pressed='true'] { border-color: var(--ink); background: var(--grey-100); font-weight: var(--weight-bold); }
-.rm__dot { flex: none; box-sizing: border-box; width: var(--rm-dot); height: var(--rm-dot); border-radius: var(--radius-full); border: 2px solid var(--field-global); }
-.rm__dot[data-filled='true'] { background: var(--field-global); }
-.rm__dot[data-tone='dev'] { border-color: var(--field-dev); }
-.rm__dot[data-tone='dev'][data-filled='true'] { background: var(--field-dev); }
-.rm__dot[data-tone='ai'] { border-color: var(--field-ai); }
-.rm__dot[data-tone='ai'][data-filled='true'] { background: var(--field-ai); }
-.rm__dot[data-tone='plan'] { border-color: var(--field-startup); }
-.rm__dot[data-tone='plan'][data-filled='true'] { background: var(--field-startup); }
-.rm__dot[data-tone='mentor'] { border-color: var(--field-mentor); }
-.rm__dot[data-tone='mentor'][data-filled='true'] { background: var(--field-mentor); }
-.rm__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rm-tone--dev { --t: var(--field-dev); }
+.rm-tone--ai { --t: var(--field-ai); }
+.rm-tone--plan { --t: var(--field-startup); }
+.rm-tone--mentor { --t: var(--field-mentor); }
+.rm-tone--global { --t: var(--field-global); }
+.rm-tone--other { --t: var(--grey-500); }
+.rm__dot { flex: none; box-sizing: border-box; width: var(--rm-dot); height: var(--rm-dot); border-radius: var(--radius-full); border: 2px solid var(--t); background: var(--surface); }
+.rm__dot[data-filled='true'] { background: var(--t); }
+/* 이름은 자르지 않고 낱말 단위로 줄을 바꾼다 */
+.rm__label { min-width: 0; line-height: var(--leading-tight); }
 
 .ra { display: flex; flex-direction: column; min-height: 0; border: var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
 .ra__head { flex: none; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3) var(--space-4); border-bottom: var(--border); }

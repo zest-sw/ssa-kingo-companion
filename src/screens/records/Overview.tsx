@@ -71,8 +71,8 @@ export function Overview() {
             </div>
             {state.records.length === 0 ? (
               <EmptyState
-                pic={<GhostPic kind="grid" labels={rows.map(r => r.label)} cols={cols.map(c => c.label)} />}
-                message={`${step.lead} 분야·학기 칸에 점이 찍혀요.`}
+                pic={<GhostPic kind="branches" labels={rows.map(r => r.label)} cols={cols.map(c => c.label)} />}
+                message={`${step.lead} 분야별 점이 찍혀요.`}
                 action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>}
               />
             ) : (
