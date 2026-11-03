@@ -1,11 +1,12 @@
 import { fieldName, REASON_LABEL } from '../vocab';
 import type { Program, Reason, RecordItem } from '../types';
 import { sortedReasons } from '../recommend';
+import { confirmedStrengthsFor } from '../analysis/strengths';
 
 // 추천 이유를 '근거 → 이 활동' 도식의 점으로. 문장 대신 짧은 키워드만 뽑는다.
 
 export type TraceNode = {
-  kind: Reason['kind'];
+  kind: Reason['kind'] | 'strength';
   /** 이유의 종류(내 기록, 관심, 탐색…) */
   label: string;
   /** 근거 키워드. 기록이면 기록 이름, 아니면 문장 속 ‘…’ 낱말 */
@@ -18,13 +19,22 @@ export type TraceNode = {
 /** 문장 속 첫 ‘…’ 낱말. 없으면 빈 문자열 */
 const quoted = (text: string) => /‘([^’]+)’/.exec(text)?.[1] ?? '';
 
-/** 이유 최대 4개를 도식의 점으로. 기록에 이어진 이유는 그 기록의 이름과 날짜를 쓴다. */
+const MAX_NODES = 4;
+
+/**
+ * 이유 최대 4개를 도식의 점으로. 기록에 이어진 이유는 그 기록의 이름과 날짜를 쓴다.
+ * 이 기회가 쓰는 역량이 학생이 '맞아요'로 확인한 강점이면 '강점' 점을 첫 이유 바로 뒤에 넣는다(확인 전 AI 추정은 안 쓴다).
+ */
 export function traceNodes(reasons: Reason[], records: RecordItem[], p: Program): TraceNode[] {
-  return sortedReasons(reasons).map(r => {
+  const nodes: TraceNode[] = sortedReasons(reasons).map(r => {
     const rec = r.recordId ? records.find(x => x.id === r.recordId) : undefined;
     const detail = rec?.title ?? (quoted(r.text) || fieldName(p.field));
     return { kind: r.kind, label: REASON_LABEL[r.kind], detail, recordId: rec?.id, date: rec?.date };
   });
+  const strengths = confirmedStrengthsFor(p, records.filter(r => r.useForRecommend));
+  if (strengths.length === 0) return nodes;
+  const node: TraceNode = { kind: 'strength', label: '강점', detail: strengths.slice(0, 2).map(s => s.label).join(' · ') };
+  return [...nodes.slice(0, 1), node, ...nodes.slice(1)].slice(0, MAX_NODES);
 }
 
 /** 마감 막대가 가득 차는 남은 날. 이보다 멀면 가득 찬 막대다. */

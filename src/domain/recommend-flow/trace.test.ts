@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { Program, Reason, RecordItem } from '../types';
+import { prog } from '../fixtures.test-util';
+import type { Reason, RecordItem } from '../types';
 import { deadlineRatio, traceNodes } from './trace';
 
-const p = { id: 'p1', field: 'research' } as Program;
+const p = prog('p1', { field: 'research', did: [] });
 const rec = { id: 'r1', title: '사용성 테스트', date: '2학기 · 10월' } as RecordItem;
 
 describe('traceNodes', () => {
@@ -15,6 +16,17 @@ describe('traceNodes', () => {
     const nodes = traceNodes(rs, [], p);
     expect(nodes.map(n => n.detail)).toEqual(['UX·리서치', '창업·기획']);
     expect(nodes.every(n => n.recordId === undefined)).toBe(true);
+  });
+  it('확인한 강점이 이 기회가 쓰는 역량이면 첫 이유 뒤에 강점 점을 넣는다', () => {
+    const asks = prog('p1', { field: 'research', did: ['ask'] });
+    const r = { ...rec, axes: ['problem'], useForRecommend: true, semester: '2026-2', field: 'research', note: 'n' } as RecordItem;
+    const rs: Reason[] = [{ kind: 'interest', text: '‘UX·리서치’' }, { kind: 'bridge', text: '' }];
+    expect(traceNodes(rs, [r], asks).map(n => n.kind)).toEqual(['interest', 'bridge']);
+    const nodes = traceNodes(rs, [{ ...r, confirmedAxes: ['problem'] }], asks);
+    expect(nodes.map(n => n.kind)).toEqual(['interest', 'strength', 'bridge']);
+    expect(nodes[1]).toMatchObject({ label: '강점', detail: '문제해결' });
+    expect(traceNodes(rs, [{ ...r, confirmedAxes: ['problem'], rejectedAxes: ['problem'] }], asks)).toHaveLength(2);
+    expect(traceNodes(rs, [{ ...r, confirmedAxes: ['problem'], useForRecommend: false }], asks)).toHaveLength(2);
   });
   it('이유는 최대 4개', () => {
     const kinds = ['energy', 'focus', 'career', 'novelty', 'interest', 'bridge'] as const;

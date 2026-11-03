@@ -225,7 +225,7 @@ describe('emptyReason', () => {
 });
 
 describe('신청서 초안', () => {
-  const records = [rec('a', { field: 'research', quote: '다시 물어보니 달라졌다', note: '질문지를 만들고 답을 표시했다.', title: '인터뷰 과제', energy: 'up' }), rec('b', { field: 'club', did: 'make' })];
+  const records = [rec('a', { field: 'research', quote: '다시 물어보니 달라졌다', note: '질문지를 만들고 답을 표시했다.', title: '인터뷰 과제', energy: 'up', axes: ['communication'], confirmedAxes: ['communication'] }), rec('b', { field: 'club', did: 'make' })];
   it('같은 분야 기록을 근거로 삼고 없는 경험은 쓰지 않는다', () => {
     const p = prog('p', { field: 'research', did: ['listen'], title: '워크숍' });
     expect(relatedRecords(p, records).map(r => r.id)).toEqual(['a']);
@@ -249,6 +249,14 @@ describe('신청서 초안', () => {
     expect(specific.length).toBeGreaterThan(base.length);
     expect(specific).toMatch(/습니다. /);
     expect(writeDraft(p, records, '', [{ kind: 'shorter', note: '팀장 경험을 넣어 주세요' }]).motivation).toContain('팀장 경험을 넣어 주세요.');
+  });
+  it('근거 문장은 확인한 역량 근거에서만 쓴다(AI 추정은 안 쓴다)', () => {
+    const p = prog('p', { field: 'research', did: ['listen'] });
+    const guessed = [{ ...records[0], confirmedAxes: [] }];
+    expect(writeDraft(p, guessed, '', [{ kind: 'specific' }]).motivation).not.toContain('질문지를 만들고');
+    expect(writeDraft(p, records, '', [{ kind: 'specific' }]).motivation).toContain('질문지를 만들고 답을 표시했습니다.');
+    const rejected = [{ ...records[0], rejectedAxes: ['communication' as const] }];
+    expect(writeDraft(p, rejected, '', [{ kind: 'specific' }]).motivation).not.toContain('질문지를 만들고');
   });
   it('다른 경험 쓰기는 다음 관련 기록을 앞에 둔다', () => {
     const p = prog('p');

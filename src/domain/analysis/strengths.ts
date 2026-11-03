@@ -19,14 +19,14 @@ export type Strength = {
 
 const recent = (a: StrengthEvidence, b: StrengthEvidence) => semesterKey(b.semester) - semesterKey(a.semester);
 
-/** 기록의 '한 일' 문장. 없으면 메모, 그것도 없으면 제목 */
-const textOf = (r: RecordItem) => (cardOf(r).action ?? r.note ?? '').trim() || r.title;
+/** 기록의 '한 일' 문장(근거 문장). 없으면 메모, 그것도 없으면 제목 */
+export const textOf = (r: RecordItem) => (cardOf(r).action ?? r.note ?? '').trim() || r.title;
 
 /** 역량마다 근거 기록을 모은다. '아니에요'라고 한 근거는 뺀다. 근거 많은 순, 같으면 확인한 근거가 많은 순, 같으면 역량 순서. */
 export function buildStrengths(records: RecordItem[]): Strength[] {
   const rows = AXES.map(({ id, label }, order) => {
     const evidence = records
-      .filter(r => r.axes.includes(id) && !r.rejectedAxes?.includes(id))
+      .filter(r => liveAxes(r).includes(id))
       .map(r => ({ recordId: r.id, title: r.title, semester: r.semester, group: FIELD_GROUP[r.field], text: textOf(r), confirmed: !!r.confirmedAxes?.includes(id) }))
       .sort((a, b) => Number(b.confirmed) - Number(a.confirmed) || recent(a, b));
     return { order, row: { axis: id, label, evidence, confirmed: evidence.filter(e => e.confirmed).length } };
@@ -69,6 +69,28 @@ export function whenOf(s: Strength): StrengthWhen[] {
   for (const e of [...s.evidence].sort((a, b) => -recent(a, b))) by.set(e.semester, [...(by.get(e.semester) ?? []), e]);
   return [...by].map(([semester, items]) => ({ semester, items }));
 }
+
+/** 학생이 '아니에요'라고 한 역량을 뺀 이 기록의 역량. 기록 서랍과 강점 분석이 같은 기준을 쓴다 */
+export const liveAxes = (r: RecordItem): Axis[] => r.axes.filter(a => !r.rejectedAxes?.includes(a));
+
+/** 기회가 하는 일(did)로 쓰거나 기르는 역량 */
+export const axesOfProgram = (p: Program): Axis[] => [...new Set(p.did.flatMap(d => DID_AXES[d]))];
+
+/** 기록에서 학생이 확인한(아니에요는 뺀) 역량 가운데 이 기회가 쓰는 것 */
+export const confirmedAxesFor = (r: RecordItem, p: Program): Axis[] =>
+  (r.confirmedAxes ?? []).filter(a => r.axes.includes(a) && !r.rejectedAxes?.includes(a) && axesOfProgram(p).includes(a));
+
+/** 이 기회가 쓰는 역량 중 확인한 근거가 있는 강점. 확인한 근거 많은 순 */
+export function confirmedStrengthsFor(p: Program, records: RecordItem[]): Strength[] {
+  const need = axesOfProgram(p);
+  return buildStrengths(records).filter(s => s.confirmed > 0 && need.includes(s.axis)).sort((a, b) => b.confirmed - a.confirmed);
+}
+
+/** 기회 카드 한 줄: 그 기회에서 하는 일을 자연스럽게. '질문을 짜며 문제해결을 써요' */
+export const DID_DOING: Record<Did, string> = {
+  listen: '이야기를 듣고 정리하며', ask: '질문을 짜며', organize: '의견을 묶고 역할을 나누며',
+  make: '직접 만들어 보며', idea: '아이디어를 내며', present: '설명하고 발표하며'
+};
 
 /** 이 강점을 쓰는 일(그 역량으로 이어지는 '한 일')이 있는 기회. 이미 추천 순서로 정렬된 후보에서 앞에서 n 개 */
 export type StrengthChance = { program: Program; did: Did };
