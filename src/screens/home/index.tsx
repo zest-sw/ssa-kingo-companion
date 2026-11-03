@@ -48,7 +48,7 @@ export default function HomeScreen(_props: ScreenProps) {
 
   return (
     <div className="os">
-      <PageHeader title="나의 상태창" />
+      <PageHeader title="홈" />
       <AskBar />
       <div className="os__body home-grid">
         <TodayList tasks={tasks} fresh={state.activities.length === 0} />

@@ -92,7 +92,7 @@
 
 | 경로 | 화면 | 목업 | 담당 |
 | --- | --- | --- | --- |
-| `#/home` | 나의 상태창: 오늘 할 일, 가장 추천, 이번 학기 한 줄, 곧 있어요 14일 | `home-status.png` | home-recommend |
+| `#/home` | 홈: 오늘 할 일, 가장 추천, 이번 학기 한 줄, 곧 있어요 14일 | `home-status.png` | home-recommend |
 | `#/recommend` | 가장 추천 1개 + 나머지 후보 목록-상세(비교 표는 보기 전환), 나중에 보기, 신청 준비(체크리스트·승인 요청) | `recommend-top` `recommend-compare` `recommend-prepare` | home-recommend |
 | (가입) | 가입 인터뷰: 관심 분야, 목표, 가능한 시간. 처음 한 번 | (목업 없음, 기존 Onboarding 이식) | home-recommend |
 | `#/activities` | 내 활동 요약 › 일정(타임라인·보드·목록) | `activities-board.png` | activities-records |

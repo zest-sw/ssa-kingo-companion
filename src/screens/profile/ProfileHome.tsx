@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { useChallenges } from '../../app/challenges';
 import { openEntity } from '../../app/entity';
-import { hrefOf, navigate } from '../../app/router';
+import { hrefOf, navigate, PROFILE } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
 import { Badge, Button, Card, GhostPic, Icon, PageHeader, SummaryCard, type IconName } from '../../components';
 import { showcaseable } from '../../domain/challenges';
@@ -49,7 +49,7 @@ export function ProfileHome() {
 
   return (
     <div className="os">
-      <PageHeader title="프로필" actions={open ? <Button icon="pencil" onClick={toVisibility}>공개 범위 설정</Button> : undefined} />
+      <PageHeader title={PROFILE.label} actions={open ? <Button icon="pencil" onClick={toVisibility}>공개 범위 설정</Button> : undefined} />
       <div className="os__body pf-cols">
         <div className="pf-left">
           <Card aria-label="나" padding="md">

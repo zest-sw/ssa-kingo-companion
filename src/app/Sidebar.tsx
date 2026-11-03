@@ -1,7 +1,7 @@
 import { CountBadge, Icon } from '../components';
 import { useApp } from './AppState';
 import { studentCard } from './student';
-import { hrefOf, inProfile, NAV, navMatch, type Route } from './router';
+import { hrefOf, inProfile, NAV, navMatch, PROFILE, type Route } from './router';
 
 /**
  * 메인 메뉴 4개와 왼쪽 아래 학생 카드(프로필). 지금 위치의 부모만 하위 항목을 펼친다. 하위 화면은 그 항목이, 흐름 화면(신청 준비·회고 인터뷰)은 가장 가까운 항목이 활성이다.
@@ -53,7 +53,7 @@ export function Sidebar({ route }: { route: Route }) {
         </ul>
       </nav>
       <div className="app-side__foot">
-        <a className="app-student" href={hrefOf('profile')} aria-label="내 프로필" title="내 프로필" aria-current={inProfile(route) ? (route.sub ? 'location' : 'page') : undefined}>
+        <a className="app-student" href={hrefOf('profile')} aria-label={PROFILE.label} title={PROFILE.label} aria-current={inProfile(route) ? (route.sub ? 'location' : 'page') : undefined}>
           <span className="app-student__avatar" aria-hidden="true">나</span>
           <span className="app-student__text">
             <b>{me.name}</b>

@@ -29,7 +29,8 @@ export const NAV: NavItem[] = [
 ];
 
 /** 프로필은 메인 메뉴가 아니라 사이드바 왼쪽 아래 학생 카드로 연다. 친구·팀원 모집·명예의 전당은 프로필 요약의 카드로만 간다. */
-export const PROFILE = { path: 'profile', label: '프로필' };
+// 사이드바 학생 카드의 이름(aria-label)과 화면 제목을 같게 둔다.
+export const PROFILE = { path: 'profile', label: '내 프로필' };
 const PROFILE_SUBS: NavChild[] = [{ path: 'profile/friends', label: '친구' }, { path: 'profile/recruit', label: '팀원 모집' }, { path: 'profile/hall', label: '명예의 전당' }];
 
 /**
