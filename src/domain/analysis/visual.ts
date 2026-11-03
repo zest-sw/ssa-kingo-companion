@@ -4,7 +4,6 @@ import { DID_LABEL, FIELD_GROUP, GROUP_LABEL } from '../vocab';
 import type { FlowRow, FlowSegment } from './flow';
 import { buildMap, edgeState, type EdgeAnswers, type ExperienceMap } from './map';
 import { semesterKey } from './semester';
-import { levelLabel, type Level, type Seen, type StrengthRow } from './strengths';
 import type { TechTree } from './techtree';
 
 // 나의 분석 요약 그림이 그릴 모양과 머리말(키워드 한 줄). 그림은 여기서 나온 값을 그대로 그린다.
@@ -90,33 +89,6 @@ export function flowHeadline(rows: FlowRow[]): string {
   return from < seen.length - 1 ? `${semesterShort(seen[from].semester)}부터 ${GROUP_LABEL[group]}` : `${semesterShort(last.semester)}에는 ${GROUP_LABEL[group]}`;
 }
 
-const DOTS: Record<Seen, number> = { none: 0, low: 1, mid: 2, high: 3 };
-export type StrengthDots = { axis: string; label: string; seen: number; self: number; differs: boolean; count: number };
-
-/** 나의 강점 그림: 역량마다 기록 점 vs 내 생각 점(0~3). 기록과 내 생각이 다른 줄은 differs. 점수가 아니라 많음·중간·적음의 모양이다. */
-export function strengthDots(rows: StrengthRow[]): StrengthDots[] {
-  return rows.map(r => ({ axis: r.axis, label: r.label, seen: DOTS[r.seen], self: DOTS[r.self], differs: r.gap !== 'same', count: r.count }));
-}
-
-/** 가장 크게 다른 역량 하나(기록이 더 많은 쪽을 먼저). 기록이 아예 없는 역량의 '내 생각이 더 많음'은 말할 거리가 아니라 뺀다. */
-export function biggestGap(rows: StrengthRow[]): StrengthRow | undefined {
-  const gap = (r: StrengthRow) => Math.abs(DOTS[r.seen] - DOTS[r.self]);
-  return rows
-    .filter(r => r.gap === 'seen-more' || (r.gap === 'self-more' && r.seen !== 'none'))
-    .sort((a, b) => Number(b.gap === 'seen-more') - Number(a.gap === 'seen-more') || gap(b) - gap(a))[0];
-}
-
-const seenText = (s: Seen) => (s === 'none' ? '없음' : levelLabel(s as Level));
-
-/** 나의 강점 머리말: '소통: 기록 많음 · 내 생각 중간'. 다른 게 없으면 기록에서 가장 많이 보인 역량. */
-export function strengthHeadline(rows: StrengthRow[]): string {
-  if (rows.every(r => r.count === 0)) return '회고를 쓰면 역량이 보여요';
-  const d = biggestGap(rows);
-  if (d) return `${d.label}: 기록 ${seenText(d.seen)} · 내 생각 ${levelLabel(d.self)}`;
-  const top = topBy(rows, r => r.count)!;
-  return `${top.label}: 기록과 내 생각이 같아요`;
-}
-
 export type DiscoveryPic = { question: string; evidence: { id: string; label: string }[]; more: number; target: string };
 
 /** 확인할 발견 한 장의 짧은 질문('듣고 정리하기, 하면 힘이 나요?')과 근거 기록 → 발견 도식 값 */
@@ -124,10 +96,4 @@ export function discoveryPic(d: Discovery, shown = 3): DiscoveryPic {
   const did = DID_LABEL[d.did];
   const question = d.kind === 'up' ? `${did}, 하면 힘이 나요?` : `${did}${josa(did, '을', '를')} 자주 맡나요?`;
   return { question, evidence: d.evidence.slice(0, shown).map(r => ({ id: r.id, label: shortName(r.title, 11) })), more: Math.max(0, d.evidence.length - shown), target: did };
-}
-
-/** 카드에 다 못 그릴 때: 기록과 내 생각이 다른 줄을 먼저, 그다음 기록이 많은 순으로 n줄만 고르고 나머지 수를 돌려준다. */
-export function topStrengthDots(dots: StrengthDots[], n: number): { shown: StrengthDots[]; more: number } {
-  const ranked = dots.map((d, i) => ({ d, i })).sort((a, b) => Number(b.d.differs) - Number(a.d.differs) || b.d.count - a.d.count || a.i - b.i).slice(0, n).map(x => x.d);
-  return { shown: ranked, more: Math.max(0, dots.length - ranked.length) };
 }

@@ -1,7 +1,6 @@
 import { discState } from '../discoveries';
 import type { Confirm, Discovery, FieldGroup } from '../types';
 import type { FlowRow } from './flow';
-import type { StrengthRow } from './strengths';
 import { TREE_COLUMNS, type TechTree } from './techtree';
 
 // 분석 L1 의 작은 그림이 쓰는 요약. 그림은 여기서 나온 모양을 그대로 그린다.
@@ -28,6 +27,3 @@ export function treeGlance(tree: TechTree): { rows: TreeGlanceRow[]; filled: num
 
 /** 가장 최근에 기록이 있는 학기부터 거꾸로 n개를 오래된 순서로. 기록이 없는 학기는 건너뛴다. */
 export const recentFlow = (rows: FlowRow[], n: number): FlowRow[] => rows.filter(r => r.total > 0).slice(-n);
-
-/** 기록에서 보이는 역량이 하나라도 있는 축 수 */
-export const seenAxes = (rows: StrengthRow[]) => rows.filter(r => r.seen !== 'none').length;

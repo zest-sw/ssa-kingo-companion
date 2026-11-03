@@ -7,7 +7,6 @@ import { answerEdge, buildMap, clearRejected, edgeState, edgesOf, layoutMap, par
 import { recordsSig } from './refresh';
 import { sigOf, discoveriesOf } from '../discoveries';
 import { semesterAxis, semesterKey, semesterLabel, sortRecords } from './semester';
-import { buildStrengths, differences, levelOfSeen, seenOf } from './strengths';
 import { buildTechTree, CANDIDATES_PER_CELL, NODES_PER_STAGE, recordOfActivity, relatedRecords, rootTargets, splitTreeRows } from './techtree';
 
 const act = (id: string, over: Partial<Activity> = {}): Activity => ({ id, title: id, field: 'dev', status: 'ongoing', schedule: '', ...over });
@@ -148,25 +147,6 @@ describe('관심 흐름', () => {
   });
 });
 
-describe('나의 강점', () => {
-  const self = { expertise: 'mid', problem: 'mid', communication: 'mid', collaboration: 'mid', self: 'mid', creative: 'mid' } as const;
-  it('기록 수를 수준으로 바꾼다', () => {
-    expect([0, 1, 2, 3, 4].map(seenOf)).toEqual(['none', 'low', 'mid', 'mid', 'high']);
-  });
-  it('내 생각과 기록이 다른 것만 모은다', () => {
-    const rs = [rec('a', { axes: ['problem'] }), rec('b', { axes: ['problem'] }), rec('c', { axes: ['problem'] }), rec('d', { axes: ['problem'] })];
-    const rows = buildStrengths(rs, { ...self, expertise: 'high' });
-    const diff = differences(rows);
-    expect(diff.find(r => r.axis === 'problem')!.gap).toBe('seen-more');
-    expect(diff.find(r => r.axis === 'expertise')!.gap).toBe('self-more');
-    expect(rows.find(r => r.axis === 'problem')!.evidence).toHaveLength(4);
-    expect(rows.find(r => r.axis === 'creative')).toMatchObject({ seen: 'none', gap: 'self-more' });
-  });
-  it('기록이 없으면 내 생각이 모두 기록보다 앞선다', () => {
-    expect(differences(buildStrengths([], self))).toHaveLength(6);
-  });
-});
-
 describe('분석 갱신 기준', () => {
   it('기록이 더해지거나 고쳐지면 달라지고, 순서가 바뀌어도 같다', () => {
     const a = rec('a');
@@ -240,11 +220,6 @@ describe('재작업: 화면에서 옮긴 계산', () => {
     expect(usedCount([d1, d2], {})).toBe(0);
     expect(usedCount([d1, d2], { [d1.key]: { status: 'yes', sig: d1.sig }, [d2.key]: { status: 'no', sig: d2.sig } })).toBe(1);
     expect(usedCount([d1], { [d1.key]: { status: 'yes', sig: sigOf([rec('zzz')]) } })).toBe(0);
-  });
-  it('기록 수 경계: 0/1/3/4 와 수준 없음', () => {
-    expect([seenOf(0), seenOf(1), seenOf(3), seenOf(4)]).toEqual(['none', 'low', 'mid', 'high']);
-    expect(levelOfSeen('none')).toBeNull();
-    expect(levelOfSeen('mid')).toBe('mid');
   });
   it('테크 트리: 후보는 칸마다 제한하고 목록용은 전부, 후보만 있는 줄은 ? 로 남는다', () => {
     const candidates = ['p1', 'p2', 'p3', 'p4'].map((id, i) => ({ program: prog(id, { field: 'data', did: ['make'] }), dday: i }));
