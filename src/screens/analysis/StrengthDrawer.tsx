@@ -46,7 +46,7 @@ export function StrengthDrawer({ strength, records, programs, onClose }: Props) 
                 ))}
               </ul>
             )}
-            <p className="an-sd__note">확인한 근거만 추천과 신청 준비에 써요.</p>
+            <p className="an-sd__note">확인한 근거만 추천 이유와 신청서 초안에 써요.</p>
           </section>
           {when.length > 0 && (
             <section aria-labelledby="an-sd-when">

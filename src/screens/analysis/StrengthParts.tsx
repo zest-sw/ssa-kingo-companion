@@ -3,11 +3,10 @@ import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { Button, EmptyState, FieldTag } from '../../components';
 import { ddayOf } from '../../domain/recommend';
-import type { Strength, StrengthChance, StrengthWhen } from '../../domain/analysis/strengths';
+import { DID_DOING, type Strength, type StrengthChance, type StrengthWhen } from '../../domain/analysis/strengths';
 import { semesterShort } from '../../domain/analysis/visual';
 import { ddayText, josa } from '../../domain/text';
 import type { Axis } from '../../domain/types';
-import { DID_LABEL } from '../../domain/vocab';
 
 // 나의 강점 화면과 서랍이 함께 쓰는 조각.
 
@@ -41,7 +40,7 @@ export function ChanceList({ axis, label, chances }: { axis: Axis; label: string
           <button type="button" className="an-chance" data-axis={axis} onClick={() => openEntity({ kind: 'opportunity', id: c.program.id })}>
             <b className="an-chance__title">{c.program.title}</b>
             <span className="an-chance__meta"><FieldTag field={c.program.field} /><span>{ddayText(ddayOf(c.program, state.week))}</span></span>
-            <span className="an-chance__why">{DID_LABEL[c.did]}에서 {label}{josa(label, '을', '를')} 써요</span>
+            <span className="an-chance__why">{DID_DOING[c.did]} {label}{josa(label, '을', '를')} 써요</span>
           </button>
         </li>
       ))}
