@@ -39,12 +39,3 @@ export function hallLine(entries: { group: FieldGroup }[], mine?: FieldGroup): s
 
 export type FeedKind = 'achieved' | 'hidden' | 'applied' | 'shared';
 export type FeedLike = { who: string; kind: FeedKind; subject?: string };
-
-/** 친구 소식 한 줄: 「다온 님이 ‘첫 회고’를 달성했어요」 */
-export function feedLine({ who, kind, subject = '' }: FeedLike): string {
-  const q = `‘${subject}’`;
-  if (kind === 'achieved') return `${who} 님이 ${q}${josa(subject, '을', '를')} 달성했어요`;
-  if (kind === 'hidden') return `${who} 님이 숨은 도전 과제를 찾았어요`;
-  if (kind === 'applied') return `${who} 님이 ${q}에 신청했어요`;
-  return `${who} 님이 ${q} 회고를 공개했어요`;
-}

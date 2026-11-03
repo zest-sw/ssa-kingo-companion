@@ -35,3 +35,12 @@ export function progressLine<T extends Named>(results: ChallengeResult<T>[]): Pr
   if (done === 0) return { sentence: '회고 하나를 쓰면 첫 과제를 달성해요', hiddenLeft };
   return { sentence: `달성 ${done}개, 다음 과제는 ‘${near?.def.name ?? ''}’${josa(near?.def.name ?? '', '이에요', '예요')}`, hiddenLeft };
 }
+
+/** 도전 과제 키워드 한 줄(15자 안팎): '달성 2 · ‘세 갈래 길’ 1곳 남음'. 진행 중인 과제가 없으면 시작할 한 걸음. */
+export function progressKeyword<T extends Named>(results: ChallengeResult<T>[]): string {
+  const done = results.filter(r => r.achieved).length;
+  if (done === results.length) return `달성 ${done} · 모두 달성`;
+  const near = nextChallenges(results, 1)[0];
+  if (near && near.progress.value > 0) return `달성 ${done} · ‘${near.def.name}’ ${left(near)}${UNIT[near.def.rule] ?? '번'} 남음`;
+  return done === 0 ? '회고 하나로 첫 달성' : `달성 ${done} · 다음은 ‘${near?.def.name ?? ''}’`;
+}

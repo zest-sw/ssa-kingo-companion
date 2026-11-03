@@ -7,21 +7,24 @@ import { useOverviewState } from '../../app/useOverviewState';
 import { Badge, Button, Card, Icon, PageHeader, SummaryCard, type IconName } from '../../components';
 import { showcaseable } from '../../domain/challenges';
 import { canUseSocial, publicActivities, publicRecords } from '../../domain/social';
-import { friendsLine, hallLine, interestedIds, myTopGroup, recruitLine } from '../../domain/social/summary';
+import { myTopGroup } from '../../domain/social/summary';
+import { friendsKeyword, hallKeyword, hallRoute, recruitBars, recruitKeyword } from '../../domain/social/visual';
 import { FIELD_GROUP, FIELD_LABEL, STATUS_LABEL } from '../../domain/vocab';
-import { FRIENDS, HALL, INCOMING, SEED_POSTS, TEAM_OPPORTUNITIES } from '../../data/friends';
+import { FRIENDS, HALL, INCOMING, OPPORTUNITY_BY_ID, SEED_POSTS } from '../../data/friends';
 import { ChallengeList } from './ChallengeList';
 import { ChallengeProgress } from './ChallengeProgress';
 import { FriendFeed } from './FriendFeed';
+import { FacesPic, HallPic, RecruitPic } from './SocialPics';
 
 const LOCKED: { icon: IconName; label: string }[] = [
   { icon: 'friends', label: '친구 소식' }, { icon: 'flag', label: '팀원 모집' }, { icon: 'trophy', label: '명예의 전당' }
 ];
 const RECENT = 3;
+const RETROS = 2;
 
 /**
- * 프로필 요약(스팀 프로필처럼): 나 → 전시한 도전 과제 → 도전 과제 진행(전체는 펼치기) → 최근 활동 → 친구 소식.
- * 비공개여도 내 도전 과제는 보인다. 친구 소식·모집·전당 영역만 잠기고 '설정에서 공개하기' 한 곳으로 연다.
+ * 프로필 요약(스팀 프로필처럼): 나 → 도전 과제 진행(막대, 전체는 펼치기) → 최근 활동 / 친구 소식 → 소셜 카드 셋.
+ * 비공개여도 내 도전 과제는 보인다. 친구 소식·모집·전당 영역만 잠기고 '설정에서 공개하기' 한 곳으로 연다. 한 화면 틀(스크롤은 펼친 목록 칸 하나뿐).
  */
 export function ProfileHome() {
   const { state } = useApp();
@@ -33,18 +36,19 @@ export function ProfileHome() {
 
   const shown = showcaseable(challenges, v.showcaseChallengeIds).map(id => challenges.find(c => c.def.id === id)!);
   const publicIds = new Set(publicActivities(state.activities, v).map(a => a.id));
-  const retros = publicRecords(state.records, v);
+  const retros = publicRecords(state.records, v).slice(0, RETROS);
   const recent = state.activities.filter(a => a.status === 'ongoing' || a.status === 'ended' || a.status === 'recorded').slice(0, RECENT);
   const interests = state.profile.interests.filter(i => i !== 'unknown').map(i => FIELD_LABEL[i]).join(', ');
   const posts = [...state.recruitPosts, ...SEED_POSTS];
+  const route = hallRoute(HALL, myTopGroup(state.records));
   const toVisibility = () => navigate('settings/visibility');
 
   return (
-    <>
+    <div className="fit">
       <PageHeader title="프로필" actions={open ? <Button icon="pencil" onClick={toVisibility}>공개 범위 설정</Button> : undefined} />
-      <div className="pf-cols">
-        <div className="fr-stack">
-          <Card aria-label="나">
+      <div className="fit__body pf-cols">
+        <div className="pf-left">
+          <Card aria-label="나" padding="md">
             <div className="pf-head">
               <div className="fr-me">
                 <span className="fr-avatar fr-avatar--lg" aria-hidden="true">나</span>
@@ -55,25 +59,20 @@ export function ProfileHome() {
               </div>
               {open ? <Badge tone="green" icon="friends">공개 중</Badge> : <Badge icon="lock">나만 보기</Badge>}
             </div>
-            <h3 className="fr-sub-title">전시한 도전 과제</h3>
             {shown.length ? (
-              <ul className="fr-tiles">
+              <ul className="fr-tiles pf-showcase" aria-label="전시한 도전 과제">
                 {shown.map(c => <li key={c.def.id} className="fr-tile"><Icon name={c.def.icon} size={22} /><span>{c.def.name}</span></li>)}
               </ul>
-            ) : <p className="fr-empty">{challenges.some(c => c.achieved) ? '아래 전체 목록에서 전시할 과제를 골라 보세요.' : '과제를 달성하면 여기에 전시할 수 있어요.'}</p>}
+            ) : <p className="fr-empty pf-showcase">{challenges.some(c => c.achieved) ? '전체 목록에서 전시할 과제를 골라 보세요.' : '과제를 달성하면 여기에 전시할 수 있어요.'}</p>}
           </Card>
 
-          <Card title="도전 과제">
-            <ChallengeProgress />
-            <div className="pf-more">
-              <Button variant="ghost" icon={all ? 'down' : 'chevron'} aria-expanded={all} aria-controls="pf-all" onClick={() => setAll(x => !x)}>
-                {all ? '전체 목록 접기' : '전체 목록 펼치기'}
-              </Button>
-            </div>
-            {all && <div id="pf-all" className="pf-all"><ChallengeList /></div>}
+          <Card className="fit-card" title="도전 과제" padding="md" action={
+            <Button variant="ghost" icon={all ? 'down' : 'chevron'} aria-expanded={all} onClick={() => setAll(x => !x)}>{all ? '접기' : '전체 목록'}</Button>
+          }>
+            <div className={all ? 'fit__scroll' : 'pf-prog'}>{all ? <ChallengeList /> : <ChallengeProgress />}</div>
           </Card>
 
-          <Card title="최근 활동">
+          <Card title="최근 활동" padding="md">
             {recent.length ? (
               <ul className="pf-recent">
                 {recent.map(a => (
@@ -96,17 +95,19 @@ export function ProfileHome() {
           </Card>
         </div>
 
-        <div className="fr-stack">
+        <div className="pf-right">
           {open ? (
             <>
               <FriendFeed />
-              <SummaryCard href={hrefOf('profile/friends')} title="친구" sentence={friendsLine(FRIENDS.length, INCOMING.length)} />
-              <SummaryCard href={hrefOf('profile/recruit')} title="팀원 모집" sentence={recruitLine(posts, interestedIds(TEAM_OPPORTUNITIES, state.activities, []))} />
-              <SummaryCard href={hrefOf('profile/hall')} title="명예의 전당" sentence={hallLine(HALL, myTopGroup(state.records))} />
+              <div className="pf-social">
+                <SummaryCard href={hrefOf('profile/friends')} title="친구" headline={friendsKeyword(FRIENDS.length, INCOMING.length)} visual={<FacesPic friends={FRIENDS.map(f => f.name)} incoming={INCOMING.map(f => f.name)} />} />
+                <SummaryCard href={hrefOf('profile/recruit')} title="팀원 모집" headline={recruitKeyword(posts)} visual={<RecruitPic bars={recruitBars(posts, id => OPPORTUNITY_BY_ID[id]?.kind)} />} />
+                <SummaryCard href={hrefOf('profile/hall')} title="명예의 전당" headline={hallKeyword(HALL)} visual={route ? <HallPic route={route} /> : undefined} />
+              </div>
             </>
           ) : (
-            <Card title="공개하면 열려요" className="pf-locked">
-              <p className="fr-empty">지금은 내 기록을 나만 봐요. 공개하면 아래를 쓸 수 있고, 언제든 거둘 수 있어요.</p>
+            <Card title="공개하면 열려요" className="pf-locked" padding="md">
+              <p className="fr-empty">지금은 내 기록을 나만 봐요. 공개하면 아래를 쓸 수 있어요.</p>
               <ul className="pf-locked__list">
                 {LOCKED.map(l => (
                   <li key={l.label} className="pf-locked__item">
@@ -121,6 +122,6 @@ export function ProfileHome() {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

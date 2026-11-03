@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { evaluate } from './index';
-import { nextChallenges, progressLine } from './summary';
+import { nextChallenges, progressKeyword, progressLine } from './summary';
 
 const defs = [
   { id: 'a', rule: 'firstRetro', hidden: false, name: '첫 회고' },
@@ -28,5 +28,10 @@ describe('도전 과제 진행 문장', () => {
     const r = run([]);
     expect(nextChallenges(r).some(x => x.def.hidden)).toBe(false);
     expect(progressLine(r).hiddenLeft).toBe(1);
+  });
+  it('키워드는 달성 수와 가장 가까운 과제를 짧게 말한다', () => {
+    expect(progressKeyword(run([]))).toBe('회고 하나로 첫 달성');
+    expect(progressKeyword(run([rec('dev')]))).toBe('달성 1 · ‘세 갈래 길’ 2곳 남음');
+    expect(progressKeyword(run([rec('dev'), rec('ai')]))).toBe('달성 1 · ‘세 갈래 길’ 1곳 남음');
   });
 });

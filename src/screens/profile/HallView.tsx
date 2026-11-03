@@ -42,6 +42,7 @@ export function HallView() {
   return (
     <>
       <p className="fr-headline">{hallLine(HALL, myTopGroup(state.records))}</p>
+      <div className="fr-hall-body">
       <Card className="fr-consent" padding="md">
         <div className="fr-consent__text">
           <p className="fr-consent__title">{consent ? '내가 명예의 전당에 올라가 있어요' : '명예의 전당에 올라갈지 정해요'}</p>
@@ -56,7 +57,7 @@ export function HallView() {
       {list.length === 0 ? (
         <Card><EmptyState icon="trophy" message="이 분야의 경로는 아직 없어요. 다른 분야를 살펴보세요." action={<Button size="sm" onClick={() => setFilter('all')}>전체 보기</Button>} /></Card>
       ) : (
-        <ul className="fr-hall">
+        <ul className="fr-hall fit__scroll fit__scroll--page">
           {list.map(h => (
             <li key={h.id} className="ui-card fr-hall__card">
               <div className="fr-person">
@@ -74,6 +75,7 @@ export function HallView() {
       )}
 
       <p className="fr-note"><Icon name="check" size={16} />순위와 점수는 없어요. 결과보다 거쳐 온 활동을 보여 줘요.</p>
+      </div>
 
       <Drawer open={open !== null} title={open ? `${open.name}님의 경로` : ''} eyebrow={open?.dept} onClose={() => setOpen(null)}>
         {open && (

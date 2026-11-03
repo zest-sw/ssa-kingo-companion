@@ -9,6 +9,7 @@ import { Gate } from './Gate';
 import { HallView } from './HallView';
 import { ProfileHome } from './ProfileHome';
 import { RecruitView } from './RecruitView';
+import '../fit.css';
 import './challenges.css';
 import './friends.css';
 
@@ -48,9 +49,9 @@ export default function ProfileScreen({ sub }: ScreenProps) {
     : <HallView />;
 
   return (
-    <>
+    <div className="fit">
       <PageHeader parent={parentLink('profile')} crumb={TITLE[current]} title={TITLE[current]} />
-      {body}
-    </>
+      <div className="fit__body pf-sub">{body}</div>
+    </div>
   );
 }

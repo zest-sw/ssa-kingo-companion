@@ -72,11 +72,11 @@ export function RecruitView({ posts, onPost }: Props) {
         </form>
       </Card>
 
-      <Card className="fr-col-main" title="모집 중인 글" action={<span>관심 표시한 기회가 먼저 나와요</span>}>
+      <Card className="fr-col-main fit-card" title="모집 중인 글" action={<span>관심 표시한 기회가 먼저 나와요</span>}>
         {ordered.length === 0 ? (
           <EmptyState icon="flag" message="모집 글이 아직 없어요. 팀원이 필요한 기회를 골라 첫 글을 올려 보세요." />
         ) : (
-          <ul className="fr-posts">
+          <ul className="fr-posts fit__scroll">
             {ordered.map(p => {
               const o = OPPORTUNITY_BY_ID[p.opportunityId];
               if (!o) return null;
