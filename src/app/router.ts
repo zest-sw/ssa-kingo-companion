@@ -44,8 +44,8 @@ const MOVED: Record<string, string> = {
   challenges: 'profile',
   'records/archive': 'activities/records',
   records: 'activities/records',
-  'activities/board': 'activities/schedule',
-  'activities/list': 'activities/schedule',
+  'activities/board': 'activities/schedule/board',
+  'activities/list': 'activities/schedule/list',
   'recommend/list': 'recommend',
   'recommend/compare': 'recommend'
 };

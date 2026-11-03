@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
@@ -7,6 +8,7 @@ import { PROTOTYPE_TODAY } from '../../domain/today';
 import { FIELD_GROUP } from '../../domain/vocab';
 import { BoardView } from './BoardView';
 import { ListView } from './ListView';
+import { scheduleHeadline } from './summary';
 import { SEMESTER, timelineOf } from './timeline';
 
 type View = 'timeline' | 'board' | 'list';
@@ -20,9 +22,14 @@ const LEGEND: LegendItem[] = [
 ];
 
 /** 내 활동 › 일정: 같은 활동을 타임라인·보드·목록으로 바꿔 본다. 보기 전환은 머리의 세그먼트 한 곳에만 둔다. */
-export function Schedule() {
+/** sub: 보기 방식(board, list). 옛 #/activities/board·list 링크가 이 경로로 열린다. */
+export function Schedule({ sub }: { sub?: string }) {
   const { state } = useApp();
   const [sel, setSel] = useOverviewState<Sel>('activities/schedule', { view: 'timeline' }, isSel);
+  useEffect(() => {
+    const v = VIEWS.find(x => x.id === sub);
+    if (v) setSel(s => ({ ...s, view: v.id }));
+  }, [sub, setSel]);
   const open = (id: string) => { setSel(s => ({ ...s, focus: id })); openEntity({ kind: 'activity', id }); };
 
   let body;
@@ -60,6 +67,7 @@ export function Schedule() {
   return (
     <>
       <PageHeader title="일정" actions={state.activities.length > 0 && <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={v => setSel(s => ({ ...s, view: v }))} items={VIEWS} />} />
+      {state.activities.length > 0 && <p className="act-headline">{scheduleHeadline(state.activities)}</p>}
       {body}
     </>
   );

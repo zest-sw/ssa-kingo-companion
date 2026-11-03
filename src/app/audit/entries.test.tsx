@@ -40,7 +40,7 @@ const CASES: Case[] = [
   { path: 'home' },
   { path: 'recommend' }, { path: `recommend/${top}` }, { path: `recommend/${alt}` }, { path: `recommend/prepare/${top}` },
   { path: 'activities' },
-  { path: 'activities/schedule' },
+  { path: 'activities/schedule' }, { path: 'activities/schedule/board' }, { path: 'activities/schedule/list' },
   { path: 'activities/schedule', overview: { 'activities/schedule': { sel: { view: 'board' } } } },
   { path: 'activities/schedule', overview: { 'activities/schedule': { sel: { view: 'list' } } } },
   { path: 'activities/records' }, { path: 'activities/records/interview' }, { path: `activities/records/interview/${ended}` },
