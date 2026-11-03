@@ -10,10 +10,6 @@
   --act-sb-n-w: 28px;
   --act-sb-h: 28px;
   --act-wk-h: 48px;
-  --act-mg-label-w: 120px;
-  --act-mg-h: 36px;
-  --act-rg-row-h: 44px;
-  --act-rg-dot: 18px;
 }
 
 .act-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
@@ -87,12 +83,10 @@
 }
 
 /* 내 활동 요약: 위 = 지금 상태 세 칸, 아래 = 일정·기록 카드(그림이 남은 높이를 채운다) */
-.act-sum { grid-template-rows: auto auto; }
-.act-sum__empty { grid-row: 1; }
-.act-now { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) minmax(0, 0.8fr); gap: var(--os-gap); min-height: 0; }
+.act-sum { grid-template-rows: auto; }
+.act-now { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) minmax(0, 0.8fr); gap: var(--os-gap); align-items: stretch; }
 .act-now__pic { display: flex; flex-direction: column; gap: var(--space-3); }
 .act-now__far { margin: 0; color: var(--ink-muted); font-size: var(--text-xs); }
-.act-sums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--os-gap); min-height: 0; }
 
 /* 상태 막대 */
 .act-sb { display: flex; flex-direction: column; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
@@ -128,29 +122,10 @@
 .act-retro__label { font-size: var(--text-sm); font-weight: var(--weight-bold); }
 .act-retro__none { margin: 0; color: var(--ink-muted); font-size: var(--text-sm); }
 
-/* 축소 간트 */
-.act-mg { display: flex; flex-direction: column; gap: var(--space-6); margin: 0; padding: 0; list-style: none; }
-.act-mg__row { display: grid; grid-template-columns: var(--act-mg-label-w) minmax(0, 1fr); align-items: center; gap: var(--space-3); font-size: var(--text-md); }
-.act-mg__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
-.act-mg__track { position: relative; height: var(--act-mg-h); border-radius: var(--radius-sm); background: var(--bg-sunken); }
-.act-mg__bar { position: absolute; top: 0; bottom: 0; border-radius: var(--radius-sm); box-sizing: border-box; border: var(--act-ring) solid var(--c); }
-.act-mg__bar.is-active { background: var(--fill); }
-.act-mg__bar.is-prep { background: repeating-linear-gradient(135deg, transparent 0 var(--space-1), var(--bg-sunken) var(--space-1) calc(var(--space-1) * 1.5)); background-color: var(--surface); }
-.act-mg__bar.is-done { background: var(--surface); opacity: 0.6; }
-.act-mg__today { position: absolute; top: calc(-1 * var(--space-1)); bottom: calc(-1 * var(--space-1)); width: var(--act-ring); background: var(--accent); }
-.act-mg__none { margin: 0; color: var(--ink-muted); font-size: var(--text-sm); }
-
-/* 기록 점 격자 */
-.act-rg { display: grid; gap: var(--space-2) var(--space-3); align-items: center; font-size: var(--text-md); color: var(--ink-muted); }
-.act-rg__row { display: contents; }
-.act-rg__col { text-align: center; }
-.act-rg__name { color: var(--ink); font-weight: var(--weight-medium); white-space: nowrap; }
-.act-rg__cell { display: flex; justify-content: center; gap: var(--space-1); min-height: var(--act-rg-row-h); align-items: center; }
-.act-rg__dot { width: var(--act-rg-dot); height: var(--act-rg-dot); border-radius: var(--radius-full); background: var(--fill); }
-.act-rg__dot.is-empty { background: var(--bg-sunken); }
-.act-rg .an-g--other .act-rg__dot:not(.is-empty) { background: var(--grey-500); }
-
 /* 일정(하위 화면) 머리 한 줄 */
 .act-headline { flex: none; margin: calc(-1 * var(--space-3)) 0 var(--space-3); color: var(--ink-muted); font-size: var(--text-md); }
 .act-board-wrap { min-height: 0; }
 .act-board { align-items: stretch; }
+
+/* 일정 첫 화면(이번 달): 넘친 줄이 있다는 안내 한 줄 */
+.act-more { margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-sm); }

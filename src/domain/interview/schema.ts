@@ -37,5 +37,5 @@ export const FOLLOW_UP: Record<CardStep, string> = {
 /** 공백을 뺀 글자 수가 이보다 적으면 짧은 답이다. 역할처럼 원래 짧은 답은 기준을 낮췄다. */
 export const MIN_LENGTH: Record<CardStep, number> = { situation: 8, role: 3, action: 10, result: 4, learned: 8, next: 6 };
 
-export const REVIEW_PROMPT = '다 채웠어요. 오른쪽 카드를 확인하고, 고칠 곳은 눌러서 고쳐 주세요. 확인한 뒤에만 저장돼요.';
+export const REVIEW_PROMPT = '다 채웠어요. 오른쪽 카드에서 고칠 곳은 눌러서 고쳐 주세요. 에너지를 고르면 저장 전에 근거와 공개 범위를 확인해요.';
 export const ENERGY_PROMPT = '마지막으로, 끝난 뒤 에너지는 어땠어요?';

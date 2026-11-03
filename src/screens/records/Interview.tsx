@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Card, Chip, ErrorState, Icon, LoadingState, PageHeader, useToast } from '../../components';
+import { Button, Card, Chip, ErrorState, Icon, LoadingState, PageHeader, Panel, Stepper, useToast } from '../../components';
 import { navigate, parentLink } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { factsOf } from '../../data/activities';
@@ -9,16 +9,19 @@ import { buildRecord, evidenceOf, inferDid, savedSummary, type SavedSummary } fr
 import { ENERGY_PROMPT, STEP_LABEL, STEP_ORDER, type CardStep } from '../../domain/interview/schema';
 import type { Activity, Axis, Energy, RecordVisibility } from '../../domain/types';
 import { DID_AXES, ENERGY, FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
-import { RecordCardView } from './RecordCardView';
+import { ProofSection, RecordCardView, SettingsSection } from './RecordCardView';
 import { setMapFocus } from './mapFocus';
 import { toggleAxis, type Message } from '../../domain/interview/draft';
 import { useAgentQueue } from './useAgentQueue';
 
-/** 저장 버튼 아래 안내 한 줄: 빈 칸이 먼저, 그다음 에너지 */
-const saveHint = (missing: CardStep[], energy?: Energy) =>
-  missing.length ? `비어 있는 칸이 있어요: ${missing.map(s => STEP_LABEL[s]).join(', ')}` : energy ? '저장하면 기록 보관함에 쌓여요.' : '에너지를 고르면 저장할 수 있어요.';
+/** 다음 단계 버튼 아래 안내 한 줄: 빈 칸이 먼저, 그다음 에너지 */
+const nextHint = (missing: CardStep[], energy?: Energy) =>
+  missing.length ? `비어 있는 칸이 있어요: ${missing.map(s => STEP_LABEL[s]).join(', ')}` : energy ? '저장하기 전에 근거와 공개 범위를 한 번 확인해요.' : '에너지를 고르면 다음으로 갈 수 있어요.';
 
 type Phase = 'talk' | 'saving' | 'done' | 'error';
+/** 두 단계: 대화(카드 6칸이 채워진다) → 저장 전 확인(증빙·역량 근거·공개 범위). 확인 화면에서만 저장한다. */
+type Stage = 'talk' | 'confirm';
+const STAGES: { id: Stage; label: string }[] = [{ id: 'talk', label: '대화' }, { id: 'confirm', label: '저장 전 확인' }];
 
 export function Interview({ activity }: { activity: Activity }) {
   const { state, run } = useApp();
@@ -35,6 +38,7 @@ export function Interview({ activity }: { activity: Activity }) {
   const [confirmed, setConfirmed] = useState<Axis[]>(saved?.confirmed ?? []);
   const [input, setInput] = useState('');
   const [phase, setPhase] = useState<Phase>('talk');
+  const [stage, setStage] = useState<Stage>('talk');
   const [summary, setSummary] = useState<SavedSummary>();
 
   const { typing, say, drain } = useAgentQueue(text => setMessages(m => [...m, { id: nextId.current++, from: 'agent', text }]));
@@ -74,6 +78,7 @@ export function Interview({ activity }: { activity: Activity }) {
     navigate('activities/records/interview');
   };
 
+  const stepper = <Stepper label="회고 단계" steps={STAGES} current={stage} onStep={id => { if (phase !== 'saving') setStage(id); }} />;
   const did = inferDid(`${iv.card.role ?? ''} ${iv.card.action ?? ''}`);
   const evidence = evidenceOf(DID_AXES[did], iv.card.action);
   const meta = `${CURRENT_TERM.month} · ${GROUP_LABEL[FIELD_GROUP[activity.field]]} · ${facts.kind}`;
@@ -127,10 +132,56 @@ export function Interview({ activity }: { activity: Activity }) {
     );
   }
 
+  const cardView = (
+    <RecordCardView
+      title={activity.title}
+      meta={meta}
+      verification={facts.verified ? 'school' : 'self'}
+      card={iv.card}
+      current={isCardStep(iv.step) && stage === 'talk' ? iv.step : undefined}
+      onEditField={review && phase === 'talk' ? (s, t) => setIv(editField(iv, s, t)) : undefined}
+      fieldsOnly
+      evidence={evidence}
+      confirmed={confirmed}
+      visibility={visibility}
+      onVisibility={setVisibility}
+      profilePublic={state.visibility.profilePublic}
+      useForRecommend={useForRecommend}
+      onUseForRecommend={setUseForRecommend}
+    />
+  );
+
+  if (stage === 'confirm') {
+    return (
+      <div className="os">
+        <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title={activity.title} actions={stepper} />
+        <div className="os__body os__body--fill rec-interview">
+          <Panel
+            className="rec-confirm"
+            eyebrow="저장 전 확인"
+            title="근거와 공개 범위를 확인해요"
+            footer={<Button variant="primary" disabled={phase === 'saving' || !energy || missing.length > 0} aria-describedby="rec-save-hint" onClick={save}>확인했어요, 저장할게요</Button>}
+            note={<span id="rec-save-hint">{phase === 'saving' ? '저장하는 중이에요' : '저장하면 기록 보관함에 쌓여요.'}</span>}
+          >
+            {phase === 'saving' && <LoadingState message="기록 카드를 만들고 있어요" lines={2} />}
+            {phase === 'error' && <ErrorState message="기록을 저장하지 못했어요. 쓴 내용은 그대로예요." onRetry={save} />}
+            {phase !== 'saving' && (
+              <div className="rec-confirm__body">
+                <ProofSection verification={facts.verified ? 'school' : 'self'} evidence={evidence} confirmed={confirmed} onToggleAxis={a => setConfirmed(toggleAxis(confirmed, a))} />
+                <SettingsSection visibility={visibility} onVisibility={setVisibility} profilePublic={state.visibility.profilePublic} useForRecommend={useForRecommend} onUseForRecommend={setUseForRecommend} />
+              </div>
+            )}
+          </Panel>
+          <aside className="rec-side" aria-label="기록 카드 미리보기">{cardView}</aside>
+        </div>
+      </div>
+    );
+  }
+
   const status = stepStatuses(iv);
   return (
     <div className="os">
-      <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title={activity.title} actions={phase === 'talk' && <Button onClick={pause}>나중에 이어 하기</Button>} />
+      <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title={activity.title} actions={<>{stepper}{phase === 'talk' && <Button onClick={pause}>나중에 이어 하기</Button>}</>} />
       <>
         <div className="os__body os__body--fill rec-interview">
           <section className="rec-chat" aria-label="회고 대화">
@@ -148,8 +199,6 @@ export function Interview({ activity }: { activity: Activity }) {
               {typing && <p className="rec-msg rec-msg--agent rec-typing" role="status"><span className="sr-only">에이전트가 입력 중이에요</span><i aria-hidden="true" /><i aria-hidden="true" /><i aria-hidden="true" /></p>}
             </div>
 
-            {phase === 'saving' && <LoadingState message="기록 카드를 만들고 있어요" lines={2} />}
-            {phase === 'error' && <ErrorState message="기록을 저장하지 못했어요. 쓴 내용은 그대로예요." onRetry={save} />}
             {phase === 'talk' && !review && (
               <div className="rec-composer">
                 {isCardStep(iv.step) && !typing && (
@@ -170,29 +219,14 @@ export function Interview({ activity }: { activity: Activity }) {
                     <Chip key={e.id} selected={energy === e.id} disabled={typing} aria-describedby={`rec-en-${e.id}`} onClick={() => setEnergy(e.id)}>{e.label}<span id={`rec-en-${e.id}`} className="sr-only">{e.sub}</span></Chip>
                   ))}
                 </div>
-                <Button variant="primary" block disabled={!energy || missing.length > 0 || typing} aria-describedby="rec-save-hint" onClick={save}>확인했어요, 저장할게요</Button>
-                <p id="rec-save-hint" className="rec-review__hint">{saveHint(missing, energy)}</p>
+                <Button variant="primary" block disabled={!energy || missing.length > 0 || typing} aria-describedby="rec-next-hint" onClick={() => setStage('confirm')}>다음: 저장 전 확인</Button>
+                <p id="rec-next-hint" className="rec-review__hint">{nextHint(missing, energy)}</p>
               </div>
             )}
           </section>
 
           <aside className="rec-side" aria-label="기록 카드 미리보기">
-            <RecordCardView
-              title={activity.title}
-              meta={meta}
-              verification={facts.verified ? 'school' : 'self'}
-              card={iv.card}
-              current={isCardStep(iv.step) ? iv.step : undefined}
-              onEditField={review && phase === 'talk' ? (s, t) => setIv(editField(iv, s, t)) : undefined}
-              evidence={evidence}
-              confirmed={confirmed}
-              onToggleAxis={review ? a => setConfirmed(toggleAxis(confirmed, a)) : undefined}
-              visibility={visibility}
-              onVisibility={setVisibility}
-              profilePublic={state.visibility.profilePublic}
-              useForRecommend={useForRecommend}
-              onUseForRecommend={setUseForRecommend}
-            />
+            {cardView}
           </aside>
         </div>
       </>
