@@ -207,13 +207,14 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 .an-str__hint { color: var(--ink-subtle); font-weight: var(--weight-regular); }
 
 /* 요약: 그림 넷을 한 판(2×2)에 작게 모으고, 오른쪽에 확인할 발견 한 장. 한 판의 칸은 높이를 나눠 갖고 그림은 넘치면 잘린다. */
-.an-sum { grid-template-columns: minmax(0, 1fr) var(--an-disc-w); grid-template-rows: minmax(0, 1fr); }
-.an-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); min-height: 0; background: var(--surface); border: var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.an-sum { grid-template-columns: minmax(0, 1fr) var(--an-disc-w); grid-template-rows: max-content; align-items: start; }
+.an-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, max-content); background: var(--surface); border: var(--border); border-radius: var(--radius-lg); overflow: hidden; }
 .an-board .ui-sum { border: 0; border-radius: 0; background: transparent; padding: var(--space-3) var(--card-pad); gap: var(--space-2); overflow: hidden; }
 .an-board .ui-sum--link:hover { background: var(--surface-alt); }
 .an-board .ui-sum:nth-child(even) { border-left: var(--border); }
 .an-board .ui-sum:nth-child(n + 3) { border-top: var(--border); }
 .an-board .ui-sum__visual { min-height: 0; overflow: hidden; }
+.an-board .ui-sum__text { margin-top: var(--space-1); }
 .an-board .ui-sum__headline { font-size: var(--text-md); }
 .an-board .ui-sum__value { display: none; }
 .an-gdot { width: var(--an-dot-md); height: var(--an-dot-md); border-radius: var(--radius-full); box-sizing: border-box; flex: none; }
@@ -301,3 +302,5 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 .an-srow__dots { display: flex; gap: var(--space-6); }
 .an-srow__set { display: flex; gap: var(--space-2); }
 .an-srow__tag { display: flex; justify-content: flex-end; font-size: var(--text-sm); }
+
+.an-mp { width: 100%; }

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { EdgeAnswers } from '../../domain/analysis/map';
 import type { FlowRow } from '../../domain/analysis/flow';
 import type { TreeGlanceRow } from '../../domain/analysis/glance';
@@ -34,25 +34,53 @@ export function TreePic({ rows }: { rows: TreeGlanceRow[] }) {
   );
 }
 
-const MAP = { colW: 165, rowH: 32, padX: 10, padTop: 8, labelH: 22, r: 6 };
+const MAP = { rowH: 40, padX: 10, padTop: 8, labelH: 22, r: 6, minW: 240 };
 
-/** 기록 노드 4~6개와 이름, 연결선(확인=실선, 추정=옅은 점선), 아래에 학기 이름. */
+/** 두 줄 이름: 글자가 6개 넘으면 반으로 나눠 이름이 일찍 잘리지 않게 한다. */
+const twoLines = (label: string): string[] => {
+  const c = Array.from(label);
+  if (c.length <= 6) return [label];
+  const cut = Math.ceil(c.length / 2);
+  return [c.slice(0, cut).join(''), c.slice(cut).join('')];
+};
+
+/** 칸 너비를 재서 그림을 늘이거나 줄이지 않고 그대로 그린다(글자가 늘 12px). 재지 못하면 기본 너비. */
+function useWidth() {
+  const ref = useRef<SVGSVGElement>(null);
+  const [w, setW] = useState<number>(MAP.minW + 60);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setW(Math.max(MAP.minW, Math.floor(el.getBoundingClientRect().width))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, w] as const;
+}
+
+/** 기록 노드 4개와 이름(두 줄), 연결선(확인=실선, 추정=옅은 점선), 아래에 학기 이름. */
 export function MapPic({ records, answers }: { records: RecordItem[]; answers: EdgeAnswers }) {
-  const pic = useMemo(() => mapPic(records, answers), [records, answers]);
-  const width = MAP.padX * 2 + MAP.colW * pic.semesters.length;
+  const pic = useMemo(() => mapPic(records, answers, 4, undefined, 12), [records, answers]);
+  const [ref, width] = useWidth();
+  const colW = (width - MAP.padX * 2) / pic.semesters.length;
   const height = MAP.padTop + MAP.rowH * pic.rows + MAP.labelH;
-  const at = (n: { col: number; row: number }) => ({ x: MAP.padX + MAP.colW * n.col + MAP.r + 1, y: MAP.padTop + MAP.rowH * n.row + MAP.rowH / 2 });
+  const at = (n: { col: number; row: number }) => ({ x: MAP.padX + colW * n.col + MAP.r + 1, y: MAP.padTop + MAP.rowH * n.row + MAP.rowH / 2 });
   const pos = Object.fromEntries(pic.nodes.map(n => [n.id, at(n)]));
   return (
-    <svg className="an-mp" viewBox={`0 0 ${width} ${height}`} style={{ width, maxWidth: '100%' }} role="img" aria-label="기록이 이어진 경험 지도">
+    <svg ref={ref} className="an-mp" width="100%" height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="기록이 이어진 경험 지도">
       {pic.edges.map(e => <line key={e.id} x1={pos[e.a].x} y1={pos[e.a].y} x2={pos[e.b].x} y2={pos[e.b].y} className={e.confirmed ? 'an-mp__edge an-mp__edge--yes' : 'an-mp__edge'} />)}
-      {pic.nodes.map(n => (
-        <g key={n.id} className={`an-g--${n.group}`}>
-          <circle cx={pos[n.id].x} cy={pos[n.id].y} r={MAP.r} className="an-mp__node" />
-          <text x={pos[n.id].x + MAP.r + 5} y={pos[n.id].y} dominantBaseline="central" className="an-mp__label">{n.label}</text>
-        </g>
-      ))}
-      {pic.semesters.map((s, i) => <text key={s} x={MAP.padX + MAP.colW * i} y={height - 4} className="an-mp__sem">{s.replace(/^\d{2}/, '').replace('-', ' ')}</text>)}
+      {pic.nodes.map(n => {
+        const lines = twoLines(n.label);
+        return (
+          <g key={n.id} className={`an-g--${n.group}`}>
+            <circle cx={pos[n.id].x} cy={pos[n.id].y} r={MAP.r} className="an-mp__node" />
+            <text x={pos[n.id].x + MAP.r + 5} y={pos[n.id].y - (lines.length - 1) * 7} className="an-mp__label">
+              {lines.map((l, i) => <tspan key={i} x={pos[n.id].x + MAP.r + 5} dy={i === 0 ? '0.35em' : 14}>{l}</tspan>)}
+            </text>
+          </g>
+        );
+      })}
+      {pic.semesters.map((sm, i) => <text key={sm} x={MAP.padX + colW * i} y={height - 4} className="an-mp__sem">{sm.replace(/^d{2}/, '').replace('-', ' ')}</text>)}
     </svg>
   );
 }

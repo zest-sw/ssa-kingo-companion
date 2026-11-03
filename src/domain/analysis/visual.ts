@@ -43,13 +43,13 @@ export type MapPicEdge = { id: string; a: string; b: string; confirmed: boolean 
 export type MapPic = { nodes: MapPicNode[]; edges: MapPicEdge[]; semesters: string[]; rows: number };
 
 /** 경험 지도 그림: 기록 노드 최대 max 개(라벨을 12px 이상으로 읽히게 4개)(가장 최근 것부터), 학기는 가로, 같은 학기 노드는 세로로. 아니라고 한 연결은 뺀다. */
-export function mapPic(records: RecordItem[], answers: EdgeAnswers, max = 4, map: ExperienceMap = buildMap(records)): MapPic {
+export function mapPic(records: RecordItem[], answers: EdgeAnswers, max = 4, map: ExperienceMap = buildMap(records), labelMax = 8): MapPic {
   const picked = map.nodes.slice(-max);
   const semesters = [...new Set(picked.map(n => n.record.semester))].sort((a, b) => semesterKey(a) - semesterKey(b));
   const used: number[] = semesters.map(() => 0);
   const nodes = picked.map(n => {
     const col = semesters.indexOf(n.record.semester);
-    return { id: n.id, label: shortName(n.record.title, 8), group: FIELD_GROUP[n.record.field], col, row: used[col]++ };
+    return { id: n.id, label: shortName(n.record.title, labelMax), group: FIELD_GROUP[n.record.field], col, row: used[col]++ };
   });
   const ids = new Set(nodes.map(n => n.id));
   const edges = map.edges

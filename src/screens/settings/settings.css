@@ -88,3 +88,4 @@
 /* 공개 범위: 안내 서랍으로 가는 줄, 보일 것 고르기의 한 줄 안내 */
 .st-guide { padding: var(--space-1) var(--space-5) var(--space-3); border-top: var(--border); }
 .st-pick__hint { margin-top: var(--space-2); padding: 0 var(--space-5); font-size: var(--text-sm); color: var(--ink-muted); }
+.st-pick .st-group { border-top: 0; padding-top: var(--space-2); }

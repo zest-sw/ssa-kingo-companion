@@ -72,8 +72,7 @@ export function DiscoveryCards() {
             <Converge pic={discoveryPic(d)} />
           </button>
           <p className="an-dq__state">
-            {st === 'changed' ? <Badge tone="orange" icon="refresh">다시 확인해 주세요</Badge> : st === 'none' ? <ConfirmDot state="estimated" label="확인 전" /> : <ConfirmDot state="confirmed" />}
-            {(st === 'yes' || st === 'no') && <span>{st === 'yes' ? '반영 중' : '쓰지 않음'}</span>}
+            {st === 'changed' ? <Badge tone="orange" icon="refresh">다시 확인해 주세요</Badge> : st === 'none' ? <><ConfirmDot state="estimated" label="확인 전" /><span>확인 전이에요</span></> : <><ConfirmDot state="confirmed" /><span>{st === 'yes' ? '반영 중' : '쓰지 않음'}</span></>}
           </p>
           <div className="an-dq__actions">
             <Button variant={st === 'yes' ? 'primary' : 'secondary'} aria-pressed={st === 'yes'} onClick={() => answer(d, 'yes')}>맞아요</Button>
@@ -91,7 +90,7 @@ export function DiscoveryCards() {
                 <button type="button" className="an-dlist__row" onClick={() => { setFocus(x.key); setListing(false); }}>
                   <span className="an-dlist__q">{discoveryPic(x).question}</span>
                   <span className="an-dq__state">
-                    {s === 'changed' ? <Badge tone="orange" icon="refresh">다시 확인</Badge> : s === 'none' ? <ConfirmDot state="estimated" label="확인 전" /> : <ConfirmDot state="confirmed" label={s === 'yes' ? '반영 중' : '쓰지 않음'} />}
+                    {s === 'changed' ? <Badge tone="orange" icon="refresh">다시 확인</Badge> : s === 'none' ? <><ConfirmDot state="estimated" label="확인 전" />확인 전</> : <><ConfirmDot state="confirmed" label={s === 'yes' ? '반영 중' : '쓰지 않음'} />{s === 'yes' ? '반영 중' : '쓰지 않음'}</>}
                   </span>
                 </button>
               </li>
