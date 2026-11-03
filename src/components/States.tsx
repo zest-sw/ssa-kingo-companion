@@ -2,11 +2,14 @@ import type { ReactNode } from 'react';
 import { Button } from './Button';
 import { Icon, type IconName } from './Icon';
 
-/** 빈 상태. message 는 다음 행동을 안내하는 해요체 문장으로 쓴다('없음'으로 끝내지 않는다). */
-export function EmptyState({ icon = 'leaf', title, message, action }: { icon?: IconName; title?: ReactNode; message: ReactNode; action?: ReactNode }) {
+/**
+ * 빈 상태. message 는 다음 행동을 안내하는 해요체 문장으로 쓴다('없음'으로 끝내지 않는다).
+ * 첫 사용(데이터가 아직 없음)이면 pic 에 그림 틀(GhostPic)을 넣는다: 그림 틀 + 다음 행동 한 줄 + 버튼 하나.
+ */
+export function EmptyState({ icon = 'leaf', pic, title, message, action }: { icon?: IconName; pic?: ReactNode; title?: ReactNode; message: ReactNode; action?: ReactNode }) {
   return (
-    <div className="ui-state">
-      <span className="ui-state__icon"><Icon name={icon} size={20} /></span>
+    <div className={`ui-state${pic ? ' ui-state--pic' : ''}`}>
+      {pic ? <div className="ui-state__pic">{pic}</div> : <span className="ui-state__icon"><Icon name={icon} size={20} /></span>}
       {title && <p className="ui-state__title">{title}</p>}
       <p className="ui-state__msg">{message}</p>
       {action && <div className="ui-state__action">{action}</div>}

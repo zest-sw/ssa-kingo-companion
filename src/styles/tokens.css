@@ -129,6 +129,7 @@
   --dg-node-w: 160px;
   --dg-ghost-label: 64px;
   --dg-ghost-net-h: 56px;
+  --dg-ghost-empty-w: 360px;
   --dg-tl-label-max: 168px;
   --dg-tl-label-gap: 10px;
 
