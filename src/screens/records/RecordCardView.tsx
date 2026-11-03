@@ -68,8 +68,14 @@ export type RecordCardViewProps = {
   onUseForRecommend: (v: boolean) => void;
 };
 
-/** 기록 카드. 인터뷰 오른쪽과 보관함 서랍이 함께 쓴다. 칸은 기준 문서 '기록 카드(안)' 순서 그대로. */
-export function RecordCardView(p: RecordCardViewProps) {
+type Settings = Pick<RecordCardViewProps, 'visibility' | 'onVisibility' | 'profilePublic' | 'useForRecommend' | 'onUseForRecommend'>;
+type Proof = Pick<RecordCardViewProps, 'verification' | 'evidence' | 'confirmed' | 'onToggleAxis'>;
+
+/**
+ * 기록 카드. 인터뷰 왼쪽 대화 옆(채워지는 6칸만: fieldsOnly)과 보관함 서랍(전부)이 함께 쓴다. 칸은 기준 문서 '기록 카드(안)' 순서 그대로.
+ * 증빙·역량 근거·공개 범위·추천 설정은 인터뷰에서는 '저장 전 확인' 단계가 따로 그린다(ProofSection, SettingsSection).
+ */
+export function RecordCardView({ fieldsOnly, ...p }: RecordCardViewProps & { fieldsOnly?: boolean }) {
   return (
     <div className="rec-card">
       <header className="rec-card__head">
@@ -81,6 +87,14 @@ export function RecordCardView(p: RecordCardViewProps) {
         {CARD_STEPS.map(s => <Field key={s} step={s} value={p.card[s]} current={p.current === s} onEdit={p.onEditField && (t => p.onEditField?.(s, t))} />)}
       </dl>
 
+      {!fieldsOnly && <><ProofSection {...p} /><SettingsSection {...p} /></>}
+    </div>
+  );
+}
+
+/** 증빙과 역량 근거. 근거마다 '맞아요'를 누르면 확인된 근거가 된다(AI 추정은 점선). */
+export function ProofSection(p: Proof) {
+  return (
       <section className="rec-evidence" aria-label="증빙과 역량 근거">
         <div className="rec-evidence__head"><h3>증빙</h3></div>
         <p className="rec-evidence__text">{p.verification === 'school' ? '학교 연동으로 확인된 활동이에요.' : '직접 입력한 기록이에요. 올린 증빙 파일은 아직 없어요.'}</p>
@@ -103,7 +117,12 @@ export function RecordCardView(p: RecordCardViewProps) {
           </ul>
         )}
       </section>
+  );
+}
 
+/** 공개 범위와 추천에 쓰기. */
+export function SettingsSection(p: Settings) {
+  return (
       <footer className="rec-card__foot">
         <div className="rec-setting">
           <span id="rec-vis">공개 범위</span>
@@ -118,6 +137,5 @@ export function RecordCardView(p: RecordCardViewProps) {
           <Switch checked={p.useForRecommend} onChange={p.onUseForRecommend} label="추천에 쓰기" />
         </div>
       </footer>
-    </div>
   );
 }
