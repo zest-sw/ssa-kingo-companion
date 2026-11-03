@@ -2,7 +2,7 @@ import { ddayText } from '../text';
 import type { Activity, FieldGroup, Funnel } from '../types';
 import { FIELD_GROUP, GROUP_LABEL, GROUP_ORDER } from '../vocab';
 import { prepareHref } from './flow';
-import { whenOffset, type UpcomingItem, type UpcomingTarget } from './upcoming';
+import { whenOffset } from './upcoming';
 
 // 홈·추천 요약 문장. 학생의 실제 상태에서 계산하고, 화면은 이 결과를 그대로 보여 준다.
 
@@ -16,11 +16,11 @@ export type TodayTask = { id: string; kind: 'review' | 'deadline' | 'today'; tex
 const clock = (s?: string) => /(\d{1,2}:\d{2})/.exec(s ?? '')?.[1];
 
 export const MAX_TODAY_TASKS = 3;
-/** 마감이 이 날 안이면 오늘 할 일로 올린다. */
-const DUE_SOON_DAYS = 7;
+/** 오늘 할 일은 오늘·내일(0~1일) 일이다. 그 뒤는 '곧 있어요' 타임라인이 맡는다(upcoming.ts UPCOMING_FROM). */
+const DUE_SOON_DAYS = 1;
 
 /**
- * 오늘 할 일 최대 3개. 순서: 회고 대기 → 마감 임박 준비(빠른 순) → 오늘 있는 활동.
+ * 오늘·내일 할 일 전부. 순서: 회고 대기 → 마감 임박 준비(빠른 순) → 오늘·내일 있는 활동. 화면은 앞의 MAX_TODAY_TASKS 개만 그리고 나머지는 개수로 센다.
  * ponytail: 오늘 활동은 일정 글이 '10.14(수) 18:30' 꼴일 때만 읽는다. 일정이 날짜 필드가 되면 바꾼다.
  */
 export function todayTasks(activities: Activity[], week: number): TodayTask[] {
@@ -35,9 +35,10 @@ export function todayTasks(activities: Activity[], week: number): TodayTask[] {
       target: a.programId ? { path: prepareHref(a.programId) } : { kind: 'activity', id: a.id }
     }));
   const today: TodayTask[] = activities
-    .filter(a => (a.status === 'applied' || a.status === 'ongoing') && whenOffset(a.schedule, week) === 0)
-    .map(a => ({ id: `today:${a.id}`, kind: 'today', text: `${a.title}, ${a.schedule}`, title: a.title, what: '모임', day: 0, at: clock(a.schedule), badge: '오늘', target: { kind: 'activity', id: a.id } }));
-  return [...reviews, ...deadlines, ...today].slice(0, MAX_TODAY_TASKS);
+    .map(a => ({ a, day: whenOffset(a.schedule, week) }))
+    .filter((x): x is { a: Activity; day: number } => (x.a.status === 'applied' || x.a.status === 'ongoing') && x.day !== undefined && x.day >= 0 && x.day <= DUE_SOON_DAYS)
+    .map(({ a, day }) => ({ id: `today:${a.id}`, kind: 'today', text: `${a.title}, ${a.schedule}`, title: a.title, what: '모임', day, at: clock(a.schedule), badge: day === 0 ? '오늘' : '내일', target: { kind: 'activity', id: a.id } }));
+  return [...reviews, ...deadlines, ...today];
 }
 
 /** 미니 타임라인 순서: 가까운 날부터, 같은 날이면 시각이 이른 것부터(시각이 없으면 그 날의 맨 앞). */
@@ -78,9 +79,3 @@ export function semesterTag(bars: SemesterBar[]): string {
 /** 추천을 어떻게 골랐는지 한 줄. 누르면 깔때기 그림이 서랍으로 열린다. */
 export const pickingLine = (f: Funnel): string =>
   f.pool === 0 ? '이번 주에 모집 중인 활동이 아직 없어요.' : `후보 ${f.pool}개 중 마감·대상·시간을 맞춘 ${f.fit}개예요.`;
-
-const sameTarget = (a: TodayTarget, b: UpcomingTarget) => ('path' in a ? 'path' in b && a.path === b.path : !('path' in b) && a.kind === b.kind && a.id === b.id);
-
-/** 오늘 할 일에 이미 있는 일은 타임라인에서 뺀다. 같은 일로 가는 길을 한 화면에 둘 두지 않는다. */
-export const withoutTasks = (items: UpcomingItem[], tasks: TodayTask[]): UpcomingItem[] =>
-  items.filter(i => !tasks.some(t => sameTarget(t.target, i.target)));

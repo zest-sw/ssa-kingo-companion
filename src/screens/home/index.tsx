@@ -5,7 +5,7 @@ import { useOverviewState } from '../../app/useOverviewState';
 import { Button, Card, EmptyState, PageHeader } from '../../components';
 import { EXAMPLE_PROFILE } from '../../data/seed';
 import { prepareHref } from '../../domain/recommend-flow/flow';
-import { todayTasks, withoutTasks } from '../../domain/recommend-flow/summary';
+import { todayTasks } from '../../domain/recommend-flow/summary';
 import { upcomingItems } from '../../domain/recommend-flow/upcoming';
 import { AskBar } from './AskBar';
 import { HomePick } from './HomePick';
@@ -22,8 +22,8 @@ export default function HomeScreen(_props: ScreenProps) {
 
   const tasks = useMemo(() => todayTasks(state.activities, state.week), [state.activities, state.week]);
   const upcoming = useMemo(
-    () => withoutTasks(upcomingItems(state.activities, view.primary ? [view.primary, ...view.alternatives] : [], state.week), tasks),
-    [state.activities, view.primary, view.alternatives, state.week, tasks]
+    () => upcomingItems(state.activities, view.primary ? [view.primary, ...view.alternatives] : [], state.week),
+    [state.activities, view.primary, view.alternatives, state.week]
   );
 
   if (!state.onboarded) {

@@ -181,3 +181,9 @@
 .ui-ghost__net line { stroke: var(--line-strong); stroke-width: 1; }
 .ui-ghost__net circle { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.5; }
 .ui-ghost__msg { color: var(--ink-muted); font-size: var(--text-sm); text-align: center; }
+
+/* 타임라인 점 옆 직접 라벨 */
+.ui-dg-tl__slot { display: contents; }
+.ui-dg-tl__label { position: absolute; display: block; height: var(--dg-lane-h); line-height: var(--dg-lane-h); max-width: var(--dg-tl-label-max); overflow: hidden; color: var(--ink-muted); font-size: var(--text-xs); white-space: nowrap; text-overflow: ellipsis; cursor: pointer; transform: translateX(var(--dg-tl-label-gap)); }
+.ui-dg-tl__label[data-side='start'] { text-align: right; transform: translateX(calc(-100% - var(--dg-tl-label-gap))); }
+.ui-dg-tl__label:hover { color: var(--ink); text-decoration: underline; }

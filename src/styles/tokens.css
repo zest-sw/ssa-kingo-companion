@@ -129,6 +129,8 @@
   --dg-node-w: 160px;
   --dg-ghost-label: 64px;
   --dg-ghost-net-h: 56px;
+  --dg-tl-label-max: 168px;
+  --dg-tl-label-gap: 10px;
 
   --duration: 150ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);
