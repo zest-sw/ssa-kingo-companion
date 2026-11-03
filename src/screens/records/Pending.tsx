@@ -8,13 +8,13 @@ export function Pending() {
   const drafts = Object.keys(state.drafts);
   const list = state.activities.filter(a => a.status === 'ended');
   return (
-    <>
+    <div className="os">
       <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title="회고 쓰기" />
       <>
         {list.length === 0 ? (
-          <Card><EmptyState icon="records" message="회고를 기다리는 활동이 없어요. 활동이 끝나면 여기에 나타나요. 지금 하는 활동은 일정에서 볼 수 있어요." action={<Button variant="primary" onClick={() => navigate('activities/schedule')}>일정 보기</Button>} /></Card>
+          <Card className="rec-empty"><EmptyState icon="records" message="회고를 기다리는 활동이 없어요. 활동이 끝나면 여기에 나타나요. 지금 하는 활동은 일정에서 볼 수 있어요." action={<Button variant="primary" onClick={() => navigate('activities/schedule')}>일정 보기</Button>} /></Card>
         ) : (
-          <ul className="rec-pending">
+          <ul className="rec-pending os-scroll">
             {list.map(a => (
               <li key={a.id}>
                 <Card padding="md" as="div" className="rec-pending__row">
@@ -31,6 +31,6 @@ export function Pending() {
           </ul>
         )}
       </>
-    </>
+    </div>
   );
 }

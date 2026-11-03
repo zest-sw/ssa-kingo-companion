@@ -6,6 +6,7 @@ import './RecordEntity';
 import { Interview } from './Interview';
 import { Overview } from './Overview';
 import { Pending } from './Pending';
+import '../one-screen.css';
 import './records.css';
 
 /**
@@ -33,9 +34,9 @@ function Gate({ id }: { id: string }) {
     : activity.status === 'recorded' ? undefined
     : <Button variant="primary" onClick={() => navigate('activities/schedule')}>일정 보기</Button>;
   return (
-    <>
+    <div className="os">
       <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title={activity?.title ?? '회고 쓰기'} />
-      <Card><EmptyState icon="records" message={message} action={action} /></Card>
-    </>
+      <Card className="rec-empty"><EmptyState icon="records" message={message} action={action} /></Card>
+    </div>
   );
 }

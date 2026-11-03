@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Badge, Button, Card, EmptyState } from '../../components';
-import { ddayOf, diffLabel, mainReason } from '../../domain/recommend';
+import { ddayOf, diffLabel } from '../../domain/recommend';
+import { traceNodes } from '../../domain/recommend-flow/trace';
 import { checksOf, dateLabel, formatText, isNearDeadline, prepItemsFor } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import type { Activity, Interest, Program, RecordItem, Scored } from '../../domain/types';
@@ -29,7 +30,7 @@ export function CompareView({ scored, week, records, interests, activities, acti
     { label: '신청 대상', cell: p => `${p.target}${checksOf(p, activities).eligible ? ' · 맞음' : ''}` },
     { label: '준비할 것', cell: p => `${prepItemsFor(p, week, '').filter(i => i.by === 'me').length}개${checksOf(p, activities).team ? ' · 팀 필요' : ''}` },
     { label: '일정 겹침', cell: p => (checksOf(p, activities).overlap ? '겹쳐요' : '안 겹침') },
-    { label: '나와 맞는 이유', cell: (_p, s) => mainReason(s.reasons)?.text ?? '이번 주 모집 중이에요' }
+    { label: '나와 맞는 이유', cell: (p, s) => { const n = traceNodes(s.reasons, records, p)[0]; return n ? `${n.label} · ${n.detail}` : '이번 주 모집 중'; } }
   ];
 
   return (

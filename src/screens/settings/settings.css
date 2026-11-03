@@ -1,9 +1,9 @@
 /* 설정 화면. 접두사 st-. 왼쪽 하위 메뉴 + 오른쪽 내용, 묶음 사이는 1px 선. */
 :root { --st-nav-w: 200px; --st-body-max: 880px; --st-cols-min: 280px; --st-input-max: 360px; }
 
-.st-layout { display: grid; grid-template-columns: var(--st-nav-w) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
+.st-layout { grid-template-columns: var(--st-nav-w) minmax(0, 1fr); gap: var(--space-8); }
 
-.st-nav { position: sticky; top: var(--space-6); }
+.st-nav { align-self: start; }
 .st-nav ul { display: flex; flex-direction: column; gap: 1px; }
 .st-nav__link {
   display: flex; align-items: center; gap: var(--space-2); min-height: var(--nav-item-h); padding: 0 var(--space-2);
@@ -14,7 +14,8 @@
 .st-nav__link[aria-current='page'] { background: var(--grey-100); color: var(--ink); font-weight: var(--weight-bold); }
 .st-nav__link:focus-visible { border-radius: var(--radius-sm); }
 
-.st-body { min-width: 0; max-width: var(--st-body-max); }
+.st-body { --os-cover: var(--bg); min-width: 0; max-width: var(--st-body-max); }
+.st-body:has(.st-vis) { max-width: none; }
 .st-stack { display: flex; flex-direction: column; gap: var(--space-4); }
 .st-card { padding: 0; }
 .st-card > .ui-card__head { padding: var(--space-4) var(--space-5) 0; margin-bottom: 0; }
@@ -65,11 +66,21 @@
 .st-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(var(--st-cols-min), 1fr)); }
 .st-cols > .st-group + .st-group { border-left: var(--border); }
 
+/* 공개 범위: 왼쪽에 상태·설명, 오른쪽에 고르기. 한 화면에 들어오게 두 칸으로 나눈다. */
+.st-vis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
+.st-vis > .st-note { grid-column: 1 / -1; }
+.st-vis .st-cols { grid-template-columns: minmax(0, 1fr); }
+.st-vis .st-cols > .st-group + .st-group { border-left: 0; border-top: var(--border); }
+.st-vis .st-row { min-height: 0; padding: var(--space-1) 0; }
+.st-vis .st-row:first-child { padding-top: 0; }
+.st-vis .st-status { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+.st-vis .st-group { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+
 /* 프로토타입 정보 */
 .st-about { display: flex; flex-direction: column; gap: var(--space-2); padding-left: var(--space-5); list-style: disc; color: var(--ink-muted); max-width: var(--readable); }
 
 @media (max-width: 1199px) {
-  .st-layout { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
-  .st-nav { position: static; }
+  .st-layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: var(--space-4); }
+  .st-vis { grid-template-columns: minmax(0, 1fr); }
   .st-nav ul { flex-direction: row; flex-wrap: wrap; }
 }

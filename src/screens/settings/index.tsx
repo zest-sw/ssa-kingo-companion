@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { hrefOf, type ScreenProps } from '../../app/router';
 import { Icon, PageHeader } from '../../components';
 import { SETTINGS_NAV, type SettingsSection } from '../../data/settings';
+import '../one-screen.css';
 import { AboutSection } from './AboutSection';
 import { DataSection } from './DataSection';
 import { NotifySection } from './NotifySection';
@@ -21,9 +22,9 @@ const BODY: Record<SettingsSection, () => ReactNode> = {
 export default function SettingsScreen({ sub }: ScreenProps) {
   const current = SETTINGS_NAV.find(n => n.id === sub) ?? SETTINGS_NAV[0];
   return (
-    <>
+    <div className="os">
       <PageHeader eyebrow="설정" title={current.label} />
-      <div className="st-layout">
+      <div className="os__body st-layout">
         <nav className="st-nav" aria-label="설정 메뉴">
           <ul>
             {SETTINGS_NAV.map(n => (
@@ -36,8 +37,8 @@ export default function SettingsScreen({ sub }: ScreenProps) {
             ))}
           </ul>
         </nav>
-        <div className="st-body" key={current.id}>{BODY[current.id]()}</div>
+        <div className="st-body os-scroll" key={current.id}>{BODY[current.id]()}</div>
       </div>
-    </>
+    </div>
   );
 }
