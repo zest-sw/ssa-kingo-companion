@@ -3,14 +3,13 @@ import { edgeState, layoutMap, visibleEdges, type EdgeAnswers, type ExperienceMa
 import { semesterLabel } from '../../domain/analysis/semester';
 import { FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
 import { josa } from '../../domain/text';
+import { wrapWords } from '../../domain/analysis/wrap';
 
 export type MapPick = { kind: 'node'; id: string } | { kind: 'edge'; id: string };
 
 const SIZE = { padLeft: 112, padTop: 72, colW: 200, rowH: 96, slotH: 64, padRight: 24, padBottom: 24 };
 const NODE_R = 11;
-const MAX_LABEL = 11;
-
-const short = (s: string) => (s.length > MAX_LABEL ? `${s.slice(0, MAX_LABEL)}…` : s);
+const LABEL_PER_LINE = 10;
 
 /** 기록은 점, 같은 일·같은 분야로 이어진 기록은 선. 점선은 확인 전의 AI 추정, 채운 선은 학생이 확인한 연결. */
 export function MapGraph({ map, answers, picked, onPick }: { map: ExperienceMap; answers: EdgeAnswers; picked: MapPick | null; onPick: (p: MapPick) => void }) {
@@ -52,7 +51,7 @@ export function MapGraph({ map, answers, picked, onPick }: { map: ExperienceMap;
           <g key={n.id} className={`an-node an-g--${FIELD_GROUP[n.record.field]}${sel ? ' is-picked' : ''}`} aria-label={`${n.record.title}, ${semesterLabel(n.record.semester)}. 연결 보기`} {...press({ kind: 'node', id: n.id })}>
             <circle cx={p.x} cy={p.y} r={NODE_R + 8} className="an-node__hit" />
             <circle cx={p.x} cy={p.y} r={NODE_R} className="an-node__dot" />
-            <text x={p.x} y={p.y + NODE_R + 18} textAnchor="middle" className="an-node__label">{short(n.record.title)}</text>
+            <text x={p.x} y={p.y + NODE_R + 18} textAnchor="middle" className="an-node__label">{wrapWords(n.record.title, LABEL_PER_LINE).map((l, i) => <tspan key={i} x={p.x} dy={i === 0 ? 0 : 16}>{l}</tspan>)}</text>
           </g>
         );
       })}
