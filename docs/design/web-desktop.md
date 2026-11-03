@@ -52,7 +52,7 @@
 
 | 부품 | 쓰는 법 | 메모 |
 | --- | --- | --- |
-| `Timeline` | `range={{start,end}} today items=[{id,date,end?,label,mark?,tone?}] onSelect(id)` | 날짜 'YYYY-MM-DD'. end 가 있으면 구간 막대. 겹치면 아래 줄로. 범위 밖은 안 그림 |
+| `Timeline` | `range={{start,end}} today items=[{id,date,end?,label,short?,group?,mark?,tone?}] onSelect(id) labels?` | 날짜 'YYYY-MM-DD'. end 가 있으면 구간 막대. 겹치면 아래 줄로. 범위 밖은 안 그림. 같은 `group` 의 점(한 활동의 마감 ◆·활동 ●)은 한 줄에 이음선으로 묶고 이름표는 하나 |
 | `GanttRows` | `range today rows=[{id,label,start,end,state,tone?,deadline?,result?}] onSelect(id, part)` | state: prep=빗금, active=채움, done=옅음. part: 'bar'·'deadline'·'result' |
 | `DotGrid` | `rows=[{id,label}] cols=[…] items=[{id,row,col,filled,label,tone?}] onSelect(id)` | 채운 점=학교 확인, 테두리 점=직접 입력. 한 칸에 여럿이면 칸 안에서 줄바꿈 |
 | `Funnel` | `steps=[{id,label,count}] onSelect(id) unit?` | 가장 큰 단계=전체 폭, 마지막 단계만 진한 색. 행 전체가 버튼 |
