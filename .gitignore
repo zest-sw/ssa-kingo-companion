@@ -13,3 +13,6 @@ test-results/
 .env.*
 .DS_Store
 *.log
+
+# 레이아웃 검사 스크린샷·표(npm run audit:layout)
+.qa/
