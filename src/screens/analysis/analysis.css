@@ -220,10 +220,10 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 .an-gdot { width: var(--an-dot-md); height: var(--an-dot-md); border-radius: var(--radius-full); box-sizing: border-box; flex: none; }
 .an-gdot.is-done { background: var(--ink-strong); }
 .an-gdot.is-self { box-shadow: inset 0 0 0 var(--an-line-w-thin) var(--ink-subtle); background: var(--surface); }
-.an-gdot.is-blank { background: var(--bg-sunken); }
+.an-gdot.is-blank { border: 1px dashed var(--line-strong); background: transparent; }
 
 /* 테크 트리 그림: 분야(행) × 유형(열) */
-.an-tp { display: grid; grid-template-columns: max-content repeat(4, minmax(0, 1fr)); gap: var(--space-1) var(--space-2); align-items: center; width: 100%; font-size: var(--text-xs); color: var(--ink-muted); }
+.an-tp { display: grid; grid-template-columns: max-content repeat(4, minmax(0, 1fr)); gap: var(--space-1) var(--space-2); align-items: center; width: 100%; padding-block: var(--an-halo); font-size: var(--text-xs); color: var(--ink-muted); }
 .an-tp__row { display: contents; }
 .an-tp__col { text-align: center; white-space: nowrap; }
 .an-tp__name { padding-right: var(--space-2); color: var(--ink); font-weight: var(--weight-medium); white-space: nowrap; }
@@ -304,3 +304,4 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 .an-srow__tag { display: flex; justify-content: flex-end; font-size: var(--text-sm); }
 
 .an-mp { width: 100%; }
+
