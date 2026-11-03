@@ -11,9 +11,9 @@
   --act-sb-h: 28px;
   --act-wk-h: 48px;
   --act-mg-label-w: 120px;
-  --act-mg-h: 28px;
-  --act-rg-row-h: 36px;
-  --act-rg-dot: 14px;
+  --act-mg-h: 36px;
+  --act-rg-row-h: 44px;
+  --act-rg-dot: 18px;
 }
 
 .act-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
@@ -87,10 +87,10 @@
 }
 
 /* 내 활동 요약: 위 = 지금 상태 세 칸, 아래 = 일정·기록 카드(그림이 남은 높이를 채운다) */
-.act-sum { grid-template-rows: minmax(0, 4fr) minmax(0, 6fr); }
+.act-sum { grid-template-rows: auto auto; }
 .act-sum__empty { grid-row: 1; }
 .act-now { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) minmax(0, 0.8fr); gap: var(--space-3); min-height: 0; }
-.act-now__pic { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: var(--space-3); }
+.act-now__pic { display: flex; flex-direction: column; gap: var(--space-3); }
 .act-now__far { margin: 0; color: var(--ink-muted); font-size: var(--text-xs); }
 .act-sums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); min-height: 0; }
 
@@ -119,16 +119,18 @@
 .act-wk__name { white-space: nowrap; max-width: 14em; overflow: hidden; text-overflow: ellipsis; }
 
 /* 회고 대기: 강조된 한 칸 */
-.act-retro__cell { all: unset; box-sizing: border-box; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1); border-radius: var(--radius-md); background: var(--accent-soft); color: var(--accent-ink); cursor: pointer; }
+.act-retro__cell { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: var(--space-3); min-height: var(--hit-min); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--accent-soft); color: var(--accent-ink); cursor: pointer; }
 .act-retro__cell:hover { background: var(--orange-100); box-shadow: inset 0 0 0 var(--act-ring) var(--accent); }
 .act-retro__cell:focus-visible { box-shadow: var(--focus-ring); }
-.act-retro__n { font-size: var(--text-4xl); font-weight: var(--weight-heavy); line-height: 1; }
+.act-retro__n { font-size: var(--text-3xl); font-weight: var(--weight-heavy); line-height: 1; }
+.act-retro__text { display: flex; flex-direction: column; min-width: 0; }
+.act-retro__name { font-size: var(--text-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .act-retro__label { font-size: var(--text-sm); font-weight: var(--weight-bold); }
-.act-retro__none { margin: auto 0; color: var(--ink-muted); font-size: var(--text-sm); }
+.act-retro__none { margin: 0; color: var(--ink-muted); font-size: var(--text-sm); }
 
 /* 축소 간트 */
-.act-mg { display: flex; flex-direction: column; gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
-.act-mg__row { display: grid; grid-template-columns: var(--act-mg-label-w) minmax(0, 1fr); align-items: center; gap: var(--space-3); font-size: var(--text-sm); }
+.act-mg { display: flex; flex-direction: column; gap: var(--space-6); margin: 0; padding: 0; list-style: none; }
+.act-mg__row { display: grid; grid-template-columns: var(--act-mg-label-w) minmax(0, 1fr); align-items: center; gap: var(--space-3); font-size: var(--text-md); }
 .act-mg__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
 .act-mg__track { position: relative; height: var(--act-mg-h); border-radius: var(--radius-sm); background: var(--bg-sunken); }
 .act-mg__bar { position: absolute; top: 0; bottom: 0; border-radius: var(--radius-sm); box-sizing: border-box; border: var(--act-ring) solid var(--c); }
@@ -139,7 +141,7 @@
 .act-mg__none { margin: 0; color: var(--ink-muted); font-size: var(--text-sm); }
 
 /* 기록 점 격자 */
-.act-rg { display: grid; gap: var(--space-2) var(--space-3); align-items: center; font-size: var(--text-sm); color: var(--ink-muted); }
+.act-rg { display: grid; gap: var(--space-2) var(--space-3); align-items: center; font-size: var(--text-md); color: var(--ink-muted); }
 .act-rg__row { display: contents; }
 .act-rg__col { text-align: center; }
 .act-rg__name { color: var(--ink); font-weight: var(--weight-medium); white-space: nowrap; }

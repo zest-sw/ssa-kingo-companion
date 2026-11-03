@@ -208,8 +208,8 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 
 /* L1 개요: 한 줄 통찰 카드 2×2 + 확인할 발견. 그림은 문장 옆 작은 보조 */
 /* 요약: 카드 4장(2×2)과 확인할 발견. 그림 칸은 카드가 남은 높이를 채운다. */
-.an-sum { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) auto; }
-.an-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: var(--space-3); min-height: 0; }
+.an-sum { grid-template-rows: auto auto; }
+.an-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 .an-tiles + .an-disc-card { margin-top: 0; }
 .an-gdot { width: var(--an-dot-md); height: var(--an-dot-md); border-radius: var(--radius-full); box-sizing: border-box; flex: none; }
 .an-gdot.is-done { background: var(--ink-strong); }
@@ -230,7 +230,7 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 .an-g--other .an-tp__cell.is-done, .an-g--other .an-tp__cell.is-ongoing { background: var(--grey-500); }
 
 /* 경험 지도 그림 */
-.an-mp { width: 100%; height: 100%; max-height: 100%; }
+.an-mp { display: block; height: auto; }
 .an-mp__node { fill: var(--c); }
 .an-g--other .an-mp__node { fill: var(--grey-500); }
 .an-mp__label { fill: var(--ink); font-size: var(--text-xs); paint-order: stroke; stroke: var(--surface); stroke-width: var(--an-halo); stroke-linejoin: round; }
@@ -248,6 +248,7 @@ button.an-pill:focus-visible { border-radius: var(--radius-sm); }
 
 /* 나의 강점 그림 */
 .an-sp { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-1) var(--space-6); width: 100%; align-content: center; }
+.an-sp__more { grid-column: 1 / -1; color: var(--ink-muted); font-size: var(--text-xs); }
 .an-sp__legend { grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-xs); }
 .an-sp__legend .an-gdot:not(:first-child) { margin-left: var(--space-2); }
 .an-sp__row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3); padding: 0 var(--space-2); min-height: var(--an-sp-row-h); border-radius: var(--radius-sm); font-size: var(--text-xs); color: var(--ink-muted); }

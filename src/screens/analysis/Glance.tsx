@@ -4,7 +4,7 @@ import type { FlowRow } from '../../domain/analysis/flow';
 import type { TreeGlanceRow } from '../../domain/analysis/glance';
 import type { StrengthRow } from '../../domain/analysis/strengths';
 import { TREE_COLUMNS } from '../../domain/analysis/techtree';
-import { flowBars, mapPic, strengthDots } from '../../domain/analysis/visual';
+import { flowBars, mapPic, strengthDots, topStrengthDots } from '../../domain/analysis/visual';
 import type { RecordItem } from '../../domain/types';
 
 // 나의 분석 요약 카드의 그림. 모든 표시는 그 학생의 기록이고, 이름표는 그림 안에 직접 붙인다.
@@ -14,7 +14,8 @@ const KIND_CLASS = { done: 'is-done', ongoing: 'is-ongoing', candidate: 'is-cand
 
 /** 분야(행) × 유형 4칸(열) 격자. 해 본 칸 채움, 하는 중 겹테두리, 후보 테두리, 안 해 본 분야는 '?'. */
 export function TreePic({ rows }: { rows: TreeGlanceRow[] }) {
-  const shown = rows.filter(r => r.group !== 'other' || r.cells.some(Boolean));
+  // 기타 줄은 해 본 칸이 있을 때만 그린다(없는 줄을 그려 카드를 키우지 않는다).
+  const shown = rows.filter(r => r.group !== 'other' || r.cells.some(c => c === 'done' || c === 'ongoing'));
   return (
     <span className="an-tp" role="img" aria-label="분야별로 해 본 활동 유형 격자">
       <span className="an-tp__corner" />
@@ -33,7 +34,7 @@ export function TreePic({ rows }: { rows: TreeGlanceRow[] }) {
   );
 }
 
-const MAP = { colW: 170, rowH: 30, padX: 10, padTop: 10, labelH: 18, r: 5 };
+const MAP = { colW: 165, rowH: 32, padX: 10, padTop: 8, labelH: 22, r: 6 };
 
 /** 기록 노드 4~6개와 이름, 연결선(확인=실선, 추정=옅은 점선), 아래에 학기 이름. */
 export function MapPic({ records, answers }: { records: RecordItem[]; answers: EdgeAnswers }) {
@@ -43,7 +44,7 @@ export function MapPic({ records, answers }: { records: RecordItem[]; answers: E
   const at = (n: { col: number; row: number }) => ({ x: MAP.padX + MAP.colW * n.col + MAP.r + 1, y: MAP.padTop + MAP.rowH * n.row + MAP.rowH / 2 });
   const pos = Object.fromEntries(pic.nodes.map(n => [n.id, at(n)]));
   return (
-    <svg className="an-mp" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="기록이 이어진 경험 지도">
+    <svg className="an-mp" viewBox={`0 0 ${width} ${height}`} style={{ width, maxWidth: '100%' }} role="img" aria-label="기록이 이어진 경험 지도">
       {pic.edges.map(e => <line key={e.id} x1={pos[e.a].x} y1={pos[e.a].y} x2={pos[e.b].x} y2={pos[e.b].y} className={e.confirmed ? 'an-mp__edge an-mp__edge--yes' : 'an-mp__edge'} />)}
       {pic.nodes.map(n => (
         <g key={n.id} className={`an-g--${n.group}`}>
@@ -76,20 +77,22 @@ export function FlowPic({ rows }: { rows: FlowRow[] }) {
 }
 
 const THREE = [1, 2, 3] as const;
+const STR_ROWS = 4;
 
 /** 역량 이름마다 점 행 두 줄: 기록(채운 점) vs 내 생각(빈 점). 둘이 다른 역량은 띠로 강조. */
 export function StrengthPic({ rows }: { rows: StrengthRow[] }) {
-  const dots = strengthDots(rows);
+  const { shown, more } = topStrengthDots(strengthDots(rows), STR_ROWS);
   return (
     <span className="an-sp" role="img" aria-label="역량별 기록과 내 생각 비교">
       <span className="an-sp__legend"><span className="an-gdot is-done" />기록<span className="an-gdot is-self" />내 생각</span>
-      {dots.map(d => (
+      {shown.map(d => (
         <span key={d.axis} className={`an-sp__row${d.differs ? ' is-diff' : ''}`}>
           <span className="an-sp__name">{d.label}</span>
           <span className="an-sp__dots">{THREE.map(n => <span key={n} className={`an-gdot${d.seen >= n ? ' is-done' : ' is-blank'}`} />)}</span>
           <span className="an-sp__dots">{THREE.map(n => <span key={n} className={`an-gdot${d.self >= n ? ' is-self' : ' is-blank'}`} />)}</span>
         </span>
       ))}
+      {more > 0 && <span className="an-sp__more">외 {more}</span>}
     </span>
   );
 }

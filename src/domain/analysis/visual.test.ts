@@ -5,7 +5,7 @@ import type { Axis } from '../types';
 import { buildFlow } from './flow';
 import { buildStrengths, type Level } from './strengths';
 import { buildTechTree } from './techtree';
-import { discoveryPic, flowBars, flowHeadline, mapHeadline, mapPic, semesterShort, shortName, strengthDots, strengthHeadline, treeHeadline } from './visual';
+import { topStrengthDots, discoveryPic, flowBars, flowHeadline, mapHeadline, mapPic, semesterShort, shortName, strengthDots, strengthHeadline, treeHeadline } from './visual';
 
 const SELF: Record<Axis, Level> = { expertise: 'low', problem: 'low', communication: 'low', collaboration: 'low', self: 'low', creative: 'low' };
 const recs = [
@@ -64,5 +64,13 @@ describe('분석 요약 그림', () => {
     expect(pic.evidence.length).toBeLessThanOrEqual(3);
     expect(pic.target).toBe('직접 만들기');
     expect(pic.evidence.length + pic.more).toBe(ds[0].evidence.length);
+  });
+  it('강점 그림이 좁으면 다른 줄을 먼저 n줄만 고르고 나머지를 센다', () => {
+    const dots = strengthDots(buildStrengths(recs, { ...SELF, communication: 'high' }));
+    const { shown, more } = topStrengthDots(dots, 2);
+    expect(shown).toHaveLength(2);
+    expect(shown[0].differs).toBe(true);
+    expect(more).toBe(4);
+    expect(topStrengthDots(dots, 9).more).toBe(0);
   });
 });

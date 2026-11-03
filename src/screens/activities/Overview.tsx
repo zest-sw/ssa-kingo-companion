@@ -42,7 +42,10 @@ export function Overview() {
               {retros.length ? (
                 <button type="button" className="act-retro__cell" onClick={toRetro}>
                   <b className="act-retro__n num">{retros.length}</b>
-                  <span className="act-retro__label">회고 쓰기</span>
+                  <span className="act-retro__text">
+                    <span className="act-retro__name">{retros[0].title}{retros.length > 1 && ` 외 ${retros.length - 1}`}</span>
+                    <span className="act-retro__label">회고 쓰기</span>
+                  </span>
                 </button>
               ) : <p className="act-retro__none">끝난 활동이 생기면 여기서 회고를 시작해요.</p>}
             </Card>
