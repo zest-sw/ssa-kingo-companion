@@ -39,7 +39,7 @@ export function upcomingItems(activities: Activity[], picks: Scored[], week: num
   for (const a of activities) {
     const dday = a.due?.dday;
     if (a.status === 'preparing' && within(dday)) items.push({ id: `due:${a.id}`, date: isoAt(dday, week), label: `${a.title} 마감`, kind: 'deadline', target: { kind: 'activity', id: a.id } });
-    if (a.status === 'ended') items.push({ id: `review:${a.id}`, date: isoAt(0, week), label: `${a.title} 회고`, kind: 'review', target: { path: `records/interview/${a.id}` } });
+    if (a.status === 'ended') items.push({ id: `review:${a.id}`, date: isoAt(0, week), label: `${a.title} 회고`, kind: 'review', target: { path: `activities/records/interview/${a.id}` } });
   }
   for (const { p } of picks) {
     if (!taken.has(p.id)) items.push(...programItems(p, week));
