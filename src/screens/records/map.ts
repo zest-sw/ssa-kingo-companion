@@ -41,3 +41,27 @@ export function mapDots(records: RecordItem[]): DotItem[] {
     return { id: r.id, row: group, col: r.semester, filled: r.verification === 'school', label: r.title, tone: group, tip: `${r.title} · ${r.verification === 'school' ? '학교 확인' : '직접 입력'}` };
   });
 }
+
+/** 같은 분야 안에서 앞 학기의 점 → 다음 학기의 점을 잇는다. 같은 순서끼리 잇고, 남는 쪽은 상대의 마지막 점으로 모이거나 거기서 뻗는다(끊긴 점이 없게). */
+export function mapLinks(items: DotItem[], cols: GridAxisItem[]): { from: string; to: string }[] {
+  const order = new Map(cols.map((c, i) => [c.id, i]));
+  const out: { from: string; to: string }[] = [];
+  for (const row of new Set(items.map(i => i.row))) {
+    const bySem = [...cols].map(c => items.filter(i => i.row === row && i.col === c.id)).filter(g => g.length);
+    bySem.sort((a, b) => (order.get(a[0].col) ?? 0) - (order.get(b[0].col) ?? 0));
+    for (let s = 1; s < bySem.length; s++) {
+      const prev = bySem[s - 1];
+      const next = bySem[s];
+      next.forEach((it, k) => out.push({ from: prev[Math.min(k, prev.length - 1)].id, to: it.id }));
+      prev.slice(next.length).forEach(it => out.push({ from: it.id, to: next[next.length - 1].id }));
+    }
+  }
+  return out;
+}
+
+/** 기록이 있는 분야만 줄로 그리고, 기록 없는 분야는 아래 한 줄로 모은다(빈 줄이 화면을 차지하지 않게). */
+export function splitMapRows(records: RecordItem[]): { drawn: GridAxisItem[]; empty: GridAxisItem[] } {
+  const has = new Set(records.map(r => FIELD_GROUP[r.field]));
+  const rows = mapRows(records);
+  return { drawn: rows.filter(r => has.has(r.id as FieldGroup)), empty: rows.filter(r => !has.has(r.id as FieldGroup)) };
+}

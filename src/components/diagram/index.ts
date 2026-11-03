@@ -12,3 +12,4 @@ export { Piece, type DiagramTone } from './Piece';
 export { SegmentBar, type Segment } from './SegmentBar';
 export { Timeline, type TimelineItem } from './Timeline';
 export { GhostPic, type GhostKind } from './GhostPic';
+export { linkPath, useLinkPaths, type LinkPath, type LinkSpec } from './useLinkPaths';

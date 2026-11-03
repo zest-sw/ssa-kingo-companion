@@ -23,14 +23,34 @@ export type TreeCell = {
   dday?: number;
 };
 /** unknown: 아직 안 해 본 분야 */
-export type TreeRow = { group: FieldGroup; label: string; cells: TreeCell[]; unknown: boolean };
+export type TreeRow = { group: FieldGroup; label: string; cells: TreeCell[]; folds: TreeFold[]; unknown: boolean };
+/** 한 단계에 다 그리지 못해 '+n' 노드로 접힌 노드들 */
+export type TreeFold = { col: number; cells: TreeCell[] };
 /** cross: 다른 줄로 건너가는 경로 */
 export type TreeLink = { from: string; to: string; cross: boolean };
 /** candidates: 칸 수 제한 없이 지금 신청할 수 있는 후보 전부(목록 보기용) */
 export type TechTree = { rows: TreeRow[]; links: TreeLink[]; candidates: TreeCell[] };
-/** 한 칸에 쌓는 후보는 이만큼까지만 그린다. 나머지는 목록 보기에 있다. */
+/** 한 단계에 그리는 후보는 이만큼까지. 나머지는 '+n' 노드로 접는다. */
 export const CANDIDATES_PER_CELL = 2;
+/** 한 단계에 쌓는 자리 수('+n' 노드 포함). 낮은 노트북 화면(1280×640)에서도 트리가 한 화면에 들어오게 한다. */
+export const NODES_PER_STAGE = 4;
 export type CandidateRef = { program: Program; dday: number };
+
+/** 남길 순서가 앞인 것부터: 추천(마감 가까운 것) → 하는 중 → 한 활동(최근 것). */
+const keepRank = (c: TreeCell, i: number) => (c.kind === 'candidate' ? [0, c.dday ?? 999] : c.kind === 'ongoing' ? [1, -i] : [2, -i]);
+
+/**
+ * 한 단계의 노드를 자리 수에 맞춰 그릴 것과 접을 것으로 나눈다. 그릴 노드는 원래 순서(시간순)를 지킨다.
+ * 접는 순서: 한 활동(오래된 것부터) → 하는 중 → 추천(마감 먼 것부터). 마감이 걸린 추천을 가장 늦게 접는다.
+ */
+export function foldStage(cells: TreeCell[]): { visible: TreeCell[]; folded: TreeCell[] } {
+  const order = cells.map((c, i) => ({ c, i, r: keepRank(c, i) })).sort((a, b) => a.r[0] - b.r[0] || a.r[1] - b.r[1]);
+  const extraCands = new Set(order.filter(o => o.c.kind === 'candidate').slice(CANDIDATES_PER_CELL).map(o => o.c.id));
+  const pool = order.filter(o => !extraCands.has(o.c.id));
+  const fits = pool.length <= NODES_PER_STAGE && !extraCands.size;
+  const keep = new Set((fits ? pool : pool.slice(0, NODES_PER_STAGE - 1)).map(o => o.c.id));
+  return { visible: cells.filter(c => keep.has(c.id)), folded: cells.filter(c => !keep.has(c.id)) };
+}
 
 export function buildTechTree(input: { records: RecordItem[]; activities: Activity[]; candidates: CandidateRef[] }): TechTree {
   const sorted = sortRecords(input.records);
@@ -51,17 +71,18 @@ export function buildTechTree(input: { records: RecordItem[]; activities: Activi
       col: COLUMN_OF_DID[c.program.did[0] ?? 'listen'], programId: c.program.id, dday: c.dday
     });
   }
-  const shown = new Map<string, number>();
-  for (const c of candidateCells) {
-    const k = `${c.group}:${c.col}`;
-    const n = shown.get(k) ?? 0;
-    shown.set(k, n + 1);
-    if (n < CANDIDATES_PER_CELL) cells.push(c);
-  }
+  const all = [...cells, ...candidateCells];
 
   const rows: TreeRow[] = TREE_GROUPS.map(group => {
-    const own = cells.filter(c => c.group === group).sort((a, b) => a.col - b.col);
-    return { group, label: GROUP_LABEL[group], cells: own, unknown: !own.some(c => c.kind !== 'candidate') };
+    const own = all.filter(c => c.group === group);
+    const shown: TreeCell[] = [];
+    const folds: TreeFold[] = [];
+    for (const col of TREE_COLUMNS.keys()) {
+      const { visible, folded } = foldStage(own.filter(c => c.col === col));
+      shown.push(...visible);
+      if (folded.length) folds.push({ col, cells: folded });
+    }
+    return { group, label: GROUP_LABEL[group], cells: shown, folds, unknown: !own.some(c => c.kind !== 'candidate') };
   });
 
   const links: TreeLink[] = [];
@@ -92,3 +113,15 @@ export const relatedRecords = (records: RecordItem[], record: RecordItem, limit 
 /** 활동에 이어진 기록(있으면). 회고를 썼는지의 근거다. */
 export const recordOfActivity = (records: RecordItem[], a: Activity) =>
   records.find(r => (a.recordId && r.id === a.recordId) || (a.programId && r.programId === a.programId));
+
+/** 분야 가지의 시작점에서 바로 뻗는 노드: 그 분야에서 가장 앞 단계에 놓인 노드들 */
+export function rootTargets(row: TreeRow): string[] {
+  if (!row.cells.length) return [];
+  const first = Math.min(...row.cells.map(c => c.col));
+  return row.cells.filter(c => c.col === first).map(c => c.id);
+}
+
+/** 가지로 그릴 분야(노드가 하나라도 있음)와, 한 줄로 모을 안 해 본 분야(노드도 후보도 없음) */
+export function splitTreeRows(rows: TreeRow[]): { drawn: TreeRow[]; untried: TreeRow[] } {
+  return { drawn: rows.filter(r => r.cells.length), untried: rows.filter(r => !r.cells.length) };
+}

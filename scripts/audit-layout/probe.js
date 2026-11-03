@@ -71,6 +71,18 @@ export function probe(opts) {
   }
 
   const all = [...main.querySelectorAll('*')].filter(el => !el.closest(OVERLAY) && vis(el));
+
+  // a2) 칸 안 가로 스크롤 막대. overflow-y:auto 칸은 가로도 auto 가 되어, 몇 px 넘친 내용이 막대를 만들고 끝 노드를 자른다.
+  //     페이지 가로 넘침(a)과 달리 카드 안에서만 생겨 놓치기 쉽다. 1024 같은 '깨지지만 않으면' 크기에서는 허용한다.
+  if (!breakOnly) {
+    for (const el of all) {
+      if (el === SCROLL_ROOT) continue;
+      const s = cs(el);
+      if (!/(auto|scroll)/.test(s.overflowX)) continue;
+      const d = el.scrollWidth - el.clientWidth;
+      if (d > 1) add({ k: 'box-hscroll', level: 'fail', d, el: tag(el) }, el);
+    }
+  }
   const inSvg = el => el instanceof SVGElement && el.tagName.toLowerCase() !== 'svg';
 
   // 테두리나 그림자가 있는 둥근 상자 = 카드·패널

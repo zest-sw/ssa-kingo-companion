@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 
-export type GhostKind = 'bars' | 'grid' | 'timeline' | 'network' | 'rows';
+export type GhostKind = 'bars' | 'branches' | 'timeline' | 'network' | 'rows';
 
 type Props = {
   /** 그림 모양. 데이터가 생기면 들어설 그림과 같은 꼴이다 */
   kind: GhostKind;
   /** 축 이름(분야 묶음, 학기 등). 값이 아니라 틀의 이름이라 그대로 보여 준다 */
   labels?: string[];
-  /** 열 이름(grid 의 위쪽 축) */
+  /** 단계·학기 이름(branches 의 위쪽 눈금) */
   cols?: string[];
   /** 틀 가운데 놓을 다음 행동 한 줄. 요약 카드처럼 아래 문장이 따로 있으면 비운다 */
   message?: ReactNode;
@@ -15,6 +15,8 @@ type Props = {
 
 const ROWS = 3;
 const POINTS = [0.12, 0.38, 0.62, 0.86];
+/** n 개 단계 중 i 번째의 가로 위치(%) */
+const at = (i: number, n: number) => `${((i + 0.5) / n) * 100}%`;
 
 /**
  * 아직 데이터가 없을 때의 그림 틀(첫 사용 상태). 축·칸을 옅은 점선 윤곽으로만 그리고 값은 그리지 않는다.
@@ -31,14 +33,20 @@ export function GhostPic({ kind, labels = [], cols = [], message }: Props) {
         {kind === 'rows' && rows.map((l, i) => (
           <span key={i} className="ui-ghost__row"><span className="ui-ghost__dot" /><span className="ui-ghost__line">{l}</span></span>
         ))}
-        {kind === 'grid' && (
-          <span className="ui-ghost__grid" style={{ gridTemplateColumns: `auto repeat(${Math.max(1, cols.length || 3)}, minmax(0, 1fr))` }}>
-            <span />
-            {(cols.length ? cols : ['', '', '']).map((c, i) => <span key={`c${i}`} className="ui-ghost__col">{c}</span>)}
-            {rows.map((l, r) => [
-              <span key={`l${r}`} className="ui-ghost__label">{l}</span>,
-              ...(cols.length ? cols : ['', '', '']).map((_, c) => <span key={`${r}-${c}`} className="ui-ghost__cell" />)
-            ])}
+        {kind === 'branches' && (
+          <span className="ui-ghost__branches">
+            <span className="ui-ghost__brow">
+              <span className="ui-ghost__label" />
+              <span className="ui-ghost__btrack">{(cols.length ? cols : ['', '', '']).map((c, i, all) => <span key={i} className="ui-ghost__bcol" style={{ left: at(i, all.length) }}>{c}</span>)}</span>
+            </span>
+            {rows.map((l, r) => (
+              <span key={r} className="ui-ghost__brow">
+                <span className="ui-ghost__label">{l}</span>
+                <span className="ui-ghost__btrack ui-ghost__btrack--line">
+                  {(cols.length ? cols : ['', '', '']).map((_, i, all) => <span key={i} className="ui-ghost__bdot" style={{ left: at(i, all.length) }} />)}
+                </span>
+              </span>
+            ))}
           </span>
         )}
         {kind === 'timeline' && (
