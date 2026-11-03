@@ -22,15 +22,15 @@ function Converge({ pic }: { pic: DiscoveryPic }) {
         const y = PAD + ROW_H * i + ROW_H / 2;
         return (
           <g key={e.id}>
-            <line x1={134} y1={y} x2={206} y2={mid} className="an-dpic__line" />
+            <line x1={134} y1={y} x2={170} y2={mid} className="an-dpic__line" />
             <circle cx={6} cy={y} r={4} className="an-dpic__dot" />
             <text x={16} y={y} dominantBaseline="central" className="an-dpic__label">{e.label}</text>
           </g>
         );
       })}
       {pic.more > 0 && <text x={16} y={PAD + ROW_H * pic.evidence.length + ROW_H / 2} dominantBaseline="central" className="an-dpic__more">외 {pic.more}개</text>}
-      <circle cx={214} cy={mid} r={8} className="an-dpic__target" />
-      <text x={228} y={mid} dominantBaseline="central" className="an-dpic__name">{pic.target}</text>
+      <circle cx={178} cy={mid} r={8} className="an-dpic__target" />
+      <text x={192} y={mid} dominantBaseline="central" className="an-dpic__name">{pic.target}</text>
     </svg>
   );
 }
@@ -66,11 +66,13 @@ export function DiscoveryCards() {
                     {(st === 'yes' || st === 'no') && <span>{st === 'yes' ? '반영 중' : '쓰지 않음'}</span>}
                   </span>
                 </p>
-                <Converge pic={discoveryPic(d)} />
+                {/* 근거 그림 자체가 '근거 보기'다. 버튼을 하나 줄여 1280×800 에서도 카드가 칸 안에 다 들어온다. */}
+                <button type="button" className="an-dq__see" title="근거 기록 보기" aria-label={`근거 기록 ${d.evidence.length}개 보기`} onClick={() => setSeeing(d)}>
+                  <Converge pic={discoveryPic(d)} />
+                </button>
                 <div className="an-dq__actions">
                   <Button size="sm" variant={st === 'yes' ? 'primary' : 'secondary'} aria-pressed={st === 'yes'} onClick={() => answer(d, 'yes')}>맞아요</Button>
                   <Button size="sm" variant={st === 'no' ? 'primary' : 'secondary'} aria-pressed={st === 'no'} onClick={() => answer(d, 'no')}>아니에요</Button>
-                  <Button size="sm" variant="ghost" onClick={() => setSeeing(d)}>근거 보기</Button>
                 </div>
               </li>
             );
