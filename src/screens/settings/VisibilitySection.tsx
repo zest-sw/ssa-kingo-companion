@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { useChallenges } from '../../app/challenges';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, Chip, Icon, Modal, type IconName } from '../../components';
+import { Badge, Button, Card, Chip, Drawer, Icon, Modal, SegmentedControl, type IconName } from '../../components';
 import { isSensitive, publicActivities, toggled } from '../../domain/social';
 import { showcaseable } from '../../domain/challenges';
 import { Group, Row } from './Row';
@@ -22,12 +22,19 @@ const SHOWN: { title: string; sub: string; shown: Shown }[] = [
   { title: '민감한 활동', sub: '종교·정치 동아리 등', shown: { tone: 'lock', text: '기본으로 빠져요' } }
 ];
 
-/** 공개 범위. 친구 화면의 '공개 설정' 탭에서 옮겨 왔다. 공개는 따로 동의를 받고, 철회는 한 번에. */
+type Pick = 'activity' | 'record' | 'challenge';
+
+/**
+ * 공개 범위. 공개는 따로 동의를 받고, 철회는 한 번에.
+ * 한 칸에 한 주제: 왼쪽은 공개 여부(+ 열리는 기능 셋), 오른쪽은 보일 것 고르기(활동·회고·도전 과제를 하나씩). '공개하면 보이는 것' 표는 서랍으로.
+ */
 export function VisibilitySection() {
   const { state, run } = useApp();
   const challenges = useChallenges();
   const v = state.visibility;
   const [asking, setAsking] = useState(false);
+  const [guide, setGuide] = useState(false);
+  const [pick, setPick] = useState<Pick>('activity');
 
   const candidates = state.activities.filter(a => (a.status === 'ongoing' || a.status === 'ended' || a.status === 'recorded') && !isSensitive(a));
   const visibleIds = new Set(publicActivities(state.activities, { ...v, profilePublic: true }).map(a => a.id));
@@ -65,43 +72,46 @@ export function VisibilitySection() {
               ))}
             </ul>
           </Group>
-          <Group title="공개하면 보이는 것">
-            <ul className="st-rows">
-              {SHOWN.map(s => (
-                <Row key={s.title} title={s.title} sub={s.sub}>
-                  {s.shown.tone === 'lock' ? <Badge tone="dashed" icon="lock">{s.shown.text}</Badge> : <Badge tone={s.shown.tone}>{s.shown.text}</Badge>}
-                </Row>
-              ))}
-            </ul>
-          </Group>
         </div>
+        <div className="st-guide"><Button size="sm" variant="ghost" icon="chevron" onClick={() => setGuide(true)}>공개하면 무엇이 보이나요?</Button></div>
       </Card>
 
-      <Card className="st-card" title="무엇을 보일지 골라요" action={<span>켜진 것만 친구에게 보여요</span>}>
-        <Group title="한 활동">
+      <Card className="st-card st-pick" title="보일 것 고르기" action={<SegmentedControl<Pick> label="보일 것 종류" value={pick} onChange={setPick} items={[{ id: 'activity', label: '한 활동' }, { id: 'record', label: '회고' }, { id: 'challenge', label: '도전 과제' }]} />}>
+        <p className="st-pick__hint">켜진 것만 친구에게 보여요.</p>
+        {pick === 'activity' && <Group title="한 활동">
           {candidates.length ? (
             <div className="st-chips">
               {candidates.map(a => <Chip key={a.id} selected={visibleIds.has(a.id)} onClick={() => set({ hiddenActivityIds: toggled(v.hiddenActivityIds, a.id) })}>{a.title}</Chip>)}
             </div>
           ) : <p className="st-empty">보일 활동이 아직 없어요. 활동을 시작하면 여기서 고를 수 있어요.</p>}
-        </Group>
-        <Group title="회고">
+        </Group>}
+        {pick === 'record' && <Group title="회고">
           {state.records.length ? (
             <div className="st-chips">
               {state.records.map(r => <Chip key={r.id} selected={v.sharedRecordIds.includes(r.id)} onClick={() => set({ sharedRecordIds: toggled(v.sharedRecordIds, r.id) })}>{r.title}</Chip>)}
             </div>
           ) : <p className="st-empty">공개할 회고가 아직 없어요. 활동이 끝나면 회고를 써 보세요.</p>}
-        </Group>
-        <Group title="전시할 도전 과제">
+        </Group>}
+        {pick === 'challenge' && <Group title="전시할 도전 과제">
           {achieved.length ? (
             <div className="st-chips">
               {achieved.map(c => <Chip key={c.def.id} selected={showcased.has(c.def.id)} onClick={() => set({ showcaseChallengeIds: toggled(v.showcaseChallengeIds, c.def.id) })}>{c.def.name}</Chip>)}
             </div>
           ) : <p className="st-empty">달성한 도전 과제가 아직 없어요. 달성하면 여기서 전시할 것을 고를 수 있어요.</p>}
-        </Group>
+        </Group>}
       </Card>
 
       <p className="st-note"><Icon name="check" />언제든 비공개로 돌릴 수 있어요. 돌리면 친구 찾기, 팀원 모집, 명예의 전당도 멈춰요.</p>
+
+      <Drawer open={guide} onClose={() => setGuide(false)} eyebrow="공개 범위" title="공개하면 무엇이 보이나요?">
+        <ul className="st-rows">
+          {SHOWN.map(x => (
+            <Row key={x.title} title={x.title} sub={x.sub}>
+              {x.shown.tone === 'lock' ? <Badge tone="dashed" icon="lock">{x.shown.text}</Badge> : <Badge tone={x.shown.tone}>{x.shown.text}</Badge>}
+            </Row>
+          ))}
+        </ul>
+      </Drawer>
 
       <Modal
         open={asking}

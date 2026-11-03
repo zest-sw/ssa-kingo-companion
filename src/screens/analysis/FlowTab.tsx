@@ -20,6 +20,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   const [range, setRange] = useState<FlowRange>(() => defaultRange(rows));
   const [from, to] = clampRange(range, last);
   const [pick, setPick] = useState<Pick | null>(null);
+  const [sumOpen, setSumOpen] = useState(false);
   const step = nextStep(useApp().state.activities);
   const summary = summarizeFlow(rows, from, to);
   // 구간 밖 학기는 그리지 않는다. 시작 학기 슬라이더를 앞으로 당기면 그 학기가 다시 보인다.
@@ -31,7 +32,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
 
   return (
     <div className="an-flow">
-      <Card title="학기별 분야 비율" className="os-card">
+      <Card title="학기별 분야 비율" className="os-card" action={<Button variant="ghost" icon="chevron" onClick={() => setSumOpen(true)}>고른 구간 비율</Button>}>
         <div className="os-scroll"><ol className="an-flow__rows">
           {shown.map(r => (
             <li key={r.semester} className="an-flow__row">
@@ -69,8 +70,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
         </div>
       </Card>
 
-      <Card title="고른 구간" tone="alt" padding="md" className="os-card">
-        <p className="an-muted">{semesterLabel(axis[from])}{from !== to && ` ~ ${semesterLabel(axis[to])}`}</p>
+      <Drawer open={sumOpen} onClose={() => setSumOpen(false)} eyebrow="고른 구간" title={`${semesterLabel(axis[from])}${from !== to ? ' ~ ' + semesterLabel(axis[to]) : ''}`}>
         {summary.total === 0 ? (
           <p className="an-muted an-flow__none">이 구간에는 기록이 없어요. 다른 학기를 골라 보세요.</p>
         ) : (
@@ -86,7 +86,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
             <p className="an-muted">기록 <b className="num">{summary.total}</b>개를 모았어요.</p>
           </>
         )}
-      </Card>
+      </Drawer>
 
       <Drawer open={!!pick} onClose={() => setPick(null)} eyebrow={pick ? semesterLabel(pick.semester) : undefined} title={pick ? `${GROUP_LABEL[pick.segment.group]} 활동` : ''}>
         <div className="an-stack">{pick?.segment.recordIds.map(id => records.find(r => r.id === id)).map(r => r && <RecordSummary key={r.id} record={r} />)}</div>

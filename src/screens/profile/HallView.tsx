@@ -57,18 +57,18 @@ export function HallView() {
       {list.length === 0 ? (
         <Card><EmptyState icon="trophy" message="이 분야의 경로는 아직 없어요. 다른 분야를 살펴보세요." action={<Button size="sm" onClick={() => setFilter('all')}>전체 보기</Button>} /></Card>
       ) : (
-        <ul className="fr-hall os-scroll os-scroll--page">
+        <ul className="fr-hall os-scroll os-scroll--page" aria-label="먼저 걸어온 학생">
           {list.map(h => (
-            <li key={h.id} className="ui-card fr-hall__card">
-              <div className="fr-person">
-                <span className="fr-avatar" aria-hidden="true">{h.name.slice(0, 1)}</span>
-                <div className="fr-person__text"><p className="fr-person__name">{h.name}</p><p className="fr-person__sub">{h.dept} · {h.year}학년</p></div>
-              </div>
-              <div className="fr-reason"><p className="fr-reason__label">선정 이유</p><p>{h.reason}</p></div>
-              <p className="fr-hall__start">{h.start}</p>
-              <Timeline entry={h} />
-              {h.retro && <blockquote className="fr-quote"><span className="fr-quote__label">공개한 회고</span>{h.retro}</blockquote>}
-              <Button block className="fr-hall__btn" onClick={() => setOpen(h)}>경로 따라 보기</Button>
+            <li key={h.id}>
+              {/* 카드를 누르면 서랍에서 경로·회고를 본다(진입점 하나). 첫 화면에는 사람과 선정 이유만 둔다. */}
+              <button type="button" className="fr-hall__card" aria-haspopup="dialog" onClick={() => setOpen(h)}>
+                <span className="fr-person">
+                  <span className="fr-avatar" aria-hidden="true">{h.name.slice(0, 1)}</span>
+                  <span className="fr-person__text"><span className="fr-person__name">{h.name}</span><span className="fr-person__sub">{h.dept} · {h.year}학년</span></span>
+                </span>
+                <span className="fr-reason"><span className="fr-reason__label">선정 이유</span>{h.reason}</span>
+                <span className="fr-hall__start">{h.start} · 활동 {h.path.length}개</span>
+              </button>
             </li>
           ))}
         </ul>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button, Card, Icon, type IconName } from '../../components';
 import { CHALLENGES } from '../../data/challenges';
 import { useFriends } from './useFriends';
@@ -9,8 +9,10 @@ import { FriendDrawer } from './FriendDrawer';
 
 const KIND_ICON: Record<FeedKind, IconName> = { achieved: 'check', hidden: 'sparkle', applied: 'flag', shared: 'doc' };
 
-/** 친구 소식: 아바타 + 과제 배지 + 짧은 라벨. 행을 누르면 그 친구의 프로필 서랍이 열린다. */
-export function FriendFeed() {
+/** 친구 소식 처음 3개: 아바타 + 과제 배지 + 짧은 라벨. 행을 누르면 그 친구의 프로필 서랍이 열린다. footer 는 다음 단계로 가는 길. */
+const SHOWN = 3;
+
+export function FriendFeed({ footer }: { footer?: ReactNode }) {
   const { feed } = useFriends();
   const [cheered, setCheered] = useState<string[]>([]);
   const [friend, setFriend] = useState<string | null>(null);
@@ -18,7 +20,7 @@ export function FriendFeed() {
     <Card padding="md" title="친구 소식" className="os-card">
       {feed.length === 0 ? <p className="fr-empty">친구를 맺으면 친구 소식이 여기에 보여요.</p> : (
         <ul className="pf-feed os-scroll">
-          {feed.map(f => {
+          {feed.slice(0, SHOWN).map(f => {
             const on = cheered.includes(f.id);
             const n = f.cheers + (on ? 1 : 0);
             const icon = CHALLENGES.find(c => c.name === f.subject)?.icon ?? KIND_ICON[f.kind];
@@ -35,6 +37,7 @@ export function FriendFeed() {
           })}
         </ul>
       )}
+      {footer}
       <FriendDrawer friendId={friend} onClose={() => setFriend(null)} />
     </Card>
   );
