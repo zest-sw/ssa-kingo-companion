@@ -176,16 +176,17 @@ export function probe(opts) {
         if (ix > 2 && iy > 2) { seen.add(key); add({ k: 'ctrl-overlap', level: 'fail', el: name(c), with: name(o) }, c); }
       }
     }
-    // 글자끼리 겹침(차트 이름표 충돌 등)
+    // 글자끼리 겹침(차트 이름표 충돌, 버튼 안 이름과 배지 등). 버튼 안 글자도 센다.
+    const allTexts = leaves.filter(t => !allowOverlap(t));
     const tseen = new Set();
-    for (let i = 0; i < texts.length; i++) {
-      const ra = lineRects(texts[i]);
-      for (let j = i + 1; j < texts.length; j++) {
-        if (texts[i].contains(texts[j]) || texts[j].contains(texts[i])) continue;
-        const rb = lineRects(texts[j]);
+    for (let i = 0; i < allTexts.length; i++) {
+      const ra = lineRects(allTexts[i]);
+      for (let j = i + 1; j < allTexts.length; j++) {
+        if (allTexts[i].contains(allTexts[j]) || allTexts[j].contains(allTexts[i])) continue;
+        const rb = lineRects(allTexts[j]);
         if (ra.some(a => rb.some(b => { const [ix, iy] = inter(a, b); return ix > 3 && iy > 3; }))) {
-          const key = name(texts[i]) + '|' + name(texts[j]); if (tseen.has(key)) continue; tseen.add(key);
-          add({ k: 'text-overlap', level: 'fail', el: name(texts[i]), with: name(texts[j]) }, texts[i]);
+          const key = name(allTexts[i]) + '|' + name(allTexts[j]); if (tseen.has(key)) continue; tseen.add(key);
+          add({ k: 'text-overlap', level: 'fail', el: name(allTexts[i]), with: name(allTexts[j]) }, allTexts[i]);
         }
       }
     }
