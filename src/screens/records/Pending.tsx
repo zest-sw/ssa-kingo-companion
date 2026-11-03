@@ -1,5 +1,4 @@
-import { Badge, Button, Card, EmptyState, FieldTag, PageHeader } from '../../components';
-import { DashedPic } from '../activities/DashedPic';
+import { Badge, Button, Card, EmptyState, FieldTag, GhostPic, PageHeader } from '../../components';
 import { nextStep } from '../../domain/nextStep';
 import { navigate, parentLink } from '../../app/router';
 import { useApp } from '../../app/AppState';
@@ -16,7 +15,7 @@ export function Pending() {
       <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title="회고 쓰기" />
       <>
         {list.length === 0 ? (
-          <Card className="rec-hold"><EmptyState pic={<DashedPic kind="list" />} message={step.to === 'recommend' ? '활동을 고르고, 끝나면 여기서 회고를 써요.' : '하는 활동이 끝나면 여기서 회고를 써요.'} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} /></Card>
+          <Card className="rec-hold"><EmptyState pic={<GhostPic kind="rows" labels={['', '', '']} />} message={step.to === 'recommend' ? '활동을 고르고, 끝나면 여기서 회고를 써요.' : '하는 활동이 끝나면 여기서 회고를 써요.'} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} /></Card>
         ) : (
           <ul className="rec-pending os-scroll">
             {list.map(a => (

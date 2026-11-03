@@ -2,8 +2,7 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Button, Card, EmptyState, PageHeader } from '../../components';
-import { DashedPic } from './DashedPic';
+import { Button, Card, EmptyState, GhostPic, PageHeader } from '../../components';
 import { pendingRetros } from './summary';
 import { StatusBarsPic, WeekPic } from './Pictures';
 import { statusBars, weekHeadline, weekOf } from './visual';
@@ -32,13 +31,13 @@ export function Overview() {
           // 첫 사용: 세 칸 모두 같은 모양(점선 그림 틀 + 한 줄). 다음 행동 버튼은 첫 칸 한 곳에만 둔다.
           <div className="act-now">
             <Card className="os-card" title="할 일 상태">
-              <EmptyState pic={<DashedPic kind="status" labels={STATUS_ROWS} />} message="신청 준비를 누르면 막대가 생겨요" action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>} />
+              <EmptyState pic={<GhostPic kind="bars" labels={STATUS_ROWS} />} message="신청 준비를 누르면 막대가 생겨요" action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>} />
             </Card>
             <Card className="os-card" title="이번 주 마감">
-              <EmptyState pic={<DashedPic kind="week" labels={week.days.map(d => d.label)} />} message="이번 주 마감이 여기에 찍혀요" />
+              <EmptyState pic={<GhostPic kind="timeline" labels={week.days.map(d => d.label)} />} message="이번 주 마감이 여기에 찍혀요" />
             </Card>
             <Card className="os-card act-retro" title="회고 대기">
-              <EmptyState pic={<DashedPic kind="retro" />} message="끝난 활동이 생기면 여기서 회고를 시작해요" />
+              <EmptyState pic={<GhostPic kind="rows" labels={['']} />} message="끝난 활동이 생기면 여기서 회고를 시작해요" />
             </Card>
           </div>
         ) : (

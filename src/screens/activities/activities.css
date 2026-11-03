@@ -130,28 +130,6 @@
 /* 일정 첫 화면(이번 달): 넘친 줄이 있다는 안내 한 줄 */
 .act-more { margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-sm); }
 
-/* 빈 상태 그림 틀(DashedPic): 속이 빈 점선 윤곽만 쓴다. 속이 찬 회색 막대는 로딩 뼈대처럼 보여 쓰지 않는다. */
-.dp { display: flex; flex-direction: column; gap: var(--space-2); color: var(--ink-subtle); font-size: var(--text-xs); }
-.dp__label { flex: none; width: var(--act-sb-label-w); text-align: left; }
-.dp__bar { display: flex; align-items: center; gap: var(--space-3); }
-.dp__track, .dp__ring, .dp__pill, .dp__cell { border: 1px dashed var(--line-strong); }
-.dp__track { flex: 1; height: var(--dg-bar-h); border-radius: var(--radius-xs); }
-.dp__days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; }
-.dp__axis { position: relative; height: var(--space-8); border-top: 2px dashed var(--line-strong); }
-.dp .dp__ring { position: absolute; top: calc(-1 * var(--dg-dot) / 2 - 1px); width: var(--dg-dot); height: var(--dg-dot); border-radius: var(--radius-full); }
-.dp__retro, .dp__item { display: flex; align-items: center; gap: var(--space-3); }
-.dp__retro { padding: var(--space-3) var(--space-4); border: 1px dashed var(--line-strong); border-radius: var(--radius-md); }
-.dp__retro .dp__ring, .dp__item .dp__ring { position: static; flex: none; width: var(--space-6); height: var(--space-6); border-radius: var(--radius-full); }
-.dp__lines { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); }
-.dp__line { flex: 1; height: 0; border-top: 1px dashed var(--line-strong); }
-.dp__lines .dp__line { flex: none; }
-.dp__line--short { width: 60%; }
-.dp__item { padding: var(--space-2) 0; }
-.dp__pill { flex: none; width: var(--space-12); height: var(--space-6); border-radius: var(--radius-sm); }
-.dp__map { display: grid; gap: var(--space-1); align-items: center; }
-.dp__col { text-align: center; }
-.dp__cell { height: var(--rm-row-min); border-radius: var(--radius-xs); }
-
 /* 첫 사용 요약: 세 칸이 같은 모양이라 칸을 줄 높이로 늘리지 않는다(회고 대기 칸이 혼자 늘어나 비던 것). */
 .act-now:has(.ui-state--pic) { align-items: start; }
 .act-now .ui-state--pic { padding: var(--space-4) var(--space-2) var(--space-2); }

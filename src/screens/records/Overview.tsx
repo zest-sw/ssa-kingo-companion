@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Button, EmptyState, Icon, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
+import { Button, EmptyState, GhostPic, Icon, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
 import { navigate } from '../../app/router';
 import { openEntity } from '../../app/entity';
 import { useApp } from '../../app/AppState';
 import { useOverviewState } from '../../app/useOverviewState';
 import { CURRENT_TERM } from '../../data/records';
-import { DashedPic } from '../activities/DashedPic';
 import { AddRecordModal } from './AddRecordModal';
 import { Archive } from './Archive';
 import { mapDots, mapRows, mapTerms } from './map';
@@ -72,7 +71,7 @@ export function Overview() {
             </div>
             {state.records.length === 0 ? (
               <EmptyState
-                pic={<DashedPic kind="map" labels={rows.map(r => r.label)} cols={cols.map(c => c.label)} />}
+                pic={<GhostPic kind="grid" labels={rows.map(r => r.label)} cols={cols.map(c => c.label)} />}
                 message={`${step.lead} 분야·학기 칸에 점이 찍혀요.`}
                 action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>}
               />
