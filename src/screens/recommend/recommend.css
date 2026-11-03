@@ -16,7 +16,6 @@
   --rec-box-height: var(--hit-min);
   --rec-checkbox: 16px;
   --rec-draft-min: 520px;
-  --rec-l1-funnel: 460px;
   --rec-cands: 320px;
   --rec-dl-height: 12px;
   --rec-dl-text: 56px;
@@ -131,14 +130,20 @@
 .rec-draft__note { text-align: center; font-size: var(--text-sm); color: var(--ink-muted); }
 
 /* 추천 L1 */
-.rec-l1 { display: grid; grid-template-columns: minmax(0, 1fr) var(--rec-l1-funnel); gap: var(--space-4); align-items: stretch; }
+.rec-l1 { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); align-items: stretch; }
 .rec-l1 > * { min-width: 0; }
+.rec-l1 .rec-pick { height: auto; }
 .rec-pick { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); height: 100%; }
 .rec-pick__meta { display: flex; align-items: center; gap: var(--space-3); }
 .rec-pick__title { font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
 .rec-pick__title a { color: inherit; text-decoration: none; }
 .rec-pick__title a:hover { text-decoration: underline; text-underline-offset: var(--space-1); }
 .rec-pick__why { color: var(--ink-muted); font-size: var(--text-md); }
+.rec-picking { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: var(--hit-min); padding: var(--space-3) var(--space-4); border: var(--border); border-radius: var(--radius-md); background: var(--surface-alt); font: inherit; font-size: var(--text-md); font-weight: var(--weight-bold); text-align: left; cursor: pointer; }
+.rec-picking:hover { background: var(--surface-hover); }
+.rec-picking__more { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-regular); }
+.rec-drops__hint { margin-top: var(--space-4); }
+.rec-pick__facts { margin-top: calc(-1 * var(--space-2)); color: var(--ink-muted); font-size: var(--text-sm); }
 .rec-pick__go { display: flex; align-items: center; gap: var(--space-2); margin-top: auto; }
 .rec-dl { width: 100%; max-width: var(--rec-bar-max); }
 .rec-dl__piece.ui-dg-piece { display: flex; align-items: center; gap: var(--space-3); width: 100%; padding: 0 var(--space-2); margin-left: calc(-1 * var(--space-2)); }

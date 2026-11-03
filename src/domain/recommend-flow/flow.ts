@@ -53,7 +53,7 @@ export function prepItemsFor(p: Program, week: number, now: string): PrepItem[] 
     { id: 'target', label: '신청 대상 확인', by: 'agent', done: true, at: now },
     { id: 'calendar', label: '일정 캘린더 등록', by: 'agent', done: true, at: now }
   ];
-  if (needsTeam(p)) items.push({ id: 'team', label: '팀 구성', by: 'me', done: false, dday: Math.max(0, due - 1), link: { label: '팀원 모집 글 올리기', path: 'friends/recruit' } });
+  if (needsTeam(p)) items.push({ id: 'team', label: '팀 구성', by: 'me', done: false, dday: Math.max(0, due - 1), link: { label: '팀원 모집 글 올리기', path: 'profile/recruit' } });
   items.push({ id: 'draft', label: '신청서 초안 확인', by: 'me', done: false, dday: Math.max(0, due - 1), hint: '에이전트가 써 뒀어요' });
   if (p.level >= 2) items.push({ id: 'survey', label: '사전 설문 답하기', by: 'me', done: false, dday: due, hint: '로그인이 필요해서 직접 해야 해요' });
   return items;
