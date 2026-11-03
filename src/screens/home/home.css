@@ -3,22 +3,20 @@
 /* 화면 전용 치수(레이아웃). 간격·글자·테두리는 tokens.css 의 토큰을 쓴다. */
 :root {
   --home-rail-when: 56px;
-  --home-bar-label: 88px;
-  --home-bar-h: 20px;
   --home-dot: 10px;
   --home-onb-width: 720px;
   --home-chip-height: 40px;
   --home-option-height: 56px;
   --home-input-height: var(--control-h);
+  --home-ask-w: 360px;
 }
 
-.home-ask { flex: none; display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
-.home-ask__form { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); }
+.home-ask { display: flex; align-items: center; gap: var(--space-3); }
+.home-ask__form { display: flex; align-items: center; gap: var(--space-2); width: var(--home-ask-w); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); }
 .home-ask__form:focus-within { border-color: var(--focus); box-shadow: var(--focus-ring); }
 .home-ask__icon { display: inline-flex; flex: none; color: var(--ink-muted); }
-.home-ask__input { flex: 1; min-width: 0; min-height: var(--control-h); border: 0; background: none; font-size: var(--text-lg); outline: none; }
-.home-ask__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.home-ask__hint { font-size: var(--text-sm); color: var(--accent-ink); }
+.home-ask__input { flex: 1; min-width: 0; min-height: var(--hit-min); border: 0; background: none; font-size: var(--text-md); outline: none; }
+.home-ask__hint { font-size: var(--text-sm); color: var(--accent-ink); white-space: nowrap; }
 
 /* 가입 인터뷰 */
 .home-onbwrap { place-items: start center; }
@@ -47,9 +45,9 @@
 .home-onb__work li { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); }
 .home-onb__work svg { color: var(--green-900); }
 
-/* 홈 한 화면: 위 줄에 오늘 할 일 · 가장 추천 · 이번 학기(내용 높이), 아래 줄에 곧 있어요 타임라인을 넓게(라벨이 들어갈 폭).
+/* 홈 한 화면: 위 줄에 오늘 할 일 · 가장 추천, 아래 줄에 곧 있어요 타임라인을 넓게. 덩어리 셋이 상한이다.
    카드를 화면 높이에 맞춰 늘리지 않는다. 남는 높이는 아래에 그대로 둔다. */
-.home-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr); grid-template-rows: auto auto; }
+.home-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-template-rows: auto auto; }
 .home-grid > .ui-card { display: flex; flex-direction: column; min-height: 0; }
 .home-upcoming { grid-column: 1 / -1; }
 
@@ -85,23 +83,11 @@
 .home-pick__why span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-muted); }
 .home-pick__go { display: flex; }
 
-/* 이번 학기: 분야별 막대 */
-.home-bars { display: flex; flex-direction: column; gap: var(--space-2); }
-.home-bars__row { display: grid; grid-template-columns: var(--home-bar-label) minmax(0, 1fr) var(--space-6); align-items: center; gap: var(--space-3); font-size: var(--text-sm); }
-.home-bars__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.home-bars__track { height: var(--home-bar-h); border-radius: var(--radius-xs); background: var(--dg-track); overflow: hidden; }
-.home-bars__fill { display: block; height: 100%; background: var(--field-global); }
-.home-bars__fill[data-tone='dev'] { background: var(--field-dev); }
-.home-bars__fill[data-tone='ai'] { background: var(--field-ai); }
-.home-bars__fill[data-tone='plan'] { background: var(--field-startup); }
-.home-bars__fill[data-tone='mentor'] { background: var(--field-mentor); }
-.home-bars__count { text-align: right; font-weight: var(--weight-bold); }
-
 /* 곧 있어요 */
 .home-upcoming .ui-card__action { gap: var(--space-2); }
 .home-more { margin-top: var(--space-2); padding-left: calc(var(--home-rail-when) + var(--home-dot) + var(--space-3) * 2 + var(--space-2)); color: var(--ink-muted); font-size: var(--text-sm); }
 
 @media (max-width: 1199px) {
-  .home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; }
-  .home-top { grid-column: 2; grid-row: 1 / span 2; }
+  .home-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  .home-ask__form { width: auto; }
 }
