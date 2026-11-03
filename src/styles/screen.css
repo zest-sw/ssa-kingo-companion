@@ -32,6 +32,8 @@
 }
 /* 카드 밖(페이지 바탕 위)에서 스크롤하는 칸 */
 .os-scroll--page { --os-cover: var(--bg); }
+/* 칸 안 스크롤은 넘친 부분을 잘라서 바깥 링이 가장자리에서 잘린다. 안쪽 링으로 바꿔 끝 줄에서도 보이게 한다. */
+.os-scroll :focus-visible { box-shadow: var(--focus-ring-inset); }
 
 /* 카드 안에서 머리는 고정하고 그림·목록 칸이 남은 높이를 쓴다 */
 .os-card { display: flex; flex-direction: column; min-height: 0; }

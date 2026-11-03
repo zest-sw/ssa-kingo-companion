@@ -110,7 +110,7 @@
 .ui-page-head__actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; justify-content: flex-end; }
 .ui-crumbs { display: flex; align-items: center; gap: var(--space-2); min-width: 0; font-size: var(--text-sm); color: var(--ink-subtle); }
 /* 빵부스러기 부모 칸이 흐름 화면에서 돌아가는 유일한 길이라 누르는 칸을 32px 로 둔다 */
-.ui-crumbs a { display: inline-flex; align-items: center; min-height: var(--hit-min); border-radius: var(--radius-sm); color: var(--ink-muted); text-decoration: none; white-space: nowrap; }
+.ui-crumbs a { display: inline-flex; align-items: center; justify-content: center; min-height: var(--hit-min); min-width: var(--hit-min); border-radius: var(--radius-sm); color: var(--ink-muted); text-decoration: none; white-space: nowrap; }
 .ui-crumbs a:hover { color: var(--ink); text-decoration: underline; }
 .ui-crumbs [aria-current] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-muted); }
 

@@ -14,7 +14,7 @@
 
 .home-ask { flex: none; display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
 .home-ask__form { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); }
-.home-ask__form:focus-within { border-color: var(--focus); }
+.home-ask__form:focus-within { border-color: var(--focus); box-shadow: var(--focus-ring); }
 .home-ask__icon { display: inline-flex; flex: none; color: var(--ink-muted); }
 .home-ask__input { flex: 1; min-width: 0; min-height: var(--control-h); border: 0; background: none; font-size: var(--text-lg); outline: none; }
 .home-ask__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -73,7 +73,7 @@
 .home-pick { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; }
 .home-pick__meta { display: flex; align-items: center; gap: var(--space-3); }
 .home-pick__title { font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
-.home-pick__title a { color: inherit; text-decoration: none; }
+.home-pick__title a { display: inline-block; min-height: var(--hit-min); color: inherit; text-decoration: none; }
 .home-pick__title a:hover { text-decoration: underline; text-underline-offset: var(--space-1); }
 .home-pick__dl { display: flex; align-items: center; gap: var(--space-4); }
 .home-pick__dl .rec-meter { max-width: none; margin-left: 0; }

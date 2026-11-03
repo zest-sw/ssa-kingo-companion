@@ -90,6 +90,8 @@
   --radius-full: 999px;
   --border: 1px solid var(--line);
   --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus);
+  /* 칸 안 스크롤처럼 가장자리가 잘리는 곳의 링. 안쪽으로 그린다 */
+  --focus-ring-inset: inset 0 0 0 2px var(--focus), inset 0 0 0 4px var(--surface);
   /* 그림자는 서랍·모달·토스트 같은 오버레이에만 */
   --shadow-overlay: 0 8px 24px rgb(11 14 18 / 0.12), 0 0 0 1px rgb(11 14 18 / 0.04);
 
