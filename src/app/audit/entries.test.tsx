@@ -47,7 +47,7 @@ const CASES: Case[] = [
   { path: 'analysis' }, { path: 'analysis/techtree' }, { path: 'analysis/map' }, { path: 'analysis/flow' }, { path: 'analysis/strengths' },
   { path: 'profile' }, { path: 'profile/friends' }, { path: 'profile/recruit' }, { path: 'profile/hall' },
   { path: 'profile', public: true }, { path: 'profile/friends', public: true }, { path: 'profile/recruit', public: true }, { path: 'profile/hall', public: true },
-  { path: 'settings/profile' }, { path: 'settings/visibility' }, { path: 'settings/data' }, { path: 'settings/notify' }, { path: 'settings/about' }
+  { path: 'settings/profile' }, { path: 'settings/visibility' }, { path: 'settings/data' }, { path: 'settings/notifications' }, { path: 'settings/about' }
 ];
 
 const SKIP = '.app-side, .app-skip, [role="search"]';

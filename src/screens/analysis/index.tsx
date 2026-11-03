@@ -5,7 +5,7 @@ import { Overview } from './Overview';
 import { useAnalysis } from './useAnalysis';
 import './analysis.css';
 
-/** '#/analysis/map/x' 의 'map/x' 에서 첫 토막만 본다. 모르는 값이면 undefined(L1). */
+/** '#/analysis/map' 의 'map'. 모르는 값이면 undefined(요약). 모르는 경로의 주소는 앱 틀이 바꿔 둔다(canonicalPath). */
 const tabOf = (sub?: string) => TABS.find(t => t.id === sub?.split('/')[0])?.id;
 
 export default function AnalysisScreen({ sub }: ScreenProps) {
