@@ -2,7 +2,7 @@ import { openEntity } from '../../app/entity';
 import { hrefOf } from '../../app/router';
 import { Badge, Button, FieldTag, Piece } from '../../components';
 import { ddayOf, mainReason } from '../../domain/recommend';
-import { dateLabel, isNearDeadline } from '../../domain/recommend-flow/flow';
+import { dateLabel, formatText, isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import type { Scored } from '../../domain/types';
 import { FIELD_LABEL } from '../../domain/vocab';
@@ -56,6 +56,7 @@ export function TopPick({ pick, week, onPrepare, label = '가장 추천', href }
       <h2 className="rec-pick__title">{href ? <a href={hrefOf(href)}>{p.title}</a> : p.title}</h2>
       <DeadlineBar programId={p.id} title={p.title} dday={dday} week={week} />
       <p className="rec-pick__why">{reason}</p>
+      <p className="rec-pick__facts num">마감 {dateLabel(dday, week)} · {p.durationLabel} · {formatText(p).main}</p>
       <div className="rec-pick__go">
         <Button variant="primary" onClick={onPrepare}>신청 준비</Button>
       </div>

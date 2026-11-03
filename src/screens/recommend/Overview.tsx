@@ -3,12 +3,13 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Badge, Button, Card, Chip, Drawer, EmptyState, FieldTag, Funnel, PageHeader, SegmentedControl } from '../../components';
+import { Badge, Button, Card, Chip, Drawer, EmptyState, FieldTag, Funnel, Icon, PageHeader, SegmentedControl } from '../../components';
 import { CATALOG } from '../../data/catalog';
 import { ddayOf } from '../../domain/recommend';
 import { filterLabels, isEmptyFilter, matchesAsk, withoutKey, type AskFilter } from '../../domain/recommend-flow/ask';
 import { funnelDrops, isStepId, STEP_IDS, STEP_LABEL, type StepId } from '../../domain/recommend-flow/drops';
 import { effectiveChoices, emptyReason, isNearDeadline } from '../../domain/recommend-flow/flow';
+import { pickingLine } from '../../domain/recommend-flow/summary';
 import { takeListIntent, type ListIntent } from '../../domain/recommend-flow/intent';
 import { ddayText } from '../../domain/text';
 import type { Field } from '../../domain/types';
@@ -76,14 +77,12 @@ export function Overview({ selectId, actions, onOpenLater }: Props) {
     />
   );
 
-  const funnelCard = (
-    <Card className="rec-l1__funnel" title="고른 방법">
-      <Funnel
-        label="추천을 고른 방법" steps={steps} selectedId={sel.step ?? undefined}
-        onSelect={id => { setSel({ step: id as StepId }); setFunnelOpen(true); }}
-        empty="이번 주에 모집 중인 활동이 아직 없어요. 다음 주에 다시 볼게요."
-      />
-    </Card>
+  // 고른 방법은 문장 한 줄. 누르면 깔때기 그림이 서랍으로 열린다.
+  const picking = (
+    <button type="button" className="rec-picking" onClick={() => setFunnelOpen(true)} aria-haspopup="dialog">
+      <span>{pickingLine(f)}</span>
+      <span className="rec-picking__more">어떻게 골랐나요<Icon name="chevron" size={16} /></span>
+    </button>
   );
 
   let body;
@@ -93,7 +92,7 @@ export function Overview({ selectId, actions, onOpenLater }: Props) {
         <Card className="rec-l1__top" aria-label="가장 추천">
           <EmptyState icon="compass" title="지금 추천할 활동이 없어요" message={emptyReason(f)} action={<Button variant="primary" onClick={() => navigate('settings/profile')}>관심 분야·시간 바꾸기</Button>} />
         </Card>
-        {funnelCard}
+        {picking}
       </div>
     );
   } else if (mode === 'table') {
@@ -106,7 +105,7 @@ export function Overview({ selectId, actions, onOpenLater }: Props) {
             <Card className="rec-l1__top" aria-label="가장 추천">
               <TopPick pick={view.primary} week={state.week} onPrepare={() => actions.onPrepare(view.primary!.p)} />
             </Card>
-            {funnelCard}
+            {picking}
           </div>
         )}
         <section id="rec-others" className="rec-others" aria-labelledby="rec-others-title">
@@ -158,9 +157,16 @@ export function Overview({ selectId, actions, onOpenLater }: Props) {
       )}
       {body}
 
-      <Drawer open={funnelOpen && sel.step !== null} eyebrow="고른 방법" title={sel.step ? `‘${STEP_LABEL[sel.step]}’ 단계에서 빠진 것` : ''} onClose={() => setFunnelOpen(false)}>
-        {dropped.length === 0 ? (
-          <EmptyState message="이 단계에서 빠진 활동이 없어요. 모두 다음 단계로 갔어요." />
+      <Drawer open={funnelOpen} eyebrow="고른 방법" title={pickingLine(f)} onClose={() => setFunnelOpen(false)}>
+        <Funnel
+          label="추천을 고른 방법" steps={steps} selectedId={sel.step ?? undefined}
+          onSelect={id => setSel({ step: id as StepId })}
+          empty="이번 주에 모집 중인 활동이 아직 없어요. 다음 주에 다시 볼게요."
+        />
+        {sel.step === null ? (
+          <p className="rec-muted rec-drops__hint">단계를 누르면 거기서 빠진 활동을 볼 수 있어요.</p>
+        ) : dropped.length === 0 ? (
+          <EmptyState message={`‘${STEP_LABEL[sel.step]}’ 단계에서 빠진 활동이 없어요. 모두 다음 단계로 갔어요.`} />
         ) : (
           <ul className="rec-drops">
             {dropped.map(({ p, why }) => (
