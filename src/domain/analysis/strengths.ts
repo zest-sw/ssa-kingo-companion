@@ -22,7 +22,7 @@ const recent = (a: StrengthEvidence, b: StrengthEvidence) => semesterKey(b.semes
 /** 기록의 '한 일' 문장(근거 문장). 없으면 메모, 그것도 없으면 제목 */
 export const textOf = (r: RecordItem) => (cardOf(r).action ?? r.note ?? '').trim() || r.title;
 
-/** 역량마다 근거 기록을 모은다. '아니에요'라고 한 근거는 뺀다. 근거 많은 순, 같으면 확인한 근거가 많은 순, 같으면 역량 순서. */
+/** 역량마다 근거 기록을 모은다. '아니에요'라고 한 근거는 뺀다. 학생이 확인한 근거 많은 순, 같으면 전체 근거 많은 순, 같으면 역량 순서. */
 export function buildStrengths(records: RecordItem[]): Strength[] {
   const rows = AXES.map(({ id, label }, order) => {
     const evidence = records
@@ -32,7 +32,7 @@ export function buildStrengths(records: RecordItem[]): Strength[] {
     return { order, row: { axis: id, label, evidence, confirmed: evidence.filter(e => e.confirmed).length } };
   });
   return rows
-    .sort((a, b) => b.row.evidence.length - a.row.evidence.length || b.row.confirmed - a.row.confirmed || a.order - b.order)
+    .sort((a, b) => b.row.confirmed - a.row.confirmed || b.row.evidence.length - a.row.evidence.length || a.order - b.order)
     .map(x => x.row);
 }
 
@@ -42,24 +42,36 @@ export function splitStrengths(rows: Strength[], max: number): { shown: Strength
   return { shown, few: rows.filter(r => !shown.includes(r)) };
 }
 
-/** 가장 자주 드러난 강점: 근거 수가 가장 많은 것들(최대 2개) */
-export function topStrengths(rows: Strength[]): Strength[] {
-  const max = rows[0]?.evidence.length ?? 0;
-  return max === 0 ? [] : rows.filter(r => r.evidence.length === max).slice(0, 2);
+/**
+ * 머리에 내세울 강점(최대 2개). 학생이 확인한 근거가 가장 많은 것들이 사실로 말할 강점이다(confirmed).
+ * 확인한 강점이 하나도 없으면 근거 수가 가장 많은 것들을 'AI 가 본 후보'로 돌려준다.
+ */
+export type LeadStrengths = { rows: Strength[]; confirmed: boolean };
+export function leadStrengths(rows: Strength[]): LeadStrengths {
+  const maxConfirmed = Math.max(0, ...rows.map(r => r.confirmed));
+  if (maxConfirmed > 0) return { rows: rows.filter(r => r.confirmed === maxConfirmed).slice(0, 2), confirmed: true };
+  const maxAll = Math.max(0, ...rows.map(r => r.evidence.length));
+  return { rows: maxAll > 0 ? rows.filter(r => r.evidence.length === maxAll).slice(0, 2) : [], confirmed: false };
 }
 
-/** 머리 키워드 한 줄: '문제해결 · 소통이 가장 자주 드러나요' */
-export function strengthHeadline(rows: Strength[]): string {
-  const top = topStrengths(rows);
-  if (top.length === 0) return '회고를 쓰면 강점이 보여요';
-  const last = top[top.length - 1].label;
-  return `${top.map(t => t.label).join(' · ')}${josa(last, '이', '가')} 가장 자주 드러나요`;
+const names = (rs: Strength[]) => rs.map(r => r.label).join(' · ');
+
+/** 머리 키워드 한 줄. 확인한 근거로만 단정한다: '협업이 가장 확실히 드러나요 · 확인 2개'. 확인한 것이 없으면 추정임을 밝힌다. estimated 면 점선 톤으로 그린다. */
+export function strengthHeadline(rows: Strength[]): { text: string; estimated: boolean } {
+  const lead = leadStrengths(rows);
+  if (lead.rows.length === 0) return { text: '회고를 쓰면 강점이 보여요', estimated: false };
+  if (!lead.confirmed) return { text: `AI 가 본 강점 후보: ${names(lead.rows)} · 근거를 확인해 주세요`, estimated: true };
+  const last = lead.rows[lead.rows.length - 1].label;
+  const n = lead.rows[0].confirmed;
+  return { text: `${names(lead.rows)}${josa(last, '이', '가')} 가장 확실히 드러나요 · 확인 ${lead.rows.length > 1 ? '각 ' : ''}${n}개`, estimated: false };
 }
 
-/** 요약 판 키워드: '문제해결: 근거 4개' */
-export function strengthKeyword(rows: Strength[]): string {
-  const top = rows[0];
-  return top && top.evidence.length > 0 ? `${top.label}: 근거 ${top.evidence.length}개` : '회고를 쓰면 강점이 보여요';
+/** 요약 판 키워드: '협업: 확인 2개'. 확인한 것이 없으면 '강점 후보: 문제해결 · 확인 전' */
+export function strengthKeyword(rows: Strength[]): { text: string; estimated: boolean } {
+  const lead = leadStrengths(rows);
+  const top = lead.rows[0];
+  if (!top) return { text: '회고를 쓰면 강점이 보여요', estimated: false };
+  return lead.confirmed ? { text: `${top.label}: 확인 ${top.confirmed}개`, estimated: false } : { text: `강점 후보: ${top.label} · 확인 전`, estimated: true };
 }
 
 /** 언제·어디서 드러났나: 학기마다 근거 수와 분야 */

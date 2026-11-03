@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { prog, rec } from '../fixtures.test-util';
-import { answerAxis, buildStrengths, chancesFor, samplesOf, splitStrengths, strengthHeadline, strengthKeyword, topStrengths, usableSentences, whenOf, withAnswers } from './strengths';
+import { answerAxis, buildStrengths, chancesFor, samplesOf, splitStrengths, strengthHeadline, strengthKeyword, leadStrengths, usableSentences, whenOf, withAnswers } from './strengths';
 
 const recs = [
   rec('a', { axes: ['problem', 'communication'], semester: '2026-1', note: '문제 문장을 정리했다', confirmedAxes: ['problem'] }),
@@ -10,7 +10,12 @@ const recs = [
 ];
 
 describe('나의 강점', () => {
-  it('역량마다 근거 기록을 세고 근거 많은 순, 같으면 확인 많은 순으로 놓는다', () => {
+  it('확인한 근거가 전체 근거 수보다 먼저다', () => {
+    const rows = buildStrengths([...recs.map(r => ({ ...r, confirmedAxes: [] })), rec('x', { axes: ['self'], confirmedAxes: ['self'] })]);
+    expect(rows[0].axis).toBe('self');
+    expect(rows[1].axis).toBe('problem');
+  });
+  it('역량마다 근거 기록을 세고 확인 많은 순, 같으면 근거 많은 순으로 놓는다', () => {
     const rows = buildStrengths(recs);
     expect(rows.slice(0, 3).map(r => [r.axis, r.evidence.length, r.confirmed])).toEqual([['problem', 3, 1], ['communication', 3, 1], ['creative', 1, 0]]);
     expect(rows.find(r => r.axis === 'expertise')!.evidence).toHaveLength(0);
@@ -30,13 +35,20 @@ describe('나의 강점', () => {
     expect(few.map(r => r.axis)).toEqual(['creative', 'expertise', 'collaboration', 'self']);
     expect(splitStrengths(buildStrengths([]), 4).shown).toEqual([]);
   });
-  it('머리말은 가장 자주 드러난 강점(같으면 둘)을 말한다', () => {
+  it('머리말은 확인한 근거로만 단정한다', () => {
     const rows = buildStrengths(recs);
-    expect(topStrengths(rows).map(r => r.label)).toEqual(['문제해결', '소통']);
-    expect(strengthHeadline(rows)).toBe('문제해결 · 소통이 가장 자주 드러나요');
-    expect(strengthHeadline(buildStrengths([recs[2], rec('e', { axes: ['creative'] })]))).toBe('창의성이 가장 자주 드러나요');
-    expect(strengthHeadline(buildStrengths([]))).toBe('회고를 쓰면 강점이 보여요');
-    expect(strengthKeyword(rows)).toBe('문제해결: 근거 3개');
+    expect(leadStrengths(rows)).toMatchObject({ confirmed: true, rows: [{ label: '문제해결' }, { label: '소통' }] });
+    expect(strengthHeadline(rows)).toEqual({ text: '문제해결 · 소통이 가장 확실히 드러나요 · 확인 각 1개', estimated: false });
+    const one = buildStrengths([...recs, rec('e', { axes: ['problem'], confirmedAxes: ['problem'] })]);
+    expect(strengthHeadline(one).text).toBe('문제해결이 가장 확실히 드러나요 · 확인 2개');
+    expect(strengthKeyword(one)).toEqual({ text: '문제해결: 확인 2개', estimated: false });
+    expect(strengthHeadline(buildStrengths([]))).toEqual({ text: '회고를 쓰면 강점이 보여요', estimated: false });
+  });
+  it('확인한 강점이 없으면 AI 후보임을 밝힌다', () => {
+    const guessed = buildStrengths(recs.map(r => ({ ...r, confirmedAxes: [] })));
+    expect(leadStrengths(guessed).confirmed).toBe(false);
+    expect(strengthHeadline(guessed)).toEqual({ text: 'AI 가 본 강점 후보: 문제해결 · 소통 · 근거를 확인해 주세요', estimated: true });
+    expect(strengthKeyword(guessed)).toEqual({ text: '강점 후보: 문제해결 · 확인 전', estimated: true });
   });
   it('대표 근거는 줄끼리 겹치지 않게 고른다', () => {
     const rows = buildStrengths(recs);

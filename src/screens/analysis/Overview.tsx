@@ -34,6 +34,7 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
   const none = records.length === 0;
   const confirmed = map.edges.filter(e => edgeState(e, state.edgeAnswers) === 'confirmed').length;
   const confirmedEv = strengths.reduce((n, r) => n + r.confirmed, 0);
+  const strengthKw = strengthKeyword(strengths);
   const hasStrength = (strengths[0]?.evidence.length ?? 0) > 0;
 
   return (
@@ -48,7 +49,7 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
               <SummaryCard href={hrefOf('analysis/techtree')} title="테크 트리" headline={treeHeadline(tree)} value={treeValue(tree)} visual={none ? <GhostPic kind="branches" labels={TREE_GROUPS.slice(0, 3).map(g => GROUP_LABEL[g])} cols={[...TREE_COLUMNS]} /> : <TreePic rows={glance.rows} />} />
               <SummaryCard href={hrefOf('analysis/map')} title="경험 지도" headline={mapHeadline(records)} value={none ? undefined : `확인한 연결 ${confirmed}개`} visual={none ? <GhostPic kind="network" /> : <MapPic records={records} answers={state.edgeAnswers} />} />
               <SummaryCard href={hrefOf('analysis/flow')} title="관심 흐름" headline={flowHeadline(flow)} value={flow.length ? `기록 있는 학기 ${flow.length}개` : undefined} visual={none ? <GhostPic kind="bars" labels={[SEMESTER_NOW.replace(/^20/, '')]} /> : <FlowPic rows={flow} />} />
-              <SummaryCard href={hrefOf('analysis/strengths')} title="나의 강점" headline={strengthKeyword(strengths)} value={confirmedEv ? `확인한 근거 ${confirmedEv}개` : undefined} visual={hasStrength ? <StrengthPic rows={strengths} /> : <GhostPic kind="branches" labels={AXES.slice(0, 3).map(a => a.label)} cols={['', '', '', '']} />} />
+              <SummaryCard href={hrefOf('analysis/strengths')} title="나의 강점" headline={<span className={strengthKw.estimated ? 'an-kw is-est' : 'an-kw'}>{strengthKw.text}</span>} value={confirmedEv ? `확인한 근거 ${confirmedEv}개` : undefined} visual={hasStrength ? <StrengthPic rows={strengths} /> : <GhostPic kind="branches" labels={AXES.slice(0, 3).map(a => a.label)} cols={['', '', '', '']} />} />
             </section>
             <DiscoveryCards />
           </>

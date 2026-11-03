@@ -4,7 +4,7 @@ import { navigate } from '../../app/router';
 import { nextStep } from '../../domain/nextStep';
 import { josa } from '../../domain/text';
 import { Button, Card, ConfirmLegend, EmptyState, GhostPic } from '../../components';
-import { buildStrengths, chancesFor, samplesOf, splitStrengths, strengthHeadline, withAnswers } from '../../domain/analysis/strengths';
+import { buildStrengths, chancesFor, leadStrengths, samplesOf, splitStrengths, strengthHeadline, withAnswers } from '../../domain/analysis/strengths';
 import { AXES } from '../../domain/vocab';
 import type { Axis, RecordItem } from '../../domain/types';
 import { ChanceList, DOTS_MAX, EvidenceDots } from './StrengthParts';
@@ -28,7 +28,11 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
   const step = nextStep(state.activities);
   const programs = view.scored.map(s => s.p);
   const top = shown[0];
-  const chances = top ? chancesFor(top.axis, programs, 2) : [];
+  // 기회는 학생이 확인한 강점 기준. 확인한 것이 없으면 AI 후보 기준이고 제목에서 그렇다고 밝힌다.
+  const lead = leadStrengths(rows);
+  const pick = lead.rows[0] ?? top;
+  const chances = pick ? chancesFor(pick.axis, programs, 2) : [];
+  const head = strengthHeadline(rows);
   const max = Math.max(1, ...shown.map(r => r.evidence.length));
 
   if (!top) {
@@ -46,7 +50,7 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
   return (
     <div className="an-str-cols">
       <Card className="os-card" title="기록에서 드러난 강점" action={<ConfirmLegend />}>
-        <p className="an-shead">{strengthHeadline(rows)}</p>
+        <p className={`an-shead${head.estimated ? ' is-est' : ''}`}>{head.estimated && <span className="ui-dot ui-dot--estimated" aria-hidden="true" />}{head.text}</p>
         <div className="os-scroll">
           <ul className="an-srows" style={{ ['--an-dots' as string]: Math.min(max, DOTS_MAX + 1) }}>
             {shown.map(r => {
@@ -70,8 +74,8 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
         </div>
         {few.length > 0 && <p className="an-sfew">아직 근거가 적어요: {few.map(f => f.label).join(' · ')}</p>}
       </Card>
-      <Card className="os-card" title={`${top.label}${josa(top.label, "을", "를")} 살릴 기회`}>
-        <ChanceList axis={top.axis} label={top.label} chances={chances} />
+      <Card className="os-card" title={lead.confirmed ? `${pick.label}${josa(pick.label, '을', '를')} 살릴 기회` : `강점 후보 ${pick.label}${josa(pick.label, '을', '를')} 써 볼 기회`}>
+        <ChanceList axis={pick.axis} label={pick.label} chances={chances} />
       </Card>
       <StrengthDrawer strength={rows.find(r => r.axis === open)} records={live} programs={programs} onClose={() => setOpen(null)} />
     </div>

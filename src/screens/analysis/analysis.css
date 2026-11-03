@@ -349,3 +349,6 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 .an-pill--more { min-width: var(--hit-min); border-color: var(--line-strong); background: var(--surface); color: var(--ink-muted); font-weight: var(--weight-medium); }
 .an-pill--more:hover { background: var(--surface-hover); color: var(--ink); }
 .an-swhen__dot.an-g--other:not(.is-est), .an-g--other > .an-swhen__dot { border: var(--an-line-w-thin) solid var(--c); }
+/* 확인한 근거가 없을 때의 머리 문장: AI 추정이라 점선 점과 옅은 글자로 */
+.an-shead.is-est { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-lg); font-weight: var(--weight-bold); }
+.an-kw.is-est { color: var(--ink-muted); text-decoration: underline dashed var(--ink-subtle); text-underline-offset: var(--space-1); }
