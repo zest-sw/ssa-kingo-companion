@@ -26,3 +26,14 @@ jobs:
           name: dist
           path: dist
           retention-days: 7
+      # 레이아웃 검사: 모든 경로 × 크기 × 학생 상태. 한글 대체 글꼴(Noto CJK)을 깔아 글꼴 CDN 이 막혀도 글자 폭이 비슷하게 잡히게 한다.
+      - run: npx playwright install --with-deps chromium
+      - run: sudo apt-get install -y --no-install-recommends fonts-noto-cjk
+      - run: npm run audit:layout -- --no-build
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: layout-audit
+          path: .qa/layout
+          retention-days: 7
+          if-no-files-found: ignore
