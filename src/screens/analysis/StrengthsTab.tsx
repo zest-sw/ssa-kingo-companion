@@ -82,7 +82,8 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
   return (
     <div className="an-str-cols">
       <Card className="os-card an-rcard" data-fill title="기록에서 드러난 강점" action={moments.length > 1 ? <SegmentedControl label="보는 시점" items={moments.map(m => ({ id: m.id, label: m.label }))} value={moment.id} onChange={setMomentId} /> : undefined}>
-        <p className={`an-shead${!past && head.estimated ? ' is-est' : ''}`}>{!past && head.estimated && <span className="ui-dot ui-dot--estimated" aria-hidden="true" />}{headText}</p>
+        {/* 지금 시점의 해석은 머리 한 줄(이야기)이 말한다. 여기서는 지난 시점이나 확인 전일 때만 덧붙인다 */}
+        {(past || head.estimated) && <p className={`an-shead${!past && head.estimated ? ' is-est' : ''}`}>{!past && head.estimated && <span className="ui-dot ui-dot--estimated" aria-hidden="true" />}{headText}</p>}
         <Radar vertices={vertices} max={scale.max} ticks={scale.ticks} label={label} trace={trace} selected={axis} onSelect={k => setPicked(k as Axis)} radius={low ? 108 : 132} fit />
         <p className="an-rlegend">
           <span><i className="an-rlegend__own" aria-hidden="true" />{past ? `${moment.label} 확인한 근거` : '확인한 근거'}</span>
