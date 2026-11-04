@@ -11,7 +11,7 @@ import { DismissModal, LaterModal } from './Dialogs';
  * 후보 분류(Linear 분류함): 신청 준비 / 나중에 보기(다시 볼 날 고르기) / 관심 없음(이유 고르기).
  * 홈의 가장 추천과 추천 화면이 같은 규칙과 같은 대화 상자를 쓴다. afterChoose 는 미루거나 뺀 뒤에 할 일(자세히 화면이면 목록으로).
  */
-export function useTriage(afterChoose?: () => void): { actions: CardActions; dialogs: React.ReactNode } {
+export function useTriage(afterChoose?: () => void): { actions: CardActions; dialogs: React.ReactNode; busy: boolean } {
   const { state, run } = useApp();
   const [dismissing, setDismissing] = useState<Program>();
   const [postponing, setPostponing] = useState<Program>();
@@ -33,6 +33,7 @@ export function useTriage(afterChoose?: () => void): { actions: CardActions; dia
 
   return {
     actions: { onPrepare, onLater: setPostponing, onDismiss: setDismissing },
+    busy: !!dismissing || !!postponing,
     dialogs: (
       <>
         <DismissModal program={dismissing} onPick={dismiss} onClose={() => setDismissing(undefined)} />

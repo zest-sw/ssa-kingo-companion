@@ -109,6 +109,7 @@
   --nav-item-h: 34px;
   --drawer-width: 480px;
   --modal-width: 420px;
+  --modal-width-wide: 880px;
   --readable: 72ch;
   /* 본문 칸 안쪽 여백(위·옆·아래). 높이 760 아래에서 한 단계 줄어든다 */
   --main-pad-t: var(--space-8);

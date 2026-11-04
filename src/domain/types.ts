@@ -56,12 +56,24 @@ export type RecordItem = {
   rejectedAxes?: Axis[];
 };
 
+/** 비교과 기회의 종류(전체 기회 탭의 칩). 분야(Field)와 따로 간다 */
+export type Category = 'job' | 'lecture' | 'hackathon' | 'contest' | 'edu' | 'club' | 'volunteer' | 'mentoring' | 'global';
+/** 활동으로 얻는 것의 종류. 모집글에 적힌 것만 담는다 */
+export type GainKind = 'cert' | 'money' | 'job' | 'output' | 'mentor' | 'people' | 'skill';
+export type Gain = { kind: GainKind; label: string };
+
 export type CareerLink = { req: string; part: 'match' | 'gap'; gapLabel?: string };
 export type Program = {
   id: string; title: string; host: string; field: Field; format: 'offline' | 'online'; when: string; hours: number; durationLabel: string;
   /** 1주차 기준 마감까지 남은 날 */
   ddayW1: number; weeks: number[]; place: string; target: string; eligible: boolean; seatsKnown: boolean; did: Did[]; level: 1 | 2 | 3;
   career?: CareerLink; summary: string; otherDates?: string[];
+  /** 없으면 '교육·캠프'로 본다 */
+  category?: Category;
+  /** 모집글에 적힌 얻는 것. 없으면 화면이 지어내지 않고 '모집글에 적힌 것이 없어요'라고 한다 */
+  gains?: Gain[];
+  /** 1주차 기준 모집을 연 날(며칠 전). '새로 열린 순' 정렬에 쓴다 */
+  openedW1?: number;
 };
 
 export type ReasonKind = 'energy' | 'focus' | 'career' | 'novelty' | 'interest' | 'bridge';

@@ -175,10 +175,22 @@
 
 .ui-modal { width: min(var(--modal-width), 100%); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-overlay); animation: ui-pop var(--duration) var(--ease); }
 @keyframes ui-pop { from { transform: translateY(4px); opacity: 0; } }
+.ui-modal__title:focus { outline: none; box-shadow: none; }
 .ui-modal__title { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .ui-modal__body { margin-top: var(--space-2); color: var(--ink-muted); }
 .ui-modal__actions { display: flex; gap: var(--space-2); margin-top: var(--space-6); }
 .ui-modal__actions > * { flex: 1; }
+.ui-modal__head { display: flex; align-items: flex-start; gap: var(--space-3); }
+.ui-modal__heading { flex: 1; min-width: 0; }
+.ui-modal__eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); font-size: var(--text-sm); color: var(--ink-muted); }
+.ui-modal__note { display: flex; align-items: center; gap: var(--space-1); margin-top: var(--space-2); font-size: var(--text-xs); color: var(--ink-subtle); }
+.ui-modal--wide { display: flex; flex-direction: column; width: min(var(--modal-width-wide), 100%); max-height: 100%; padding: 0; }
+.ui-modal--wide .ui-modal__head { padding: var(--space-5) var(--space-6) var(--space-4); border-bottom: var(--border); }
+.ui-modal--wide .ui-modal__title { font-size: var(--text-2xl); word-break: keep-all; }
+.ui-modal--wide .ui-modal__body { flex: 1; min-height: 0; overflow-y: auto; margin: 0; padding: var(--space-4) var(--space-6); color: var(--ink); }
+.ui-modal--wide .ui-modal__actions { margin: 0; padding: var(--space-3) var(--space-6) 0; border-top: var(--border); }
+.ui-modal--wide .ui-modal__actions > * { flex: 0 0 auto; }
+.ui-modal--wide .ui-modal__note { padding: 0 var(--space-6) var(--space-3); }
 
 /* Toast */
 .ui-toast-region { position: fixed; left: 50%; bottom: var(--space-6); transform: translateX(-50%); z-index: var(--z-toast); }

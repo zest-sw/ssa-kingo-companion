@@ -76,7 +76,7 @@ function newcomerNodes(reasons: Reason[], p: Program, who: Newcomer): TraceNode[
   }
   const picked = who.interests.filter((i): i is FieldGroup => i !== 'unknown');
   const names = picked.map(g => GROUP_LABEL[g]).join('·');
-  if (!who.interestOpen && picked.length) nodes.push({ kind: 'interest-miss', label: '관심', detail: `${names} 모집은 이번 주 없어요`, text: `처음에 고른 관심 ‘${names}’ 모집이 이번 주엔 없어서 다른 분야를 넓혀 봤어요.` });
+  if (!who.interestOpen && picked.length) nodes.push({ kind: 'interest-miss', label: '관심', detail: `${names} 쪽은 이번 주 맞는 게 없어요`, text: `처음에 고른 관심 ‘${names}’ 쪽은 이번 주 내 시간·신청 대상에 맞는 모집이 없어서 다른 분야를 넓혀 봤어요. 전체 기회 탭에서 모두 볼 수 있어요.` });
   const at = (k: TraceNode['kind']) => { const i = NEWCOMER_ORDER.indexOf(k); return i < 0 ? NEWCOMER_ORDER.length : i; };
   return nodes.sort((a, b) => at(a.kind) - at(b.kind)).slice(0, MAX_NODES);
 }
