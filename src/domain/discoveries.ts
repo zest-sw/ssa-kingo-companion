@@ -39,5 +39,10 @@ export function didsByState(discoveries: Discovery[], confirm: Record<string, Co
   return discoveries.filter(d => discState(d, confirm) === state).map(d => d.did);
 }
 
+/** 확인한 발견의 문장(일 → 문장). 발견 종류(에너지가 오름 / 자주 맡음)에 맞는 문장을 그대로 쓴다. */
+export function confirmedStatements(discoveries: Discovery[], confirm: Record<string, Confirm>): Partial<Record<Did, string>> {
+  return Object.fromEntries(discoveries.filter(d => discState(d, confirm) === 'yes').map(d => [d.did, d.statement]));
+}
+
 export const sentenceOf = (r: RecordItem, p?: Program) =>
   `${r.title}${p ? `(${p.durationLabel})` : ''}에서 ‘${DID_LABEL[r.did]}’${josa(DID_LABEL[r.did], '을', '를')} 주로 했고, ${ENERGY_SENTENCE[r.energy]}.`;

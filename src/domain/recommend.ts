@@ -1,6 +1,6 @@
 import { josa } from './text';
 import type { Catalog, Did, Direction, Field, Funnel, Interest, LastDone, Mode, Profile, Program, Reason, ReasonKind, RecordItem, Scored } from './types';
-import { DID_LABEL, FIELD_GROUP, fieldName, inInterests, UP_STATEMENT } from './vocab';
+import { DID_LABEL, FIELD_GROUP, fieldName, inInterests } from './vocab';
 
 // 추천 규칙. v0.7 rank 를 그대로 옮겼다. 점수는 정렬에만 쓰고 화면에 내지 않는다.
 
@@ -20,6 +20,8 @@ export type RankCtx = {
   preferEasier: boolean;
   mode: Mode;
   focusDids: Did[];
+  /** 확인한 발견의 문장(일 → 문장). 에너지 발견과 자주 맡는 발견의 문장이 다르다 */
+  focusStatements?: Partial<Record<Did, string>>;
   rejectedDids: Did[];
   careerOn: boolean;
   reflectOn: boolean;
@@ -56,7 +58,8 @@ export function rank(ctx: RankCtx): { scored: Scored[]; funnel: Funnel } {
     if (p.did.some(d => downDids.has(d))) score -= 1.5;
     if (ctx.mode === 'focus') {
       const f = p.did.find(d => ctx.focusDids.includes(d));
-      if (f) { score += 2; reasons.push({ kind: 'focus', text: `맞다고 확인한 발견 ‘${UP_STATEMENT[f]}’에 맞춰 골랐어요.` }); }
+      // 발견 종류마다 문장이 다르다('자주 맡아요'를 '에너지가 올라가요'로 바꿔 쓰지 않는다). 문장을 못 받으면 일 이름만 쓴다.
+      if (f) { score += 2; reasons.push({ kind: 'focus', text: `맞다고 확인한 발견 ‘${ctx.focusStatements?.[f] ?? DID_LABEL[f]}’에 맞춰 골랐어요.` }); }
     }
     if (ctx.careerOn && p.career) {
       const req = reqs.find(r => r.id === p.career?.req);

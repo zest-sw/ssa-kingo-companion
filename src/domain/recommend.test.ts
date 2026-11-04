@@ -63,6 +63,16 @@ describe('rank · 가점', () => {
     expect(r.scored[0].reasons[0].kind).toBe('focus');
   });
 
+  it('확인한 발견의 이유 문장은 발견 종류를 따른다(자주 맡음을 에너지로 바꿔 쓰지 않는다)', () => {
+    const records = [rec('r', { field: 'research' })];
+    const freq = rank(ctx([prog('x', { did: ['ask'] })], { mode: 'focus', focusDids: ['ask'], focusStatements: { ask: '질문을 만드는 역할을 자주 맡아요' }, records }));
+    expect(freq.scored[0].reasons[0].text).toBe('맞다고 확인한 발견 ‘질문을 만드는 역할을 자주 맡아요’에 맞춰 골랐어요.');
+    const up = rank(ctx([prog('x', { did: ['ask'] })], { mode: 'focus', focusDids: ['ask'], focusStatements: { ask: '질문을 바꿔 가며 답을 찾을 때 에너지가 올라가요' }, records }));
+    expect(up.scored[0].reasons[0].text).toContain('에너지가 올라가요');
+    const none = rank(ctx([prog('x', { did: ['ask'] })], { mode: 'focus', focusDids: ['ask'], records }));
+    expect(none.scored[0].reasons[0].text).not.toContain('에너지');
+  });
+
   it('탐색 중이면 안 해 본 분야에 +1, 관심을 모르면 +2', () => {
     const records = [rec('r', { field: 'research' })];
     expect(scoreOf(rank(ctx([prog('n', { field: 'ai' })], { records })), 'n')).toBe(1);
