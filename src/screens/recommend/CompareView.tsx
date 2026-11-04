@@ -1,25 +1,29 @@
 import type { ReactNode } from 'react';
+import { useApp } from '../../app/AppState';
 import { Badge, Button, Card, EmptyState } from '../../components';
 import { ddayOf, diffLabel } from '../../domain/recommend';
 import { traceNodes } from '../../domain/recommend-flow/trace';
 import { checksOf, dateLabel, formatText, isNearDeadline, prepItemsFor } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
-import type { Activity, Interest, Program, RecordItem, Scored } from '../../domain/types';
+import type { Activity, Interest, Program, Scored } from '../../domain/types';
 import { DID_LABEL, fieldName } from '../../domain/vocab';
 import type { CardActions } from './actions';
+import { useBasis } from './useBasis';
 
 const MAX_COLUMNS = 5;
 
 /** 후보를 열로 놓고 같은 항목끼리 한 행에 맞춰 보여 준다. 점수는 없다. */
-export function CompareView({ scored, week, records, interests, activities, actions }: {
-  scored: Scored[]; week: number; records: RecordItem[]; interests: Interest[]; activities: Activity[]; actions: CardActions;
+export function CompareView({ scored, week, interests, activities, actions }: {
+  scored: Scored[]; week: number; interests: Interest[]; activities: Activity[]; actions: CardActions;
 }) {
+  const { state } = useApp();
+  const basis = useBasis();
   const cols = scored.slice(0, MAX_COLUMNS);
   if (cols.length === 0) {
     return <Card><EmptyState icon="compass" message="비교할 후보가 없어요. 위의 조건을 빼거나 설정에서 관심 분야·시간을 바꿔 보세요." /></Card>;
   }
   const base = cols[0].p;
-  const tried = new Set(records.map(r => r.field));
+  const tried = new Set(state.records.map(r => r.field));
   const allFit = cols.every(c => { const k = checksOf(c.p, activities); return k.eligible && !k.overlap; });
 
   const rows: { label: string; cell: (p: Program, s: Scored) => ReactNode }[] = [
@@ -30,7 +34,7 @@ export function CompareView({ scored, week, records, interests, activities, acti
     { label: '신청 대상', cell: p => `${p.target}${checksOf(p, activities).eligible ? ' · 맞음' : ''}` },
     { label: '준비할 것', cell: p => `${prepItemsFor(p, week, '').filter(i => i.by === 'me').length}개${checksOf(p, activities).team ? ' · 팀 필요' : ''}` },
     { label: '일정 겹침', cell: p => (checksOf(p, activities).overlap ? '겹쳐요' : '안 겹침') },
-    { label: '나와 맞는 이유', cell: (p, s) => { const n = traceNodes(s.reasons, records, p)[0]; return n ? `${n.label} · ${n.detail}` : '이번 주 모집 중'; } }
+    { label: '나와 맞는 이유', cell: (p, s) => { const n = traceNodes(s.reasons, basis.records, p, basis.newcomer)[0]; return n ? `${n.label} · ${n.detail}` : '이번 주 모집 중'; } }
   ];
 
   return (

@@ -103,8 +103,11 @@
 /* 목록 칸 + 상세 칸 */
 .rec-split { grid-template-columns: var(--rec-cands) minmax(0, 1fr); }
 .rec-list { display: flex; flex-direction: column; min-height: 0; border: var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
-.rec-list__head { flex: none; padding: var(--space-3) var(--space-4); border-bottom: var(--border); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
-.rec-cands { flex: 1; display: flex; flex-direction: column; }
+.rec-list__scroll { flex: 1; min-height: 0; }
+.rec-list__head { position: sticky; top: 0; z-index: 1; padding: var(--space-2) var(--space-4); border-bottom: var(--border); background: var(--surface-alt); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
+.rec-list__head--top { background: var(--surface); color: var(--primary); }
+.rec-cands + .rec-list__head { border-top: var(--border); }
+.rec-cands { display: flex; flex-direction: column; }
 .rec-cands > li + li { border-top: var(--border); }
 .rec-cand { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; padding: var(--space-3) var(--space-4); border: 0; border-left: var(--rec-mark) solid transparent; background: transparent; text-align: left; font: inherit; }
 .rec-cand:hover { background: var(--surface-hover); }
@@ -232,3 +235,22 @@
 .rec-pick__meta { flex-wrap: wrap; }
 /* 나중에 보기 칩: 한 줄에 세 개, 좁으면 줄을 바꾼다 */
 .rec-later__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+/* 고르기 카드: 신청 준비를 누르면 에이전트가 맡을 일 한 줄 */
+.rec-pick__agent { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-3); font-size: var(--text-sm); color: var(--ink-muted); }
+.rec-pick__task { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--ink); font-weight: var(--weight-medium); }
+.rec-pick__task svg { color: var(--navy-900); }
+/* 자세히: 에이전트가 확인한 것. 줄마다 결과 + 확인에 쓴 정보 */
+.rec-agentcheck { display: flex; flex-direction: column; gap: var(--space-2); }
+.rec-agentcheck__h { display: flex; align-items: center; gap: var(--space-1); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
+.rec-agentcheck ul { display: flex; flex-direction: column; border: var(--border); border-radius: var(--radius-md); }
+.rec-agentcheck__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); min-height: var(--hit-min); padding: var(--space-1) var(--space-3); font-size: var(--text-md); }
+.rec-agentcheck__row + .rec-agentcheck__row { border-top: var(--border); }
+.rec-agentcheck__mark { display: inline-grid; place-items: center; flex: none; width: var(--space-5); height: var(--space-5); border-radius: var(--radius-full); background: var(--green-900); color: var(--ink-inverse); }
+.rec-agentcheck__row[data-state='warn'] .rec-agentcheck__mark { background: var(--orange-100); color: var(--accent-ink); }
+.rec-agentcheck__row[data-state='info'] .rec-agentcheck__mark { background: var(--grey-100); color: var(--ink-muted); }
+.rec-agentcheck__basis { color: var(--ink-muted); font-size: var(--text-sm); }
+.rec-agentcheck__link { margin-left: auto; font-size: var(--text-sm); }
+/* 근거 서랍: 이름표와 '추천에 쓰기' 스위치 한 줄, 맨 아래 관심·목표 바꾸기 */
+.rec-drawer__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; }
+.rec-drawer__item--off > p:first-of-type { color: var(--ink-muted); }
+.rec-drawer__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); }
