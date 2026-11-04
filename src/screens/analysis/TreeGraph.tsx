@@ -1,11 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLinkPaths, type LinkSpec } from '../../components';
-import { TREE_COLUMNS, rootTargets, splitTreeRows, type TechTree, type TreeCell, type TreeRow } from '../../domain/analysis/techtree';
+import { TREE_COLUMNS, rootTargets, splitTreeRows, type TechTree, type TreeCell, type TreeLink, type TreeRow } from '../../domain/analysis/techtree';
 import { ddayText } from '../../domain/text';
 
 /**
  * 분야마다 왼쪽 시작점에서 오른쪽으로 뻗는 가지. 심화 수준(입문→중급→심화)은 칸이 아니라 위치로 읽힌다.
- * 내가 지나온 길은 분야색 실선, 건너뛴 단계를 지나는 구간은 회색, 할 수 있는 활동으로 가는 선은 옅게, 다른 분야로 건너가는 경로는 점선.
+ * 내가 지나온 길은 분야색 실선, 건너뛴 단계를 지나는 구간은 회색, 할 수 있는 활동으로 가는 선은 옅게.
+ * 다른 분야로 건너가는 경로(점선)는 평소에 숨긴다. 여러 줄을 세로로 가로질러 노드 사이가 지저분해져서, 노드에 올리거나 누르거나 포커스했을 때 그 노드의 경로만 그린다.
  */
 export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
   tree: TechTree; onOpen: (cell: TreeCell) => void; onCandidate: (cell: TreeCell) => void; onFold: (row: TreeRow, col: number) => void;
@@ -13,11 +14,17 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
   const links = useMemo(() => treeLinks(tree), [tree]);
   const { wrap, nodeRef, paths } = useLinkPaths<HTMLDivElement>(links);
   const { drawn, untried } = splitTreeRows(tree.rows);
+  const [hover, setHover] = useState<string | null>(null);
+  const [pinned, setPinned] = useState<string | null>(null);
+  const active = hover ?? pinned;
+  const cross = useMemo(() => new Map<string, TreeLink>(tree.links.filter(l => l.cross).map(l => [`${l.from}>${l.to}`, l])), [tree.links]);
+  const shown = (key: string) => { const l = cross.get(key); return !l || (!!active && (l.from === active || l.to === active)); };
+  const hasCross = (id: string) => tree.links.some(l => l.cross && (l.from === id || l.to === id));
 
   return (
     <div ref={wrap} className="an-tree">
       <svg className="an-tree__lines" aria-hidden="true">
-        {paths.map(p => <path key={p.key} d={p.d} className={p.className} />)}
+        {paths.filter(p => shown(p.key)).map(p => <path key={p.key} d={p.d} className={p.className} />)}
       </svg>
       <div className="an-tree__axis" aria-hidden="true">
         <span /><span />
@@ -36,8 +43,12 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
                   key={c.id}
                   ref={nodeRef(c.id)}
                   type="button"
-                  className={`an-pill an-pill--${c.kind}`}
-                  onClick={() => (c.kind === 'candidate' ? onCandidate(c) : onOpen(c))}
+                  className={`an-pill an-pill--${c.kind}${active === c.id && hasCross(c.id) ? ' is-linked' : ''}`}
+                  onMouseEnter={() => setHover(c.id)}
+                  onMouseLeave={() => setHover(null)}
+                  onFocus={() => setHover(c.id)}
+                  onBlur={() => setHover(null)}
+                  onClick={() => { setPinned(c.id); if (c.kind === 'candidate') onCandidate(c); else onOpen(c); }}
                   aria-label={labelOf(c, name)}
                 >
                   <span className="an-pill__text">{c.label}</span>

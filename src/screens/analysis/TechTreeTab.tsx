@@ -42,7 +42,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
             <li><span className="an-key an-key--ongoing" aria-hidden="true" />하는 중</li>
             <li><span className="an-key an-key--skipped" aria-hidden="true" />건너뛴 단계</li>
             <li><span className="an-key an-key--candidate" aria-hidden="true" />할 수 있는 활동</li>
-            <li><span className="an-key an-key--cross" aria-hidden="true" />다른 분야로 이어진 경로</li>
+            <li><span className="an-key an-key--cross" aria-hidden="true" />노드를 누르면 다른 분야로 이어진 경로</li>
           </ul>
         </>
       ) : (
