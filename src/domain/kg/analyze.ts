@@ -218,12 +218,13 @@ export function analyzeKg(kg: Kg, programs: Program[] = [], llm: LlmProvider = N
 
   const clusterOf = new Map(clusters.flatMap(c => c.recordIds.map(id => [id, c.id] as const)));
   const bc = betweenness(ids, shown);
-  const bridgeId = [...linked]
-    .filter(id => id !== top || linked.length > 2)
-    .filter(id => touching(id).some(p => clusterOf.get(p.a === id ? p.b : p.a) !== clusterOf.get(id)))
-    .sort((a, b) => bc.get(b)! - bc.get(a)! || ids.indexOf(a) - ids.indexOf(b))[0];
+  // 중심 활동과 다른 활동을 먼저 고른다(같은 활동을 두 번 보여 주면 깨달음이 하나 준다). 다른 후보가 없으면 중심 활동도 된다
+  const crossing = [...linked]
+    .filter(id => bc.get(id)! > 0 && touching(id).some(p => clusterOf.get(p.a === id ? p.b : p.a) !== clusterOf.get(id)))
+    .sort((a, b) => bc.get(b)! - bc.get(a)! || ids.indexOf(a) - ids.indexOf(b));
+  const bridgeId = crossing.find(id => id !== top) ?? crossing[0];
   let bridge: Bridge | null = null;
-  if (bridgeId && bc.get(bridgeId)! > 0) {
+  if (bridgeId) {
     const own = clusterOf.get(bridgeId)!;
     const other = new Map<string, number>();
     for (const p of touching(bridgeId)) { const c = clusterOf.get(p.a === bridgeId ? p.b : p.a)!; if (c !== own) other.set(c, (other.get(c) ?? 0) + p.weight); }

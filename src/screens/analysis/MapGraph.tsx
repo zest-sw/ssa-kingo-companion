@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useZoomPan, ZoomIcon, ZoomPanBar } from '../../components';
-import { RELATION_LABEL, clusterLinks, focusSet, hubTags, type GraphEdge, type GraphFocus, type GraphNode, type KnowledgeGraph, type RecordNode } from '../../domain/analysis/graph';
-import { GRAPH_METRICS as M, hullExit, layoutGraph, placeEdgeLabels, placeHubTags, radiusOf, trimSegment, type GraphLayout, type Pt } from '../../domain/analysis/graphLayout';
+import { RELATION_LABEL, clusterLabel, clusterLinks, focusSet, hubTags, isTentative, type GraphEdge, type GraphFocus, type GraphNode, type KnowledgeGraph, type RecordNode } from '../../domain/analysis/graph';
+import { GRAPH_METRICS as M, hullExit, keywordLine, layoutGraph, textWidth, placeEdgeLabels, placeHubTags, radiusOf, trimSegment, type GraphLayout, type Pt } from '../../domain/analysis/graphLayout';
 import {
   centerOn, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, nodeBrief, nodeInv, pinLayout, scaleBoxes, textInv, toScreen, zoomDetail, ZOOM, type View
 } from '../../domain/analysis/graphView';
@@ -194,7 +194,9 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
     const s = trimSegment(a, rOf(e.from) + 2, b, rOf(e.to) + 3);
     // near 에서만 그리는 선(강조 안 한 근거 선)은 표시해 두고, 축소하는 순간 CSS 가 먼저 숨긴다(상태는 멈춘 뒤에 바뀐다)
     const nearOnly = e.kind === 'evidence' && !on ? ' xg-near-only' : '';
-    const cls = `xg-edge xg-edge--${e.kind} xg-edge--${e.confirmed ? 'yes' : 'est'}${hot ? (on ? ' is-hot' : ' is-dim') : ''}${nearOnly}`;
+    // 활동끼리 선: 규칙으로 이음(얇은 실선) · AI 가 이음(점선, 확인 전) · 내가 확인(진한 실선). 근거 선: 확인(실선) · AI 추정(점선)
+    const tone = e.confirmed ? 'yes' : e.kind === 'follow' && e.origin === 'rule' ? 'rule' : 'est';
+    const cls = `xg-edge xg-edge--${e.kind} xg-edge--${tone}${hot ? (on ? ' is-hot' : ' is-dim') : ''}${nearOnly}`;
     const marker = `url(#${mk}-${on ? (e.confirmed ? 'yes' : 'hot') : 'base'})`;
     const line = <line x1={s.a.x} y1={s.a.y} x2={s.b.x} y2={s.b.y} className="xg-edge__line" markerEnd={marker} />;
     const hit = <line x1={s.a.x} y1={s.a.y} x2={s.b.x} y2={s.b.y} className="xg-edge__hit" />;
@@ -203,7 +205,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
     const from = nodeById.get(e.from) as RecordNode | undefined;
     const to = nodeById.get(e.to) as RecordNode | undefined;
     return (
-      <g key={e.id} className={`${cls} xg-edge--press`} data-zp-id={`follow|${e.id}`} aria-label={`${from?.label}에서 ${to?.label}(으)로 이어짐, ${e.confirmed ? '확인함' : 'AI 추정'}. 맞는지 보기`}
+      <g key={e.id} className={`${cls} xg-edge--press`} data-zp-id={`follow|${e.id}`} aria-label={`${from?.label}와 ${to?.label} 이어짐, ${e.confirmed ? '내가 확인' : e.origin === 'llm' ? 'AI 가 이음' : '규칙으로 이음'}. 왜 이어졌는지 보기`}
         {...edgeHover} {...keys(ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); onOpen({ kind: 'follow', id: e.id }); } })}>
         {hit}
         {line}
@@ -232,7 +234,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
         <g ref={content}>
           <g aria-hidden="true">
             {graph.clusters.map(c => (
-              <path key={c.id} d={hullPath(layout.hulls[c.id])} className={`xg-hull${selCluster === c.id ? ' is-picked' : ''}${hot && selCluster && selCluster !== c.id ? ' is-dim' : ''}`} />
+              <path key={c.id} d={hullPath(layout.hulls[c.id])} className={`xg-hull${isTentative(c) ? ' xg-hull--ai' : ''}${selCluster === c.id ? ' is-picked' : ''}${hot && selCluster && selCluster !== c.id ? ' is-dim' : ''}`} />
             ))}
           </g>
           {!selected && detail !== 'near' && (
@@ -256,11 +258,15 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
             const p = layout.names[c.id];
             const b = layout.boxes[`name:${c.id}`];
             const on = selCluster === c.id;
+            const label = clusterLabel(c), kw = keywordLine(c.keywords);
+            const pillW = textWidth(label, M.nameCharW) + 12;
+            const why = kw ? `, 사전 키워드 ${kw} 이 맞음` : isTentative(c) ? ', AI 가 제안한 이름, 확인 전' : '';
             return (
-              <g key={c.id} className={`xg-name${on ? ' is-picked' : ''}${hot && !on && selCluster ? ' is-dim' : ''}`} data-zp-id={`cluster|${c.id}`} aria-label={`${c.name} 묶음, 활동 ${c.recordIds.length}개. 이 묶음으로 확대해서 분석 보기`} aria-pressed={on}
+              <g key={c.id} className={`xg-name${isTentative(c) ? ' xg-name--ai' : ''}${on ? ' is-picked' : ''}${hot && !on && selCluster ? ' is-dim' : ''}`} data-zp-id={`cluster|${c.id}`} aria-label={`${c.name} 묶음, 활동 ${c.recordIds.length}개${why}. 이 묶음으로 확대해서 분석 보기`} aria-pressed={on}
                 {...keys(e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect({ kind: 'cluster', id: c.id }); goCluster(c.id); } })}>
-                <rect x={b.x} y={b.y} width={b.w} height={b.h} rx={M.nameH / 2} className="xg-name__bg" />
-                <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className="xg-name__text">{c.name}</text>
+                <rect x={p.x - pillW / 2} y={b.y} width={pillW} height={M.nameH} rx={M.nameH / 2} className="xg-name__bg" />
+                <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className="xg-name__text">{label}</text>
+                {kw && <text x={p.x} y={b.y + M.nameH + M.kwH / 2} dy="0.35em" textAnchor="middle" className="xg-name__kw">{kw}</text>}
               </g>
             );
           })}

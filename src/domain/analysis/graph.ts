@@ -24,7 +24,24 @@ export type GraphEdge = {
   origin?: KgOrigin; why?: { rule: number; llm: number; student: number }; reasons?: { text: string; origin: KgOrigin }[];
 };
 /** source: 이름이 사전에서 왔나(taxonomy), AI 가 제안했나(llm). keywords 는 맞은 사전 키워드 */
-export type Cluster = { id: string; name: string; recordIds: string[]; source: NameSource; keywords: string[]; summary?: string };
+export type Cluster = { id: string; name: string; recordIds: string[]; source: NameSource; keywords: string[]; summary?: string; confirmed?: boolean };
+/** 학생이 AI 제안 이름에 한 답: 맞아요(ok) 또는 바꾼 이름 */
+export type ClusterNameAnswers = Record<string, { ok?: boolean; name?: string }>;
+
+/** 묶음 이름표 글자. 확인 전 AI 제안 이름은 'AI 제안: ' 을 붙인다(확인 전 AI 는 점선과 같은 뜻) */
+export const clusterLabel = (c: Cluster) => (c.source === 'llm' && !c.confirmed ? `AI 제안: ${c.name}` : c.name);
+/** AI 제안 이름은 사전 이름이 아니라서 학생이 확인해야 확정된다. 바꾼 이름은 학생이 정한 것이므로 확인으로 본다 */
+export const isTentative = (c: Cluster) => c.source === 'llm' && !c.confirmed;
+
+/** 학생 답을 묶음 이름에 덧입힌다. 사전 이름에는 답을 받지 않는다 */
+export function withClusterNames(g: KnowledgeGraph, answers: ClusterNameAnswers): KnowledgeGraph {
+  if (!Object.keys(answers).length) return g;
+  const clusters = g.clusters.map(c => {
+    const a = c.source === 'llm' ? answers[c.id] : undefined;
+    return a ? { ...c, name: a.name?.trim() || c.name, confirmed: !!(a.ok || a.name?.trim()) } : c;
+  });
+  return { ...g, clusters };
+}
 export type KnowledgeGraph = { nodes: GraphNode[]; edges: GraphEdge[]; clusters: Cluster[]; kg: Kg; analysis: KgAnalysis };
 
 export const RELATION_LABEL: Record<GraphEdge['kind'], string> = { evidence: '근거', follow: '이어짐' };

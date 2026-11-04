@@ -10,7 +10,7 @@ export const KG_TAXONOMY: KgTopic[] = [
   { id: 'plan', name: '서비스 기획', fields: ['product', 'startup'], keywords: ['기획', '문제 문장', '문제정의', '아이디어', '개선', '해결안', '불편', '서비스'] },
   { id: 'data', name: '데이터 분석', fields: ['data', 'ai'], keywords: ['데이터', '분석', '시각화', '차트', '지도', '머신러닝', '모델', '지표'] },
   { id: 'devBasic', name: '개발 기초', fields: ['dev'], keywords: ['파이썬', '알고리즘', '예제', '코드', '문제 두', '풀이', '계산기'] },
-  { id: 'devMake', name: '개발 프로젝트', fields: ['dev'], keywords: ['개발', '해커톤', '웹', '봇', '만들', '시연', '기능', '화면'] },
+  { id: 'devMake', name: '개발 프로젝트', fields: ['dev'], keywords: ['개발', '해커톤', '웹', '봇', '시연', '기능', '화면'] },
   { id: 'share', name: '멘토링·나눔', fields: ['mentor'], keywords: ['멘토', '멘티', '튜터', '신입', '설명', '가르'] },
   { id: 'global', name: '글로벌 교류', fields: ['global'], keywords: ['교환학생', '해외', '나라', '유학생', '글로벌', '교류'] },
   { id: 'club', name: '동아리 활동', fields: ['club'], keywords: ['동아리', '캠페인', '부원', '참여자'] },

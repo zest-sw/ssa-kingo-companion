@@ -2,15 +2,15 @@ import { useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, Drawer, EmptyState, GhostPic } from '../../components';
-import { buildGraph, type GraphFocus } from '../../domain/analysis/graph';
-import { answerEdge, buildMap, clearRejected, edgeState, type EdgeAnswers, type MapEdge } from '../../domain/analysis/map';
+import { Badge, Button, Card, Drawer, EmptyState, GhostPic, Modal } from '../../components';
+import { buildGraph, withClusterNames, type ClusterNameAnswers, type GraphEdge, type GraphFocus, type KnowledgeGraph } from '../../domain/analysis/graph';
+import { answerEdge, clearRejected, type EdgeAnswers } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
 import { buildStrengths, withAnswers } from '../../domain/analysis/strengths';
+import { edgeCounts } from '../../domain/kg/build';
 import { nextStep } from '../../domain/nextStep';
 import type { Axis, RecordItem } from '../../domain/types';
-import { DID_LABEL, FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
-import { ClusterPanel } from './ClusterPanel';
+import { ClusterPanel, type NameAnswer } from './ClusterPanel';
 import { MapGraph, type GraphCamera, type GraphOpen } from './MapGraph';
 import { RecordSummary } from './RecordSummary';
 import { StrengthDrawer } from './StrengthDrawer';
@@ -19,7 +19,7 @@ import './map.css';
 type Props = { records: RecordItem[]; answers: EdgeAnswers; setAnswers: (next: (prev: EdgeAnswers) => EdgeAnswers) => void };
 
 /**
- * 경험 지도: '이 활동이 어떤 역량의 근거가 되나'. 활동과 역량을 잇는 지식 그래프와, 관련 활동 묶음 목록.
+ * 경험 지도: 활동을 모두 한 공간에 넣고 규칙·AI·내 확인으로 이은 지식 그래프. 가까운 활동끼리 모이고, 묶음은 사전 키워드로 이름 붙인다.
  * 노드를 한 번 누르면 선택(이웃 강조 + 옆 칸에 그 노드 분석), 두 번 누르거나 Enter 면 서랍(활동은 기록, 역량은 근거).
  * 묶음을 고르면 그 묶음으로 확대해 맞추고 옆 칸에 묶음 분석을 편다.
  */
@@ -27,15 +27,19 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
   const { state, view } = useApp();
   // 근거 답(맞아요/아니에요)은 다시 분석하지 않고 지금 답을 덧입힌다(나의 강점과 같은 기준).
   const live = useMemo(() => withAnswers(records, state.records), [records, state.records]);
-  const graph = useMemo(() => buildGraph(live, answers), [live, answers]);
+  const programs = useMemo(() => view.scored.map(s => s.p), [view.scored]);
+  // ponytail: AI 제안 이름에 한 답은 이 화면 안에만 둔다(새로고침하면 사라짐), 공용 상태(AppState)에 자리가 생기면 옮긴다.
+  const [names, setNames] = useState<ClusterNameAnswers>({});
+  const built = useMemo(() => buildGraph(live, answers, programs), [live, answers, programs]);
+  const graph = useMemo(() => withClusterNames(built, names), [built, names]);
   const strengths = useMemo(() => buildStrengths(live), [live]);
   const [selected, setSelected] = useState<GraphFocus | null>(null);
   const [camera, setCamera] = useState<GraphCamera | null>(null);
   const [edgeId, setEdgeId] = useState<string | null>(null);
   const [strengthAxis, setStrengthAxis] = useState<Axis | null>(null);
+  const [how, setHow] = useState(false);
   const step = nextStep(state.activities);
-  const map = useMemo(() => buildMap(live), [live]);
-  const rejected = map.edges.filter(e => edgeState(e, answers) === 'rejected').length;
+  const rejected = Object.values(answers).filter(v => v === 'no').length;
   const byId = useMemo(() => Object.fromEntries(live.map(r => [r.id, r])), [live]);
   // 묶음이나 노드가 바뀌어 사라진 선택은 해제한다
   const exists = (f: GraphFocus) => (f.kind === 'cluster' ? graph.clusters.some(c => c.id === f.id) : graph.nodes.some(n => n.id === (f.kind === 'axis' ? `ax:${f.id}` : f.id)));
@@ -51,11 +55,12 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
     else if (o.kind === 'axis') setStrengthAxis(o.id as Axis);
     else setEdgeId(o.id);
   };
+  const onName = (id: string, a: NameAnswer) => setNames(prev => ({ ...prev, [id]: { ...prev[id], ...a } }));
 
   if (records.length === 0) {
     return (
       <Card className="os-card" title="경험 지도">
-        <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 활동이 점으로 생기고, 어떤 역량의 근거가 됐는지 선으로 이어져요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
+        <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 활동이 점으로 생기고, 가까운 활동끼리 묶여요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
       </Card>
     );
   }
@@ -73,43 +78,51 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
               </p>
             )}
           </div>
-          <ClusterPanel graph={graph} selected={shown} onSelect={select} onOpen={open} />
+          <ClusterPanel graph={graph} selected={shown} onSelect={select} onOpen={open} onName={onName} onHow={() => setHow(true)} />
         </div>
       </Card>
-      <StrengthDrawer strength={strengths.find(s => s.axis === strengthAxis)} records={live} programs={view.scored.map(s => s.p)} onClose={() => setStrengthAxis(null)} />
-      <EdgeDrawer edge={edgeId ? map.edges.find(e => e.id === edgeId) : undefined} byId={byId} answers={answers} onClose={() => setEdgeId(null)} answer={(id, a) => setAnswers(prev => answerEdge(prev, id, a))} />
+      <StrengthDrawer strength={strengths.find(s => s.axis === strengthAxis)} records={live} programs={programs} onClose={() => setStrengthAxis(null)} />
+      <EdgeDrawer edge={edgeId ? graph.edges.find(e => e.id === edgeId && e.kind === 'follow') : undefined} byId={byId} answers={answers} onClose={() => setEdgeId(null)} answer={(id, a) => setAnswers(prev => answerEdge(prev, id, a))} />
+      <HowModal open={how} graph={graph} onClose={() => setHow(false)} />
     </>
   );
 }
 
-/** 노드 종류 둘, 선 종류 둘. 관계 이름은 강조했을 때 선 위에 나온다. */
+/** 노드 종류 둘, 선 종류 셋. 확인 전 AI 는 점선 */
 function GraphLegend() {
   return (
     <ul className="an-legend an-legend--inline xg-legend" aria-label="그림 읽는 법">
       <li><span className="xg-key xg-key--axis" aria-hidden="true" />역량</li>
       <li><span className="xg-key xg-key--rec" aria-hidden="true" />활동</li>
-      <li><span className="an-key an-key--yes" aria-hidden="true" />확인한 근거</li>
+      <li><span className="an-key xg-key--line" aria-hidden="true" />규칙으로 이음</li>
       <li><span className="an-key an-key--est" aria-hidden="true" />AI 추정</li>
+      <li><span className="an-key xg-key--mine" aria-hidden="true" />내가 확인</li>
     </ul>
   );
 }
 
-type DrawerProps = { edge?: MapEdge; byId: Record<string, RecordItem>; answers: EdgeAnswers; onClose: () => void; answer: (id: string, a: 'yes' | 'no') => void };
+const ORIGIN_LABEL = { rule: '규칙', llm: 'AI', student: '내 확인' } as const;
 
-/** 이어짐 선 하나: 왜 이어졌다고 보는지, 맞는지 답하기, 두 기록 요약 */
+type DrawerProps = { edge?: GraphEdge; byId: Record<string, RecordItem>; answers: EdgeAnswers; onClose: () => void; answer: (id: string, a: 'yes' | 'no') => void };
+
+/** 이어짐 선 하나: 왜 이어졌다고 보는지(출처별 이유), 맞는지 답하기, 두 기록 요약 */
 function EdgeDrawer({ edge, byId, answers, onClose, answer }: DrawerProps) {
-  const a = edge && byId[edge.a];
-  const b = edge && byId[edge.b];
-  const st = edge ? edgeState(edge, answers) : 'estimated';
+  const a = edge && byId[edge.from];
+  const b = edge && byId[edge.to];
   return (
-    <Drawer open={!!(edge && a && b)} onClose={onClose} eyebrow="이어짐" title={a && b ? `${a.title} → ${b.title}` : ''}>
+    <Drawer open={!!(edge && a && b)} onClose={onClose} eyebrow="이어짐" title={a && b ? `${a.title} — ${b.title}` : ''}>
       {edge && a && b && (
         <>
-          <p className="an-edgewhy">{reasonText(edge, a, b, st === 'confirmed')}</p>
+          <p className="an-edgewhy">{semesterLabel(a.semester)} → {semesterLabel(b.semester)}</p>
+          <ul className="an-edgewhy-list" aria-label="이어진 이유">
+            {(edge.reasons ?? []).map((r, i) => (
+              <li key={i}><span className={`xg-src${r.origin === 'llm' ? ' xg-src--ai' : ''}`}>{ORIGIN_LABEL[r.origin]}</span><span>{r.text}</span></li>
+            ))}
+          </ul>
           <p className="an-edgestate">
-            {st === 'confirmed' ? <Badge tone="green" icon="check">확인했어요</Badge> : st === 'rejected' ? <Badge>아니라고 했어요</Badge> : <Badge tone="dashed">AI 추정 · 확인 전</Badge>}
+            {edge.confirmed ? <Badge tone="green" icon="check">확인했어요</Badge> : edge.origin === 'llm' ? <Badge tone="dashed">AI 추정 · 확인 전</Badge> : <Badge>규칙으로 이음</Badge>}
           </p>
-          <p className="an-edgeq">앞 활동이 뒤 활동으로 이어진 게 맞아요?</p>
+          <p className="an-edgeq">두 활동이 이어진 게 맞아요?</p>
           <span className="an-answer">
             {(['yes', 'no'] as const).map(v => (
               <Button key={v} variant={answers[edge.id] === v ? 'primary' : 'secondary'} aria-pressed={answers[edge.id] === v} onClick={() => answer(edge.id, v)}>{v === 'yes' ? '맞아요' : '아니에요'}</Button>
@@ -122,12 +135,27 @@ function EdgeDrawer({ edge, byId, answers, onClose, answer }: DrawerProps) {
   );
 }
 
-/** 확인 전 연결은 추정으로, 학생이 맞다고 한 연결만 사실로 말한다. */
-function reasonText(e: MapEdge, a: RecordItem, b: RecordItem, confirmed: boolean) {
-  const did = DID_LABEL[a.did];
-  const group = GROUP_LABEL[FIELD_GROUP[a.field]];
-  const parts: string[] = [];
-  if (e.reasons.includes('did')) parts.push(confirmed ? `같은 일(${did})을 이어서 했어요` : `같은 일(${did})을 이어서 한 것으로 보여요`);
-  if (e.reasons.includes('field')) parts.push(confirmed ? `같은 분야(${group})예요` : `같은 분야(${group})로 보여요`);
-  return `${parts.join(' · ')} · ${semesterLabel(a.semester)} → ${semesterLabel(b.semester)}`;
+/** '어떻게 만들었나': 생성(엣지 출처별 수)과 분석(묶음 방법·이름 정한 방법). 조사 문서 요지 세 줄 */
+function HowModal({ open, graph, onClose }: { open: boolean; graph: KnowledgeGraph; onClose: () => void }) {
+  const n = edgeCounts(graph.kg);
+  const dict = graph.clusters.filter(c => c.source === 'taxonomy').length;
+  return (
+    <Modal open={open} title="경험 지도를 만든 방법" onClose={onClose} actions={<Button variant="primary" onClick={onClose}>닫기</Button>}>
+      <div className="xg-howto">
+        <section>
+          <h3>1. 그래프 만들기</h3>
+          <p className="xg-howto__n"><span>규칙 <b className="num">{n.rule}</b></span><span>AI <b className="num">{n.llm}</b></span><span>내 확인 <b className="num">{n.student}</b></span></p>
+          <ul><li>같은 분야·확인한 역량·다음 학기 줄기·같은 시리즈·함께 나온 말은 규칙으로 이어요.</li><li>회고 문장 사이 뜻은 AI 가 잇고, 확인 전엔 점선이에요.</li></ul>
+        </section>
+        <section>
+          <h3>2. 그래프 읽기</h3>
+          <ul>
+            <li>많이 이어진 활동끼리 묶어요(Leiden 방식, 끊긴 묶음 없이).</li>
+            <li>{dict === graph.clusters.length ? `묶음 ${dict}개 모두 사전 키워드로 이름을 붙였어요. 맞는 게 없으면 AI 가 제안해요.` : `묶음 ${graph.clusters.length}개 중 ${dict}개는 사전 키워드로, 나머지는 AI 가 이름을 제안해요.`}</li>
+            <li>가장 많이 이어진 활동, 묶음 사이를 잇는 활동, 이어질 법한 기회를 찾아요.</li>
+          </ul>
+        </section>
+      </div>
+    </Modal>
+  );
 }

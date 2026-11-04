@@ -129,6 +129,7 @@ describe('그래프 분석', () => {
     const a = analyzeKg(buildKg(SEED_RECORDS, { llm: mockLlm(), answers: EXAMPLE_EDGE_ANSWERS }), PROGRAMS, mockLlm());
     expect(a.center).not.toBeNull();
     expect(a.bridge?.joins[0]).not.toBe(a.bridge?.joins[1]);
+    expect(a.bridge?.id).not.toBe(a.center?.id);
     expect(a.guesses).toHaveLength(3);
     expect(a.shown.every(isShown)).toBe(true);
     expect(a.stats.every(s => s.cohesion >= 0 && s.cohesion <= 1)).toBe(true);
