@@ -15,3 +15,4 @@ export { GhostPic, type GhostKind } from './GhostPic';
 export { linkPath, useLinkPaths, type LinkPath, type LinkSpec } from './useLinkPaths';
 export { TermNav } from './TermNav';
 export { Radar, type RadarVertex } from './Radar';
+export { useWidth } from './useWidth';
