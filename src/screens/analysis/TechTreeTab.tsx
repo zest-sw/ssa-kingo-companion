@@ -142,7 +142,12 @@ function SkippedBody({ cell, row, onPick }: { cell: TreeCell; row: TreeRow; onPi
       <h3 className="an-sub">지금 열린 기회</h3>
       {open.length
         ? <ul className="an-cands">{open.map(c => <li key={c.id}><OpenRow cell={c} sub={<FieldTag field={c.field} />} onPick={onPick} /></li>)}</ul>
-        : <p className="an-muted">지금 열린 {TREE_COLUMNS[cell.col]} 기회는 없어요. 새 기회가 열리면 여기와 추천에 보여요.</p>}
+        : (
+          <>
+            <p className="an-muted">지금 열린 {TREE_COLUMNS[cell.col]} 기회는 없어요. 새 기회가 열리면 여기와 추천에 보여요.</p>
+            <Button size="sm" onClick={() => navigate('recommend')}>추천 보러 가기</Button>
+          </>
+        )}
       {examples.length > 0 && (
         <>
           <h3 className="an-sub">이 단계에서 할 수 있는 활동</h3>

@@ -46,5 +46,5 @@ export function levelReason(item: Levelled, programs?: Record<string, Program>):
   const name = LEVEL_NAME[level];
   if (source === 'program') return `연결된 기회가 ‘${name}’ 수준이라 이 자리에 놓았어요.`;
   if (source === 'set') return `‘${name}’ 수준 활동이라 이 자리에 놓았어요. 보통 ${LEVEL_EXAMPLES[level]} 같은 활동이 여기예요.`;
-  return `이름${item.did ? '과 한 일' : ''}로 보면 ‘${name}’ 수준이라 이 자리에 놓았어요. 보통 ${LEVEL_EXAMPLES[level]} 같은 활동이 여기예요.`;
+  return `${item.did ? '이름과 한 일로' : '이름으로'} 보면 ‘${name}’ 수준이라 이 자리에 놓았어요. 보통 ${LEVEL_EXAMPLES[level]} 같은 활동이 여기예요.`;
 }
