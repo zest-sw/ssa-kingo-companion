@@ -134,11 +134,24 @@
 .an-dq--changed { border-style: solid; border-color: var(--orange-500); }
 .an-dq__q { margin: 0; font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
 .an-dq__state { display: inline-flex; align-items: center; gap: var(--space-1); margin: 0; color: var(--ink-muted); font-size: var(--text-xs); font-weight: var(--weight-regular); }
+.an-dq__state b { color: var(--ink); font-weight: var(--weight-bold); }
+/* 상태 + 답하면 추천에 어떻게 쓰이는지 한 줄 */
+.an-dq__meta { display: flex; flex-direction: column; gap: var(--space-1); }
+.an-dq__use { margin: 0; color: var(--ink-muted); font-size: var(--text-sm); line-height: var(--leading-tight); }
+.an-dq__src { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); color: var(--ink-muted); font-size: var(--text-sm); }
 .an-dq__pic { display: block; width: 100%; height: var(--an-dq-h); }
-.an-dq__see { display: block; min-width: 0; padding: 0; border: 0; border-radius: var(--radius-sm); background: none; cursor: pointer; }
+.an-dq__see { display: block; min-width: 0; padding: 0; text-align: left; border: 0; border-radius: var(--radius-sm); background: none; cursor: pointer; }
 .an-dq__see:hover { background: var(--surface-hover); }
 .an-dq__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
-.an-dlist { display: flex; flex-direction: column; }
+.an-dq__unsure { grid-column: 1 / -1; }
+.an-dq__ghost { display: block; width: 100%; max-width: 240px; height: auto; margin: 0 auto; }
+.an-dghost__dot { fill: none; stroke: var(--line-strong); stroke-width: var(--an-line-w-thin); stroke-dasharray: 3 3; }
+.an-dghost__line { stroke: var(--line-strong); stroke-width: var(--an-line-w-thin); stroke-dasharray: 3 3; }
+.an-dghost__label { fill: var(--ink-subtle); font-size: var(--text-xs); }
+.an-dlist { display: flex; flex-direction: column; gap: var(--space-5); }
+.an-dlist__head { margin: 0 0 var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.an-dlist__text { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.an-dlist__src { color: var(--ink-muted); font-size: var(--text-xs); }
 .an-dlist__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: var(--space-12); padding: var(--space-2) 0; border: 0; border-top: var(--border); background: none; text-align: left; cursor: pointer; }
 .an-dlist li:first-child .an-dlist__row { border-top: 0; }
 .an-dlist__row:hover { background: var(--surface-hover); }
@@ -189,3 +202,5 @@
 
 .an-swhen__dot.an-g--other:not(.is-est), .an-g--other > .an-swhen__dot { border: var(--an-line-w-thin) solid var(--c); }
 .an-kw.is-est { color: var(--ink-muted); text-decoration: underline dashed var(--ink-subtle); text-underline-offset: var(--space-1); }
+/* 요약 판 나의 강점 빈칸: 다른 빈칸 그림처럼 점선 윤곽 */
+.an-spic--ghost .ui-radar__frame { stroke-dasharray: 3 3; }

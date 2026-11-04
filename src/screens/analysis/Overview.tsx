@@ -2,15 +2,15 @@ import { useMemo } from 'react';
 import { useApp } from '../../app/AppState';
 import { hrefOf } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Card, ErrorState, GhostPic, Icon, LoadingState, PageHeader, SummaryCard } from '../../components';
+import { Card, ErrorState, GhostPic, Icon, LoadingState, PageHeader, Radar, SummaryCard } from '../../components';
 import { TREE_COLUMNS, TREE_GROUPS } from '../../domain/analysis/techtree';
 import { AXES, GROUP_LABEL } from '../../domain/vocab';
 import { buildFlow } from '../../domain/analysis/flow';
 import { recentFlow, treeGlance } from '../../domain/analysis/glance';
 import { buildGraph } from '../../domain/analysis/graph';
 import { semesterAxis } from '../../domain/analysis/semester';
-import { buildStrengths, strengthKeyword, withAnswers } from '../../domain/analysis/strengths';
-import { flowHeadline, mapHeadline, treeHeadline, treeValue } from '../../domain/analysis/visual';
+import { buildStrengths, withAnswers } from '../../domain/analysis/strengths';
+import { flowHeadline, mapHeadline, strengthGlance, treeHeadline, treeValue } from '../../domain/analysis/visual';
 import { SEMESTER_FROM, SEMESTER_NOW } from '../../data/analysis';
 import { DiscoveryCards } from './DiscoveryCards';
 import { FlowPic, MapPic, StrengthPic, TreePic } from './Glance';
@@ -32,7 +32,7 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
   const none = records.length === 0;
   const clusters = useMemo(() => buildGraph(records, state.edgeAnswers).clusters.length, [records, state.edgeAnswers]);
   const confirmedEv = strengths.reduce((n, r) => n + r.confirmed, 0);
-  const strengthKw = strengthKeyword(strengths);
+  const strengthKw = strengthGlance(strengths);
   const hasStrength = (strengths[0]?.evidence.length ?? 0) > 0;
 
   return (
@@ -47,7 +47,7 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
               <SummaryCard href={hrefOf('analysis/techtree')} title="테크 트리" headline={treeHeadline(tree)} value={treeValue(tree)} visual={none ? <GhostPic kind="branches" labels={TREE_GROUPS.slice(0, 3).map(g => GROUP_LABEL[g])} cols={[...TREE_COLUMNS]} /> : <TreePic rows={glance.rows} />} />
               <SummaryCard href={hrefOf('analysis/map')} title="경험 지도" headline={mapHeadline(records, state.edgeAnswers)} value={none ? undefined : `묶음 ${clusters}개`} visual={none ? <GhostPic kind="network" /> : <MapPic records={records} answers={state.edgeAnswers} />} />
               <SummaryCard href={hrefOf('analysis/flow')} title="관심 흐름" headline={flowHeadline(flow)} value={flow.length ? `기록 있는 학기 ${flow.length}개` : undefined} visual={none ? <GhostPic kind="bars" labels={[SEMESTER_NOW.replace(/^20/, '')]} /> : <FlowPic rows={flow} />} />
-              <SummaryCard href={hrefOf('analysis/strengths')} title="나의 강점" headline={<span className={strengthKw.estimated ? 'an-kw is-est' : 'an-kw'}>{strengthKw.text}</span>} value={confirmedEv ? `확인한 근거 ${confirmedEv}개` : undefined} visual={hasStrength ? <StrengthPic rows={strengths} /> : <GhostPic kind="branches" labels={AXES.slice(0, 3).map(a => a.label)} cols={['', '', '', '']} />} />
+              <SummaryCard href={hrefOf('analysis/strengths')} title="나의 강점" headline={<span className={strengthKw.estimated ? 'an-kw is-est' : 'an-kw'}>{strengthKw.text}</span>} value={confirmedEv ? `확인한 근거 ${confirmedEv}개` : undefined} visual={hasStrength ? <StrengthPic rows={strengths} /> : <span className="an-spic an-spic--ghost"><Radar empty vertices={AXES.map(a => ({ key: a.id, name: a.label, solid: 0, dashed: 0, sub: '' }))} max={4} ticks={[2, 4]} label="역량 여섯 개의 빈 육각형" radius={36} mini /></span>} />
             </section>
             <DiscoveryCards />
           </>
