@@ -45,7 +45,7 @@
   --field-ai: var(--navy-900);
   --field-startup: var(--lime-500);
   --field-mentor: var(--orange-500);
-  --field-global: var(--grey-500);
+  --field-global: #8c7bb5; /* 글로벌: 채도 낮은 보라. 회색은 '안 한 것'에만 쓴다(2026-11-04) */
 
   /* 상태 톤(할 것/하는 중/끝난 것). 분야 색(초록·네이비·라임·오렌지·회색)과 겹치지 않는 하늘·청록 계열 */
   --state-todo: #bcd3e6;
