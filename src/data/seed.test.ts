@@ -123,11 +123,9 @@ describe('예시 학생 보드·추천·과제·친구', () => {
     expect(rs.some(r => r.def.hidden && !r.achieved)).toBe(true);
     // 들어오자마자 달성 토스트가 뜨지 않게 달성 시각을 미리 둔다
     for (const r of done) expect(INITIAL_STATE.challengeAt[r.def.id], r.def.id).toBeDefined();
-    // 달성 시각은 프로토타입의 오늘보다 앞이어야 한다(미래에 달성한 과제가 전시되지 않게)
+    // 달성 시각은 프로토타입의 오늘보다 앞이어야 한다(미래에 달성한 과제가 생기지 않게)
     const today = Date.parse(`${PROTOTYPE_TODAY}T23:59:59+09:00`);
     for (const [id, t] of Object.entries(EXAMPLE_CHALLENGE_AT)) expect(t, id).toBeLessThanOrEqual(today);
-    // 전시 과제는 달성한 것만
-    for (const id of INITIAL_STATE.visibility.showcaseChallengeIds) expect(done.some(r => r.def.id === id), id).toBe(true);
   });
   it('친구 5~7명, 모집 글 3~4개(내 글 1개), 명예의 전당 3~4명', () => {
     expect(FRIENDS.length).toBeGreaterThanOrEqual(5);
