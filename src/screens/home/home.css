@@ -8,15 +8,11 @@
   --home-chip-height: 40px;
   --home-option-height: 56px;
   --home-input-height: var(--control-h);
-  --home-ask-w: 360px;
+  --home-avatar: 40px;
+  --home-face: 24px;
+  --home-stat-min: 232px;
+  --home-art-h: 56px;
 }
-
-.home-ask { display: flex; align-items: center; gap: var(--space-3); }
-.home-ask__form { display: flex; align-items: center; gap: var(--space-2); width: var(--home-ask-w); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); }
-.home-ask__form:focus-within { border-color: var(--focus); box-shadow: var(--focus-ring); }
-.home-ask__icon { display: inline-flex; flex: none; color: var(--ink-muted); }
-.home-ask__input { flex: 1; min-width: 0; min-height: var(--hit-min); border: 0; background: none; font-size: var(--text-md); outline: none; }
-.home-ask__hint { font-size: var(--text-sm); color: var(--accent-ink); white-space: nowrap; }
 
 /* 가입 인터뷰 */
 .home-onbwrap { place-items: start center; }
@@ -45,13 +41,65 @@
 .home-onb__work li { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); }
 .home-onb__work svg { color: var(--green-900); }
 
-/* 홈 한 화면: 위 줄에 오늘 할 일 · 가장 추천, 아래 줄에 곧 있어요 타임라인을 넓게. 덩어리 셋이 상한이다.
-   카드를 화면 높이에 맞춰 늘리지 않는다. 남는 높이는 아래에 그대로 둔다. */
-.home-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-template-rows: auto auto; }
+/* 홈 = 상태창 + 광장. 왼쪽 상태창이 두 줄을 차지하고, 오른쪽 위 광장 · 아래 오늘의 퀘스트. 덩어리 셋이 상한이다.
+   상태창(육각형이 남은 높이를 쓴다)만 높이를 채운다. 광장과 오늘의 퀘스트는 내용 높이. */
+.home-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-template-rows: auto minmax(0, 1fr); align-content: stretch; }
 .home-grid > .ui-card { display: flex; flex-direction: column; min-height: 0; }
-.home-upcoming { grid-column: 1 / -1; }
+.home-status { grid-row: 1 / -1; gap: var(--space-3); }
+.home-today { align-self: start; }
 
-/* 오늘 할 일: 세로 타임라인 */
+/* 상태창: 누구 */
+.home-who { display: flex; align-items: center; gap: var(--space-3); }
+.home-who__avatar { display: grid; place-items: center; flex: none; width: var(--home-avatar); height: var(--home-avatar); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-md); color: var(--primary); font-size: var(--text-lg); font-weight: var(--weight-heavy); }
+.home-who__text { min-width: 0; }
+.home-who__eyebrow { font-size: var(--text-xs); font-weight: var(--weight-bold); color: var(--ink-subtle); }
+.home-who__name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-2); font-size: var(--text-lg); font-weight: var(--weight-heavy); }
+.home-who__name span { font-size: var(--text-sm); font-weight: var(--weight-regular); color: var(--ink-muted); }
+
+/* 칭호: AI 가설은 옅은 점선 밑줄, '맞아요'를 누르면 밑줄 없이 */
+.home-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); padding: var(--space-3) 0; border-top: var(--border); border-bottom: var(--border); }
+.home-title__text { min-width: 0; font-size: var(--text-xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); color: var(--ink-strong); }
+.home-title__text[data-est] { text-decoration: underline dashed var(--line-strong); text-decoration-thickness: 1px; text-underline-offset: var(--space-1); }
+.home-title__text[data-empty] { font-size: var(--text-lg); font-weight: var(--weight-bold); color: var(--ink-muted); }
+.home-title__ask { display: flex; align-items: center; gap: var(--space-1); flex: none; }
+.home-title__alt { display: inline-flex; align-items: center; min-height: var(--hit-min); padding: 0 var(--space-2); border-radius: var(--radius-sm); color: var(--ink-muted); font-size: var(--text-sm); text-decoration: none; }
+.home-title__alt:hover { background: var(--surface-hover); color: var(--ink); }
+
+/* 스탯: 육각형이 남은 높이를 쓴다 */
+.home-stat { display: flex; flex: 1; min-height: var(--home-stat-min); }
+.home-stat .ui-radar__vx { cursor: default; }
+
+/* 가진 것: 얇은 선 칸 다섯 */
+.home-inv { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 1.7fr); gap: var(--space-2); }
+.home-inv__cell { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 0 var(--space-1); padding: var(--space-2); border: var(--border); border-radius: var(--radius-md); }
+.home-inv__cell svg { color: var(--ink-subtle); }
+.home-inv__cell b { font-size: var(--text-lg); font-weight: var(--weight-heavy); line-height: var(--leading-tight); }
+.home-inv__cell span { grid-column: 1 / -1; font-size: var(--text-xs); color: var(--ink-muted); }
+.home-inv__cell--deep b { font-size: var(--text-sm); color: var(--primary); }
+
+/* 지금 상황 한 줄 */
+.home-now { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); font-size: var(--text-sm); color: var(--ink-muted); }
+.home-now b { margin-left: var(--space-1); color: var(--ink); font-weight: var(--weight-heavy); }
+.home-now [data-hot] b { color: var(--accent-ink); }
+
+/* 광장: 문 카드 셋 */
+.home-doors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.home-door { display: flex; flex-direction: column; gap: var(--space-1); height: 100%; padding: var(--space-3); border: var(--border); border-radius: var(--radius-md); color: var(--ink); text-decoration: none; transition: border-color 160ms ease, background-color 160ms ease; }
+.home-door:hover { border-color: var(--line-strong); background: var(--surface-alt); }
+.home-art { display: block; width: 100%; height: var(--home-art-h); margin-bottom: var(--space-2); fill: none; stroke: var(--ink-subtle); stroke-width: 1; stroke-linejoin: round; }
+.home-art path, .home-art rect { vector-effect: non-scaling-stroke; }
+.home-art__door { fill: transparent; transition: fill 200ms ease, stroke 200ms ease; }
+.home-door:hover .home-art__door, .home-door:focus-visible .home-art__door { fill: var(--lime-100); stroke: var(--primary); }
+.home-door__name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-2); font-size: var(--text-md); font-weight: var(--weight-heavy); }
+.home-door__name span { font-size: var(--text-xs); font-weight: var(--weight-regular); color: var(--ink-muted); }
+.home-door__facts { font-size: var(--text-sm); color: var(--ink-muted); }
+.home-door__facts b { color: var(--ink); font-weight: var(--weight-bold); }
+.home-door__line { margin-top: auto; padding-top: var(--space-2); border-top: var(--border); font-size: var(--text-sm); font-weight: var(--weight-medium); }
+.home-door__faces { display: flex; align-items: center; gap: var(--space-1); }
+.home-door__face { display: grid; place-items: center; width: var(--home-face); height: var(--home-face); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: var(--weight-bold); }
+.home-door__faces-label { margin-left: var(--space-1); font-size: var(--text-xs); font-weight: var(--weight-regular); color: var(--ink-muted); }
+
+/* 오늘의 퀘스트: 세로 타임라인 */
 .home-rail { position: relative; display: flex; flex-direction: column; gap: var(--space-1); }
 .home-rail::before { content: ''; position: absolute; top: var(--space-3); bottom: var(--space-3); left: calc(var(--home-rail-when) + var(--space-3) + var(--home-dot) / 2); border-left: 1px solid var(--line-strong); }
 .home-rail__item { position: relative; display: grid; grid-template-columns: var(--home-rail-when) var(--home-dot) minmax(0, 1fr); align-items: center; gap: var(--space-3); }
@@ -61,56 +109,23 @@
 .home-rail__dot { position: relative; box-sizing: border-box; width: var(--home-dot); height: var(--home-dot); border-radius: var(--radius-full); background: var(--surface); border: 2px solid var(--field-ai); }
 .home-rail__dot[data-kind='review'] { border-color: var(--field-mentor); }
 .home-rail__dot[data-kind='deadline'] { background: var(--accent); border-color: var(--accent); border-radius: var(--radius-xs); transform: rotate(45deg); }
-.home-rail__task { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-1); min-width: 0; min-height: var(--hit-min); padding: 0 var(--space-2); border: 0; border-radius: var(--radius-sm); background: none; text-align: left; font-size: var(--text-md); }
+.home-rail__task { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); min-width: 0; min-height: var(--hit-min); padding: var(--space-1) var(--space-2); border: 0; border-radius: var(--radius-sm); background: none; text-align: left; font-size: var(--text-md); }
 .home-rail__task:hover { background: var(--surface-hover); }
-/* 1280 폭에서는 칸이 좁아 제목 옆에 꼬리표를 두면 제목이 반쯤 잘린다. 꼬리표는 제목 아래, 제목은 두 줄까지. */
-.home-rail__title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-width: 0; overflow: hidden; line-height: var(--leading-tight); font-weight: var(--weight-bold); }
+.home-rail__title { min-width: 0; line-height: var(--leading-tight); font-weight: var(--weight-bold); }
 .home-rail__what { flex: none; padding: 0 var(--space-2); border-radius: var(--radius-sm); background: var(--grey-100); color: var(--ink-muted); font-size: var(--text-xs); font-weight: var(--weight-medium); line-height: var(--count-h); }
 .home-rail__what[data-kind='review'], .home-rail__what[data-kind='deadline'] { background: var(--orange-100); color: var(--accent-ink); }
-
-/* 오늘 할 일 빈 상태: 공용 EmptyState + GhostPic. 칸 높이를 아끼려고 바깥 여백만 줄인다 */
-.home-empty .ui-state { padding: 0; }
-
-/* 가장 추천 */
-.home-pick { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; }
-.home-pick__meta { display: flex; align-items: center; gap: var(--space-3); }
-.home-pick__title { font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
-.home-pick__title a { display: inline-block; min-height: var(--hit-min); color: inherit; text-decoration: none; }
-.home-pick__title a:hover { text-decoration: underline; text-underline-offset: var(--space-1); }
-.home-pick__dl { display: flex; align-items: center; gap: var(--space-4); }
-.home-pick__dl .rec-meter { max-width: none; margin-left: 0; }
-.home-pick__date { flex: none; font-size: var(--text-sm); color: var(--ink-muted); }
-.home-pick__facts { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); color: var(--ink-muted); font-size: var(--text-sm); }
-.home-pick__facts li { display: inline-flex; align-items: center; gap: var(--space-1); }
-.home-pick__why { min-width: 0; color: var(--ink); }
-.home-pick__why span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-muted); }
-.home-pick__go { display: flex; }
-
-/* 곧 있어요 */
-.home-upcoming .ui-card__action { gap: var(--space-2); }
-/* 이름표 줄 수만큼만 높이를 쓴다: 제목과 첫 줄 사이에 윗 여백을 더 두지 않는다 */
-.home-upcoming .ui-dg-tl { padding-top: 0; }
 .home-more { margin-top: var(--space-2); padding-left: calc(var(--home-rail-when) + var(--home-dot) + var(--space-3) * 2 + var(--space-2)); color: var(--ink-muted); font-size: var(--text-sm); }
 
+/* 첫 퀘스트(새 학생) */
+.home-first { display: flex; flex-direction: column; gap: var(--space-2); }
+.home-first__lead { font-size: var(--text-sm); color: var(--ink-muted); }
+.home-first__row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3); min-height: var(--hit-min); padding: var(--space-2) var(--space-3); border: var(--border); border-radius: var(--radius-md); color: var(--ink); text-decoration: none; }
+.home-first__row:hover { border-color: var(--line-strong); background: var(--surface-alt); }
+.home-first__title { font-weight: var(--weight-bold); }
+.home-first__dday { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
+
 @media (max-width: 1199px) {
-  .home-ask__form { width: auto; }
+  .home-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+  .home-inv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-inv__cell--deep { grid-column: 1 / -1; }
 }
-
-/* 가장 추천의 세 버튼: 주 1 + 보조 2 */
-.home-pick__go { gap: var(--space-2); flex-wrap: wrap; }
-
-/* 다른 대안: 가장 추천 아래 작은 두 줄(층 구조 A). 선 하나로 가장 추천과 나눈다 */
-.home-alt { display: flex; flex-direction: column; gap: var(--space-1); padding-top: var(--space-3); border-top: var(--border); }
-.home-alt__head { padding: 0 var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
-.home-alt__list { display: flex; flex-direction: column; }
-.home-alt__row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3); min-height: var(--hit-min); padding: 0 var(--space-2); border-radius: var(--radius-sm); color: var(--ink); text-decoration: none; font-size: var(--text-md); }
-.home-alt__row:hover { background: var(--surface-hover); }
-.home-alt__row:focus-visible { box-shadow: var(--focus-ring-inset); outline: none; }
-.home-alt__row .ui-field { order: 2; font-size: var(--text-sm); }
-.home-alt__title { order: 1; min-width: 0; font-weight: var(--weight-medium); }
-.home-alt__dday { order: 3; font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
-
-/* 에이전트가 해 둔 일: 오늘 할 일 칸 맨 아래 한 줄 */
-.home-agent { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-2); margin-top: auto; padding-top: var(--space-3); border-top: var(--border); color: var(--ink-muted); font-size: var(--text-sm); }
-.home-agent b { color: var(--ink); font-weight: var(--weight-bold); }
-.home-agent svg { flex: none; }

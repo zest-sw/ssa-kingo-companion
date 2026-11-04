@@ -1,26 +1,34 @@
 import { openEntity } from '../../app/entity';
-import { navigate } from '../../app/router';
-import { Button, Card, EmptyState, GhostPic, Icon } from '../../components';
+import { hrefOf, navigate } from '../../app/router';
+import { Card, EmptyState, FieldTag } from '../../components';
+import { ddayOf } from '../../domain/recommend';
+import { candidateHref } from '../../domain/recommend-flow/flow';
 import { MAX_TODAY_TASKS, timelineOrder, type TodayTask } from '../../domain/recommend-flow/summary';
+import { ddayText } from '../../domain/text';
+import type { Scored } from '../../domain/types';
 
-/** 오늘 할 일(오늘·내일): 가까운 날·이른 시각 순의 세로 타임라인. 3개까지 그리고 나머지는 개수만. 점 하나가 한 일이고, 이름과 무슨 일인지만 짧게 붙인다. 누르면 그 일을 하는 화면이나 서랍으로 간다. */
-export function TodayList({ tasks, fresh, agent }: { tasks: TodayTask[]; fresh: boolean; agent?: string }) {
+/**
+ * 오늘의 퀘스트(오늘·내일 할 일): 가까운 날·이른 시각 순의 세로 타임라인. 3개까지 그리고 나머지는 개수만.
+ * 챙길 일이 없는 새 학생에게는 첫 추천 하나를 첫 퀘스트로 보인다.
+ */
+export function TodayList({ tasks, first, week }: { tasks: TodayTask[]; first?: Scored; week: number }) {
   const go = (t: TodayTask) => ('path' in t.target ? navigate(t.target.path) : openEntity(t.target));
   // 고르기는 급한 순(todayTasks 순서), 그리기는 시간순.
   const shown = timelineOrder(tasks.slice(0, MAX_TODAY_TASKS));
   const more = tasks.length - shown.length;
   return (
-    <Card title="오늘 할 일" className="home-today">
-      {tasks.length === 0 && fresh ? (
-        <div className="home-empty">
-          <EmptyState
-            pic={<GhostPic kind="rows" labels={['', '']} />}
-            message="신청 준비를 누르면 할 일이 여기에 생겨요"
-            action={<Button size="sm" onClick={() => navigate('recommend')}>추천 보기</Button>}
-          />
+    <Card title="오늘의 퀘스트" className="home-today">
+      {tasks.length === 0 && first ? (
+        <div className="home-first">
+          <p className="home-first__lead">첫 퀘스트로 이걸 받아 보세요</p>
+          <a className="home-first__row" href={hrefOf(candidateHref(first.p.id))}>
+            <span className="home-first__title">{first.p.title}</span>
+            <FieldTag field={first.p.field} />
+            <span className="home-first__dday num">{ddayText(ddayOf(first.p, week))}</span>
+          </a>
         </div>
       ) : tasks.length === 0 ? (
-        <EmptyState icon="check" message="오늘·내일 할 일은 다 했어요. 오른쪽 추천을 살펴보세요." />
+        <EmptyState icon="check" message="오늘은 받은 퀘스트가 없어요. 광장의 퀘스트 게시판을 둘러보세요." />
       ) : (
         <ol className="home-rail">
           {shown.map(t => (
@@ -39,8 +47,6 @@ export function TodayList({ tasks, fresh, agent }: { tasks: TodayTask[]; fresh: 
         </ol>
       )}
       {more > 0 && <p className="home-more">외 {more}개 · 내 활동에서 볼 수 있어요</p>}
-      {/* 묻기 전에 먼저 챙긴 일. 할 일 칸 맨 아래 한 줄이라 덩어리를 늘리지 않는다 */}
-      {agent && <p className="home-agent"><Icon name="sparkle" size={14} /><b>에이전트가 해 둔 일</b><span>{agent}</span></p>}
     </Card>
   );
 }
