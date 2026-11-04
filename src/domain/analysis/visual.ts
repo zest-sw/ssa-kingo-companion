@@ -1,10 +1,11 @@
 import type { Discovery, FieldGroup, RecordItem } from '../types';
-import { josa } from '../text';
 import { DID_LABEL, FIELD_GROUP, GROUP_LABEL } from '../vocab';
+import { discoveryQuestion } from './discovery';
 import type { FlowRow, FlowSegment } from './flow';
 import { buildGraph, graphHeadline } from './graph';
 import type { EdgeAnswers } from './map';
 import { semesterKey } from './semester';
+import { leadStrengths, type Strength } from './strengths';
 import type { TechTree } from './techtree';
 
 // 나의 분석 요약 그림이 그릴 모양과 머리말(키워드 한 줄). 그림은 여기서 나온 값을 그대로 그린다.
@@ -57,7 +58,13 @@ export type DiscoveryPic = { question: string; evidence: { id: string; label: st
 
 /** 확인할 발견 한 장의 짧은 질문과 근거 기록 → 발견 도식 값. 근거는 최근 기록부터(기록이 쌓여도 지금의 나를 보여 주게) */
 export function discoveryPic(d: Discovery, shown = 3): DiscoveryPic {
-  const did = DID_LABEL[d.did];
-  const question = d.kind === 'up' ? `${did}, 하면 힘이 나요?` : `${did}${josa(did, '을', '를')} 자주 맡나요?`;
-  return { question, evidence: [...d.evidence].reverse().slice(0, shown).map(r => ({ id: r.id, label: shortName(r.title, 11), full: r.title })), more: Math.max(0, d.evidence.length - shown), target: did };
+  return { question: discoveryQuestion(d), evidence: [...d.evidence].reverse().slice(0, shown).map(r => ({ id: r.id, label: shortName(r.title, 11), full: r.title })), more: Math.max(0, d.evidence.length - shown), target: DID_LABEL[d.did] };
+}
+
+/** 나의 강점 칸 머리말. 레이더 값과 같은 말(확인 근거 수)로: '문제해결 · 확인 근거 10개'. 확인한 것이 없으면 후보임을 밝힌다(점선 톤). */
+export function strengthGlance(rows: Strength[]): { text: string; estimated: boolean } {
+  const lead = leadStrengths(rows);
+  const top = lead.rows[0];
+  if (!top) return { text: '회고를 쓰면 강점이 보여요', estimated: false };
+  return lead.confirmed ? { text: `${top.label} · 확인 근거 ${top.confirmed}개`, estimated: false } : { text: `강점 후보 ${top.label} · 확인 전`, estimated: true };
 }
