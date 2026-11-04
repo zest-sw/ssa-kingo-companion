@@ -1,18 +1,14 @@
 import type { ChallengeView } from '../../app/challenges';
-import { Badge, Icon, ProgressBar, Switch } from '../../components';
-import { RARITY_LABEL } from '../../data/challenges';
+import { Icon, ProgressBar } from '../../components';
+import { formatWhen, RarityTag } from './RarityTag';
 
-const formatWhen = (d: Date) => `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-
-type Props = { item: ChallengeView; showcased: boolean; onShowcase: (next: boolean) => void };
-
-const RARITY_TONE = { common: 'neutral', uncommon: 'navy', rare: 'solid-orange' } as const;
+type Props = { item: ChallengeView };
 
 /** 숨은 과제는 달성 전까지 조건 없이 희귀도만(일부는 힌트) 보인다. */
-export function ChallengeCard({ item, showcased, onShowcase }: Props) {
+export function ChallengeCard({ item }: Props) {
   const { def, progress, achieved, achievedAt } = item;
   const locked = def.hidden && !achieved;
-  const rarity = <Badge tone={RARITY_TONE[def.rarity]}>{RARITY_LABEL[def.rarity]}</Badge>;
+  const rarity = <RarityTag rarity={def.rarity} />;
 
   if (locked) {
     return (
@@ -41,10 +37,9 @@ export function ChallengeCard({ item, showcased, onShowcase }: Props) {
         <>
           <p className="ch-card__meta">{def.condition}</p>
           <div className="ch-card__foot">
-            <span className="num">{achievedAt ? formatWhen(achievedAt) : '달성했어요'}</span>
+            <span className="num">{achievedAt ? `${formatWhen(achievedAt)} 달성` : '달성했어요'}</span>
             {rarity}
           </div>
-          <div className="ch-card__showcase"><Switch checked={showcased} onChange={onShowcase} label="프로필에 전시" /></div>
         </>
       ) : (
         <>

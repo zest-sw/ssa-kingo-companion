@@ -14,22 +14,27 @@ import { useFriends } from './useFriends';
 import { ChallengeList } from './ChallengeList';
 import { ChallengeProgress } from './ChallengeProgress';
 import { FriendFeed } from './FriendFeed';
+import { formatDay } from './RarityTag';
+import { SemesterReplay } from './SemesterReplay';
+import { ShowcasePicker } from './ShowcasePicker';
 
 const LOCKED: { icon: IconName; label: string }[] = [
   { icon: 'friends', label: '친구 소식' }, { icon: 'flag', label: '팀원 모집' }, { icon: 'trophy', label: '명예의 전당' }
 ];
 
 /**
- * 프로필 요약(스팀 프로필처럼): 덩어리 셋. ① 나 + 전시한 도전 과제 ② 도전 과제 진행(다음 3개, 전체는 서랍) ③ 친구 소식(공개할 때) 또는 '공개하면 열려요'.
+ * 프로필 요약(스팀 프로필처럼): 덩어리 셋. ① 나 + 전시한 도전 과제(고르기는 서랍) + 학기 돌아보기 ② 도전 과제 진행(다음 3개, 전체는 서랍) ③ 친구 소식(공개할 때) 또는 '공개하면 열려요'.
  * 비공개여도 내 도전 과제는 보인다. 친구·모집·전당은 ③ 아래 줄에서 한 번씩만 연다. 최근 활동은 내 활동 화면에 있어 여기서는 뺐다.
  */
 export function ProfileHome() {
-  const { state } = useApp();
+  const { state, run } = useApp();
   const challenges = useChallenges();
   useOverviewState<null>('profile', null);
   const v = state.visibility;
   const open = canUseSocial(v);
   const [all, setAll] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const anyDone = challenges.some(c => c.achieved);
 
   const shown = showcaseable(challenges, v.showcaseChallengeIds).map(id => challenges.find(c => c.def.id === id)!);
   const { friends, incoming } = useFriends();
@@ -58,13 +63,23 @@ export function ProfileHome() {
                   <p className="fr-me__sub">{sub}</p>
                 </div>
               </div>
-              {open ? <Badge tone="green" icon="friends">공개 중</Badge> : <Badge icon="lock">나만 보기</Badge>}
+              <div className="pf-head__side">
+                {open ? <Badge tone="green" icon="friends">공개 중</Badge> : <Badge icon="lock">나만 보기</Badge>}
+                {anyDone && <Button size="sm" variant="ghost" icon="pencil" aria-haspopup="dialog" onClick={() => setPicking(true)}>전시 고르기</Button>}
+              </div>
             </div>
             {shown.length ? (
               <ul className="fr-tiles pf-showcase" aria-label="전시한 도전 과제">
-                {shown.map(c => <li key={c.def.id} className="fr-tile"><Icon name={c.def.icon} size={22} /><span>{c.def.name}</span></li>)}
+                {shown.map(c => (
+                  <li key={c.def.id} className="fr-tile">
+                    <Icon name={c.def.icon} size={22} />
+                    <span>{c.def.name}</span>
+                    {c.achievedAt && <span className="pf-tile__when num">{formatDay(c.achievedAt)}</span>}
+                  </li>
+                ))}
               </ul>
-            ) : <p className="fr-empty pf-showcase">{challenges.some(c => c.achieved) ? '전체 목록에서 전시할 과제를 골라 보세요.' : '과제를 달성하면 여기에 전시할 수 있어요.'}</p>}
+            ) : <p className="fr-empty pf-showcase">{anyDone ? '‘전시 고르기’에서 보여 줄 과제를 1~3개 골라 보세요.' : '과제를 달성하면 여기에 전시할 수 있어요.'}</p>}
+            <SemesterReplay />
           </Card>
 
           <Card title="도전 과제" padding="md" action={<Button variant="ghost" icon="chevron" onClick={() => setAll(true)}>전체 목록</Button>}>
@@ -108,6 +123,13 @@ export function ProfileHome() {
       <Drawer open={all} onClose={() => setAll(false)} eyebrow="도전 과제" title="전체 목록">
         <ChallengeList />
       </Drawer>
+      <ShowcasePicker
+        open={picking}
+        onClose={() => setPicking(false)}
+        items={challenges}
+        chosen={showcaseable(challenges, v.showcaseChallengeIds)}
+        onChange={ids => run({ type: 'visibility/set', patch: { showcaseChallengeIds: ids } })}
+      />
     </div>
   );
 }

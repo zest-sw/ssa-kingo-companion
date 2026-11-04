@@ -11,6 +11,7 @@ import { ProfileHome } from './ProfileHome';
 import { RecruitView } from './RecruitView';
 import './challenges.css';
 import './friends.css';
+import './profile.css';
 
 // 공개 설정은 설정(#/settings/visibility)에 있다. 예전 친구·도전 과제 경로는 router 가 여기로 넘긴다.
 type Sub = 'friends' | 'recruit' | 'hall';

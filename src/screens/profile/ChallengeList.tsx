@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useApp } from '../../app/AppState';
 import { useChallenges, type ChallengeView } from '../../app/challenges';
 import { navigate } from '../../app/router';
 import { Button, Card, EmptyState, Icon, Stat, TabPanel, Tabs, type TabItem } from '../../components';
 import { isInProgress } from '../../domain/challenges';
-import { toggled } from '../../domain/social';
 import { ChallengeCard } from './ChallengeCard';
 
 type Tab = 'all' | 'done' | 'doing' | 'hidden';
@@ -24,7 +22,6 @@ const EMPTY: Record<Exclude<Tab, 'all'>, { icon: 'trophy' | 'flag' | 'sparkle'; 
 
 /** 프로필 안 도전 과제 전체 목록(펼치기). 필터가 있는 카드 목록. */
 export function ChallengeList() {
-  const { state, run } = useApp();
   const items = useChallenges();
   const [tab, setTab] = useState<Tab>('all');
 
@@ -34,9 +31,6 @@ export function ChallengeList() {
   const tabs: TabItem<Tab>[] = [{ id: 'all', label: '전체' }, { id: 'done', label: '달성' }, { id: 'doing', label: '진행 중' }, { id: 'hidden', label: '숨은 도전 과제' }];
   const shown = items.filter(FILTER[tab]);
   const empty = tab === 'all' ? null : EMPTY[tab];
-
-  const showcase = (id: string) =>
-    run({ type: 'visibility/set', patch: { showcaseChallengeIds: toggled(state.visibility.showcaseChallengeIds, id) } });
 
   return (
     <>
@@ -50,7 +44,7 @@ export function ChallengeList() {
         {shown.length > 0 ? (
           <ul className="ch-grid">
             {shown.map(item => (
-              <ChallengeCard key={item.def.id} item={item} showcased={state.visibility.showcaseChallengeIds.includes(item.def.id)} onShowcase={() => showcase(item.def.id)} />
+              <ChallengeCard key={item.def.id} item={item} />
             ))}
           </ul>
         ) : empty && (
@@ -59,7 +53,7 @@ export function ChallengeList() {
           </Card>
         )}
       </TabPanel>
-      <p className="ch-note"><Icon name="check" size={16} />레벨, 점수, 순위는 없어요. 전시한 과제는 프로필을 공개했을 때만 친구에게 보여요.</p>
+      <p className="ch-note"><Icon name="check" size={16} />레벨, 점수, 순위는 없어요. 전시는 프로필 머리의 ‘전시 고르기’에서 골라요.</p>
     </>
   );
 }
