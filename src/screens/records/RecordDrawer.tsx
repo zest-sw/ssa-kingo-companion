@@ -7,7 +7,8 @@ import { CARD_STEPS, STEP_LABEL, type CardStep } from '../../domain/interview/sc
 import type { RecordCard, RecordItem } from '../../domain/types';
 import { FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
 import { cardOf } from '../../domain/interview/record';
-import { RecordCardView } from './RecordCardView';
+import { ExperienceCard } from './ExperienceCard';
+import { ProofSection, SettingsSection, VerificationBadge } from './RecordCardView';
 import { toggleAxis } from '../../domain/interview/draft';
 import { liveAxes } from '../../domain/analysis/strengths';
 
@@ -15,7 +16,7 @@ type Props = { record: RecordItem | undefined; onClose: () => void; onDelete: (r
 
 export function RecordDrawer({ record, onClose, onDelete }: Props) {
   return (
-    <Drawer open={!!record} onClose={onClose} eyebrow="기록" title={record?.title ?? ''}>
+    <Drawer open={!!record} onClose={onClose} eyebrow="경험 카드" title={record?.title ?? ''}>
       {record && <Body key={record.id} r={record} onClose={onClose} onDelete={onDelete} />}
     </Drawer>
   );
@@ -38,21 +39,21 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
   }
   return (
     <div className="rec-drawer">
-      <RecordCardView
-        bare
-        title={r.title}
-        meta={meta}
+      <p className="rec-card__meta">{meta} <VerificationBadge v={r.verification} /></p>
+      <ExperienceCard card={card} />
+      <ProofSection
         verification={r.verification}
-        card={card}
         // '아니에요'라고 한 역량은 근거에서 뺀다(나의 강점 서랍과 같은 기준).
         evidence={evidenceOf(liveAxes(r), card.action)}
         confirmed={confirmed}
         onToggleAxis={a => run({ type: 'record/setFlags', id: r.id, flags: { confirmedAxes: toggleAxis(confirmed, a) } })}
+      />
+      <SettingsSection
         visibility={r.visibility}
         onVisibility={visibility => run({ type: 'record/setFlags', id: r.id, flags: { visibility } })}
         profilePublic={state.visibility.profilePublic}
         useForRecommend={r.useForRecommend}
-        onUseForRecommend={useForRecommend => run({ type: 'record/setFlags', id: r.id, flags: { useForRecommend } })}
+        onUseForRecommend={useForRecommend => run({ type: 'record/setFlags', id: r.id, flags: { useForRecommend } }, { toast: useForRecommend ? '이 기록을 추천에 다시 써요.' : '이 기록은 추천과 발견에서 뺐어요.' })}
       />
       <div className="rec-drawer__actions">
         <Button icon="pencil" onClick={() => setEditing(true)}>고치기</Button>

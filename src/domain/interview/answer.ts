@@ -18,8 +18,13 @@ export function starAnswer(card: RecordCard): string {
   }).join(' ');
 }
 
-/** 면접 답변을 만들 만큼 채워졌는지: STAR 네 칸 중 둘 이상 */
-export const answerReady = (card: RecordCard): boolean => (['situation', 'role', 'action', 'result'] as const).filter(k => card[k]?.trim()).length >= 2;
+const STAR: (keyof RecordCard)[] = ['situation', 'role', 'action', 'result'];
+
+/** 면접 답변을 만들 수 있는지: STAR 네 칸 중 하나라도 있으면(배운 점만으로는 경험 답변이 안 된다) */
+export const answerReady = (card: RecordCard): boolean => STAR.some(k => !!card[k]?.trim());
+
+/** 비어 있는 STAR 칸. 답변 아래에 '이 칸을 채우면 단단해져요'로 알린다 */
+export const missingStar = (card: RecordCard): (keyof RecordCard)[] => STAR.filter(k => !card[k]?.trim());
 
 /** 경험 카드 묶음에 고를 수 있는 기록 수 */
 export const BUNDLE_MIN = 2;

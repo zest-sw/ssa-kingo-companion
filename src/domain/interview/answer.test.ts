@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { rec } from '../fixtures.test-util';
-import { answerReady, BUNDLE_MAX, bundleText, starAnswer, togglePick } from './answer';
+import { answerReady, BUNDLE_MAX, bundleText, missingStar, starAnswer, togglePick } from './answer';
 
 describe('starAnswer', () => {
   it('상황·역할·한 일·결과·배운 점·다음 순서로 학생 글을 한 문장씩 잇는다', () => {
@@ -14,9 +14,10 @@ describe('starAnswer', () => {
 });
 
 describe('answerReady', () => {
-  it('STAR 네 칸 중 둘 이상이면 답변을 만든다(배운 점만으로는 안 된다)', () => {
-    expect(answerReady({ role: 'r', action: 'a' })).toBe(true);
-    expect(answerReady({ role: 'r', learned: 'l', next: 'n' })).toBe(false);
+  it('STAR 칸이 하나라도 있으면 답변을 만들고(배운 점만으로는 안 된다), 빈 STAR 칸을 순서대로 알려 준다', () => {
+    expect(answerReady({ action: 'a', learned: 'l' })).toBe(true);
+    expect(answerReady({ learned: 'l', next: 'n' })).toBe(false);
+    expect(missingStar({ role: 'r', action: ' ' })).toEqual(['situation', 'action', 'result']);
   });
 });
 
