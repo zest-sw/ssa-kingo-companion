@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { catalog, prog, profile, rec } from '../fixtures.test-util';
 import { buildCandidates } from '../candidates';
-import { buildStory, storyLineFor, type StoryInput } from './story';
+import { buildGraph } from '../analysis/graph';
+import { buildStrengths, leadStrengths } from '../analysis/strengths';
+import { FIELD_GROUP } from '../vocab';
+import { AXIS_DOING, CLUSTER_DOING, identityLine } from './phrases';
+import { buildStory, clusterDoing, storyLineFor, type StoryInput } from './story';
 
 const programs = [
   prog('p-ask', { field: 'research', did: ['ask'], level: 2 }),
@@ -25,11 +29,23 @@ const input = (over: Partial<StoryInput> = {}): StoryInput => {
 describe('buildStory', () => {
   it('정체성은 묶음이 하는 일 + 가장 확실한 강점, 확인 전에는 추정', () => {
     const s = buildStory(input());
-    expect(s.identity.text).toBe('사용자 이야기를 듣고 문제로 정리하는 쪽으로 자라고 있어요');
+    // 규칙: 지금 모이는 분야(가장 최근 기록의 분야)가 든 지식 그래프 묶음의 사전 주제가 하는 일 + 가장 확실한 강점이 하는 일
+    const end = FIELD_GROUP[records[records.length - 1].field];
+    const cluster = buildGraph(records, {}).clusters.find(c => c.recordIds.some(id => FIELD_GROUP[records.find(r => r.id === id)!.field] === end))!;
+    expect(cluster.source).toBe('taxonomy');
+    expect(clusterDoing(cluster, records)).toBe(CLUSTER_DOING[cluster.topic!]);
+    const top = leadStrengths(buildStrengths(records)).rows[0];
+    expect(s.identity.text).toBe(identityLine(CLUSTER_DOING[cluster.topic!], AXIS_DOING[top.axis]));
     expect(s.identity.status).toBe('estimate');
     expect(s.identity.alternatives.length).toBeGreaterThanOrEqual(2);
     expect(s.identity.alternatives.length).toBeLessThanOrEqual(3);
-    expect(s.identity.basis).toBe('기록 3개·확인 근거 2개를 읽고');
+    const confirmed = buildStrengths(records).reduce((n, x) => n + x.confirmed, 0);
+    expect(s.identity.basis).toBe(`기록 ${records.length}개·확인 근거 ${confirmed}개를 읽고`);
+  });
+
+  it('AI 제안 이름 묶음(사전 주제 없음)은 그 묶음에 가장 많은 분야의 말을 쓴다', () => {
+    const doing = clusterDoing({ id: 'c-x', name: 'x', recordIds: ['b', 'c'], source: 'llm', keywords: [] }, records);
+    expect(doing).toBe(clusterDoing({ id: 'c-y', name: 'y', recordIds: ['b'], source: 'llm', keywords: [] }, records));
   });
 
   it('고른 문장이 후보 중 하나면 확인으로 바뀌고, 모르는 문장이면 무시한다', () => {

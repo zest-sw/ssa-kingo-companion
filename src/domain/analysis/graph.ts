@@ -23,8 +23,8 @@ export type GraphEdge = {
   id: string; kind: 'evidence' | 'follow'; from: string; to: string; confirmed: boolean;
   origin?: KgOrigin; why?: { rule: number; llm: number; student: number }; reasons?: { text: string; origin: KgOrigin }[];
 };
-/** source: 이름이 사전에서 왔나(taxonomy), AI 가 제안했나(llm). keywords 는 맞은 사전 키워드 */
-export type Cluster = { id: string; name: string; recordIds: string[]; source: NameSource; keywords: string[]; summary?: string; confirmed?: boolean };
+/** source: 이름이 사전에서 왔나(taxonomy), AI 가 제안했나(llm). topic 은 맞은 사전 주제 id(kgTaxonomy), keywords 는 맞은 사전 키워드 */
+export type Cluster = { id: string; name: string; recordIds: string[]; source: NameSource; topic?: string; keywords: string[]; summary?: string; confirmed?: boolean };
 /** 학생이 AI 제안 이름에 한 답: 맞아요(ok) 또는 바꾼 이름 */
 export type ClusterNameAnswers = Record<string, { ok?: boolean; name?: string }>;
 
@@ -56,7 +56,7 @@ export function buildGraph(records: RecordItem[], answers: EdgeAnswers, programs
   const sorted = sortRecords(records);
   const kg = buildKg(sorted, { answers, llm });
   const analysis = analyzeKg(kg, programs, llm);
-  const clusters: Cluster[] = analysis.clusters.map(c => ({ id: c.id, name: c.name, recordIds: c.recordIds, source: c.source, keywords: c.keywords, summary: c.summary }));
+  const clusters: Cluster[] = analysis.clusters.map(c => ({ id: c.id, name: c.name, recordIds: c.recordIds, source: c.source, topic: c.topic, keywords: c.keywords, summary: c.summary }));
   const clusterOf = new Map(clusters.flatMap(c => c.recordIds.map(id => [id, c.id] as const)));
   const follows: GraphEdge[] = analysis.shown.map(p => ({
     id: p.id, kind: 'follow', from: p.a, to: p.b, confirmed: p.origin === 'student', origin: p.origin, why: pairWhy(p),
