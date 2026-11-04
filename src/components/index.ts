@@ -13,6 +13,7 @@ export { Modal } from './Modal';
 export { PageHeader } from './PageHeader';
 export { onPageScroll, pageScroller, pageScrollTop, setPageScrollTop } from './pageScroll';
 export { Panel } from './Panel';
+export { SectionTabs, type SectionTab } from './SectionTabs';
 export { ProgressBar } from './ProgressBar';
 export { Stat } from './Stat';
 export { SummaryCard } from './SummaryCard';

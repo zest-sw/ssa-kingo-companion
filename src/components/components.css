@@ -146,6 +146,20 @@
 .ui-tabs__tab:focus-visible { border-radius: var(--radius-sm); }
 .ui-tabpanel { margin-top: var(--space-5); }
 
+/* SectionTabs: 하위 화면 링크 줄. 알약·색 면 없이 지금 칸만 2px 밑줄 + 굵은 글자, 줄 아래 1px 선 */
+.ui-stabs { display: flex; gap: var(--space-5); border-bottom: var(--border); }
+.ui-stabs__tab {
+  display: inline-flex; flex-direction: column; justify-content: center; flex: none; min-height: var(--stabs-h); margin-bottom: -1px; padding: 0 2px;
+  border-bottom: var(--nav-mark) solid transparent; color: var(--ink-muted); text-decoration: none;
+  font-size: var(--text-md); font-weight: var(--weight-medium); white-space: nowrap;
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.ui-stabs__tab:hover { color: var(--ink); border-bottom-color: var(--line-strong); }
+.ui-stabs__tab[aria-current='page'] { color: var(--ink); border-bottom-color: var(--ink-strong); font-weight: var(--weight-bold); }
+/* 굵기가 바뀌어도 칸 폭이 그대로이게: 굵은 글자 폭을 미리 잡아 둔다 */
+.ui-stabs__tab::after { content: attr(data-label); height: 0; visibility: hidden; overflow: hidden; font-weight: var(--weight-bold); }
+.ui-stabs__tab:focus-visible { border-radius: var(--radius-sm); box-shadow: var(--focus-ring-inset); }
+
 /* SegmentedControl: 같은 내용을 다르게 보기 */
 .ui-seg { display: inline-flex; gap: 2px; padding: 2px; border: var(--border); border-radius: var(--radius-lg); background: var(--grey-100); }
 .ui-seg__item {
