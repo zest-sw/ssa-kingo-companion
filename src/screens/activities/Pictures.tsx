@@ -1,5 +1,4 @@
-import { ddayText } from '../../domain/text';
-import type { StatusBar, Week } from './visual';
+import type { StatusBar } from './visual';
 
 // 내 활동 요약의 그림. 모든 표시는 그 학생의 활동·기록이고 이름표는 그림 안에 직접 붙인다.
 
@@ -16,32 +15,5 @@ export function StatusBarsPic({ bars }: { bars: StatusBar[] }) {
         </li>
       ))}
     </ul>
-  );
-}
-
-/** 이번 주 7일 타임라인. 마감 점은 눌러서 그 활동 서랍을 연다(요약 카드가 아니라 이 칸의 행동이다). */
-export function WeekPic({ week, onOpen }: { week: Week; onOpen: (id: string) => void }) {
-  return (
-    <div className="act-wk">
-      <div className="act-wk__days" aria-hidden="true">
-        {week.days.map(d => <span key={d.offset} className={`act-wk__day${d.today ? ' is-today' : ''}`}>{d.label}</span>)}
-      </div>
-      <div className="act-wk__axis">
-        {week.days.map(d => <span key={d.offset} className="act-wk__tick" style={{ left: `${((d.offset + 0.5) / week.days.length) * 100}%` }} />)}
-        {week.dues.map((d, i) => (
-          <button
-            key={d.id}
-            type="button"
-            className={`act-wk__due${i % 2 ? ' is-low' : ''}${d.dday > 3 ? ' is-right' : ''}`}
-            style={{ left: `${((d.dday + 0.5) / week.days.length) * 100}%` }}
-            aria-label={`${d.title}, ${ddayText(d.dday)}`}
-            onClick={() => onOpen(d.id)}
-          >
-            <span className="act-wk__dot" />
-            <span className="act-wk__name">{d.title}<b className="num"> {ddayText(d.dday)}</b></span>
-          </button>
-        ))}
-      </div>
-    </div>
   );
 }
