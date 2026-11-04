@@ -6,7 +6,7 @@ import type { LogEntry } from '../../domain/recommend-flow/draft';
 export function RunLog({ log, day }: { log: LogEntry[]; day?: string }) {
   return (
     <details className="rec-runlog">
-      <summary className="rec-runlog__head">에이전트가 한 일 {log.length}개</summary>
+      <summary className="rec-runlog__head">에이전트가 한 일 {log.length}개<Icon name="chevron" size={14} /></summary>
       <ul>
         {log.map((l, n) => (
           <li key={n} className={l.ok ? '' : 'rec-runlog__fail'}>

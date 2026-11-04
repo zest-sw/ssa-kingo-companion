@@ -69,7 +69,7 @@ export function Overview({ actions, onOpenLater }: Props) {
       </Card>
     );
   } else if (mode === 'table') {
-    body = <CompareView scored={filtering ? matched : view.scored} week={state.week} records={state.records} interests={state.profile.interests} activities={state.activities} actions={actions} />;
+    body = <CompareView scored={filtering ? matched : view.scored} week={state.week} interests={state.profile.interests} activities={state.activities} actions={actions} />;
   } else if (list.length === 0) {
     body = (
       <Card className="rec-empty">
@@ -79,8 +79,8 @@ export function Overview({ actions, onOpenLater }: Props) {
   } else {
     body = (
       <div className="os__body os__body--fill rec-split">
-        <CandidateList list={list} currentId={current?.p.id} week={state.week} onPick={setPicked} heading={filtering ? `맞는 후보 ${list.length}개` : `후보 ${list.length}개`} />
-        {current && <CandidateCard key={current.p.id} pick={current} isPrimary={current.p.id === view.primary?.p.id} week={state.week} records={state.records} activities={state.activities} actions={actions} />}
+        <CandidateList list={list} primaryId={view.primary?.p.id} currentId={current?.p.id} week={state.week} onPick={setPicked} label={filtering ? `맞는 후보 ${list.length}개` : `후보 ${list.length}개`} />
+        {current && <CandidateCard key={current.p.id} pick={current} isPrimary={current.p.id === view.primary?.p.id} week={state.week} activities={state.activities} actions={actions} />}
       </div>
     );
   }

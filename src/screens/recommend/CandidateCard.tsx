@@ -5,21 +5,23 @@ import { candidateHref, dateLabel, formatText, isNearDeadline } from '../../doma
 import { weekLoad } from '../../domain/recommend-flow/load';
 import { traceNodes } from '../../domain/recommend-flow/trace';
 import { ddayText } from '../../domain/text';
-import type { Activity, RecordItem, Scored } from '../../domain/types';
+import type { Activity, Scored } from '../../domain/types';
 import { DID_LABEL, fieldName } from '../../domain/vocab';
 import type { CardActions } from './actions';
 import { Fact } from './Fact';
 import { LoadBadge } from './LoadBadge';
+import { useBasis } from './useBasis';
 
 /**
- * ① 고르기의 오른쪽 짧은 카드: 제목, 핵심 3가지(마감·기간·방식), 이번 주 부담(여유/빠듯), 이유 키워드 한 줄.
+ * ① 고르기의 오른쪽 짧은 카드: 제목, 핵심 3가지(마감·기간·방식), 이번 주 부담(여유/빠듯), 이유 키워드 한 줄, 신청 준비를 누르면 에이전트가 맡을 일 한 줄.
  * 행동은 Linear 분류함처럼 신청 준비(주) / 나중에 보기 / 관심 없음. 자세히(#/recommend/<id>)는 이유 줄 끝 링크 하나다. 적합도 점수는 화면에 내지 않는다.
  */
-export function CandidateCard({ pick, isPrimary, week, records, activities, actions }: { pick: Scored; isPrimary: boolean; week: number; records: RecordItem[]; activities: Activity[]; actions: CardActions }) {
+export function CandidateCard({ pick, isPrimary, week, activities, actions }: { pick: Scored; isPrimary: boolean; week: number; activities: Activity[]; actions: CardActions }) {
+  const basis = useBasis();
   const p = pick.p;
   const dday = ddayOf(p, week);
   const fmt = formatText(p);
-  const why = traceNodes(pick.reasons, records, p)[0];
+  const why = traceNodes(pick.reasons, basis.records, p, basis.newcomer)[0];
   return (
     <Panel
       className="rec-pick"
@@ -47,6 +49,13 @@ export function CandidateCard({ pick, isPrimary, week, records, activities, acti
       <p className="rec-pick__why">
         {why && <><Icon name="sparkle" size={16} /><b>{why.label}</b><span>{why.detail}</span></>}
         <a className="rec-link rec-pick__more" href={hrefOf(candidateHref(p.id))}>왜 추천했나 자세히<Icon name="chevron" size={14} /></a>
+      </p>
+      {/* 목업 recommend-top: 누르기 전에 에이전트가 맡을 일을 미리 보인다(귀찮은 일은 에이전트가) */}
+      <p className="rec-pick__agent">
+        <span>신청 준비를 누르면 에이전트가</span>
+        <span className="rec-pick__task"><Icon name="doc" size={14} />신청서 초안 쓰기</span>
+        <span className="rec-pick__task"><Icon name="calendar" size={14} />일정 등록</span>
+        <span className="rec-pick__task"><Icon name="bell" size={14} />남은 마감 챙기기</span>
       </p>
     </Panel>
   );

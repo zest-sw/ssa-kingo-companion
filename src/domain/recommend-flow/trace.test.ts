@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { prog } from '../fixtures.test-util';
 import type { Reason, RecordItem } from '../types';
-import { deadlineRatio, traceNodes } from './trace';
+import { deadlineRatio, goalGroups, newcomerOf, traceNodes } from './trace';
 
 const p = prog('p1', { field: 'research', did: [] });
 const rec = { id: 'r1', title: '사용성 테스트', date: '2학기 · 10월' } as RecordItem;
@@ -40,5 +40,36 @@ describe('deadlineRatio', () => {
     expect(deadlineRatio(30)).toBe(1);
     expect(deadlineRatio(7)).toBe(0.5);
     expect(deadlineRatio(-1)).toBe(0.04);
+  });
+});
+
+describe('traceNodes: 기록이 없는 새 학생', () => {
+  const plan = prog('p2', { field: 'product' });
+  const novelty: Reason = { kind: 'novelty', text: '아직 해 보지 않은 ‘창업·기획’ 분야예요.' };
+  it('목표 글이 이 분야를 가리키면 목표 점을 맨 앞에 둔다', () => {
+    const nodes = traceNodes([novelty], [], plan, { goal: '서비스 기획 직무', interests: ['plan'], interestOpen: true });
+    expect(nodes.map(n => n.kind)).toEqual(['goal', 'novelty']);
+    expect(nodes[0]).toMatchObject({ label: '목표', detail: '서비스 기획 직무', text: '가입할 때 적은 목표 ‘서비스 기획 직무’와 같은 창업·기획 분야예요.' });
+    expect(nodes[1].detail).toBe('처음 해 보는 창업·기획');
+  });
+  it('목표가 다른 분야거나 비어 있으면 목표 점을 지어내지 않는다', () => {
+    expect(traceNodes([novelty], [], plan, { goal: '데이터 분석 직무', interests: [], interestOpen: true }).map(n => n.kind)).toEqual(['novelty']);
+    expect(traceNodes([novelty], [], plan, { goal: '', interests: [], interestOpen: true }).map(n => n.kind)).toEqual(['novelty']);
+  });
+  it('고른 관심 분야 모집이 이번 주 없으면 그 사실을 한 점으로 알린다(모르겠어요는 빼고)', () => {
+    const nodes = traceNodes([novelty], [], plan, { goal: '', interests: ['mentor'], interestOpen: false });
+    expect(nodes.at(-1)).toMatchObject({ kind: 'interest-miss', label: '관심', detail: '멘토링 모집은 이번 주 없어요' });
+    expect(traceNodes([novelty], [], plan, { goal: '', interests: ['unknown'], interestOpen: false }).map(n => n.kind)).toEqual(['novelty']);
+  });
+  it('기록이 있으면 새 학생 규칙을 쓰지 않는다', () => {
+    expect(traceNodes([novelty], [rec], plan, { goal: '서비스 기획', interests: [], interestOpen: true }).map(n => n.kind)).toEqual(['novelty']);
+  });
+  it('newcomerOf: 이번 주 후보에 고른 관심 분야가 있는지', () => {
+    expect(newcomerOf({ goal: '', interests: ['mentor'] }, [plan]).interestOpen).toBe(false);
+    expect(newcomerOf({ goal: '', interests: ['plan'] }, [plan]).interestOpen).toBe(true);
+  });
+  it('goalGroups: 목표 글의 낱말로 분야를 어림한다', () => {
+    expect(goalGroups('데이터 분석 직무')).toEqual(['ai']);
+    expect(goalGroups('대학원 진학')).toEqual([]);
   });
 });

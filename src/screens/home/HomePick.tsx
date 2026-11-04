@@ -4,20 +4,23 @@ import { ddayOf } from '../../domain/recommend';
 import { candidateHref, dateLabel } from '../../domain/recommend-flow/flow';
 import { traceNodes } from '../../domain/recommend-flow/trace';
 import { ddayText } from '../../domain/text';
-import type { RecordItem, Scored } from '../../domain/types';
+import type { Scored } from '../../domain/types';
 import type { CardActions } from '../recommend/actions';
 import { Meter } from '../recommend/Meter';
+import { useBasis } from '../recommend/useBasis';
 
-type Props = { pick: Scored; alternatives: Scored[]; week: number; records: RecordItem[]; actions: CardActions };
+type Props = { pick: Scored; alternatives: Scored[]; week: number; actions: CardActions };
 
 /**
  * 홈 층 구조(layout-reference A): 가장 추천 하나를 크게, 그 아래 다른 대안 두 줄을 작게.
  * 가장 추천은 신청 준비(주) / 나중에 보기 / 관심 없음 중 하나만 누르면 된다. 자세히 가는 길은 제목 링크 하나, 대안은 줄마다 그 후보의 자세히로 간다.
  */
-export function HomePick({ pick, alternatives, week, records, actions }: Props) {
+export function HomePick({ pick, alternatives, week, actions }: Props) {
+  // 추천 화면과 같은 근거(추천에 쓰는 기록, 기록 없는 학생은 목표·관심)로 같은 이유 문장을 쓴다.
+  const basis = useBasis();
   const { p } = pick;
   const dday = ddayOf(p, week);
-  const why = traceNodes(pick.reasons, records, p)[0];
+  const why = traceNodes(pick.reasons, basis.records, p, basis.newcomer)[0];
   return (
     <div className="home-pick">
       <div className="home-pick__meta">

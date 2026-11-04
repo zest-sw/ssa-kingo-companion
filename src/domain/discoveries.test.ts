@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { didsByState, discState, discoveriesOf, nextConfirm, sentenceOf } from './discoveries';
+import { confirmedStatements, didsByState, discState, discoveriesOf, nextConfirm, sentenceOf } from './discoveries';
 import { rec } from './fixtures.test-util';
+import type { Discovery } from './types';
 
 describe('discoveriesOf · 발견 생성', () => {
   it('같은 일을 한 기록이 하나면 발견이 없다', () => {
@@ -67,5 +68,15 @@ describe('sentenceOf', () => {
   it('받침에 맞춰 조사를 고른다', () => {
     expect(sentenceOf(rec('x', { title: '스터디', did: 'ask', energy: 'up' }))).toBe('스터디에서 ‘질문하기’를 주로 했고, 끝난 뒤 에너지가 더 생겼다.');
     expect(sentenceOf(rec('x', { title: '특강', did: 'organize', energy: 'down' }))).toBe('특강에서 ‘의견 묶고 조율하기’를 주로 했고, 끝난 뒤 조금 지쳤다.');
+  });
+});
+
+describe('confirmedStatements', () => {
+  it('맞다고 한 발견만, 그 발견 종류의 문장 그대로', () => {
+    const ds: Discovery[] = [
+      { key: 'freq:ask', did: 'ask', kind: 'freq', statement: '질문을 만드는 역할을 자주 맡아요', evidence: [], sig: [] },
+      { key: 'up:make', did: 'make', kind: 'up', statement: '직접 만들어 볼 때 에너지가 올라가요', evidence: [], sig: [] }
+    ];
+    expect(confirmedStatements(ds, { 'freq:ask': { status: 'yes', sig: [] }, 'up:make': { status: 'no', sig: [] } })).toEqual({ ask: '질문을 만드는 역할을 자주 맡아요' });
   });
 });

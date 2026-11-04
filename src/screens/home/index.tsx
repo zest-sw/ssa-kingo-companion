@@ -47,7 +47,7 @@ export default function HomeScreen(_props: ScreenProps) {
         <TodayList tasks={tasks} fresh={state.activities.length === 0} agent={agentLine(view.funnel, state.activities)} />
         <Card className="home-top" aria-label="가장 추천">
           {top ? (
-            <HomePick pick={top} alternatives={view.alternatives} week={state.week} records={state.records} actions={actions} />
+            <HomePick pick={top} alternatives={view.alternatives} week={state.week} actions={actions} />
           ) : (
             <EmptyState icon="compass" message="지금은 맞는 후보가 없어요. 관심 분야나 시간을 바꿔 보세요." action={<Button size="sm" onClick={() => navigate('settings/profile')}>관심 분야·시간 바꾸기</Button>} />
           )}

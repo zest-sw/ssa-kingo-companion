@@ -1,4 +1,4 @@
-import { didsByState, discoveriesOf } from './discoveries';
+import { confirmedStatements, didsByState, discoveriesOf } from './discoveries';
 import { pickAlternatives, rank } from './recommend';
 import type { Catalog, CandidateChoice, Confirm, Discovery, DislikeKind, Field, Funnel, LastDone, Mode, Profile, Program, RecordItem, Scored, Settings } from './types';
 
@@ -41,7 +41,7 @@ export function buildCandidates(input: CandidateInput): CandidateView {
   const { scored, funnel } = rank({
     catalog: input.catalog, week: input.week, profile: input.profile, records: usable, doneIds,
     excluded: Object.keys(input.choices), dislikedFields: input.dislikedFields, preferEasier: input.preferEasier,
-    mode, focusDids, rejectedDids, careerOn: input.settings.career, reflectOn: input.settings.discover, last: input.last
+    mode, focusDids, focusStatements: confirmedStatements(discoveries, input.confirm), rejectedDids, careerOn: input.settings.career, reflectOn: input.settings.discover, last: input.last
   });
   const primary = scored[0];
   const alternatives = primary ? pickAlternatives(scored, primary.p) : [];
