@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 /**
  * 진입점 점검(docs/design/ia-navigation.md 2·4절): 경로마다 앱을 그려, 한 화면 안에서 같은 목적지로 가는 링크·버튼·탭이 몇 개인지 센다.
- * 사이드바는 빼고 센다(이동은 사이드바가 맡는다). 목적지마다 1개 이하여야 한다.
+ * 본문: 사이드바와 구역 탭은 빼고 센다(이동은 이 둘이 맡는다). 목적지마다 1개 이하여야 한다. 요약 카드가 하위 화면으로 가는 것은 내용이라 허용(2절 4).
+ * 이동 줄: 사이드바 주 메뉴 + 구역 탭을 따로 센다. 지금 페이지 링크(aria-current="page")끼리, 하위 화면의 사이드바 구역 항목 + '한눈에'는 하나로 본다(count.ts).
+ * 위로 가는 길: 구역 탭이 있는 하위 화면 본문에 그 구역 '한눈에'로 가는 링크·버튼을 두지 않는다(탭 하나만).
  *
  *   npm run audit:entries   표와 함께 이 점검만 돌린다(npm run check 에도 들어 있다)
  *
@@ -22,6 +24,7 @@ vi.mock('../router', async importOriginal => {
 
 import App from '../App';
 import { movedPath } from '../router';
+import { duplicates, groupEntries, type Entry } from './count';
 import { INITIAL_STATE, NEW_STUDENT_STATE, type AppState } from '../state';
 import { saveState } from '../storage';
 import { CATALOG } from '../../data/catalog';
@@ -53,7 +56,8 @@ const CASES: Case[] = [
     'analysis', 'analysis/techtree', 'analysis/map', 'analysis/flow', 'analysis/strengths', 'profile'].map(path => ({ path, fresh: true }))
 ];
 
-const SKIP = '.app-side, .app-skip, [role="search"]';
+const SKIP = '.app-side, .app-skip, .ui-stabs, [role="search"]';
+const NAV_LINKS = '.app-side nav a[href], .ui-stabs a[href]';
 const norm = (path: string) => { const p = path.replace(/^#?\/?/, '').replace(/\/+$/, ''); return movedPath(p) ?? p; };
 const nameOf = (el: Element) => (el.getAttribute('aria-label') ?? el.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 40);
 
@@ -104,6 +108,15 @@ async function entriesOf(c: Case): Promise<Map<string, string[]>> {
   return found;
 }
 
+/** 이동 줄(사이드바 주 메뉴 + 구역 탭)의 목적지별 링크. mount 뒤 처음 그린 화면에서 센다 */
+function navEntries(): Entry[] {
+  const tabsHome = document.querySelector('.ui-stabs a[href]')?.getAttribute('href');
+  return [...document.querySelectorAll<HTMLAnchorElement>(NAV_LINKS)].map(a => {
+    const href = a.getAttribute('href') ?? '';
+    return { dest: norm(href), name: nameOf(a), current: a.getAttribute('aria-current') === 'page', sectionHome: href === tabsHome };
+  });
+}
+
 const label = (c: Case) => `${c.path}${c.public ? ' (공개)' : ''}${c.fresh ? ' (새 학생)' : ''}${c.overview ? ` (${JSON.stringify(Object.values(c.overview)[0])})` : ''}`;
 
 describe('진입점 점검: 같은 목적지는 화면마다 하나', () => {
@@ -124,10 +137,14 @@ describe('진입점 점검: 같은 목적지는 화면마다 하나', () => {
   });
 
   it.each(CASES.map(c => [label(c), c] as const))('%s', async (_name, c) => {
+    await mount(c);
+    const nav = navEntries();
+    const home = nav.find(e => e.sectionHome && !e.current && e.name === '한눈에')?.dest;
     const found = await entriesOf(c);
-    const dupes = [...found].filter(([, names]) => names.length > 1);
+    expect(duplicates(groupEntries(nav)), '이동 줄').toEqual([]);
+    expect(home ? (found.get(home) ?? []).map(n => `${home} ← ${n}`) : [], '위로 가는 길은 구역 탭 하나').toEqual([]);
     const worst = [...found].sort((a, b) => b[1].length - a[1].length)[0];
     report.push(`${label(c)} | ${found.size} | ${worst ? `${worst[0]} ×${worst[1].length}` : '-'}`);
-    expect(dupes.map(([dest, names]) => `${dest} ← ${names.join(' / ')}`)).toEqual([]);
+    expect(duplicates(found), '본문').toEqual([]);
   }, 60_000);
 });
