@@ -48,7 +48,7 @@ export function RecommendList({ list, primaryId, onOpen, label }: { list: Scored
 }
 
 /**
- * 전체 기회 탭: 지금 열린 기회 모두. 위 한 줄은 종류 칩(개수와 함께)과 정렬 전환. 추천한 기회는 행에 '추천' 표시.
+ * 전체 기회 탭: 지금 열린 기회 모두. 위 한 줄은 종류 칩(개수와 함께), 목록 머리 오른쪽은 정렬 전환. 추천한 기회는 행에 '추천' 표시.
  */
 export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen }: {
   open: Program[]; recommendedIds: Set<string>; cat: CategoryFilter; sort: OpenSort;
@@ -70,11 +70,13 @@ export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen
             </Chip>
           ))}
         </div>
-        <SegmentedControl label="정렬" items={(['deadline', 'new'] as const).map(id => ({ id, label: SORT_LABEL[id] }))} value={sort} onChange={onSort} />
       </div>
       <section className="rec-list" data-fill aria-label={`${label} 기회 ${shown.length}개`}>
         <div className="rec-list__scroll os-scroll">
-          <h2 className="rec-list__head">{label} {shown.length}개 · {SORT_LABEL[sort]}</h2>
+          <div className="rec-list__head rec-list__bar">
+            <h2>{label} {shown.length}개</h2>
+            <SegmentedControl label="정렬" items={(['deadline', 'new'] as const).map(id => ({ id, label: SORT_LABEL[id] }))} value={sort} onChange={onSort} />
+          </div>
           <ul className="rec-rows">
             {shown.map(p => <OppRow key={p.id} p={p} week={state.week} mark={recommendedIds.has(p.id) ? '추천' : undefined} onOpen={onOpen} />)}
           </ul>
