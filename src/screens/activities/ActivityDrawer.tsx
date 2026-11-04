@@ -6,8 +6,8 @@ import type { Activity, ActivityStatus } from '../../domain/types';
 import { STATUS_LABEL } from '../../domain/vocab';
 import { runLog } from '../../domain/recommend-flow/draft';
 import { RunLog } from '../recommend/RunLog';
-import { ActivityMeta, StatusBadge, goInterview } from './ActivityCard';
-import { canQuit, dueView } from './helpers';
+import { StatusBadge, goInterview } from './ActivityCard';
+import { canQuit, dueView, nextLine } from './helpers';
 
 const FLOW: ActivityStatus[] = ['preparing', 'applied', 'ongoing', 'ended', 'recorded'];
 const DECLINED_FLOW: ActivityStatus[] = ['preparing', 'applied', 'declined'];
@@ -76,7 +76,7 @@ export function ActivityDrawer({ a, onClose }: { a: Activity | undefined; onClos
       {a && (
         <div className="act-drawer">
           <Stages status={a.status} />
-          <p className="act-drawer__line"><ActivityMeta a={a} /></p>
+          <p className="act-drawer__line">{nextLine(a)}</p>
           <Facts a={a} />
           {/* 에이전트가 이 활동에서 대신 한 일(Jira 자동화 실행 기록처럼 활동별로) */}
           {log.length > 0 && <RunLog log={log} />}

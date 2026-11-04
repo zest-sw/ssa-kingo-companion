@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Activity } from '../../domain/types';
-import { canQuit, dueText, dueView, metaView } from './helpers';
+import { canQuit, dueText, dueView, metaView, nextLine } from './helpers';
 
 const a = (over: Partial<Activity> = {}): Activity => ({ id: 'a', title: 't', field: 'dev', status: 'preparing', schedule: '11월부터 매주', ...over });
 
@@ -34,5 +34,16 @@ describe('그만두기', () => {
     expect(canQuit(a({ status: 'ongoing' }))).toBe(true);
     expect(canQuit(a({ status: 'recorded' }))).toBe(false);
     expect(canQuit(a({ status: 'declined' }))).toBe(false);
+  });
+});
+
+describe('nextLine', () => {
+  it('준비 중이면 남은 개수, 다 했으면 이어서 하기', () => {
+    expect(nextLine(a({ prep: { done: 2, total: 3 } }))).toBe('신청 준비가 1개 남았어요');
+    expect(nextLine(a({ prep: { done: 3, total: 3 } }))).toBe('신청 준비를 이어서 해요');
+  });
+  it('끝난 활동은 회고가 다음 일', () => {
+    expect(nextLine(a({ status: 'ended' }))).toContain('회고를 쓰면');
+    expect(nextLine(a({ status: 'declined' }))).not.toMatch(/실패|탈락/);
   });
 });

@@ -4,6 +4,7 @@ import { navigate } from '../../app/router';
 import { BOARD_COLUMNS, groupByColumn, splitDone } from '../../domain/activities';
 import type { Activity, BoardColumn } from '../../domain/types';
 import { ActivityCard } from './ActivityCard';
+import { DOING_BUSY } from './helpers';
 import { takeBoardFocus } from './boardFocus';
 
 const EMPTY: Record<BoardColumn, { message: string; cta?: { label: string; to: string } }> = {
@@ -19,6 +20,7 @@ function ColumnList({ id, list, onOpen }: { id: BoardColumn; list: Activity[]; o
   const shown = more ? [...open, ...settled] : open;
   return (
     <>
+      {id === 'doing' && list.length >= DOING_BUSY && <p className="act-col__note">하는 중이 {list.length}개예요. 새로 시작하기 전에 지금 것부터 살펴봐요.</p>}
       <ul className="act-col__list">
         {shown.map(a => <li key={a.id}><ActivityCard a={a} onOpen={onOpen} /></li>)}
       </ul>
