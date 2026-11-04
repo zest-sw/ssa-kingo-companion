@@ -81,12 +81,12 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
 
   return (
     <div className="an-str-cols">
-      <Card className="os-card" title="기록에서 드러난 강점" action={moments.length > 1 ? <SegmentedControl label="보는 시점" items={moments.map(m => ({ id: m.id, label: m.label }))} value={moment.id} onChange={setMomentId} /> : undefined}>
+      <Card className="os-card an-rcard" data-fill title="기록에서 드러난 강점" action={moments.length > 1 ? <SegmentedControl label="보는 시점" items={moments.map(m => ({ id: m.id, label: m.label }))} value={moment.id} onChange={setMomentId} /> : undefined}>
         <p className={`an-shead${!past && head.estimated ? ' is-est' : ''}`}>{!past && head.estimated && <span className="ui-dot ui-dot--estimated" aria-hidden="true" />}{headText}</p>
-        <Radar vertices={vertices} max={scale.max} ticks={scale.ticks} label={label} trace={trace} selected={axis} onSelect={k => setPicked(k as Axis)} radius={low ? 108 : 132} />
+        <Radar vertices={vertices} max={scale.max} ticks={scale.ticks} label={label} trace={trace} selected={axis} onSelect={k => setPicked(k as Axis)} radius={low ? 108 : 132} fit />
         <p className="an-rlegend">
-          <span><i className="an-rlegend__own" aria-hidden="true" />확인한 근거</span>
-          {past ? <span><i className="an-rlegend__trace" aria-hidden="true" />지금 확인한 근거</span> : <span><i className="an-rlegend__est" aria-hidden="true" />AI 추정까지 전체</span>}
+          <span><i className="an-rlegend__own" aria-hidden="true" />{past ? `${moment.label} 확인한 근거` : '확인한 근거'}</span>
+          {past ? <span><i className="an-rlegend__trace" aria-hidden="true" />지금 확인한 근거(윤곽)</span> : <span><i className="an-rlegend__est" aria-hidden="true" />AI 추정까지 전체</span>}
         </p>
       </Card>
       <Card className="os-card" title={cur.label} action={<Button size="sm" variant="ghost" aria-haspopup="dialog" onClick={() => setOpen(axis)}>근거 모두 보기</Button>}>

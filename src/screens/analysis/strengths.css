@@ -1,5 +1,8 @@
 /* 나의 강점: 왼쪽 육각형 레이더(주인공) + 오른쪽 고른 역량의 대표 근거·살릴 기회. 카드는 내용 높이 */
-.an-str-cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--os-gap); align-items: start; min-height: 0; }
+.an-str-cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: var(--os-gap); align-items: start; min-height: 0; }
+/* 레이더 카드는 본문 높이를 채우고(data-fill), 오른쪽 칸은 내용 높이. 본문 칸이 남은 높이를 이 줄에 준다 */
+.os__body:has(> .an-str-cols) { align-content: stretch; grid-template-rows: minmax(0, 1fr); }
+.an-str-cols > .an-rcard { align-self: stretch; }
 .an-str-cols > * { min-height: 0; }
 .an-shead { margin: 0 0 var(--space-2); color: var(--ink-strong); font-size: var(--text-2xl); font-weight: var(--weight-heavy); line-height: var(--leading-tight); }
 /* 확인한 근거가 없을 때의 머리 문장: AI 추정이라 점선 점과 옅은 글자로 */
