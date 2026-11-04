@@ -10,7 +10,7 @@ import { RetroBand } from './RetroBand';
 import { Archive } from './Archive';
 import { mapDots, mapRows, mapTerms, splitMapRows } from './map';
 import { RecordMap } from './RecordMap';
-import { takeArchiveFocus, takeMapFocus } from './mapFocus';
+import { takeMapFocus } from './mapFocus';
 import { nextStep } from '../../domain/nextStep';
 import { stepWindow, termWindow } from '../../domain/analysis/window';
 
@@ -44,7 +44,6 @@ export function Overview() {
   useEffect(() => {
     const fresh = takeMapFocus();
     if (fresh) setSel({ view: 'map', focus: fresh });
-    else if (takeArchiveFocus()) setSel({ view: 'archive' });
   }, [setSel]);
 
   const focus = sel.focus && state.records.some(r => r.id === sel.focus) ? sel.focus : undefined;

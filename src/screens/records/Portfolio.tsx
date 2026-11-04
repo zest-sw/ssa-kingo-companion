@@ -1,11 +1,10 @@
 import { Button, EmptyState, FieldTag, GhostPic, PageHeader } from '../../components';
-import { navigate, parentLink } from '../../app/router';
+import { parentLink } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { BUNDLE_MAX, BUNDLE_MIN, bundleText } from '../../domain/interview/answer';
 import { semesterLabel } from '../../domain/interview/archive';
 import { cardOf } from '../../domain/interview/record';
 import { StarFields, useCopy } from './ExperienceCard';
-import { setArchiveFocus } from './mapFocus';
 import { readPicks } from './portfolioPicks';
 import { VerificationBadge } from './RecordCardView';
 import './portfolio.css';
@@ -49,12 +48,8 @@ export function Portfolio() {
         </div>
       ) : (
         <div className="pf__empty">
-          {/* 다음 행동은 보관함에서 고르기 하나. 기록 지도 대신 보관함으로 바로 연다. */}
-          <EmptyState
-            pic={<GhostPic kind="rows" labels={['', '']} />}
-            message={`보관함에서 ${BUNDLE_MIN}~${BUNDLE_MAX}개를 고르면 경험 카드가 여기 모여요`}
-            action={<Button size="sm" variant="primary" onClick={() => { setArchiveFocus(); navigate('activities/records'); }}>보관함에서 고르기</Button>}
-          />
+          {/* 기록으로 돌아가는 길은 빵부스러기가 맡는다(진입점 하나) */}
+          <EmptyState pic={<GhostPic kind="rows" labels={['', '']} />} message={`위의 기록 › 보관함에서 ${BUNDLE_MIN}~${BUNDLE_MAX}개를 고르면 경험 카드가 여기 모여요.`} />
         </div>
       )}
     </div>
