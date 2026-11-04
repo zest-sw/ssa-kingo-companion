@@ -52,7 +52,7 @@ export type Action =
   | { type: 'profile/save'; profile: Profile }
   /** 가입 인터뷰를 마친다. demo 면 예시 학생 데이터로, 아니면 새 학생으로 시작한다 */
   | { type: 'profile/complete'; profile: Profile; demo: boolean }
-  /** 설정 › 프로토타입 정보: 예시 데이터로 보기 / 새 학생으로 시작. 프로필과 설정은 그대로 둔다 */
+  /** 설정 › 프로토타입 정보의 '예시 학생으로 보기'(demo: true). 데이터와 공개 범위만 바꾸고 프로필·설정은 그대로 둔다 */
   | { type: 'data/mode'; demo: boolean }
   | { type: 'candidate/choose'; programId: string; choice: CandidateChoice; reason?: DislikeKind; until?: number }
   | { type: 'candidate/clear'; programId: string }
