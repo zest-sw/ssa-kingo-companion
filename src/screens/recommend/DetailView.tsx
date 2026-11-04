@@ -5,11 +5,13 @@ import { Badge, Button, Drawer, EmptyState, Icon, PageHeader, Panel } from '../.
 import { APPLY_URL } from '../../data/recommend';
 import { ddayOf, sortedReasons } from '../../domain/recommend';
 import { checksOf, dateLabel, formatText, isNearDeadline, plainText, prepItemsFor } from '../../domain/recommend-flow/flow';
+import { weekLoad } from '../../domain/recommend-flow/load';
 import { traceNodes } from '../../domain/recommend-flow/trace';
 import { ddayText } from '../../domain/text';
 import { DID_LABEL, fieldName, REASON_LABEL } from '../../domain/vocab';
 import type { CardActions } from './actions';
 import { Fact } from './Fact';
+import { LoadBadge } from './LoadBadge';
 import { ReasonTrace } from './ReasonTrace';
 
 /**
@@ -72,6 +74,8 @@ export function DetailView({ programId, actions }: { programId: string; actions:
             <ul className="rec-checks" aria-label="확인한 것">
               <li><Badge tone={checks.eligible ? 'green' : 'orange'} icon={checks.eligible ? 'check' : 'alert'}>{checks.eligible ? '신청 대상' : '신청 대상 아님'}</Badge></li>
               <li><Badge tone={checks.overlap ? 'orange' : 'green'} icon={checks.overlap ? 'alert' : 'check'}>{checks.overlap ? '일정 겹침' : '일정 안 겹침'}</Badge></li>
+              {/* 겹침은 옆 배지가 말하니 부담은 겹치지 않을 때만 */}
+              {!checks.overlap && <li><LoadBadge load={weekLoad(p, state.activities, week)} /></li>}
               {checks.team && <li><Badge icon="friends">팀 필요</Badge></li>}
               {checks.team && <li><a className="rec-link" href={hrefOf('profile/recruit')}>팀원 모집 보기</a></li>}
             </ul>
