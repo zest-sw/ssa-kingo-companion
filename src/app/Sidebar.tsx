@@ -36,7 +36,7 @@ export function Sidebar({ route }: { route: Route }) {
                 >
                   <Icon name={item.icon} />
                   <span className="app-nav__label">{item.label}</span>
-                  {item.id === 'recommend' && <CountBadge count={view.newCount} label="새 후보" />}
+                  {item.id === 'recommend' && state.onboarded && <CountBadge count={view.newCount} label="새 후보" />}
                 </a>
                 {open && item.children && (
                   <ul className="app-nav__sub" aria-label={`${item.label} 하위 메뉴`}>
