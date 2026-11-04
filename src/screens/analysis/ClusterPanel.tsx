@@ -43,7 +43,7 @@ export function ClusterPanel({ graph, selected, onSelect }: Props) {
           );
         })}
       </ul>
-      {!selected && <p className="xg-side__hint">묶음을 누르면 어떤 역량의 근거가 됐는지 보여요.</p>}
+      {!selected && <p className="xg-side__hint">선이 굵을수록 근거가 많아요. 묶음을 누르면 활동마다 펼쳐 보여요.</p>}
     </aside>
   );
 }
