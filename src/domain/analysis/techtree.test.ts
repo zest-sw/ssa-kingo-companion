@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { prog, rec } from '../fixtures.test-util';
 import type { Activity } from '../types';
-import { buildTechTree, CANDIDATES_PER_CELL, NODES_PER_STAGE, recordOfActivity, relatedRecords, rootTargets, skippedStages, splitTreeRows, TREE_COLUMNS, treeHeadline } from './techtree';
+import { buildTechTree, CANDIDATE_ROW_SLOTS, NODES_PER_STAGE, recordOfActivity, relatedRecords, rootTargets, skippedStages, splitTreeRows, TREE_COLUMNS, treeHeadline } from './techtree';
 
 const act = (id: string, over: Partial<Activity> = {}): Activity => ({ id, title: id, field: 'dev', status: 'ongoing', schedule: '', ...over });
 const tree = (over: Partial<Parameters<typeof buildTechTree>[0]>) => buildTechTree({ records: [], activities: [], candidates: [], ...over });
@@ -75,25 +75,32 @@ describe('테크 트리: 난이도 단계', () => {
 });
 
 describe('테크 트리: 접기', () => {
-  it('후보는 단계마다 제한하고 목록용은 전부 남는다', () => {
+  it('후보만 있는 줄은 낮게: 한 단계에 후보 하나 + +n, 목록용은 전부 남는다', () => {
     const candidates = ['p1', 'p2', 'p3', 'p4'].map((id, i) => ({ program: prog(id, { field: 'data', level: 2 }), dday: i }));
     const t = tree({ candidates });
-    expect(row(t, 'ai').cells).toHaveLength(CANDIDATES_PER_CELL);
+    expect(row(t, 'ai').cells.map(c => c.id)).toEqual(['p:p1']);
+    expect(row(t, 'ai').folds[0].cells).toHaveLength(3);
+    expect(CANDIDATE_ROW_SLOTS).toBe(2);
     expect(t.candidates).toHaveLength(4);
   });
-  it('한 단계가 넘치면 +n 자리를 남기고 오래된 한 활동부터 접는다. 마감 걸린 추천은 남긴다', () => {
+  it('후보만 둘이면 접지 않는다', () => {
+    const candidates = ['p1', 'p2'].map((id, i) => ({ program: prog(id, { field: 'data' }), dday: 3 - i }));
+    const ai = row(tree({ candidates }), 'ai');
+    expect(ai.cells.map(c => c.id)).toEqual(['p:p2', 'p:p1']);
+    expect(ai.folds).toEqual([]);
+  });
+  it('내 활동이 있는 단계는 자리 셋: 추천 하나 + 최근 활동 + +n. 오래된 한 활동부터 접는다', () => {
     const candidates = ['p1', 'p2'].map((id, i) => ({ program: prog(id, { field: 'data', level: 2 }), dday: i }));
     const records = ['a', 'b', 'c'].map((id, i) => rec(id, { field: 'data', level: 2, semester: `2026-${i ? 2 : 1}` }));
     const ai = row(tree({ records, candidates }), 'ai');
-    expect(ai.cells.filter(c => c.col === 1).map(c => c.id)).toEqual(['r:c', 'p:p1', 'p:p2']);
-    expect(ai.folds).toEqual([{ col: 1, cells: [expect.objectContaining({ id: 'r:a' }), expect.objectContaining({ id: 'r:b' })] }]);
+    expect(ai.cells.filter(c => c.col === 1).map(c => c.id)).toEqual(['r:c', 'p:p1']);
+    expect(ai.folds).toEqual([{ col: 1, cells: ['r:a', 'r:b', 'p:p2'].map(id => expect.objectContaining({ id })) }]);
     expect(NODES_PER_STAGE).toBe(ai.cells.filter(c => c.col === 1).length + 1);
   });
-  it('후보가 상한보다 많으면 마감 먼 후보가 접힌다', () => {
-    const candidates = ['p1', 'p2', 'p3'].map((id, i) => ({ program: prog(id, { field: 'data' }), dday: 3 - i }));
-    const ai = row(tree({ candidates }), 'ai');
-    expect(ai.cells.map(c => c.id)).toEqual(['p:p3', 'p:p2']);
-    expect(ai.folds[0].cells.map(c => c.id)).toEqual(['p:p1']);
+  it('추천이 많아도 하는 중이 있으면 내 활동 하나는 늘 보인다', () => {
+    const candidates = ['p1', 'p2', 'p3'].map((id, i) => ({ program: prog(id, { field: 'dev', level: 2 }), dday: i }));
+    const dev = row(tree({ activities: [act('팀 프로젝트')], records: ['a', 'b'].map(id => rec(id, { field: 'dev', level: 2 })), candidates }), 'dev');
+    expect(dev.cells.filter(c => c.col === 1).map(c => c.kind)).toEqual(['ongoing', 'candidate']);
   });
 });
 

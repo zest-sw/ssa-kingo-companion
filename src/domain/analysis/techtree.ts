@@ -39,10 +39,12 @@ export type TreeFold = { col: number; cells: TreeCell[] };
 export type TreeLink = { from: string; to: string; cross: boolean };
 /** candidates: 칸 수 제한 없이 지금 신청할 수 있는 후보 전부(목록 보기용) */
 export type TechTree = { rows: TreeRow[]; links: TreeLink[]; candidates: TreeCell[] };
-/** 한 단계에 그리는 후보는 이만큼까지. 나머지는 '+n' 노드로 접는다. */
+/** 한 단계에 그리는 후보는 이만큼까지(그 단계에 내가 한 활동이 있으면 1개). 나머지는 '+n' 노드로 접는다. */
 export const CANDIDATES_PER_CELL = 2;
-/** 한 단계에 쌓는 자리 수('+n' 노드 포함). 낮은 노트북 화면(1280×640)에서도 트리가 한 화면에 들어오게 한다. */
-export const NODES_PER_STAGE = 4;
+/** 한 단계에 쌓는 자리 수('+n' 노드 포함). 1440×900 에서 트리가 칸 안 스크롤 없이 들어오게 한다. */
+export const NODES_PER_STAGE = 3;
+/** 내가 한 활동이 없는(후보만 있는) 줄은 낮게: 한 단계에 이만큼만. */
+export const CANDIDATE_ROW_SLOTS = 2;
 export type CandidateRef = { program: Program; dday: number };
 
 /** 남길 순서가 앞인 것부터: 건너뜀 → 추천(마감 가까운 것) → 하는 중 → 한 활동(최근 것). */
@@ -52,13 +54,15 @@ const keepRank = (c: TreeCell, i: number) =>
 /**
  * 한 단계의 노드를 자리 수에 맞춰 그릴 것과 접을 것으로 나눈다. 그릴 노드는 원래 순서(시간순)를 지킨다.
  * 접는 순서: 한 활동(오래된 것부터) → 하는 중 → 추천(마감 먼 것부터). 마감이 걸린 추천을 가장 늦게 접는다.
+ * 그 단계에 내가 한 활동이 있으면 추천은 하나만 남긴다. 자리가 셋뿐이라, 추천 둘이 내 활동을 모두 '+n' 안으로 밀어 그 단계를 안 한 것처럼 보이게 하지 않으려고.
  */
-export function foldStage(cells: TreeCell[]): { visible: TreeCell[]; folded: TreeCell[] } {
+export function foldStage(cells: TreeCell[], slots = NODES_PER_STAGE): { visible: TreeCell[]; folded: TreeCell[] } {
   const order = cells.map((c, i) => ({ c, i, r: keepRank(c, i) })).sort((a, b) => a.r[0] - b.r[0] || a.r[1] - b.r[1]);
-  const extraCands = new Set(order.filter(o => o.c.kind === 'candidate').slice(CANDIDATES_PER_CELL).map(o => o.c.id));
+  const candCap = cells.some(c => c.kind === 'done' || c.kind === 'ongoing') ? 1 : CANDIDATES_PER_CELL;
+  const extraCands = new Set(order.filter(o => o.c.kind === 'candidate').slice(candCap).map(o => o.c.id));
   const pool = order.filter(o => !extraCands.has(o.c.id));
-  const fits = pool.length <= NODES_PER_STAGE && !extraCands.size;
-  const keep = new Set((fits ? pool : pool.slice(0, NODES_PER_STAGE - 1)).map(o => o.c.id));
+  const fits = pool.length <= slots && !extraCands.size;
+  const keep = new Set((fits ? pool : pool.slice(0, slots - 1)).map(o => o.c.id));
   return { visible: cells.filter(c => keep.has(c.id)), folded: cells.filter(c => !keep.has(c.id)) };
 }
 
@@ -111,7 +115,7 @@ export function buildTechTree(input: { records: RecordItem[]; activities: Activi
       if (!mine.length && col < top) stage = [skippedCell(group, col, here, catalog, own[0].field)];
       // 지금 할 수 있는 활동은 내가 한 가장 높은 단계와 그 위에만 놓는다(이미 넘어선 아래 단계는 목록 보기에서).
       else stage = [...mine, ...(col >= top ? here : [])];
-      const { visible, folded } = foldStage(stage);
+      const { visible, folded } = foldStage(stage, own.length ? NODES_PER_STAGE : CANDIDATE_ROW_SLOTS);
       shown.push(...visible);
       if (folded.length) folds.push({ col, cells: folded });
     }
