@@ -58,7 +58,7 @@ describe('traceNodes: 기록이 없는 새 학생', () => {
   });
   it('고른 관심 분야 모집이 이번 주 없으면 그 사실을 한 점으로 알린다(모르겠어요는 빼고)', () => {
     const nodes = traceNodes([novelty], [], plan, { goal: '', interests: ['mentor'], interestOpen: false });
-    expect(nodes.at(-1)).toMatchObject({ kind: 'interest-miss', label: '관심', detail: '멘토링 모집은 이번 주 없어요' });
+    expect(nodes.at(-1)).toMatchObject({ kind: 'interest-miss', label: '관심', detail: '멘토링 쪽은 이번 주 맞는 게 없어요' });
     expect(traceNodes([novelty], [], plan, { goal: '', interests: ['unknown'], interestOpen: false }).map(n => n.kind)).toEqual(['novelty']);
   });
   it('기록이 있으면 새 학생 규칙을 쓰지 않는다', () => {
