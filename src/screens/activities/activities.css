@@ -15,6 +15,7 @@
 .act-col { border: var(--border); border-radius: var(--radius-lg); padding: var(--space-3); min-height: var(--act-col-min-h); min-width: 0; background: var(--surface-alt); }
 .act-col__head { display: flex; align-items: baseline; gap: var(--space-2); padding: var(--space-1) var(--space-2) var(--space-3); font-size: var(--text-md); font-weight: var(--weight-bold); }
 .act-col__count { font-size: var(--text-md); font-weight: var(--weight-medium); color: var(--ink-subtle); }
+.act-col__note { margin: 0 0 var(--space-3); padding: 0 var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); }
 .act-col__list { display: flex; flex-direction: column; gap: var(--space-2); }
 .act-col .ui-state { padding: var(--space-8) var(--space-4); }
 
@@ -51,10 +52,12 @@
 .act-card__cta { position: relative; z-index: 1; margin-top: var(--space-1); }
 .act-card .ui-progress { margin-top: var(--space-1); }
 
-.act-list__tools { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
 .act-table { width: 100%; border-collapse: collapse; }
 .act-table th, .act-table td { padding: var(--space-3); text-align: left; border-bottom: var(--border); vertical-align: middle; }
-.act-table thead th { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--ink-muted); }
+.act-table thead th { position: sticky; top: 0; z-index: 1; background: var(--surface); font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--ink-muted); }
+/* 칸 이름 줄: 얇은 바탕만 깔고 색은 더하지 않는다 */
+.act-table .act-table__group th { padding: var(--space-2) var(--space-3); background: var(--surface-alt); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); border-bottom: var(--border); }
+.act-table tbody + tbody .act-table__group th { border-top: var(--border); }
 .act-table tbody tr:last-child > * { border-bottom: 0; }
 .act-table tbody th { font-weight: var(--weight-bold); font-size: var(--text-md); }
 .act-table__open { all: unset; cursor: pointer; display: inline-flex; align-items: center; min-height: var(--hit-min); border-radius: var(--radius-sm); }
