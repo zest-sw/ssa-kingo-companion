@@ -80,7 +80,8 @@ export function ApplyStep({ title, left, draftReady, dueText, ready, onBack }: {
           <li key={r.text} data-ok={r.ok || undefined}><span className="rec-apply__mark" aria-hidden="true"><Icon name={r.ok ? 'check' : 'alert'} size={16} /></span>{r.text}</li>
         ))}
       </ul>
-      {!ready && left.length > 0 && <Button size="sm" onClick={onBack}>남은 준비 하러 가기</Button>}
+      {/* 칸 폭으로 늘어나지 않게 감싼다 */}
+      {!ready && left.length > 0 && <div><Button size="sm" onClick={onBack}>남은 준비 하러 가기</Button></div>}
     </div>
   );
 }
