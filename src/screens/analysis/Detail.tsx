@@ -1,11 +1,13 @@
 import { useApp } from '../../app/AppState';
-import { Card, ErrorState, Icon, LoadingState, PageHeader, type TabItem } from '../../components';
+import { hrefOf } from '../../app/router';
+import { Card, ErrorState, Icon, LoadingState, PageHeader, StoryNote, type TabItem } from '../../components';
 import type { EdgeAnswers } from '../../domain/analysis/map';
 import ExperienceMapTab from './ExperienceMapTab';
 import FlowTab from './FlowTab';
 import StrengthsTab from './StrengthsTab';
 import TechTreeTab from './TechTreeTab';
 import type { useAnalysis } from './useAnalysis';
+import { useStory } from './useStory';
 
 export type TabId = 'techtree' | 'map' | 'flow' | 'strengths';
 export const TABS: TabItem<TabId>[] = [
@@ -18,11 +20,15 @@ export function Detail({ tab, analysis }: { tab: TabId; analysis: ReturnType<typ
   // 연결 확인은 전역 상태에 둔다. 기록을 지우면 그 기록의 연결 답도 reducer 가 함께 지운다.
   const setAnswers = (next: (prev: EdgeAnswers) => EdgeAnswers) => run({ type: 'analysis/answers', answers: next(state.edgeAnswers) });
   const label = TABS.find(t => t.id === tab)?.label ?? '';
+  const story = useStory(analysis.records);
+  // 머리 한 줄: 이 화면이 이야기에서 말하는 것(그래서) + 할 일(이제) + 전체 이야기로.
+  // ponytail: 경험 지도는 다른 작업(v22-graph-zoom)이 고치는 중이라 아직 붙이지 않는다. story.perScreen.map 은 만들어 두었다.
+  const note = tab !== 'map' && analysis.status === 'ready' ? <StoryNote line={story.perScreen[tab]} href={hrefOf('analysis')} /> : null;
 
   return (
     <div className="os">
       {/* 공개 범위는 요약 머리에서 한 번 말한다. 하위 화면은 같은 말 대신 아이콘만 둔다. */}
-      <PageHeader title={label} actions={<span className="an-private an-private--icon" role="img" aria-label="나에게만 보여요" title="나에게만 보여요"><Icon name="eye" size={16} /></span>} />
+      <PageHeader title={label} actions={<>{note}<span className="an-private an-private--icon" role="img" aria-label="나에게만 보여요" title="나에게만 보여요"><Icon name="eye" size={16} /></span></>} />
       <div className="os__body an-detail">
         {analysis.status === 'loading' && <Card><LoadingState message="새 기록을 분석하는 중이에요" lines={5} /></Card>}
         {analysis.status === 'error' && <Card><ErrorState message="새 기록을 분석하지 못했어요. 지난 분석은 그대로예요." onRetry={analysis.retry} /></Card>}

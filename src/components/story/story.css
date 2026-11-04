@@ -3,7 +3,7 @@
 :root {
   --story-dot: 6px;
   --story-dot-gap: 2px;
-  --story-bar-w: 24px;
+  --story-bar-w: 16px;
   --story-bar-h: 6px;
   --story-stage: 10px;
   --story-pic-h: 16px;
@@ -11,7 +11,7 @@
   --story-underline: 1.5px;
   --story-underline-gap: 6px;
   --story-list-name: 80px;
-  --story-list-pic: 128px;
+  --story-list-pic: 160px;
   --story-ghost-w: 96px;
 }
 
