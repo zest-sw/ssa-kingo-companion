@@ -11,14 +11,64 @@
   --xm-hub-r: 9px;
   --xg-hub-ring: 3px;
   --xg-axis-name-w: 56px;
+  --xg-find-w: 240px;
 }
 
 .xg-card { min-height: 0; }
 .xg-body { flex: 1 1 var(--xg-want-h); min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) var(--xg-side-w); gap: var(--space-4); }
 .xg-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-/* 그래프 칸: 남은 높이를 채운다. 다 못 넣으면 이 칸 안에서만 세로 스크롤 */
-.xg-stage { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+/* 그래프 칸: 남은 높이를 채우고, 그 안에서 확대·이동한다. clip 은 포커스가 칸을 몰래 스크롤하지 못하게 한다 */
+.xg-stage { position: relative; flex: 1; min-height: 0; overflow: clip; border-radius: var(--radius-md); touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+.xg-stage:focus-visible { box-shadow: var(--focus-ring-inset); }
+.xg-stage.is-dragging { cursor: grabbing; }
 .xg { display: block; }
+
+/* 도구 막대: 오른쪽 위 세로 한 줄. 그래프 배치는 이 칸 폭(48px)을 비워 둔다 */
+.xg-tools { position: absolute; top: 0; right: 0; z-index: 1; display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-1); border: var(--border); border-radius: var(--radius-md); background: var(--surface); cursor: default; }
+.xg-tools .ui-icon-btn:disabled { color: var(--ink-subtle); opacity: 0.5; cursor: default; background: transparent; }
+.xg-tools .ui-icon-btn.is-on { background: var(--green-100); color: var(--green-900); }
+.xg-find { position: relative; }
+.xg-find__box { position: absolute; top: 0; right: calc(100% + var(--space-2)); width: var(--xg-find-w); padding: var(--space-2); border: var(--border); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-overlay); }
+.xg-find__input { width: 100%; height: var(--hit-min); padding: 0 var(--space-2); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); font: inherit; font-size: var(--text-sm); }
+.xg-find__input:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.xg-find__list { display: flex; flex-direction: column; margin-top: var(--space-1); }
+.xg-find__list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); min-height: var(--hit-min); padding: 0 var(--space-2); border-radius: var(--radius-sm); font-size: var(--text-sm); cursor: pointer; }
+.xg-find__list li:hover, .xg-find__list li.is-on { background: var(--surface-hover); }
+.xg-find__list li.is-on { box-shadow: inset var(--an-line-w) 0 0 var(--green-900); }
+.xg-find__kind { flex: none; color: var(--ink-muted); font-size: var(--text-xs); }
+.xg-find__empty { margin-top: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); }
+
+/* 마우스 올림·포커스 툴팁: 노드 위(위가 좁으면 아래). 자리는 그림을 움직일 때마다 바로 옮긴다 */
+.xg-tip { position: absolute; top: 0; left: 0; z-index: 2; pointer-events: none; }
+.xg-tip[hidden] { display: none; }
+.xg-tip__in {
+  display: flex; flex-direction: column; gap: var(--space-1); width: max-content; max-width: var(--dg-tip-max); padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm); background: var(--dg-tip-bg); color: var(--ink-inverse); font-size: var(--text-xs); line-height: var(--leading-tight);
+  transform: translate(-50%, -100%);
+}
+.xg-tip[data-flip='down'] .xg-tip__in { transform: translate(-50%, 0); }
+.xg-tip__in > b { font-size: var(--text-sm); }
+.xg-tip__in > span { color: var(--line-strong); }
+.xg-tip__in .num { color: var(--ink-inverse); }
+
+/* 의미 기반 확대. 글자는 배율을 거꾸로 보정해 화면상 12px 아래로 안 내려간다(--zp-text).
+   역량 허브는 축소해도 화면 크기 그대로(--zp-node), 활동 점은 확대해도 1.5배까지만(--zp-dot), 묶음 이름표는 글자처럼(--zp-text).
+   아래 기본 글자 규칙보다 이겨야 해서 .xg-stage 를 앞에 붙인다 */
+.xg-stage .xg-rec__label, .xg-stage .xg-rel, .xg-stage .xg-tag { font-size: calc(var(--text-xs) * var(--zp-text, 1)); stroke-width: calc(var(--an-halo) * var(--zp-text, 1)); }
+.xg-stage .xg-axis { transform: scale(var(--zp-node, 1)); transform-box: fill-box; transform-origin: center; }
+.xg-stage .xg-rec__dot, .xg-stage .xg-rec__hit { transform: scale(var(--zp-dot, 1)); transform-box: fill-box; transform-origin: center; }
+.xg-stage .xg-name { transform: scale(var(--zp-text, 1)); transform-box: fill-box; transform-origin: center; }
+/* far: 활동 이름은 숨기고, 마우스를 올린(포커스·끄는) 노드와 고른 노드 이름만. 이웃 이름까지 켜면 좁은 자리에서 겹친다 */
+.xg-stage[data-zoom='far'] .xg-rec:not(.is-focus):not(.is-picked) .xg-rec__label { display: none; }
+.xg-stage[data-zoom='far'] .xg-rec__dot { stroke-width: 1; }
+.xg-stage:not([data-zoom='near']) .xg-near-only { display: none; }
+/* 끄는 중엔 이웃 강조를 옅게(전체 흐림을 약하게) */
+.xg-stage.is-dragging .xg .is-dim { opacity: 0.45; }
+.xg-stage.is-dragging .xg-axis, .xg-stage.is-dragging .xg-rec, .xg-stage.is-dragging .xg-edge__line { transition: none; }
+/* 끌어 옮겨 고정한 노드 표시 */
+.xg-pin { fill: var(--navy-900); stroke: var(--surface); stroke-width: 1.5; pointer-events: none; }
+/* 선 굵기·점선 간격은 확대해도 화면 기준 그대로(얇은 선 원칙) */
+.xg-edge__line, .xg-edge__hit, .xg-link { vector-effect: non-scaling-stroke; }
 .xg-note { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); }
 
 /* 묶음 영역: 옅은 바탕. 둥근 이음으로 모서리를 부드럽게 */
@@ -34,6 +84,10 @@
 .xg-edge--yes.is-hot .xg-edge__line { stroke: var(--green-900); stroke-width: var(--xg-line-hot); }
 .xg-edge.is-dim { opacity: var(--xg-dim); }
 .xg-edge__hit { stroke: transparent; stroke-width: 14; }
+/* 마우스를 올린 근거 선: 그 선에만 '근거' 이름표가 붙는다 */
+.xg-edge.is-over { opacity: 1; }
+.xg-edge.is-over .xg-edge__line { stroke: var(--ink-muted); stroke-width: var(--xg-line-hot); }
+.xg-edge--yes.is-over .xg-edge__line { stroke: var(--green-900); }
 .xg-edge--press { cursor: pointer; }
 .xg-edge--press:focus-visible { box-shadow: none; }
 .xg-edge--press:focus-visible .xg-edge__line { stroke: var(--focus); stroke-width: 4; }
@@ -70,6 +124,8 @@
 .an-g--other .xg-rec__dot { stroke: var(--grey-500); }
 .xg-rec__label { fill: var(--ink); font-size: var(--text-xs); paint-order: stroke; stroke: var(--surface); stroke-width: var(--an-halo); stroke-linejoin: round; }
 .xg-rec:hover .xg-rec__dot { stroke: var(--ink-strong); stroke-width: 2; }
+.xg-rec.is-picked .xg-rec__dot { stroke: var(--green-900); stroke-width: 3; }
+.xg-rec.is-picked .xg-rec__label { font-weight: var(--weight-bold); }
 .xg-rec:focus-visible .xg-rec__dot { stroke: var(--focus); stroke-width: 4; }
 .xg .is-dim { opacity: var(--xg-dim); }
 
@@ -101,7 +157,16 @@
 .xg-cls > li.is-picked .xg-cl { background: var(--green-100); }
 .xg-cl__name { flex: 1; font-size: var(--text-md); font-weight: var(--weight-bold); }
 .xg-cl__n { color: var(--ink-muted); font-size: var(--text-sm); white-space: nowrap; }
-.xg-axisnote { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); padding: var(--space-2) var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--navy-100); font-size: var(--text-sm); }
+/* 고른 노드의 분석(옆 칸 맨 위) */
+.xg-node { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); padding-bottom: var(--space-4); border-bottom: var(--border); }
+.xg-node__head { padding: var(--space-2) var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--navy-100); font-size: var(--text-sm); }
+.xg-node__head > b:first-child { margin-right: var(--space-1); font-size: var(--text-md); }
+.xg-node__list { display: flex; flex-direction: column; }
+.xg-node__item { display: flex; align-items: center; gap: var(--space-2); width: 100%; min-height: var(--hit-min); padding: 0 var(--space-2); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); font-size: var(--text-sm); text-align: left; cursor: pointer; }
+.xg-node__item:hover { background: var(--surface-hover); }
+.xg-node__label { flex: 1; }
+.xg-node__state { flex: none; color: var(--ink-muted); font-size: var(--text-xs); }
+.xg-node__acts { display: flex; gap: var(--space-2); }
 
 .xg-in { display: flex; flex-direction: column; gap: var(--space-2); padding: 0 var(--space-3) var(--space-3); }
 .xg-in__meta { color: var(--ink-muted); font-size: var(--text-sm); }

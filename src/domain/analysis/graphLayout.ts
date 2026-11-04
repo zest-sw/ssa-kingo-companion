@@ -199,8 +199,7 @@ function run(g: KnowledgeGraph, W: number, H: number, m: GraphMetrics): GraphLay
   const hulls: Record<string, Pt[]> = {};
   for (const c of g.clusters) {
     names[c.id] = pos[nameId(c.id)];
-    const pts = [...(members[c.id] ?? []), byId.get(nameId(c.id))!].flatMap(it => corners(rectOf(it), 8));
-    hulls[c.id] = convexHull(pts).map(p => ({ x: round(Math.min(Math.max(p.x, 2), W - 2)), y: round(Math.min(Math.max(p.y, 2), H - 2)) }));
+    hulls[c.id] = hullAround([...(members[c.id] ?? []), byId.get(nameId(c.id))!].map(rectOf)).map(p => ({ x: round(Math.min(Math.max(p.x, 2), W - 2)), y: round(Math.min(Math.max(p.y, 2), H - 2)) }));
   }
   return { width: W, height: H, pos, boxes, lines, names, hulls, overlaps };
 }
@@ -233,6 +232,9 @@ const round = (v: number) => Math.round(v * 10) / 10;
 const corners = (r: Rect, p: number): Pt[] => [
   { x: r.x - p, y: r.y - p }, { x: r.x + r.w + p, y: r.y - p }, { x: r.x + r.w + p, y: r.y + r.h + p }, { x: r.x - p, y: r.y + r.h + p }
 ];
+
+/** 상자들을 p 만큼 띄워 감싸는 볼록 껍질. 묶음 영역에 쓴다(노드를 끌어 옮긴 뒤에도 다시 쓴다). */
+export const hullAround = (rects: Rect[], p = 8): Pt[] => convexHull(rects.flatMap(r => corners(r, p)));
 
 /** 볼록 껍질(단조 사슬). 점 순서와 상관없이 같은 껍질이 나온다. */
 export function convexHull(points: Pt[]): Pt[] {

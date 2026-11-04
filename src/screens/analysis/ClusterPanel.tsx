@@ -1,31 +1,35 @@
 import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
-import { Button, EmptyState, FieldTag } from '../../components';
-import { axisCount, clusterGroups, clusterInsight, type ClusterInsight, type GraphFocus, type KnowledgeGraph } from '../../domain/analysis/graph';
+import { Button, ConfirmDot, EmptyState, FieldTag } from '../../components';
+import { clusterGroups, clusterInsight, type ClusterInsight, type GraphFocus, type KnowledgeGraph, type RecordNode } from '../../domain/analysis/graph';
+import { nodeBrief } from '../../domain/analysis/graphView';
 import { semesterLabel } from '../../domain/analysis/semester';
 import { ddayOf } from '../../domain/recommend';
 import { ddayText } from '../../domain/text';
-import type { Axis } from '../../domain/types';
-import { AXES, GROUP_LABEL } from '../../domain/vocab';
+import { GROUP_LABEL } from '../../domain/vocab';
+import type { GraphOpen } from './MapGraph';
+import { RecordSummary } from './RecordSummary';
 
-type Props = { graph: KnowledgeGraph; selected: GraphFocus | null; onSelect: (f: GraphFocus | null) => void };
+type Props = { graph: KnowledgeGraph; selected: GraphFocus | null; onSelect: (f: GraphFocus | null, move?: boolean) => void; onOpen: (o: GraphOpen) => void };
 
 /** 근거 점을 한 줄에 그리는 상한. 넘으면 '+n' */
 const DOTS = 6;
+/** 고른 노드 분석에 보이는 근거 줄 상한(덩어리 안 항목 5개) */
+const ITEMS = 5;
 
 /**
- * 경험 지도 옆 칸: 관련 활동 묶음 목록(이름 + 활동 수). 묶음을 누르면 그 아래에 분석이 펼쳐지고 그래프에서 그 묶음만 진해진다.
- * 다시 누르면 해제한다. 역량을 골랐으면 맨 위에 그 역량의 근거 수 한 줄을 둔다.
+ * 경험 지도 옆 칸: 관련 활동 묶음 목록(이름 + 활동 수). 묶음을 누르면 그 묶음으로 확대하고 그 아래에 분석이 펼쳐진다.
+ * 다시 누르면 해제한다. 활동·역량을 골랐으면 맨 위에 그 노드의 분석을 둔다.
  */
-export function ClusterPanel({ graph, selected, onSelect }: Props) {
+export function ClusterPanel({ graph, selected, onSelect, onOpen }: Props) {
   const { view } = useApp();
   const programs = view.scored.map(s => s.p);
-  const axis = selected?.kind === 'axis' ? (selected.id as Axis) : null;
+  const node = selected && selected.kind !== 'cluster' ? selected : null;
 
   return (
     <aside className="xg-side os-scroll" aria-label="관련 활동 묶음">
-      {axis && <AxisNote axis={axis} graph={graph} onClear={() => onSelect(null)} />}
+      {node && <NodeInsight graph={graph} focus={node} onSelect={onSelect} onOpen={onOpen} />}
       <h3 className="xg-side__h">관련 활동 묶음</h3>
       <ul className="xg-cls">
         {graph.clusters.map(c => {
@@ -33,7 +37,7 @@ export function ClusterPanel({ graph, selected, onSelect }: Props) {
           const insight = on ? clusterInsight(graph, c.id, programs) : null;
           return (
             <li key={c.id} className={on ? 'is-picked' : undefined}>
-              <button type="button" className="xg-cl" aria-pressed={on} aria-expanded={on} onClick={() => onSelect(on ? null : { kind: 'cluster', id: c.id })}>
+              <button type="button" className="xg-cl" aria-pressed={on} aria-expanded={on} onClick={() => onSelect(on ? null : { kind: 'cluster', id: c.id }, !on)}>
                 <span className="xg-cl__mark" aria-hidden="true">{clusterGroups(graph, c.id).slice(0, 3).map(g => <i key={g} className={`an-g--${g}`} />)}</span>
                 <span className="xg-cl__name">{c.name}</span>
                 <span className="xg-cl__n">활동 <b className="num">{c.recordIds.length}</b>개</span>
@@ -43,19 +47,47 @@ export function ClusterPanel({ graph, selected, onSelect }: Props) {
           );
         })}
       </ul>
-      {!selected && <p className="xg-side__hint">선이 굵을수록 근거가 많아요. 묶음을 누르면 활동마다 펼쳐 보여요.</p>}
+      {!selected && <p className="xg-side__hint">선이 굵을수록 근거가 많아요. 묶음을 누르면 그쪽으로 확대해요.</p>}
     </aside>
   );
 }
 
-function AxisNote({ axis, graph, onClear }: { axis: Axis; graph: KnowledgeGraph; onClear: () => void }) {
-  const n = axisCount(graph, axis);
-  const label = AXES.find(a => a.id === axis)?.label ?? '';
+type NodeProps = { graph: KnowledgeGraph; focus: GraphFocus; onSelect: Props['onSelect']; onOpen: Props['onOpen'] };
+
+/** 고른 노드 하나의 분석. 활동이면 기록 요약과 근거가 된 역량, 역량이면 근거 활동. 줄을 누르면 그 노드로 옮겨 고른다. */
+function NodeInsight({ graph, focus, onSelect, onOpen }: NodeProps) {
+  const id = focus.kind === 'axis' ? `ax:${focus.id}` : focus.id;
+  const b = nodeBrief(graph, id);
+  if (!b) return null;
+  const record = b.kind === 'record' ? (graph.nodes.find(n => n.id === id) as RecordNode).record : null;
+  const rest = b.items.length - ITEMS;
   return (
-    <div className="xg-axisnote" role="status">
-      <p><b>{label}</b> 근거 활동 <b className="num">{n.confirmed + n.estimated}</b>개 · 확인 <b className="num">{n.confirmed}</b>개</p>
-      <Button size="sm" variant="ghost" onClick={onClear}>강조 끄기</Button>
-    </div>
+    <section className="xg-node" aria-label={`${b.name} 분석`}>
+      {record ? <RecordSummary record={record} /> : (
+        <p className="xg-node__head"><b>{b.name}</b> 근거 활동 <b className="num">{b.linked}</b>개 · 확인 <b className="num">{b.confirmed}</b>개</p>
+      )}
+      <h4 className="xg-in__h">{record ? '근거가 된 역량' : '근거 활동'}</h4>
+      {b.items.length === 0 ? (
+        <p className="an-muted">{record ? '아직 이어진 역량이 없어요. 회고를 더 쓰면 근거가 모여요.' : '아직 근거 활동이 없어요. 회고를 쓰면 여기에 모여요.'}</p>
+      ) : (
+        <ul className="xg-node__list">
+          {b.items.slice(0, ITEMS).map(it => (
+            <li key={it.id}>
+              <button type="button" className="xg-node__item" onClick={() => onSelect(record ? { kind: 'axis', id: it.id } : { kind: 'node', id: it.id }, true)}>
+                <ConfirmDot state={it.confirmed ? 'confirmed' : 'estimated'} />
+                <span className="xg-node__label">{it.label}</span>
+                <span className="xg-node__state">{it.confirmed ? '확인' : 'AI 추정'}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {rest > 0 && <p className="xg-in__more">그 밖에 {rest}개</p>}
+      <span className="xg-node__acts">
+        <Button size="sm" variant="primary" onClick={() => onOpen(record ? { kind: 'record', id } : { kind: 'axis', id: focus.id })}>{record ? '기록 보기' : '근거 자세히'}</Button>
+        <Button size="sm" variant="ghost" onClick={() => onSelect(null)}>선택 풀기</Button>
+      </span>
+    </section>
   );
 }
 
