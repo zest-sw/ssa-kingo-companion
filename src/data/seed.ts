@@ -91,3 +91,6 @@ export const EXAMPLE_CHALLENGE_AT: Record<string, number> = {
   'explainer': at('2025-05-22'),
   'role-swap': at('2025-11-27')
 };
+
+/** 경험 지도에서 학생이 '맞아요'라고 한 연결(기록~기록). 나머지 선은 AI 추정(점선)이다. */
+export const EXAMPLE_EDGE_ANSWERS: Record<string, 'yes' | 'no'> = { 'e2~e6': 'yes', 'e3~r-survey': 'yes', 'r-mentee~r-mentor': 'yes' };

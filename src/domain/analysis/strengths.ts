@@ -144,3 +144,10 @@ export function answerAxis(r: RecordItem, axis: Axis, yes: boolean): Pick<Record
     ? { confirmedAxes: [...without(r.confirmedAxes), axis], rejectedAxes: without(r.rejectedAxes) }
     : { confirmedAxes: without(r.confirmedAxes), rejectedAxes: [...without(r.rejectedAxes), axis] };
 }
+
+/** 줄에서 빠진 강점 한 줄. 근거가 있는데 순서에서 밀린 것과 근거가 아직 없는 것을 나눠 말한다(근거 10개를 '적다'고 하지 않게). */
+export function fewLine(few: Strength[]): string {
+  const next = few.filter(f => f.evidence.length > 0).map(f => f.label);
+  const none = few.filter(f => f.evidence.length === 0).map(f => f.label);
+  return [next.length ? `그다음 강점: ${next.join(' · ')}` : '', none.length ? `아직 근거가 없어요: ${none.join(' · ')}` : ''].filter(Boolean).join('. ');
+}

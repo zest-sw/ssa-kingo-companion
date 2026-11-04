@@ -4,13 +4,13 @@ import { navigate } from '../../app/router';
 import { nextStep } from '../../domain/nextStep';
 import { josa } from '../../domain/text';
 import { Button, Card, ConfirmLegend, EmptyState, GhostPic } from '../../components';
-import { buildStrengths, chancesFor, leadStrengths, samplesOf, splitStrengths, strengthHeadline, withAnswers } from '../../domain/analysis/strengths';
+import { buildStrengths, chancesFor, leadStrengths, samplesOf, splitStrengths, strengthHeadline, withAnswers, fewLine } from '../../domain/analysis/strengths';
 import { AXES } from '../../domain/vocab';
 import type { Axis, RecordItem } from '../../domain/types';
 import { ChanceList, DOTS_MAX, EvidenceDots } from './StrengthParts';
 import { StrengthDrawer } from './StrengthDrawer';
 
-/** 줄로 그릴 강점 수. 나머지는 '아직 근거가 적어요' 한 줄로 모아 덩어리 안 항목을 5개 안으로 둔다. */
+/** 줄로 그릴 강점 수. 나머지는 한 줄로 모아 덩어리 안 항목을 5개 안으로 둔다. */
 const SHOWN = 4;
 
 /**
@@ -72,7 +72,7 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
             })}
           </ul>
         </div>
-        {few.length > 0 && <p className="an-sfew">아직 근거가 적어요: {few.map(f => f.label).join(' · ')}</p>}
+        {few.length > 0 && <p className="an-sfew">{fewLine(few)}</p>}
       </Card>
       <Card className="os-card" title={lead.confirmed ? `${pick.label}${josa(pick.label, '을', '를')} 살릴 기회` : `강점 후보 ${pick.label}${josa(pick.label, '을', '를')} 써 볼 기회`}>
         <ChanceList axis={pick.axis} label={pick.label} chances={chances} />
@@ -81,3 +81,4 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
     </div>
   );
 }
+

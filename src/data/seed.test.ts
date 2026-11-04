@@ -126,3 +126,12 @@ describe('예시 학생 보드·추천·과제·친구', () => {
     expect(HALL.length).toBeLessThanOrEqual(4);
   });
 });
+
+describe('예시 학생 경험 지도', () => {
+  it('맞아요 한 연결은 지도에 있는 연결이다', async () => {
+    const { buildMap } = await import('../domain/analysis/map');
+    const { EXAMPLE_EDGE_ANSWERS } = await import('./seed');
+    const ids = new Set(buildMap(SEED_RECORDS).edges.map(e => e.id));
+    for (const id of Object.keys(EXAMPLE_EDGE_ANSWERS)) expect(ids.has(id), id).toBe(true);
+  });
+});

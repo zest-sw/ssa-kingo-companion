@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { prog, rec } from '../fixtures.test-util';
-import { answerAxis, buildStrengths, chancesFor, samplesOf, splitStrengths, strengthHeadline, strengthKeyword, leadStrengths, usableSentences, whenOf, withAnswers } from './strengths';
+import { answerAxis, fewLine, buildStrengths, chancesFor, samplesOf, splitStrengths, strengthHeadline, strengthKeyword, leadStrengths, usableSentences, whenOf, withAnswers } from './strengths';
 
 const recs = [
   rec('a', { axes: ['problem', 'communication'], semester: '2026-1', note: '문제 문장을 정리했다', confirmedAxes: ['problem'] }),
@@ -80,5 +80,13 @@ describe('나의 강점', () => {
     const r = rec('r', { axes: ['problem'], confirmedAxes: ['problem', 'self'] });
     expect(answerAxis(r, 'problem', false)).toEqual({ confirmedAxes: ['self'], rejectedAxes: ['problem'] });
     expect(answerAxis({ ...r, rejectedAxes: ['problem'] }, 'problem', true)).toEqual({ confirmedAxes: ['self', 'problem'], rejectedAxes: [] });
+  });
+});
+
+describe('fewLine', () => {
+  const row = (label: string, n: number) => ({ axis: 'self' as const, label, confirmed: 0, evidence: Array.from({ length: n }, (_, i) => ({ recordId: `r${i}`, title: '', semester: '2026-1', group: 'plan' as const, text: '', confirmed: false })) });
+  it('근거가 있는 것은 그다음 강점, 없는 것은 아직 없다고 나눠 말한다', () => {
+    expect(fewLine([row('창의성', 8), row('자기주도', 0)])).toBe('그다음 강점: 창의성. 아직 근거가 없어요: 자기주도');
+    expect(fewLine([row('자기주도', 0)])).toBe('아직 근거가 없어요: 자기주도');
   });
 });

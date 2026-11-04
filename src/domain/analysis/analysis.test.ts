@@ -67,6 +67,14 @@ describe('테크 트리', () => {
     expect(t.links).toContainEqual({ from: 'r:a', to: 'r:c', cross: true });
     expect(t.links.filter(l => l.cross)).toHaveLength(1);
   });
+  it('다른 분야로 이어진 경로는 분야마다 한 줄(그 분야 첫 기록으로 들어온 선)', () => {
+    const t = buildTechTree({
+      records: [rec('a', { field: 'research', did: 'listen', semester: '2025-1' }), rec('c', { field: 'dev', did: 'listen', semester: '2025-2' }),
+        rec('d', { field: 'research', did: 'listen', semester: '2026-1' }), rec('e', { field: 'global', did: 'listen', semester: '2026-2' })],
+      activities: [], candidates: []
+    });
+    expect(t.links.filter(l => l.cross).map(l => `${l.from}>${l.to}`)).toEqual(['r:a>r:c', 'r:d>r:e']);
+  });
   it('가지의 시작점은 그 분야에서 가장 앞 단계의 노드들로 뻗는다', () => {
     const t = buildTechTree({
       records: [rec('a', { field: 'dev', did: 'organize' }), rec('b', { field: 'dev', did: 'idea' }), rec('c', { field: 'dev', did: 'make' })],

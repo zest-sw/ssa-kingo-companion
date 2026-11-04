@@ -96,11 +96,16 @@ export function buildTechTree(input: { records: RecordItem[]; activities: Activi
       links.push({ from: prevCol[Math.min(same.indexOf(cell), prevCol.length - 1)].id, to: cell.id, cross: false });
     }
   }
-  // 같은 일을 다른 분야에서 이어 한 기록끼리, 시간 순서대로 점선으로 잇는다.
+  // 분야마다 한 줄: 그 분야의 첫 기록을, 그 앞에 같은 일을 다른 분야에서 한 가장 최근 기록과 점선으로 잇는다('이 일로 새 분야에 건너왔다').
+  // 기록이 쌓여도 분야 수만큼만 생겨 선이 엉키지 않는다. 앞에 같은 일이 없으면 잇지 않는다.
   const lastByDid = new Map<Did, TreeCell>();
+  const entered = new Set<FieldGroup>();
   for (const cell of cells.filter(c => c.recordId && c.did)) {
-    const prev = lastByDid.get(cell.did!);
-    if (prev && prev.group !== cell.group) links.push({ from: prev.id, to: cell.id, cross: true });
+    if (!entered.has(cell.group)) {
+      entered.add(cell.group);
+      const prev = lastByDid.get(cell.did!);
+      if (prev && prev.group !== cell.group) links.push({ from: prev.id, to: cell.id, cross: true });
+    }
     lastByDid.set(cell.did!, cell);
   }
   return { rows, links, candidates: candidateCells };

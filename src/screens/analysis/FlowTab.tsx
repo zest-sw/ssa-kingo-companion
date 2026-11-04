@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { Button, Card, Drawer, EmptyState, GhostPic } from '../../components';
@@ -25,6 +25,10 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   const summary = summarizeFlow(rows, from, to);
   // 구간 밖 학기는 그리지 않는다. 시작 학기 슬라이더를 앞으로 당기면 그 학기가 다시 보인다.
   const shown = rows.slice(from, to + 1);
+  // 학기가 많아 칸 안에서 스크롤될 때는 지금 학기가 보이게 맨 아래(최근)에서 시작한다.
+  const scroller = useRef<HTMLDivElement>(null);
+  const shownKey = `${from}-${to}`;
+  useEffect(() => { const el = scroller.current; if (el) el.scrollTop = el.scrollHeight; }, [shownKey]);
 
   if (records.length === 0) {
     return <Card><EmptyState pic={<GhostPic kind="bars" labels={[semesterLabel(SEMESTER_NOW)]} />} message={`${step.lead} 학기마다 어떤 분야를 했는지 보여요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} /></Card>;
@@ -33,7 +37,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   return (
     <div className="an-flow">
       <Card title="학기별 분야 비율" className="os-card" action={<Button variant="ghost" icon="chevron" onClick={() => setSumOpen(true)}>고른 구간 비율</Button>}>
-        <div className="os-scroll"><ol className="an-flow__rows">
+        <div ref={scroller} className="os-scroll"><ol className="an-flow__rows">
           {shown.map(r => (
             <li key={r.semester} className="an-flow__row">
               <span className="an-flow__sem">{semesterLabel(r.semester)}</span>

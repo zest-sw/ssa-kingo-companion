@@ -11,7 +11,7 @@ import type { Activity, ActivityStatus, Axis, CandidateChoice, Confirm, Discover
 import { DID_AXES } from '../domain/vocab';
 import { INITIAL_REQ_EVIDENCE, PROGRAM_BY_ID } from '../data/catalog';
 import { EXAMPLE_MY_POSTS } from '../data/friends';
-import { EMPTY_PROFILE, EXAMPLE_CHALLENGE_AT, EXAMPLE_CONFIRM, EXAMPLE_PROFILE, EXAMPLE_VISIBILITY, SEED_ACTIVITIES, SEED_RECORDS } from '../data/seed';
+import { EMPTY_PROFILE, EXAMPLE_CHALLENGE_AT, EXAMPLE_CONFIRM, EXAMPLE_EDGE_ANSWERS, EXAMPLE_PROFILE, EXAMPLE_VISIBILITY, SEED_ACTIVITIES, SEED_RECORDS } from '../data/seed';
 
 export type AppState = {
   /** 예시 학생의 활동·기록·친구로 둘러보는 중인지. false 면 가입 인터뷰를 마친 새 학생이다(활동·기록 0, 기회만 있음) */
@@ -101,7 +101,7 @@ export const INITIAL_STATE: AppState = {
   visibility: EXAMPLE_VISIBILITY,
   reqEvidence: INITIAL_REQ_EVIDENCE,
   drafts: {},
-  edgeAnswers: {},
+  edgeAnswers: EXAMPLE_EDGE_ANSWERS,
   challengeAt: EXAMPLE_CHALLENGE_AT,
   recruitPosts: EXAMPLE_MY_POSTS
 };
@@ -117,6 +117,7 @@ export const NEW_STUDENT_STATE: AppState = {
   visibility: DEFAULT_VISIBILITY,
   reqEvidence: {},
   challengeAt: {},
+  edgeAnswers: {},
   recruitPosts: []
 };
 
