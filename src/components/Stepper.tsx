@@ -1,3 +1,4 @@
+import { josaRo } from '../domain/text';
 import { Icon } from './Icon';
 
 export type StepItem<T extends string> = { id: T; label: string };
@@ -34,7 +35,7 @@ export function Stepper<T extends string>({ label, steps, current, onStep }: Pro
           return (
             <li key={s.id} className="ui-stepper__item">
               {done && onStep ? (
-                <button type="button" className={cls} onClick={() => onStep(s.id)} aria-label={`${i + 1}단계 ${s.label}로 돌아가기`}>{body}</button>
+                <button type="button" className={cls} onClick={() => onStep(s.id)} aria-label={`${i + 1}단계 ${s.label}${josaRo(s.label)} 돌아가기`}>{body}</button>
               ) : (
                 <span className={cls} aria-current={i === at ? 'step' : undefined}>
                   {body}

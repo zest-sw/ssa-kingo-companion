@@ -23,7 +23,7 @@ export function OppRow({ p, week, top, mark, load, why, onOpen }: {
   const gains = rowGains(p, 3);
   return (
     <li>
-      <button type="button" className="rec-row" data-top={top ? 'yes' : undefined} onClick={() => onOpen(p)}>
+      <button type="button" className="rec-row" data-top={top ? 'yes' : undefined} aria-label={`${p.title}, ${CATEGORY_LABEL[categoryOf(p)]}, ${ddayText(d)}`} onClick={() => onOpen(p)}>
         <span className="rec-row__main">
           <span className="rec-row__title">{p.title}</span>
           <span className="rec-row__meta">
@@ -34,7 +34,7 @@ export function OppRow({ p, week, top, mark, load, why, onOpen }: {
           </span>
           {why && <span className="rec-row__why"><Icon name="sparkle" size={14} />{why}</span>}
         </span>
-        <span className="rec-row__gains" aria-label="얻는 것">
+        <span className="rec-row__gains" role="group" aria-label="얻는 것">
           {gains.length > 0 ? gains.map(g => <GainChip key={g.kind} kind={g.kind} label={g.label} />) : <span className="rec-muted">모집글에 적힌 것이 없어요</span>}
         </span>
         <span className={`rec-row__dday num${isNearDeadline(d) ? ' rec-row__dday--near' : ''}`}>{ddayText(d)}</span>

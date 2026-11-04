@@ -114,7 +114,7 @@ export function DiscoveryCards() {
       action={list.length > 0 ? <span className="an-disc-card__count">{pending ? <>확인할 것 <b className="num">{pending}</b>개</> : '모두 확인했어요'}</span> : undefined}
     >
       {!d ? (
-        <EmptyState pic={<ConvergeGhost />} message={`${step.lead} 같은 일을 한 회고끼리 묶어 발견을 보여 줘요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
+        <EmptyState pic={<ConvergeGhost />} message={state.records.length > 0 ? '기록이 더 쌓이면 발견이 생겨요. 같은 일을 한 회고끼리 묶어 보여 줘요.' : `${step.lead} 같은 일을 한 회고끼리 묶어 발견을 보여 줘요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
       ) : (
         <>
           <div className={`an-dq an-dq--${st}`}>
