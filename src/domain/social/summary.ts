@@ -1,5 +1,5 @@
 import { josa } from '../text';
-import type { Activity, FieldGroup, RecordItem } from '../types';
+import type { Activity, Field, FieldGroup, RecordItem } from '../types';
 import { FIELD_GROUP, GROUP_LABEL } from '../vocab';
 import type { RecruitPost } from './index';
 
@@ -39,3 +39,13 @@ export function hallLine(entries: { group: FieldGroup }[], mine?: FieldGroup): s
 
 export type FeedKind = 'achieved' | 'hidden' | 'applied' | 'shared';
 export type FeedLike = { who: string; kind: FeedKind; subject?: string };
+
+/**
+ * 비슷한 학생 줄의 이유. 예시 이유 '같은 활동 2개'는 내 활동이 없으면 사실이 아니라서, 그 학생이 한 분야로 바꿔 말한다.
+ * ponytail: 같은 활동 수는 예시 값이다. 친구 연동이 생기면 내 활동과 실제로 겹친 수를 센다.
+ */
+export function peerNote(note: string, field: Field, myActivities: number): string {
+  if (myActivities > 0 || !note.startsWith('같은 활동')) return note;
+  const label = GROUP_LABEL[FIELD_GROUP[field]];
+  return `${label} 활동을 해 봤어요`;
+}

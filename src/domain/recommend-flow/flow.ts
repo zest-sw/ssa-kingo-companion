@@ -54,7 +54,7 @@ export function prepItemsFor(p: Program, week: number, now: string): PrepItem[] 
     { id: 'calendar', label: '일정 캘린더 등록', by: 'agent', done: true, at: now }
   ];
   if (needsTeam(p)) items.push({ id: 'team', label: '팀 구성', by: 'me', done: false, dday: Math.max(0, due - 1), link: { label: '팀원 모집 글 올리기', path: 'profile/recruit' } });
-  items.push({ id: 'draft', label: '신청서 초안 확인', by: 'me', done: false, dday: Math.max(0, due - 1), hint: '에이전트가 써 뒀어요' });
+  items.push({ id: 'draft', label: '신청서 초안 확인', by: 'me', done: false, dday: Math.max(0, due - 1), hint: '에이전트가 써 뒀어요. 다음 단계에서 읽으면 체크돼요' });
   if (p.level >= 2) items.push({ id: 'survey', label: '사전 설문 답하기', by: 'me', done: false, dday: due, hint: '학교 로그인이 필요해서 직접 답해요', outside: '설문 열기' });
   return items;
 }
@@ -62,6 +62,10 @@ export function prepItemsFor(p: Program, week: number, now: string): PrepItem[] 
 /** 내가 할 항목만 눌러서 바꾼다. 에이전트가 한 건 그대로 둔다. 끝낸 시각을 남긴다. */
 export const toggleItem = (items: PrepItem[], id: string, now: string): PrepItem[] =>
   items.map(i => (i.id === id && i.by === 'me' ? { ...i, done: !i.done, at: i.done ? undefined : now } : i));
+
+/** 초안 단계에서 '신청 단계로'를 누르면 초안을 읽고 확인한 것이다. 준비할 것에서 같은 일을 또 체크하지 않게 끝낸 것으로 둔다(이미 끝났으면 그대로). */
+export const confirmDraft = (items: PrepItem[], now: string): PrepItem[] =>
+  items.map(i => (i.id === 'draft' && !i.done ? { ...i, done: true, at: now } : i));
 
 /** 학교 사이트에서 할 일을 새 탭으로 열었다고 남긴다. 그 뒤에 '했어요'로 체크할 수 있다. */
 export const markOpened = (items: PrepItem[], id: string): PrepItem[] =>

@@ -159,7 +159,9 @@ export function treeHeadline(tree: TechTree): string {
   const rows = tree.rows.filter(r => r.group !== 'other');
   // '+n' 으로 접힌 노드도 센다. 많이 한 분야일수록 많이 접혀서, 보이는 노드만 세면 순서가 뒤집힌다.
   const own = (r: TreeRow) => [...r.cells, ...r.folds.flatMap(f => f.cells)].filter(c => c.kind === 'done' || c.kind === 'ongoing').length;
-  const lead = rows.filter(r => r.top >= 0).sort((a, b) => b.top - a.top || own(b) - own(a))[0];
+  const best = (list: TreeRow[]) => list.filter(r => r.top >= 0).sort((a, b) => b.top - a.top || own(b) - own(a))[0];
+  // 첫 기록이 기타 분야뿐이어도 그림에는 노드가 생긴다. 빈 상태 문장을 띄우지 않고 그 분야로 말한다.
+  const lead = best(rows) ?? best(tree.rows);
   if (!lead) return '회고를 쓰면 가지가 자라요';
   const head = `${lead.label} ${TREE_COLUMNS[lead.top]}까지`;
   const skip = rows.find(r => skippedStages(r).length);

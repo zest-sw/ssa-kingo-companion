@@ -120,12 +120,13 @@ export function Interview({ activity }: { activity: Activity }) {
               <li><Icon name="sparkle" size={18} />{summary.newDiscoveries.length ? `새 발견 후보가 ${summary.newDiscoveries.length}개 생겼어요. 나의 분석에서 맞는지 확인해 주세요.` : '발견은 그대로예요. 같은 일을 한 기록이 더 쌓이면 새로 생겨요.'}</li>
               <li><Icon name="compass" size={18} />{summary.usedForRecommend ? '다음 추천에 이 기록을 반영해요.' : '추천에 쓰지 않기로 해서 다음 추천은 그대로예요.'}</li>
             </ul>
-            {/* 기록으로 돌아가는 길은 빵부스러기 하나다. 새 기록의 점은 기록 지도에 표시돼 있다. */}
-            {summary.newDiscoveries.length > 0 && (
-              <div className="rec-done__actions">
-                <Button variant="primary" onClick={() => navigate('analysis/map')}>새 발견 확인하기</Button>
-              </div>
-            )}
+            {/* 기록으로 돌아가는 길은 빵부스러기 하나다. 회고 → 분석 → 다음 추천으로 이어지게 갈 곳을 늘 하나 이상 둔다. */}
+            <div className="rec-done__actions">
+              {summary.newDiscoveries.length > 0
+                ? <Button variant="primary" onClick={() => navigate('analysis/map')}>새 발견 확인하기</Button>
+                : <Button variant="primary" onClick={() => navigate('analysis')}>나의 분석 보기</Button>}
+              {summary.usedForRecommend && <Button onClick={() => navigate('recommend')}>다음 추천 보기</Button>}
+            </div>
           </Card>
         </div>
       </div>

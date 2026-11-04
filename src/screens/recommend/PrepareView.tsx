@@ -5,7 +5,7 @@ import { Badge, Button, Card, EmptyState, Icon, PageHeader, Panel, Stepper } fro
 import { APPLY_URL, DRAFT_DELAY } from '../../data/recommend';
 import { PROGRAM_BY_ID } from '../../data/catalog';
 import { runLog, writeDraft, type Revision } from '../../domain/recommend-flow/draft';
-import { clockLabel, dateLabel, markOpened, mostUrgent, needsTeam, prepItemsFor, remainingItems, submitBlockReason, submitPatch, toggleItem, type PrepItem } from '../../domain/recommend-flow/flow';
+import { clockLabel, confirmDraft, dateLabel, markOpened, mostUrgent, needsTeam, prepItemsFor, remainingItems, submitBlockReason, submitPatch, toggleItem, type PrepItem } from '../../domain/recommend-flow/flow';
 import { ddayOf } from '../../domain/recommend';
 import { ddayText } from '../../domain/text';
 import { PrepDone } from './PrepDone';
@@ -77,6 +77,11 @@ export function PrepareView({ programId }: { programId: string }) {
   const opened = (id: string) => {
     if (activity) run({ type: 'activity/prepItems', id: activity.id, items: markOpened(items, id) });
   };
+  // 초안을 읽고 넘어가면 '신청서 초안 확인'도 끝난 것이다. 준비할 것으로 돌아가 같은 일을 또 하지 않게 한다.
+  const toApply = () => {
+    if (activity) run({ type: 'activity/prepItems', id: activity.id, items: confirmDraft(items, nowLabel()) });
+    setStep('apply');
+  };
   const revise = (r: Revision) => { setRevisions(list => [...list, r]); setRevising(false); };
 
   const submitted = !!activity && activity.status !== 'preparing';
@@ -132,7 +137,7 @@ export function PrepareView({ programId }: { programId: string }) {
       <ReviseBox onRevise={revise} onClose={() => setRevising(false)} />
     ) : (
       <>
-        <Button variant="primary" disabled={!draftReady} onClick={() => setStep('apply')}>신청 단계로</Button>
+        <Button variant="primary" disabled={!draftReady} onClick={toApply}>신청 단계로</Button>
         <Button disabled={!draftReady} aria-expanded={revising} onClick={() => setRevising(true)}>고쳐 줘</Button>
       </>
     );
@@ -162,7 +167,7 @@ export function PrepareView({ programId }: { programId: string }) {
             />
           )}
           {step === 'draft' && <DraftStep draft={draft} team={needsTeam(p)} revised={revisedAt.length > 0} revising={revisions.length > 0} onRetry={() => setAttempt(attempt + 1)} />}
-          {step === 'apply' && <ApplyStep title={p.title} left={left} draftReady={draftReady} dueText={dueText} ready={!reason} />}
+          {step === 'apply' && <ApplyStep title={p.title} left={remainingItems(items).map(i => i.label)} onBack={() => setStep('todo')} draftReady={draftReady} dueText={dueText} ready={!reason} />}
         </Panel>
       </div>
     </div>

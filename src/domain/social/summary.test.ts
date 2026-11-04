@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { friendsLine, hallLine, interestedIds, myTopGroup, recruitLine } from './summary';
+import { friendsLine, hallLine, interestedIds, myTopGroup, peerNote, recruitLine } from './summary';
 import type { RecruitPost } from './index';
 
 const post = (id: string, opportunityId: string, mine = false): RecruitPost => ({ id, opportunityId, author: 'x', slots: 1, note: 'n', mine });
@@ -27,5 +27,13 @@ describe('프로필 한 줄', () => {
     expect(hallLine(halls, 'plan')).toBe('걸어온 길 3개, 창업·기획은 2개');
     expect(hallLine(halls, 'mentor')).toBe('걸어온 길 3개, 멘토링 길은 아직 없어요');
     expect(hallLine(halls)).toBe('걸어온 길 3개');
+  });
+});
+
+describe('비슷한 학생 이유', () => {
+  it('내 활동이 없으면 같은 활동 수 대신 그 학생이 한 분야로 말한다', () => {
+    expect(peerNote('같은 활동 2개', 'data', 0)).toBe('AI·데이터 활동을 해 봤어요');
+    expect(peerNote('같은 활동 2개', 'data', 3)).toBe('같은 활동 2개');
+    expect(peerNote('관심 분야가 같아요', 'product', 0)).toBe('관심 분야가 같아요');
   });
 });

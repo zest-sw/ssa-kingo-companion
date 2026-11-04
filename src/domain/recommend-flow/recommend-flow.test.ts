@@ -6,7 +6,7 @@ import type { Activity, CandidateChoice } from '../types';
 import { CATALOG } from '../../data/catalog';
 import { relatedRecords, runLog, writeDraft } from './draft';
 import {
-  candidateHref, checksOf, clockLabel, dateLabel, effectiveChoices, emptyReason, formatText, funnelSteps, isNearDeadline, laterDateLabel, laterUntilDay, mostUrgent,
+  candidateHref, checksOf, clockLabel, confirmDraft,dateLabel, effectiveChoices, emptyReason, formatText, funnelSteps, isNearDeadline, laterDateLabel, laterUntilDay, mostUrgent,
   needsTeam, overlapsSchedule, parseRecommendSub, plainText, prepItemsFor, prepProgress, remainingItems, submitBlockReason, submitPatch, toggleInterest, toggleItem
 } from './flow';
 import { homeCounts } from './home';
@@ -68,6 +68,14 @@ describe('신청 준비 체크리스트', () => {
     const off = toggleItem(toggleItem(items, 'draft', T1), 'draft', T1).find(i => i.id === 'draft');
     expect(off?.done).toBe(false);
     expect(off?.at).toBeUndefined();
+  });
+
+  it('초안 단계를 넘기면 초안 확인이 끝난 것으로 남고, 이미 끝났으면 시각을 바꾸지 않는다', () => {
+    const items = prepItemsFor(plain, 1, T0);
+    expect(confirmDraft(items, T1).find(i => i.id === 'draft')).toMatchObject({ done: true, at: T1 });
+    const done = toggleItem(items, 'draft', T0);
+    expect(confirmDraft(done, T1)).toEqual(done);
+    expect(remainingItems(confirmDraft(items, T1))).toEqual([]);
   });
 
   it('에이전트 항목과 없는 id 는 토글해도 그대로다', () => {
