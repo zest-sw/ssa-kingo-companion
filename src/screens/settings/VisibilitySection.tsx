@@ -77,22 +77,22 @@ export function VisibilitySection() {
       </Card>
 
       <Card className="st-card st-pick" title="보일 것 고르기" action={<SegmentedControl<Pick> label="보일 것 종류" value={pick} onChange={setPick} items={[{ id: 'activity', label: '한 활동' }, { id: 'record', label: '회고' }, { id: 'challenge', label: '도전 과제' }]} />}>
-        <p className="st-pick__hint">켜진 것만 친구에게 보여요.</p>
-        {pick === 'activity' && <Group title="한 활동">
+        <p className="st-pick__hint">{v.profilePublic ? '켜진 것만 친구에게 보여요.' : '지금은 비공개라 아무것도 안 보여요. 미리 골라 두면 공개할 때 이것만 보여요.'}</p>
+        {pick === 'activity' && <Group title="">
           {candidates.length ? (
             <div className="st-chips">
               {candidates.map(a => <Chip key={a.id} selected={visibleIds.has(a.id)} onClick={() => set({ hiddenActivityIds: toggled(v.hiddenActivityIds, a.id) })}>{a.title}</Chip>)}
             </div>
           ) : <p className="st-empty">보일 활동이 아직 없어요. 활동을 시작하면 여기서 고를 수 있어요.</p>}
         </Group>}
-        {pick === 'record' && <Group title="회고">
+        {pick === 'record' && <Group title="">
           {state.records.length ? (
             <div className="st-chips">
               {state.records.map(r => <Chip key={r.id} selected={v.sharedRecordIds.includes(r.id)} onClick={() => set({ sharedRecordIds: toggled(v.sharedRecordIds, r.id) })}>{r.title}</Chip>)}
             </div>
           ) : <p className="st-empty">공개할 회고가 아직 없어요. 활동이 끝나면 회고를 써 보세요.</p>}
         </Group>}
-        {pick === 'challenge' && <Group title="전시할 도전 과제">
+        {pick === 'challenge' && <Group title="">
           {achieved.length ? (
             <div className="st-chips">
               {achieved.map(c => <Chip key={c.def.id} selected={showcased.has(c.def.id)} onClick={() => set({ showcaseChallengeIds: toggled(v.showcaseChallengeIds, c.def.id) })}>{c.def.name}</Chip>)}
