@@ -7,7 +7,7 @@ import FlowTab from './FlowTab';
 import StrengthsTab from './StrengthsTab';
 import TechTreeTab from './TechTreeTab';
 import type { useAnalysis } from './useAnalysis';
-import { useStory } from './useStory';
+import { useStory } from '../../app/useStory';
 
 export type TabId = 'techtree' | 'map' | 'flow' | 'strengths';
 export const TABS: TabItem<TabId>[] = [

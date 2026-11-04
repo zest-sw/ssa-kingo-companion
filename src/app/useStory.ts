@@ -1,13 +1,13 @@
 import { useMemo, useSyncExternalStore } from 'react';
-import { useApp } from '../../app/AppState';
-import { PROGRAMS } from '../../data/catalog';
-import { SEMESTER_FROM, SEMESTER_NOW } from '../../data/analysis';
-import { semesterAxis } from '../../domain/analysis/semester';
-import { withAnswers } from '../../domain/analysis/strengths';
-import { buildStory, type Story } from '../../domain/insight/story';
-import type { RecordItem } from '../../domain/types';
+import { useApp } from './AppState';
+import { PROGRAMS } from '../data/catalog';
+import { SEMESTER_FROM, SEMESTER_NOW } from '../data/analysis';
+import { semesterAxis } from '../domain/analysis/semester';
+import { withAnswers } from '../domain/analysis/strengths';
+import { buildStory, type Story } from '../domain/insight/story';
+import type { RecordItem } from '../domain/types';
 
-// 정체성 문장의 답(학생이 고른 문장). 홈과 분석 요약이 같은 답을 본다.
+// 이야기 하나를 화면에 준다(홈·나의 분석이 함께 쓴다). 정체성 문장의 답(학생이 고른 문장)도 여기서 나눠 본다.
 // ponytail: 앱 상태(state.ts) 밖, 이 브라우저의 localStorage 에만 둔다. 공용 상태에 'story/answer' 액션이 생기면 옮긴다.
 // 답은 문장 그대로 저장해서, 기록이 바뀌어 후보 문장이 달라지면 buildStory 가 저절로 '확인 전'으로 돌린다.
 const KEY = 'kingo-companion:story-answer';

@@ -8,7 +8,7 @@ import { ddayText } from '../../domain/text';
 import { useTriage } from '../recommend/useTriage';
 import { DiscoveryCards } from './DiscoveryCards';
 import type { useAnalysis } from './useAnalysis';
-import { setStoryAnswer, useStory } from './useStory';
+import { setStoryAnswer, useStory } from '../../app/useStory';
 
 /**
  * 나의 분석 요약: 저자가 이끄는 이야기 먼저, 탐색은 나중(martini glass, Segel·Heer 2010).
