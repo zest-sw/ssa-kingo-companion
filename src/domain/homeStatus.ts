@@ -1,13 +1,13 @@
 import { LEVEL_NAME, levelOf } from './analysis/level';
 import { leadStrengths, type Strength } from './analysis/strengths';
-import { missingStar } from './interview/answer';
+import { answerReady } from './interview/answer';
 import { josa } from './text';
 import type { Activity, FieldGroup, Program, RecordItem } from './types';
 import { FIELD_GROUP, GROUP_LABEL } from './vocab';
 
 // 홈 '상태창' 계산. 값은 모두 센 개수다(점수·레벨 아님). 화면은 이 값을 그리기만 한다.
 
-/** 가진 것: 기록 · 경험 카드(STAR 네 칸을 다 채운 기록) · 학교 확인 · 달성한 도전 과제 · 가장 깊이 간 분야 */
+/** 가진 것: 기록 · 경험 카드(STAR 칸을 채운 기록) · 학교 확인 · 달성한 도전 과제 · 가장 깊이 간 분야 */
 export type Inventory = { records: number; cards: number; school: number; challenges: number; deepest?: string };
 
 /** 지금 상황 한 줄: 하는 중 · 이번 주 마감 · 회고 대기 */
@@ -16,7 +16,8 @@ export type Situation = { doing: number; dueThisWeek: number; reviewWaiting: num
 /** 칭호 = 정체성 가설 한 줄. estimated 면 AI 추정(점선 밑줄)이다. 근거가 없으면 empty */
 export type Title = { text: string; estimated: boolean; empty: boolean };
 
-const starFilled = (r: RecordItem) => !!r.card && missingStar(r.card).length === 0;
+// 면접 답변으로 꺼낼 수 있는 기록(answerReady: STAR 칸이 하나라도 있다)을 경험 카드로 센다.
+const starFilled = (r: RecordItem) => !!r.card && answerReady(r.card);
 
 /** 가장 깊이 간 분야: 기록의 심화 수준이 가장 높은 분야 묶음. 같으면 기록이 많은 쪽. '창업·기획 심화' */
 export function deepestField(records: RecordItem[], programs?: Record<string, Program>): string | undefined {

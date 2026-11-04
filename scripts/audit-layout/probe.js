@@ -6,6 +6,7 @@
  *   data-allow-overlap  의도된 겹침(차트 마커 위 이름표 등). 그 안의 요소는 겹침 검사에서 뺀다.
  *   data-fill           목록·지도처럼 남은 높이를 채우는 게 의도인 칸. 늘어난 빈 칸 검사에서 뺀다.
  *   data-audit-skip     검사 전체에서 뺀다(개발용 칸 등). 쓰면 이유를 주석으로 남긴다.
+ *   data-allow-marquee  가로로 지나가는 행렬(명예의 전당 무대). 그 칸의 가로 잘림과 오른쪽 창 밖 버튼만 뺀다(세로 잘림은 그대로 본다).
  */
 export function probe(opts) {
   const { breakOnly = false } = opts || {};
@@ -124,7 +125,7 @@ export function probe(opts) {
     const s = cs(el);
     const y = (s.overflowY === 'hidden' || s.overflowY === 'clip') && el.scrollHeight > el.clientHeight + 2 && el.clientHeight > 12;
     const x = (s.overflowX === 'hidden' || s.overflowX === 'clip') && el.scrollWidth > el.clientWidth + 2 && el.clientWidth > 24;
-    if (!y && !x) continue;
+    if (!y && !(x && !el.closest("[data-allow-marquee]"))) continue;
     if (ellipsisOn(s)) {
       if (!breakOnly && el.textContent.trim()) add({ k: 'truncated', level: 'warn', d: x ? el.scrollWidth - el.clientWidth : el.scrollHeight - el.clientHeight, el: name(el) }, el);
       continue;
@@ -210,7 +211,7 @@ export function probe(opts) {
   for (const c of all.filter(el => el.matches('button,a[href],input,select,textarea,[role=button]'))) {
     if (innerScroller(c)) continue;
     const r = c.getBoundingClientRect();
-    if (r.bottom > H + 1 || r.right > W + 1) add({ k: 'offscreen', level: 'fail', d: Math.round(Math.max(r.bottom - H, r.right - W)), el: name(c) }, c);
+    if (r.bottom > H + 1 || (r.right > W + 1 && !c.closest("[data-allow-marquee]"))) add({ k: 'offscreen', level: 'fail', d: Math.round(Math.max(r.bottom - H, r.right - W)), el: name(c) }, c);
   }
 
   // f) 늘어난 빈 칸: 상자 안 내용(글자·그림·안쪽 상자) 위아래 빈 높이가 120px 넘거나 상자 높이의 40% 넘음

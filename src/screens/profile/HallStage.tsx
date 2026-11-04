@@ -67,9 +67,9 @@ export function HallStage({ people, joined, onOpen }: Props) {
 
   // 포커스한 카드가 무대 가운데 오게(첫 줄 안의 위치로)
   const onFocus = (e: FocusEvent<HTMLDivElement>) => {
+    const li = (e.target as HTMLElement).closest<HTMLElement>('.hall-card')?.parentElement;
+    if (!li) return;
     setHold(true);
-    const card = (e.target as HTMLElement).closest<HTMLElement>('.hall-card');
-    const li = card?.parentElement;
     if (!li || !viewport.current) return;
     const goal = li.offsetLeft - (viewport.current.clientWidth - li.offsetWidth) / 2;
     const set = setWidth();
@@ -100,14 +100,17 @@ export function HallStage({ people, joined, onOpen }: Props) {
   );
 
   return (
-    <div className="hall-stage" data-fill>
+    <div className="hall-stage" data-fill data-moving={moving || undefined}>
+      {/* data-allow-marquee: 행렬은 일부러 칸 밖으로 이어져 가로로 잘린다(검사는 세로 잘림만 본다) */}
       <div
+        data-allow-marquee
         ref={viewport}
         className="hall-stage__viewport"
         role="region"
         aria-roledescription="회전 목록"
         aria-label="전당에 오른 학생, 오른 날짜순. 방향키로 넘겨요"
-        onMouseEnter={() => setHold(true)}
+        // 화면이 바뀌며 포인터 아래에 놓인 것만으로는 멈추지 않게, 실제로 움직였을 때 멈춘다
+        onMouseMove={() => { if (!hold) setHold(true); }}
         onMouseLeave={() => { if (!viewport.current?.contains(document.activeElement)) setHold(false); }}
         onFocus={onFocus}
         onBlur={onBlur}

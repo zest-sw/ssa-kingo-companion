@@ -1,4 +1,4 @@
-// 전당 배경: 얇은 선의 기둥과 아치, 바닥 줄. 장식이라 옅게 깔고 읽지 않는다(aria-hidden).
+// 전당 배경: 얇은 선의 기둥과 아치, 바닥 줄. 장면 크기에 맞춰 늘린다(선 굵기는 그대로). 장식이라 옅게 깔고 읽지 않는다(aria-hidden).
 const W = 1200;
 const H = 400;
 const ARCHES = 5;
@@ -6,7 +6,7 @@ const ARCHES = 5;
 export function HallArt() {
   const span = W / ARCHES;
   return (
-    <svg className="hall-art" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <svg className="hall-art" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
       <path d={`M0 40 H${W} M0 52 H${W}`} />
       {Array.from({ length: ARCHES }, (_, i) => {
         const x0 = i * span + 24;

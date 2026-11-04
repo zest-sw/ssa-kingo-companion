@@ -7,9 +7,9 @@ import type { Activity } from './types';
 const act = (id: string, over: Partial<Activity>): Activity => ({ id, title: id, field: 'dev', status: 'preparing', schedule: '', ...over });
 
 describe('상태창', () => {
-  it('가진 것은 센 개수다: 경험 카드는 STAR 네 칸을 다 채운 기록만', () => {
+  it('가진 것은 센 개수다: 경험 카드는 STAR 칸을 채운 기록(배운 점만 있으면 아님)', () => {
     const full = { situation: 's', role: 'r', action: 'a', result: 'x' };
-    const inv = inventoryOf([rec('a', { card: full, verification: 'school' }), rec('b', { card: { action: 'a' } }), rec('c')], 2);
+    const inv = inventoryOf([rec('a', { card: full, verification: 'school' }), rec('b', { card: { learned: 'l' } }), rec('c')], 2);
     expect(inv).toMatchObject({ records: 3, cards: 1, school: 1, challenges: 2 });
   });
 

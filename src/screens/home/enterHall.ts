@@ -5,12 +5,15 @@ type VTDocument = Document & { startViewTransition?: (cb: () => Promise<void>) =
 
 const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/** 전당 장면이 그려질 때까지 기다린다(해시가 바뀌고 React 가 다음 화면을 그리는 데 몇 프레임이 걸린다) */
+/**
+ * 전당 장면이 그려질 때까지 기다린다(해시가 바뀌고 React 가 다음 화면을 그리는 데 잠깐 걸린다).
+ * 전환 중에는 브라우저가 프레임을 멈춰 requestAnimationFrame 이 오지 않으니 타이머로 본다.
+ */
 function sceneReady(): Promise<void> {
   return new Promise(resolve => {
     let n = 0;
-    const tick = () => (document.querySelector('.hall-scene') || ++n > 30 ? resolve() : requestAnimationFrame(tick));
-    requestAnimationFrame(tick);
+    const tick = () => (document.querySelector('.hall-scene') || ++n > 40 ? resolve() : setTimeout(tick, 10));
+    setTimeout(tick, 0);
   });
 }
 

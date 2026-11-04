@@ -42,6 +42,8 @@
 /* 광장 문 → 전당: 문 카드가 커지며 장면이 된다 */
 ::view-transition-group(hall-door) { animation-duration: var(--hall-enter); animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1); }
 ::view-transition-old(hall-door), ::view-transition-new(hall-door) { height: 100%; object-fit: cover; }
+/* 문 카드 그림은 커지면서 빨리 사라져 글자가 번져 보이지 않게 */
+::view-transition-old(hall-door) { animation-duration: calc(var(--hall-enter) / 2); }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--hall-enter); }
 
 @media (prefers-reduced-motion: reduce) {

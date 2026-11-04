@@ -126,6 +126,8 @@
 
 @media (max-width: 1199px) {
   .home-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
-  .home-inv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .home-inv__cell--deep { grid-column: 1 / -1; }
+  .home-inv { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .home-inv__cell--deep { grid-column: span 2; }
+  .home-status { gap: var(--space-2); }
+  .home-title { padding: var(--space-2) 0; }
 }

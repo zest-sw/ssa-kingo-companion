@@ -40,7 +40,7 @@ export function Plaza() {
       line: (
         <span className="home-door__faces" aria-label={`최근 오른 사람 ${recent.map(h => h.name).join(', ')}`}>
           {recent.map(h => <span key={h.id} className="home-door__face" aria-hidden="true">{h.name.slice(0, 1)}</span>)}
-          <span className="home-door__faces-label" aria-hidden="true">최근 오른 사람</span>
+          <span className="home-door__faces-label" aria-hidden="true">최근</span>
         </span>
       ),
       onClick: e => enterHall(e, 'profile/hall')
