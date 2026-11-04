@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { PROGRAM_BY_ID } from '../../data/catalog';
 import { rec as baseRec } from '../fixtures.test-util';
 import type { Activity, RecordItem } from '../types';
-import { evaluate, isInProgress, newlyAchieved, showcaseable, type ChallengeDef } from './index';
+import { evaluate, isInProgress, newlyAchieved, type ChallengeDef } from './index';
 
 // 기본은 학생이 남긴 기록. 예시 기록은 source: 'seed' 로 따로 만든다.
 const rec = (id: string, over: Partial<RecordItem> = {}) => baseRec(id, { source: 'agent', ...over });
@@ -69,14 +69,10 @@ describe('도전 과제 달성 계산', () => {
   });
 });
 
-describe('새 달성과 전시', () => {
+describe('새 달성', () => {
   it('이미 알린 것은 새 달성에서 뺀다', () => {
     const rs = run([rec('a', { source: 'agent', field: 'club' })]);
     expect(newlyAchieved(rs, new Set()).map(r => r.def.id)).toEqual(['first']);
     expect(newlyAchieved(rs, new Set(['first']))).toEqual([]);
-  });
-  it('전시 목록에는 달성한 과제만 남는다', () => {
-    const rs = run([rec('a', { source: 'agent' })]);
-    expect(showcaseable(rs, ['first', 'paths', 'gone'])).toEqual(['first']);
   });
 });

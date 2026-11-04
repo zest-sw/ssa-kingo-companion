@@ -1,4 +1,4 @@
-:root { --fr-avatar-lg: var(--space-12); --fr-tile-min: 120px; --fr-retro-min: 220px; --fr-hall-min: 280px; --fr-consent-min: 240px; --fr-edge: 3px; --fr-edge-quote: 2px; }
+:root { --fr-avatar-lg: var(--space-12); --fr-hall-min: 280px; --fr-consent-min: 240px; --fr-edge: 3px; --fr-edge-quote: 2px; }
 
 
 .fr-cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--os-gap); align-items: start; }
@@ -37,12 +37,7 @@
 .fr-me { display: flex; align-items: center; gap: var(--space-4); }
 .fr-me__name { font-size: var(--text-xl); font-weight: var(--weight-bold); }
 .fr-me__sub { color: var(--ink-muted); }
-.fr-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--fr-tile-min), 1fr)); gap: var(--space-2); }
-.fr-tile { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--surface); font-weight: var(--weight-bold); color: var(--ink); text-align: center; }
 .fr-path { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); border: var(--border); border-radius: var(--radius-sm); background: var(--surface); font-weight: var(--weight-medium); min-height: var(--hit-min); }
-.fr-retros { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--fr-retro-min), 1fr)); gap: var(--space-2); margin-top: var(--space-3); }
-.fr-retro { padding: var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--surface); }
-.fr-retro__label { font-size: var(--text-sm); color: var(--ink-muted); }
 .fr-people { display: flex; flex-direction: column; }
 .fr-people--requests { margin-bottom: var(--space-2); }
 .fr-person { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; }
@@ -93,45 +88,21 @@
 .pf-left { display: grid; grid-template-rows: auto auto; align-content: start; gap: var(--os-gap); min-height: 0; }
 .pf-right { display: grid; grid-template-rows: auto; align-content: start; gap: var(--os-gap); min-height: 0; }
 .pf-right > .pf-locked { grid-row: 1; }
-.pf-showcase { margin-top: var(--space-3); }
-.pf-prog { display: flex; flex-direction: column; }
-.pf-prog .ui-progress__track { height: var(--space-3); }
 .pf-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
 .pf-locked__list { display: flex; flex-direction: column; margin: var(--space-3) 0 var(--space-4); }
 .pf-locked__item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; color: var(--ink-muted); }
 .pf-locked__item + .pf-locked__item { border-top: var(--border); }
 .pf-locked__name { flex: 1; color: var(--ink); font-weight: var(--weight-bold); }
 
-/* 프로필: 도전 과제 진행, 최근 활동, 친구 소식 */
-:root { --pf-q: var(--space-8); }
+/* 프로필: 도전 과제 진행 */
 .pf-sentence { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); overflow-wrap: anywhere; }
 .pf-next { display: flex; flex-direction: column; gap: var(--space-6); margin-top: var(--space-6); }
 .pf-next__item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; gap: var(--space-4); }
 .pf-next__name { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: var(--weight-medium); overflow-wrap: anywhere; }
 .pf-next__name .ui-icon { color: var(--ink-muted); flex: none; }
-.pf-hidden { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-6); color: var(--ink-muted); font-size: var(--text-sm); }
-.pf-hidden__marks { display: inline-flex; gap: var(--space-1); }
-.pf-hidden__q { display: grid; place-items: center; width: var(--pf-q); height: var(--pf-q); border: 1px dashed var(--ink-subtle); border-radius: var(--radius-sm); font-weight: var(--weight-bold); }
-.fr-feed__open { min-height: var(--hit-min); background: none; border: 0; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
-.fr-feed__open:hover { color: var(--primary); }
 .fr-sub-title--first { margin-top: 0; }
-@media (max-width: 1100px) { .pf-next__item { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } }
 .fr-headline { margin-bottom: var(--space-4); font-size: var(--text-lg); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
 
-/* 친구 소식: 아바타 + 과제 배지 + 짧은 라벨 */
-.pf-feed { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
-.pf-feed__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-1) 0; }
-.pf-feed__row + .pf-feed__row { border-top: var(--border); }
-.pf-feed__open { all: unset; box-sizing: border-box; flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-3); min-height: var(--space-10); cursor: pointer; border-radius: var(--radius-sm); }
-.pf-feed__open:hover .pf-feed__text b { color: var(--primary); }
-.pf-feed__open:focus-visible { box-shadow: var(--focus-ring); }
-.pf-feed__badge { display: grid; place-items: center; flex: none; width: var(--space-8); height: var(--space-8); border: var(--border); border-radius: var(--radius-sm); background: var(--lime-100); color: var(--green-900); }
-.pf-feed__text { display: flex; flex-direction: column; min-width: 0; font-size: var(--text-sm); color: var(--ink-muted); }
-.pf-feed__text b { color: var(--ink); font-size: var(--text-md); }
-.pf-face { display: grid; place-items: center; flex: none; width: var(--space-8); height: var(--space-8); border-radius: var(--radius-full); background: var(--green-100); color: var(--green-900); font-size: var(--text-sm); font-weight: var(--weight-bold); }
-.pf-face--more { background: var(--grey-100); color: var(--ink-muted); }
-.pf-face--empty { background: transparent; border: 1px dashed var(--ink-subtle); color: var(--ink-subtle); }
-.pf-face--req { background: var(--accent-soft); color: var(--accent-ink); }
 
 /* 소셜 요약 카드 셋: 아바타 줄 / 모집 글 수 막대 / 전당 경로 */
 
@@ -147,7 +118,7 @@
 .fr-hall-body > :not(.fr-hall) { flex: none; }
 .fr-hall-body .fr-note { margin-top: var(--space-2); }
 
-/* 프로필: 친구 소식 아래 '함께하기' 링크 줄(친구·팀원 모집·명예의 전당). 한 줄이 링크 하나다 */
+/* 프로필: '함께하기' 링크 줄(친구·팀원 모집·명예의 전당). 한 줄이 링크 하나다 */
 .pf-links { display: flex; flex-direction: column; margin: var(--space-3) 0 0; padding: var(--space-2) 0 0; border-top: var(--border); list-style: none; }
 .pf-link { display: flex; align-items: center; gap: var(--space-3); min-height: var(--space-10); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); color: var(--ink); text-decoration: none; }
 .pf-link:hover { background: var(--surface-hover); }
