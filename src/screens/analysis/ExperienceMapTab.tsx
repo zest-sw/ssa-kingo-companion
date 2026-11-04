@@ -6,39 +6,50 @@ import { Badge, Button, Card, Drawer, EmptyState, GhostPic } from '../../compone
 import { buildGraph, type GraphFocus } from '../../domain/analysis/graph';
 import { answerEdge, buildMap, clearRejected, edgeState, type EdgeAnswers, type MapEdge } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
-import { withAnswers } from '../../domain/analysis/strengths';
+import { buildStrengths, withAnswers } from '../../domain/analysis/strengths';
 import { nextStep } from '../../domain/nextStep';
-import type { RecordItem } from '../../domain/types';
+import type { Axis, RecordItem } from '../../domain/types';
 import { DID_LABEL, FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
 import { ClusterPanel } from './ClusterPanel';
-import { MapGraph, type GraphPick } from './MapGraph';
+import { MapGraph, type GraphCamera, type GraphOpen } from './MapGraph';
 import { RecordSummary } from './RecordSummary';
+import { StrengthDrawer } from './StrengthDrawer';
 import './map.css';
 
 type Props = { records: RecordItem[]; answers: EdgeAnswers; setAnswers: (next: (prev: EdgeAnswers) => EdgeAnswers) => void };
 
 /**
  * 경험 지도: '이 활동이 어떤 역량의 근거가 되나'. 활동과 역량을 잇는 지식 그래프와, 관련 활동 묶음 목록.
- * 묶음을 누르면 그 묶음만 강조하고 옆 칸에 분석을 편다. 활동을 누르면 기록 서랍, 역량을 누르면 그 근거 활동만 강조.
+ * 노드를 한 번 누르면 선택(이웃 강조 + 옆 칸에 그 노드 분석), 두 번 누르거나 Enter 면 서랍(활동은 기록, 역량은 근거).
+ * 묶음을 고르면 그 묶음으로 확대해 맞추고 옆 칸에 묶음 분석을 편다.
  */
 export default function ExperienceMapTab({ records, answers, setAnswers }: Props) {
-  const { state } = useApp();
+  const { state, view } = useApp();
   // 근거 답(맞아요/아니에요)은 다시 분석하지 않고 지금 답을 덧입힌다(나의 강점과 같은 기준).
   const live = useMemo(() => withAnswers(records, state.records), [records, state.records]);
   const graph = useMemo(() => buildGraph(live, answers), [live, answers]);
+  const strengths = useMemo(() => buildStrengths(live), [live]);
   const [selected, setSelected] = useState<GraphFocus | null>(null);
+  const [camera, setCamera] = useState<GraphCamera | null>(null);
   const [edgeId, setEdgeId] = useState<string | null>(null);
+  const [strengthAxis, setStrengthAxis] = useState<Axis | null>(null);
   const step = nextStep(state.activities);
   const map = useMemo(() => buildMap(live), [live]);
   const rejected = map.edges.filter(e => edgeState(e, answers) === 'rejected').length;
   const byId = useMemo(() => Object.fromEntries(live.map(r => [r.id, r])), [live]);
-  // 묶음이 바뀌어 사라진 선택은 해제한다
-  const shown = selected?.kind === 'cluster' && !graph.clusters.some(c => c.id === selected.id) ? null : selected;
+  // 묶음이나 노드가 바뀌어 사라진 선택은 해제한다
+  const exists = (f: GraphFocus) => (f.kind === 'cluster' ? graph.clusters.some(c => c.id === f.id) : graph.nodes.some(n => n.id === (f.kind === 'axis' ? `ax:${f.id}` : f.id)));
+  const shown = selected && exists(selected) ? selected : null;
 
-  const onPick = (p: GraphPick) => {
-    if (p.kind === 'record') openEntity({ kind: 'record', id: p.id });
-    else if (p.kind === 'follow') setEdgeId(p.id);
-    else { const kind = p.kind; setSelected(s => (s?.kind === kind && s.id === p.id ? null : { kind, id: p.id })); }
+  /** move: 그 묶음·노드로 화면을 옮긴다(옆 칸에서 고를 때) */
+  const select = (f: GraphFocus | null, move = false) => {
+    setSelected(f);
+    if (f && move) setCamera(c => ({ kind: f.kind === 'cluster' ? 'cluster' : 'node', id: f.kind === 'axis' ? `ax:${f.id}` : f.id, n: (c?.n ?? 0) + 1 }));
+  };
+  const open = (o: GraphOpen) => {
+    if (o.kind === 'record') openEntity({ kind: 'record', id: o.id });
+    else if (o.kind === 'axis') setStrengthAxis(o.id as Axis);
+    else setEdgeId(o.id);
   };
 
   if (records.length === 0) {
@@ -54,7 +65,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
       <Card className="os-card xg-card" title="경험 지도" action={<GraphLegend />}>
         <div className="xg-body">
           <div className="xg-main">
-            <MapGraph graph={graph} selected={shown} onPick={onPick} />
+            <MapGraph graph={graph} selected={shown} camera={camera} onSelect={select} onOpen={open} />
             {rejected > 0 && (
               <p className="xg-note">
                 아니라고 한 이어짐 <b className="num">{rejected}</b>개는 숨겼어요.{' '}
@@ -62,9 +73,10 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
               </p>
             )}
           </div>
-          <ClusterPanel graph={graph} selected={shown} onSelect={setSelected} />
+          <ClusterPanel graph={graph} selected={shown} onSelect={select} onOpen={open} />
         </div>
       </Card>
+      <StrengthDrawer strength={strengths.find(s => s.axis === strengthAxis)} records={live} programs={view.scored.map(s => s.p)} onClose={() => setStrengthAxis(null)} />
       <EdgeDrawer edge={edgeId ? map.edges.find(e => e.id === edgeId) : undefined} byId={byId} answers={answers} onClose={() => setEdgeId(null)} answer={(id, a) => setAnswers(prev => answerEdge(prev, id, a))} />
     </>
   );
