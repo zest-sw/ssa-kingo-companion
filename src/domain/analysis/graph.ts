@@ -234,3 +234,45 @@ export function miniGraph(g: KnowledgeGraph, nc = 4, na = 3): MiniGraph {
   const row = (a: Axis) => { const ls = links.filter(l => l.axis === a); return ls.reduce((n, l) => n + clusters.findIndex(c => c.id === l.cluster), 0) / Math.max(1, ls.length); };
   return { clusters, axes: [...axes].sort((a, b) => row(a.axis) - row(b.axis)), links };
 }
+
+/** 묶음 → 역량 요약 선 하나. count 는 그 묶음 활동이 그 역량의 근거가 된 수, confirmed 는 그중 학생이 확인한 수 */
+export type ClusterLink = { id: string; cluster: string; axis: Axis; to: string; count: number; confirmed: number };
+
+/**
+ * 기본 화면에 그릴 묶음 → 역량 선. 개별 활동 선 수십 개 대신 묶음마다 근거가 많은 역량 perCluster 개까지(근거 min 개 이상).
+ * 확인한 근거 많은 순, 같으면 근거 많은 순, 같으면 역량 순서.
+ */
+export function clusterLinks(g: KnowledgeGraph, perCluster = 3, min = 2): ClusterLink[] {
+  const inCluster = new Map(g.nodes.filter((n): n is RecordNode => n.kind === 'record').map(n => [n.id, n.cluster]));
+  return g.clusters.flatMap(c => {
+    const ev = g.edges.filter(e => e.kind === 'evidence' && inCluster.get(e.from) === c.id);
+    const list = AXES
+      .map((a, order) => {
+        const mine = ev.filter(e => e.to === axisNodeId(a.id));
+        return { order, link: { id: `${c.id}=>${a.id}`, cluster: c.id, axis: a.id, to: axisNodeId(a.id), count: mine.length, confirmed: mine.filter(e => e.confirmed).length } };
+      })
+      .filter(x => x.link.count > 0)
+      .sort((x, y) => y.link.confirmed - x.link.confirmed || y.link.count - x.link.count || x.order - y.order)
+      .map(x => x.link);
+    // 작은 묶음은 근거가 min 개에 못 미쳐도 가장 앞 역량 하나는 잇는다(묶음이 떠 있지 않게)
+    const strong = list.filter(l => l.count >= min);
+    return (strong.length ? strong : list.slice(0, 1)).slice(0, perCluster);
+  });
+}
+
+/** 요약 카드 머리말: 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량. '사용자 리서치 → 소통 · 근거 4'. 확인한 근거가 없으면 '확인 전'을 붙인다. */
+export function graphHeadline(g: KnowledgeGraph): string {
+  const top = g.clusters[0];
+  if (!top) return '회고를 쓰면 활동 묶음이 생겨요';
+  const link = clusterLinks(g, 1, 1).find(l => l.cluster === top.id);
+  if (!link) return `${top.name} · 활동 ${top.recordIds.length}개`;
+  const label = AXES.find(a => a.id === link.axis)!.label;
+  return `${top.name} → ${label} · 근거 ${link.count}${link.confirmed ? '' : ' · 확인 전'}`;
+}
+
+/** 강조한 선이 역량마다 몇 개 닿았나. 관계 이름을 선마다 붙이지 않고 허브 옆에 '근거 n' 으로 한 번만 쓴다. */
+export function hubTags(g: KnowledgeGraph, hotEdges: Set<string>): { id: string; text: string }[] {
+  const count = new Map<string, number>();
+  for (const e of g.edges) if (e.kind === 'evidence' && hotEdges.has(e.id)) count.set(e.to, (count.get(e.to) ?? 0) + 1);
+  return [...count].map(([id, n]) => ({ id, text: `${RELATION_LABEL.evidence} ${n}` }));
+}

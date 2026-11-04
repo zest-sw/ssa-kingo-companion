@@ -289,3 +289,32 @@ export function placeEdgeLabels(edges: { id: string; from: string; to: string; l
   return out;
 }
 
+
+/**
+ * 허브 옆 이름표('근거 4') 자리. 아래 → 위 → 오른쪽 → 왼쪽 순서로 노드·다른 이름표와 안 겹치는 첫 자리. 없으면 생략한다.
+ * 돌려주는 점은 이름표 가운데다.
+ */
+export function placeHubTags(tags: { id: string; text: string }[], layout: GraphLayout, m: GraphMetrics = GRAPH_METRICS, fontPx = 12): Record<string, Pt> {
+  const taken: Rect[] = Object.values(layout.boxes);
+  const out: Record<string, Pt> = {};
+  for (const t of tags) {
+    const c = layout.pos[t.id];
+    if (!c) continue;
+    const w = textWidth(t.text, fontPx) + 12, h = fontPx + 8, R = m.axisR + 4;
+    const spots = [{ x: c.x, y: c.y + R + h / 2 }, { x: c.x, y: c.y - R - h / 2 }, { x: c.x + R + w / 2, y: c.y }, { x: c.x - R - w / 2, y: c.y }];
+    for (const p of spots) {
+      const r = { x: p.x - w / 2, y: p.y - h / 2, w, h };
+      if (r.x < m.pad || r.y < m.pad || r.x + r.w > layout.width - m.pad || r.y + r.h > layout.height - m.pad) continue;
+      if (taken.some(o => rectsOverlap(r, o, 1))) continue;
+      taken.push(r);
+      out[t.id] = { x: round(p.x), y: round(p.y) };
+      break;
+    }
+  }
+  return out;
+}
+
+/** 묶음 영역 가장자리에서 그 역량 허브에 가장 가까운 점. 묶음 → 역량 요약 선이 묶음 안 활동 위를 지나지 않게 여기서 출발한다. */
+export function hullExit(hull: Pt[], to: Pt): Pt | undefined {
+  return hull.reduce<Pt | undefined>((best, p) => (!best || Math.hypot(p.x - to.x, p.y - to.y) < Math.hypot(best.x - to.x, best.y - to.y) ? p : best), undefined);
+}

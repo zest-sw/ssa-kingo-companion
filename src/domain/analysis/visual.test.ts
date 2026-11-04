@@ -1,8 +1,9 @@
+import { SEED_RECORDS } from '../../data/seed';
 import { describe, expect, it } from 'vitest';
 import { discoveriesOf } from '../discoveries';
 import { rec } from '../fixtures.test-util';
 import { buildFlow } from './flow';
-import { discoveryPic, flowBars, flowHeadline, mapHeadline, mapPic, semesterShort, shortName } from './visual';
+import { discoveryPic, flowBars, flowHeadline, mapHeadline, semesterShort, shortName } from './visual';
 
 const recs = [
   rec('a', { did: 'listen', field: 'product', semester: '2026-1', title: '아주아주아주 긴 기록 이름' }),
@@ -17,20 +18,10 @@ describe('분석 요약 그림', () => {
     expect(semesterShort('2026-1')).toBe('26-1');
     expect(semesterShort('2026-여름')).toBe('26 여름');
   });
-  it('경험 지도는 최근 기록 max 개만 노드로 두고 같은 학기는 세로로 쌓는다', () => {
-    const pic = mapPic(recs, {}, 2);
-    expect(pic.nodes.map(n => n.id)).toEqual(['b', 'c']);
-    expect(pic.nodes.map(n => n.row)).toEqual([0, 1]);
-    expect(pic.rows).toBe(2);
-    expect(mapHeadline(recs)).toBe('듣고 정리하기 → 기록 2');
-    expect(mapHeadline([recs[0]])).toBe('같은 일을 한 기록을 기다려요');
-  });
-  it('경험 지도의 연결은 확인=실선, 추정=점선이고 아니라고 한 것은 뺀다', () => {
-    const all = mapPic(recs, {});
-    const edge = all.edges.find(e => e.id === 'a~b')!;
-    expect(edge.confirmed).toBe(false);
-    expect(mapPic(recs, { 'a~b': 'yes' }).edges.find(e => e.id === 'a~b')?.confirmed).toBe(true);
-    expect(mapPic(recs, { 'a~b': 'no' }).edges.find(e => e.id === 'a~b')).toBeUndefined();
+  it('경험 지도 머리말은 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량', () => {
+    expect(mapHeadline(SEED_RECORDS)).toBe('개발 → 협업 · 근거 2');
+    expect(mapHeadline([])).toBe('회고를 쓰면 활동 묶음이 생겨요');
+    expect(mapHeadline([rec('x', { field: 'research', did: 'listen', axes: ['communication'] })])).toBe('사용자 리서치 → 소통 · 근거 1 · 확인 전');
   });
   it('관심 흐름은 큰 조각에 이름을 붙이고 머리말은 몇 학기째인지 말한다', () => {
     const rows = buildFlow(recs, ['2026-1', '2026-2']);

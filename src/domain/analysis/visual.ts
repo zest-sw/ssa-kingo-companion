@@ -2,7 +2,8 @@ import type { Discovery, FieldGroup, RecordItem } from '../types';
 import { josa } from '../text';
 import { DID_LABEL, FIELD_GROUP, GROUP_LABEL } from '../vocab';
 import type { FlowRow, FlowSegment } from './flow';
-import { buildMap, edgeState, type EdgeAnswers, type ExperienceMap } from './map';
+import { buildGraph, graphHeadline } from './graph';
+import type { EdgeAnswers } from './map';
 import { semesterKey } from './semester';
 import type { TechTree } from './techtree';
 
@@ -25,34 +26,9 @@ function topBy<T>(list: T[], n: (t: T) => number): T | undefined {
 // 테크 트리 머리말은 난이도 규칙과 함께 techtree.ts 에 있다. 요약 화면은 여기서 가져간다.
 export { treeHeadline, treeValue } from './techtree';
 
-export type MapPicNode = { id: string; label: string; group: FieldGroup; col: number; row: number };
-export type MapPicEdge = { id: string; a: string; b: string; confirmed: boolean };
-export type MapPic = { nodes: MapPicNode[]; edges: MapPicEdge[]; semesters: string[]; rows: number };
-
-/** 경험 지도 그림: 기록 노드 최대 max 개(라벨을 12px 이상으로 읽히게 4개)(가장 최근 것부터), 학기는 가로, 같은 학기 노드는 세로로. 아니라고 한 연결은 뺀다. */
-export function mapPic(records: RecordItem[], answers: EdgeAnswers, max = 4, map: ExperienceMap = buildMap(records), labelMax = 8): MapPic {
-  const picked = map.nodes.slice(-max);
-  const semesters = [...new Set(picked.map(n => n.record.semester))].sort((a, b) => semesterKey(a) - semesterKey(b));
-  const used: number[] = semesters.map(() => 0);
-  const nodes = picked.map(n => {
-    const col = semesters.indexOf(n.record.semester);
-    return { id: n.id, label: shortName(n.record.title, labelMax), group: FIELD_GROUP[n.record.field], col, row: used[col]++ };
-  });
-  const ids = new Set(nodes.map(n => n.id));
-  const edges = map.edges
-    .filter(e => ids.has(e.a) && ids.has(e.b) && edgeState(e, answers) !== 'rejected')
-    .map(e => ({ id: e.id, a: e.a, b: e.b, confirmed: edgeState(e, answers) === 'confirmed' }));
-  return { nodes, edges, semesters, rows: Math.max(1, ...used) };
-}
-
-/** 경험 지도 머리말: '듣고 정리하기 → 기록 3'. 같은 일이 둘 이상이어야 이어졌다고 한다. */
-export function mapHeadline(records: RecordItem[]): string {
-  if (records.length === 0) return '회고를 쓰면 점이 이어져요';
-  const count = new Map<string, number>();
-  for (const r of records) count.set(r.did, (count.get(r.did) ?? 0) + 1);
-  const [did, n] = [...count].sort((a, b) => b[1] - a[1])[0];
-  return n < 2 ? '같은 일을 한 기록을 기다려요' : `${DID_LABEL[did as RecordItem['did']]} → 기록 ${n}`;
-}
+/** 경험 지도 머리말: 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량. '사용자 리서치 → 소통 · 근거 4' */
+export const mapHeadline = (records: RecordItem[], answers: EdgeAnswers = {}): string =>
+  records.length === 0 ? '회고를 쓰면 활동 묶음이 생겨요' : graphHeadline(buildGraph(records, answers));
 
 const LABEL_SHARE = 0.33;
 export type FlowBar = { semester: string; label: string; total: number; segments: (FlowSegment & { name: string; main: boolean })[] };

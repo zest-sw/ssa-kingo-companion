@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { EXAMPLE_EDGE_ANSWERS, SEED_RECORDS } from '../../data/seed';
 import type { Program, RecordItem } from '../types';
-import { axisCount, axisNodeId, buildGraph, clusterInsight, clusterRecords, focusSet, MAX_CLUSTERS, miniGraph } from './graph';
+import { axisCount, axisNodeId, buildGraph, clusterInsight, clusterLinks, clusterRecords, focusSet, graphHeadline, hubTags, MAX_CLUSTERS, miniGraph } from './graph';
 import { convexHull, joinDots, layoutGraph, placeEdgeLabels, rectsOverlap, textWidth } from './graphLayout';
 
 const rec = (id: string, p: Partial<RecordItem>): RecordItem => ({
@@ -140,5 +140,29 @@ describe('그래프 배치', () => {
     expect(convexHull([{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }, { x: 0, y: 2 }])).toHaveLength(4);
     expect(textWidth('리서치', 12)).toBe(36);
     expect(joinDots('SW 학습 멘토링 · 멘토')).toBe('SW 학습 멘토링· 멘토');
+  });
+});
+
+describe('묶음 요약 선과 허브 이름표', () => {
+  const g = buildGraph(SEED_RECORDS, EXAMPLE_EDGE_ANSWERS);
+  it('묶음마다 역량 셋까지, 근거 수와 확인 수를 센다', () => {
+    const ls = clusterLinks(g);
+    for (const c of g.clusters) {
+      const mine = ls.filter(l => l.cluster === c.id);
+      expect(mine.length).toBeGreaterThan(0);
+      expect(mine.length).toBeLessThanOrEqual(3);
+    }
+    const r = ls.find(l => l.cluster === 'research' && l.axis === 'communication')!;
+    expect(r).toMatchObject({ count: 4, confirmed: 2 });
+    expect(ls.length).toBeLessThan(g.edges.filter(e => e.kind === 'evidence').length / 3);
+  });
+  it('허브 이름표는 역량마다 한 번: 근거 n', () => {
+    const f = focusSet(g, { kind: 'cluster', id: 'research' })!;
+    const tags = hubTags(g, f.edges);
+    expect(new Set(tags.map(t => t.id)).size).toBe(tags.length);
+    expect(tags.find(t => t.id === axisNodeId('communication'))?.text).toBe('근거 4');
+  });
+  it('요약 머리말', () => {
+    expect(graphHeadline(buildGraph([], {}))).toBe('회고를 쓰면 활동 묶음이 생겨요');
   });
 });
