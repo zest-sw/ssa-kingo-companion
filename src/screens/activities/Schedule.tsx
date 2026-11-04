@@ -3,7 +3,7 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Button, Card, GanttRows, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
+import { Button, Card, EmptyState, GanttRows, GhostPic, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
 import { PROTOTYPE_TODAY } from '../../domain/today';
 import { FIELD_GROUP } from '../../domain/vocab';
 import { BoardView } from './BoardView';
@@ -37,10 +37,14 @@ export function Schedule({ sub }: { sub?: string }) {
 
   let body;
   if (state.activities.length === 0) {
-    // 첫 사용: 학기 축만 있는 빈 타임라인(그림 틀) + 다음 행동 한 줄
+    // 첫 사용: 빈 상태 = 그림 틀(학기 달 축) + 한 줄 + 버튼 하나. 버튼을 카드 머리에 두지 않는다.
     body = (
-      <Card className="act-overview" title="이번 학기" action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>}>
-        <GanttRows label="이번 학기 활동" range={SEMESTER} today={PROTOTYPE_TODAY} rows={[]} onSelect={open} empty="추천에서 신청 준비를 누르면 여기에 막대가 생겨요." />
+      <Card className="act-overview" title="이번 학기">
+        <EmptyState
+          pic={<GhostPic kind="timeline" labels={['9월', '10월', '11월', '12월']} />}
+          message="신청 준비를 누르면 여기에 막대가 생겨요"
+          action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>}
+        />
       </Card>
     );
   } else if (sel.view === 'board') {
