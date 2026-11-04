@@ -8,3 +8,14 @@ export function takeMapFocus(): string | undefined {
   pending = undefined;
   return id;
 }
+
+// 경험 카드 묶음의 빈 상태에서 '보관함에서 고르기'로 갈 때, 기록 화면이 지도 대신 보관함으로 열리게 하는 쪽지. 한 번 읽는다.
+let toArchive = false;
+
+export const setArchiveFocus = () => { toArchive = true; };
+
+export function takeArchiveFocus(): boolean {
+  const on = toArchive;
+  toArchive = false;
+  return on;
+}
