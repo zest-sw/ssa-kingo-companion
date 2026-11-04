@@ -28,7 +28,7 @@ export const INCOMING: Peer[] = [{ id: 'req-a', name: '하람', dept: '미디어
 
 export type FeedItem = FeedLike & { id: string; friendId: string; cheers: number };
 export const FEED: FeedItem[] = [
-  { id: 'feed-a', friendId: 'friend-c', who: '서윤', kind: 'shared', subject: '서비스 리서치 크루 중간 회고', cheers: 3 },
+  { id: 'feed-a', friendId: 'friend-c', who: '서윤', kind: 'shared', subject: '서비스 리서치 크루', cheers: 3 },
   { id: 'feed-b', friendId: 'friend-a', who: '다온', kind: 'achieved', subject: '세 갈래 길', cheers: 4 },
   { id: 'feed-c', friendId: 'friend-b', who: '지후', kind: 'hidden', cheers: 2 },
   { id: 'feed-d', friendId: 'friend-f', who: '태율', kind: 'applied', subject: '교내 UX 개선 공모전', cheers: 1 },
