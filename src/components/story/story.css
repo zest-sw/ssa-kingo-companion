@@ -102,7 +102,5 @@ a.ui-proof:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 .ui-story-note__so { font-weight: var(--weight-bold); color: var(--ink); }
 .ui-story-note__now { color: var(--ink-muted); }
 .ui-story-note__now::before { content: '·'; margin-right: var(--space-3); color: var(--ink-subtle); }
-.ui-story-note__back { display: inline-flex; align-items: center; min-height: var(--hit-min); margin-left: auto; color: var(--ink-muted); font-size: var(--text-sm); text-decoration: underline; text-underline-offset: var(--space-1); }
-.ui-story-note__back:hover { color: var(--ink); }
 .ui-pp--dots, .ui-pp--flow, .ui-pp__step, .ui-pp__year { flex-wrap: nowrap; white-space: nowrap; }
 .ui-story-next__meta > span { display: inline-flex; align-items: center; gap: var(--space-1); }

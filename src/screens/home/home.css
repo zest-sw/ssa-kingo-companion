@@ -131,6 +131,10 @@
   .home-status { gap: var(--space-2); }
   .home-title { padding: var(--space-2) 0; }
 }
+/* 1099px 이하에서는 사이드바가 글자를 남긴 채 폭만 줄어 본문이 좁다. 상태창(왼쪽)에 폭을 더 준다 */
+@media (max-width: 1099px) {
+  .home-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+}
 
 /* 홈에서는 알림을 머리 줄 오른쪽(비어 있는 자리)에 띄운다. 아래 가운데에 두면 상태창의 가진 것·지금 상황을 가린다 */
 body:has(.home-grid) .ui-toast-region { top: var(--main-pad-t); right: var(--main-pad-x); bottom: auto; left: auto; transform: none; }
