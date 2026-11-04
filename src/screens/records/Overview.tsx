@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Button, EmptyState, GhostPic, Icon, Legend, PageHeader, SegmentedControl, TermNav, type LegendItem } from '../../components';
+import { Button, EmptyState, GhostPic, Legend, PageHeader, SegmentedControl, TermNav, type LegendItem } from '../../components';
 import { navigate } from '../../app/router';
 import { openEntity } from '../../app/entity';
 import { useApp } from '../../app/AppState';
 import { useOverviewState } from '../../app/useOverviewState';
 import { CURRENT_TERM } from '../../data/records';
 import { AddRecordModal } from './AddRecordModal';
+import { RetroBand } from './RetroBand';
 import { Archive } from './Archive';
 import { mapDots, mapRows, mapTerms, splitMapRows } from './map';
 import { RecordMap } from './RecordMap';
@@ -45,7 +46,6 @@ export function Overview() {
     if (fresh) setSel({ view: 'map', focus: fresh });
   }, [setSel]);
 
-  const toRetro = () => navigate(pending.length === 1 ? `activities/records/interview/${pending[0].id}` : 'activities/records/interview');
   const focus = sel.focus && state.records.some(r => r.id === sel.focus) ? sel.focus : undefined;
   const open = (id: string) => { setSel(s => ({ ...s, focus: id })); openEntity({ kind: 'record', id }); };
 
@@ -60,13 +60,7 @@ export function Overview() {
           </>
         }
       />
-      {pending.length > 0 && (
-        <button type="button" className="rec-band" onClick={toRetro}>
-          <Icon name="pencil" size={18} />
-          <span className="rec-band__text">회고 쓰기 <b className="num">{pending.length}</b>개 <span className="rec-band__what">{pending.map(a => a.title).join(' · ')}</span></span>
-          <Icon name="chevron" size={18} />
-        </button>
-      )}
+      {pending.length > 0 && <RetroBand items={pending} />}
       <div className="os__body os__body--fill rec-home">
         {sel.view === 'archive' && state.records.length > 0 ? (
           <Archive records={state.records} selectedId={focus} onOpen={open} />

@@ -67,6 +67,10 @@ describe('cardOf', () => {
     expect(cardOf(rec('s', { note: '', quote: '' }))).toEqual({});
     expect(cardOf(rec('c', { card: { role: '역할' } }))).toEqual({ role: '역할' });
   });
+  it('카드에 빈 칸은 메모·한마디로 채우고, 카드에 있는 글이 이긴다', () => {
+    expect(cardOf(rec('m', { note: '메모', quote: '한마디', card: { role: '역할' } }))).toEqual({ role: '역할', action: '메모', learned: '한마디' });
+    expect(cardOf(rec('k', { note: '메모', card: { action: '카드 글' } })).action).toBe('카드 글');
+  });
 });
 
 describe('editedRecord', () => {

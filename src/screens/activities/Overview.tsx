@@ -7,6 +7,7 @@ import { CURRENT_TERM } from '../../data/records';
 import { semesterTally } from '../../domain/recommend-flow/summary';
 import { PROTOTYPE_TODAY } from '../../domain/today';
 import { pendingRetros } from './summary';
+import { RETRO_SHOWN } from '../records/RetroBand';
 import { StatusBarsPic } from './Pictures';
 import { statusBars } from './visual';
 import { clipRows, monthRange, timelineOf } from './timeline';
@@ -35,8 +36,6 @@ export function Overview() {
   const clipped = clipRows(timelineOf(state.activities).rows, month, MONTH_ROWS);
   const [, m] = month.start.split('-').map(Number);
   const monthTitle = <a className="act-month__link" href={hrefOf('activities/schedule')}>{m}월 일정<Icon name="chevron" size={16} /></a>;
-
-  const toRetro = () => navigate(retros.length === 1 ? `activities/records/interview/${retros[0].id}` : 'activities/records/interview');
 
   if (empty) {
     // 첫 사용: 세 칸 모두 그림 틀 + 한 줄. 다음 행동 버튼은 첫 칸 한 곳에만 둔다.
@@ -70,13 +69,16 @@ export function Overview() {
           </Card>
           <Card className={`os-card act-retro${retros.length ? ' is-on' : ''}`} title="회고 대기" aria-label="회고 대기" action={<Button size="sm" variant="ghost" onClick={() => navigate('activities/records')}>기록 보기</Button>}>
             {retros.length ? (
-              <button type="button" className="act-retro__cell" onClick={toRetro}>
-                <b className="act-retro__n num">{retros.length}</b>
-                <span className="act-retro__text">
-                  <span className="act-retro__name">{retros[0].title}{retros.length > 1 && ` 외 ${retros.length - 1}`}</span>
-                  <span className="act-retro__label">회고 쓰기</span>
-                </span>
-              </button>
+              // Day One: 활동 이름을 누르면 그 활동의 회고가 바로 열린다. 넘친 것만 회고 목록으로.
+              <div className="act-retro__cell">
+                <b className="act-retro__n num" aria-label={`회고 대기 ${retros.length}개`}>{retros.length}</b>
+                <ul className="act-retro__list">
+                  {retros.slice(0, RETRO_SHOWN).map(a => (
+                    <li key={a.id}><button type="button" className="act-retro__item" onClick={() => navigate(`activities/records/interview/${a.id}`)}><span className="act-retro__name">{a.title}</span><span className="act-retro__label">회고 쓰기<Icon name="chevron" size={14} /></span></button></li>
+                  ))}
+                  {retros.length > RETRO_SHOWN && <li><button type="button" className="act-retro__item act-retro__more" onClick={() => navigate('activities/records/interview')}>외 {retros.length - RETRO_SHOWN}개</button></li>}
+                </ul>
+              </div>
             ) : <p className="act-retro__none">끝난 활동이 생기면 여기서 회고를 시작해요.</p>}
           </Card>
           <Card className="os-card act-month" title={monthTitle} aria-label="이번 달 일정" action={<Legend items={LEGEND} />}>

@@ -6,15 +6,17 @@ import './RecordEntity';
 import { Interview } from './Interview';
 import { Overview } from './Overview';
 import { Pending } from './Pending';
+import { Portfolio } from './Portfolio';
 import './records.css';
 
 /**
  * 내 활동 › 기록. 메뉴가 아니라 내 활동 화면(screens/activities)이 그린다.
- * sub: (없음) = 기록 지도 + 보관함, interview = 회고 대기 목록, interview/<활동 id> = 그 활동의 회고 인터뷰(흐름 화면)
+ * sub: (없음) = 기록 지도 + 보관함, portfolio = 보관함에서 고른 경험 카드 묶음, interview = 회고 대기 목록, interview/<활동 id> = 그 활동의 회고 인터뷰(흐름 화면)
  */
 export default function RecordsPage({ sub }: { sub?: string }) {
   const [head, id] = (sub ?? '').split('/');
   if (head === 'interview') return id ? <Gate id={id} key={id} /> : <Pending />;
+  if (head === 'portfolio') return <Portfolio />;
   return <Overview />;
 }
 

@@ -70,7 +70,7 @@ export function movedPath(hash: string): string | undefined {
 const KNOWN_SUBS: Record<RouteName, string[]> = {
   home: [],
   recommend: ['*', 'prepare/*'],
-  activities: ['schedule', 'schedule/timeline', 'schedule/board', 'schedule/list', 'records', 'records/interview', 'records/interview/*'],
+  activities: ['schedule', 'schedule/timeline', 'schedule/board', 'schedule/list', 'records', 'records/portfolio', 'records/interview', 'records/interview/*'],
   analysis: ['techtree', 'map', 'flow', 'strengths'],
   profile: ['friends', 'recruit', 'hall'],
   settings: SETTINGS_NAV.map(n => n.id),

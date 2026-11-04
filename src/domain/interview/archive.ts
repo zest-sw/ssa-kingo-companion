@@ -1,8 +1,9 @@
-import type { FieldGroup, RecordItem } from '../types';
+import { liveAxes } from '../analysis/strengths';
+import type { Axis, FieldGroup, RecordItem } from '../types';
 import { cardOf } from './record';
-import { FIELD_GROUP } from '../vocab';
+import { AXES, FIELD_GROUP } from '../vocab';
 
-// 기록 보관함: 학기별로 묶고 분야·확인 방식으로 거른다.
+// 기록 보관함: 학기별로 묶고 학기·분야·역량·확인 방식으로 거른다.
 
 const TERM_ORDER: Record<string, number> = { '1': 1, 여름: 1.5, '2': 2, 겨울: 2.5 };
 
@@ -29,17 +30,34 @@ export function groupBySemester(records: RecordItem[]): SemesterGroup[] {
     .map(([semester, items]) => ({ semester, label: semesterLabel(semester), items }));
 }
 
-export type ArchiveFilter = { group: FieldGroup | 'all'; verification: RecordItem['verification'] | 'all' };
+/** 보관함 거르기. 학기·분야 묶음·역량·확인 방식. 'all' 은 거르지 않는다 */
+export type ArchiveFilter = { semester: string | 'all'; group: FieldGroup | 'all'; axis: Axis | 'all'; verification: RecordItem['verification'] | 'all' };
+export const NO_FILTER: ArchiveFilter = { semester: 'all', group: 'all', axis: 'all', verification: 'all' };
 
+/** 역량은 '아니에요'라고 한 축을 뺀 근거로 거른다(나의 강점과 같은 기준) */
 export function filterRecords(records: RecordItem[], f: ArchiveFilter): RecordItem[] {
-  return records.filter(r => (f.group === 'all' || FIELD_GROUP[r.field] === f.group) && (f.verification === 'all' || r.verification === f.verification));
+  return records.filter(r => (f.semester === 'all' || r.semester === f.semester)
+    && (f.group === 'all' || FIELD_GROUP[r.field] === f.group)
+    && (f.axis === 'all' || liveAxes(r).includes(f.axis))
+    && (f.verification === 'all' || r.verification === f.verification));
 }
+
+export const isFiltered = (f: ArchiveFilter) => (Object.keys(f) as (keyof ArchiveFilter)[]).some(k => f[k] !== 'all');
 
 /** 보관함에 실제로 있는 분야 묶음만, 보이는 순서대로 */
 export function groupsPresent(records: RecordItem[]): FieldGroup[] {
   const order: FieldGroup[] = ['dev', 'ai', 'plan', 'mentor', 'global', 'other'];
   const have = new Set(records.map(r => FIELD_GROUP[r.field]));
   return order.filter(g => have.has(g));
+}
+
+/** 기록이 있는 학기, 최근부터 */
+export const semestersPresent = (records: RecordItem[]): string[] => [...new Set(records.map(r => r.semester))].sort((a, b) => semesterKey(b) - semesterKey(a));
+
+/** 근거가 있는 역량만, 역량 표 순서대로 */
+export function axesPresent(records: RecordItem[]): Axis[] {
+  const have = new Set(records.flatMap(liveAxes));
+  return AXES.map(a => a.id).filter(a => have.has(a));
 }
 
 /** 카드에 보여 줄 최대 두 줄. 회고를 거친 기록은 역할·배운 점·다음·결과 순, 아니면 한 일·한마디. 빈 칸은 건너뛴다. */

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { rec } from '../fixtures.test-util';
-import { filterRecords, groupBySemester, groupsPresent, previewOf, semesterKey, semesterLabel } from './archive';
+import { axesPresent, filterRecords, groupBySemester, groupsPresent, isFiltered, NO_FILTER, previewOf, semesterKey, semesterLabel, semestersPresent } from './archive';
 
 describe('semester', () => {
   it('같은 해 안에서 1학기 < 여름 < 2학기, 해가 큰 쪽이 뒤', () => {
@@ -28,12 +28,26 @@ describe('groupBySemester', () => {
 describe('filterRecords · groupsPresent', () => {
   const list = [rec('a', { field: 'data', verification: 'school' }), rec('b', { field: 'ai', verification: 'self' }), rec('c', { field: 'research', verification: 'self' })];
   it('분야 묶음과 확인 방식을 함께 건다(data·ai 는 AI·데이터 한 묶음)', () => {
-    expect(filterRecords(list, { group: 'ai', verification: 'all' }).map(r => r.id)).toEqual(['a', 'b']);
-    expect(filterRecords(list, { group: 'ai', verification: 'self' }).map(r => r.id)).toEqual(['b']);
-    expect(filterRecords(list, { group: 'all', verification: 'all' })).toHaveLength(3);
+    expect(filterRecords(list, { ...NO_FILTER, group: 'ai' }).map(r => r.id)).toEqual(['a', 'b']);
+    expect(filterRecords(list, { ...NO_FILTER, group: 'ai', verification: 'self' }).map(r => r.id)).toEqual(['b']);
+    expect(filterRecords(list, NO_FILTER)).toHaveLength(3);
   });
   it('있는 분야 묶음만 정해진 순서로', () => {
     expect(groupsPresent(list)).toEqual(['ai', 'plan']);
+  });
+});
+
+describe('학기·역량 거르기', () => {
+  const list = [rec('a', { semester: '2026-1', axes: ['communication', 'self'], rejectedAxes: ['self'] }), rec('b', { semester: '2026-2', axes: ['self'] }), rec('c', { semester: '2025-2', axes: [] })];
+  it('학기와 역량을 함께 걸고, 아니에요 한 역량으로는 걸리지 않는다', () => {
+    expect(filterRecords(list, { ...NO_FILTER, axis: 'self' }).map(r => r.id)).toEqual(['b']);
+    expect(filterRecords(list, { ...NO_FILTER, semester: '2026-1', axis: 'communication' }).map(r => r.id)).toEqual(['a']);
+    expect(isFiltered(NO_FILTER)).toBe(false);
+    expect(isFiltered({ ...NO_FILTER, axis: 'self' })).toBe(true);
+  });
+  it('있는 학기는 최근부터, 있는 역량은 역량 표 순서로', () => {
+    expect(semestersPresent(list)).toEqual(['2026-2', '2026-1', '2025-2']);
+    expect(axesPresent(list)).toEqual(['communication', 'self']);
   });
 });
 

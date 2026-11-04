@@ -1,19 +1,11 @@
 import { useState } from 'react';
-import { Badge, Button, Chip, ConfirmDot, ConfirmLegend, Icon } from '../../components';
+import { Badge, Button, Chip, ConfirmDot, ConfirmLegend, Icon, Switch } from '../../components';
 import type { EvidenceRow } from '../../domain/interview/record';
 import { CARD_STEPS, STEP_LABEL, type CardStep } from '../../domain/interview/schema';
 import type { Axis, RecordCard, RecordVisibility } from '../../domain/types';
 
 export function VerificationBadge({ v }: { v: 'school' | 'self' }) {
   return v === 'school' ? <Badge tone="green" icon="check">학교 확인</Badge> : <Badge icon="pencil">직접 입력</Badge>;
-}
-
-export function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
-  return (
-    <button type="button" role="switch" aria-checked={checked} aria-label={label} className="rec-switch" onClick={() => onChange(!checked)}>
-      <span className="rec-switch__knob" />
-    </button>
-  );
 }
 
 /** 칸 하나. 고칠 수 있으면 글을 눌러 그 자리에서 고친다. */
@@ -97,7 +89,7 @@ export function ProofSection(p: Proof) {
   return (
       <section className="rec-evidence" aria-label="증빙과 역량 근거">
         <div className="rec-evidence__head"><h3>증빙</h3></div>
-        <p className="rec-evidence__text">{p.verification === 'school' ? '학교 연동으로 확인된 활동이에요.' : '직접 입력한 기록이에요. 올린 증빙 파일은 아직 없어요.'}</p>
+        <p className="rec-evidence__text">{p.verification === 'school' ? '학교 연동으로 확인된 활동이에요. 경험 카드로 낼 때도 학교 확인 표시가 붙어요.' : '직접 입력한 기록이에요. 올린 증빙 파일은 아직 없어요.'}</p>
         <div className="rec-evidence__head"><h3>역량 근거</h3><ConfirmLegend /></div>
         {p.evidence.length === 0 ? (
           <p className="rec-evidence__text rec-field__empty">한 일을 답하면 근거 문장이 생겨요.</p>
@@ -132,10 +124,11 @@ export function SettingsSection(p: Settings) {
           </span>
         </div>
         {!p.profilePublic && <p className="rec-setting__hint">프로필을 공개하면 열려요.</p>}
+        {/* 고려대 AI선배: 추천 근거에서 뺄 기록은 기록 카드에서 직접 고른다 */}
         <div className="rec-setting">
-          <span>추천에 쓰기</span>
-          <Switch checked={p.useForRecommend} onChange={p.onUseForRecommend} label="추천에 쓰기" />
+          <Switch checked={p.useForRecommend} onChange={p.onUseForRecommend} label="이 기록을 추천에 쓰기" />
         </div>
+        <p className="rec-setting__hint rec-setting__hint--left">{p.useForRecommend ? '끄면 추천과 발견에서 빠져요.' : '추천과 발견에 쓰지 않는 기록이에요.'}</p>
       </footer>
   );
 }

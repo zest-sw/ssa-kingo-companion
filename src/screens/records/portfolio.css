@@ -1,0 +1,19 @@
+/* 기록 › 경험 카드 묶음(records/portfolio). 클래스는 pf- 로 시작한다. 경험 카드 칸(.xc-*)은 records.css 를 같이 쓴다. */
+:root {
+  --pf-card-min: 360px;
+}
+
+.pf__body { grid-template-columns: minmax(0, 1fr); }
+/* 카드 격자가 남은 높이를 채우고 이 칸만 안에서 스크롤한다 */
+.pf__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--pf-card-min), 1fr)); align-content: start; gap: var(--space-3); min-height: 0; }
+.pf-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.pf-card__title { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+.pf-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }
+.pf__empty { flex: none; width: 100%; max-width: var(--rec-empty-max); margin: 0 auto; padding: var(--space-4); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+
+/* 인쇄: 앱 틀과 버튼은 빼고 카드만, 카드가 쪽 사이에서 잘리지 않게 */
+@media print {
+  .app-side, .app-skip, .ui-page-head__actions { display: none !important; }
+  .pf__grid { display: block; overflow: visible; }
+  .pf-card { break-inside: avoid; margin-bottom: var(--space-3); }
+}

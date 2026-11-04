@@ -44,12 +44,12 @@ const CASES: Case[] = [
   { path: 'activities/schedule' }, { path: 'activities/schedule/board' }, { path: 'activities/schedule/list' },
   { path: 'activities/schedule', overview: { 'activities/schedule': { sel: { view: 'board' } } } },
   { path: 'activities/schedule', overview: { 'activities/schedule': { sel: { view: 'list' } } } },
-  { path: 'activities/records' }, { path: 'activities/records/interview' }, { path: `activities/records/interview/${ended}` },
+  { path: 'activities/records' }, { path: 'activities/records/portfolio' }, { path: 'activities/records/interview' }, { path: `activities/records/interview/${ended}` },
   { path: 'analysis' }, { path: 'analysis/techtree' }, { path: 'analysis/map' }, { path: 'analysis/flow' }, { path: 'analysis/strengths' },
   { path: 'profile' }, { path: 'profile/friends' }, { path: 'profile/recruit' }, { path: 'profile/hall' },
   { path: 'profile', public: true }, { path: 'profile/friends', public: true }, { path: 'profile/recruit', public: true }, { path: 'profile/hall', public: true },
   { path: 'settings/profile' }, { path: 'settings/visibility' }, { path: 'settings/data' }, { path: 'settings/notifications' }, { path: 'settings/about' },
-  ...['home', 'recommend', 'activities', 'activities/schedule', 'activities/schedule/board', 'activities/schedule/list', 'activities/records', 'activities/records/interview',
+  ...['home', 'recommend', 'activities', 'activities/schedule', 'activities/schedule/board', 'activities/schedule/list', 'activities/records', 'activities/records/portfolio', 'activities/records/interview',
     'analysis', 'analysis/techtree', 'analysis/map', 'analysis/flow', 'analysis/strengths', 'profile'].map(path => ({ path, fresh: true }))
 ];
 
