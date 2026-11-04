@@ -115,6 +115,7 @@ describe('테크 트리: 머리 키워드', () => {
   it('건너뛴 단계가 없으면 안 해 본 분야, 기록이 없으면 다음 할 일', () => {
     expect(treeHeadline(tree({ records: [rec('a', { field: 'dev', level: 1 })] }))).toBe('개발 입문까지 · AI·데이터 미경험');
     expect(treeHeadline(tree({}))).toBe('회고를 쓰면 가지가 자라요');
+    expect(treeHeadline(tree({ records: [rec('o', { field: 'etc', level: 1 })] }))).not.toBe('회고를 쓰면 가지가 자라요');
   });
   it('같은 단계면 접힌 노드까지 세어 활동이 많은 분야가 앞선다', () => {
     const plan = Array.from({ length: 6 }, (_, i) => rec(`p${i}`, { field: 'product', level: 2 }));
