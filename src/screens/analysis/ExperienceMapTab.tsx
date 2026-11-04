@@ -1,134 +1,112 @@
 import { useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
+import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, Drawer, EmptyState, GhostPic, TermNav } from '../../components';
-import { stepWindow, termWindow } from '../../domain/analysis/window';
-import { nextStep } from '../../domain/nextStep';
-import { answerEdge, buildMap, clearRejected, edgesOf, edgeState, type EdgeAnswers, type MapEdge } from '../../domain/analysis/map';
+import { Badge, Button, Card, Drawer, EmptyState, GhostPic } from '../../components';
+import { buildGraph, type GraphFocus } from '../../domain/analysis/graph';
+import { answerEdge, buildMap, clearRejected, edgeState, type EdgeAnswers, type MapEdge } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
+import { withAnswers } from '../../domain/analysis/strengths';
+import { nextStep } from '../../domain/nextStep';
 import type { RecordItem } from '../../domain/types';
 import { DID_LABEL, FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
-import { MapGraph, type MapPick } from './MapGraph';
+import { ClusterPanel } from './ClusterPanel';
+import { MapGraph, type GraphPick } from './MapGraph';
 import { RecordSummary } from './RecordSummary';
+import './map.css';
 
 type Props = { records: RecordItem[]; answers: EdgeAnswers; setAnswers: (next: (prev: EdgeAnswers) => EdgeAnswers) => void };
 
+/**
+ * 경험 지도: '이 활동이 어떤 역량의 근거가 되나'. 활동과 역량을 잇는 지식 그래프와, 관련 활동 묶음 목록.
+ * 묶음을 누르면 그 묶음만 강조하고 옆 칸에 분석을 편다. 활동을 누르면 기록 서랍, 역량을 누르면 그 근거 활동만 강조.
+ */
 export default function ExperienceMapTab({ records, answers, setAnswers }: Props) {
-  // 학기가 많이 쌓이면 최근 몇 학기만 그린다. 앞 학기는 넘겨서 본다(글자를 줄여 다 넣지 않는다).
-  const [end, setEnd] = useState<number | undefined>(undefined);
-  const terms = useMemo(() => buildMap(records).semesters, [records]);
-  const win = termWindow(terms, undefined, end);
-  const shownKey = win.shown.join('|');
-  const map = useMemo(() => {
-    const keep = new Set(shownKey.split('|'));
-    return buildMap(records.filter(r => keep.has(r.semester)));
-  }, [records, shownKey]);
-  const [pick, setPick] = useState<MapPick | null>(null);
-  const step = nextStep(useApp().state.activities);
-  const rejected = map.edges.filter(e => edgeState(e, answers) === 'rejected');
-  const byId = useMemo(() => Object.fromEntries(records.map(r => [r.id, r])), [records]);
-  const answer = (id: string, a: 'yes' | 'no') => setAnswers(prev => answerEdge(prev, id, a));
+  const { state } = useApp();
+  // 근거 답(맞아요/아니에요)은 다시 분석하지 않고 지금 답을 덧입힌다(나의 강점과 같은 기준).
+  const live = useMemo(() => withAnswers(records, state.records), [records, state.records]);
+  const graph = useMemo(() => buildGraph(live, answers), [live, answers]);
+  const [selected, setSelected] = useState<GraphFocus | null>(null);
+  const [edgeId, setEdgeId] = useState<string | null>(null);
+  const step = nextStep(state.activities);
+  const map = useMemo(() => buildMap(live), [live]);
+  const rejected = map.edges.filter(e => edgeState(e, answers) === 'rejected').length;
+  const byId = useMemo(() => Object.fromEntries(live.map(r => [r.id, r])), [live]);
+  // 묶음이 바뀌어 사라진 선택은 해제한다
+  const shown = selected?.kind === 'cluster' && !graph.clusters.some(c => c.id === selected.id) ? null : selected;
+
+  const onPick = (p: GraphPick) => {
+    if (p.kind === 'record') openEntity({ kind: 'record', id: p.id });
+    else if (p.kind === 'follow') setEdgeId(p.id);
+    else { const kind = p.kind; setSelected(s => (s?.kind === kind && s.id === p.id ? null : { kind, id: p.id })); }
+  };
+
+  if (records.length === 0) {
+    return (
+      <Card className="os-card" title="경험 지도">
+        <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 활동이 점으로 생기고, 어떤 역량의 근거가 됐는지 선으로 이어져요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
+      </Card>
+    );
+  }
 
   return (
     <>
-      <Card
-        className="os-card"
-        title="경험 지도"
-        action={records.length === 0 ? undefined : (
-          <div className="an-maphead">
-            <TermNav
-              range={win.shown.length ? `${semesterLabel(win.shown[0])} ~ ${semesterLabel(win.shown[win.shown.length - 1])}` : ''}
-              before={win.before} after={win.after} onPrev={() => setEnd(stepWindow(win, -1))} onNext={() => setEnd(stepWindow(win, 1))}
-            />
-            <ul className="an-legend an-legend--inline" aria-label="선 표시">
-              <li><span className="an-key an-key--yes" aria-hidden="true" />확인한 연결</li>
-              <li><span className="an-key an-key--est" aria-hidden="true" />AI 추정</li>
-            </ul>
-          </div>
-        )}
-      >
-        {records.length === 0 ? (
-          <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 기록이 점으로 생기고 같은 일을 한 기록끼리 이어져요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
-        ) : (
-          <>
-            <div className="an-mapbox"><MapGraph map={map} answers={answers} picked={pick} onPick={setPick} /></div>
-            <p className="an-note">점이나 선을 누르면 이 연결이 맞는지 답할 수 있어요.</p>
-            {map.edges.length === 0 && <p className="an-note">아직 이어질 기록이 없어요. 같은 일이나 같은 분야의 회고가 하나 더 생기면 선이 생겨요.</p>}
-            {rejected.length > 0 && (
-              <p className="an-note">
-                아니라고 한 연결 <b className="num">{rejected.length}</b>개는 숨겼어요.{' '}
+      <Card className="os-card xg-card" title="경험 지도" action={<GraphLegend />}>
+        <div className="xg-body">
+          <div className="xg-main">
+            <MapGraph graph={graph} selected={shown} onPick={onPick} />
+            {rejected > 0 && (
+              <p className="xg-note">
+                아니라고 한 이어짐 <b className="num">{rejected}</b>개는 숨겼어요.{' '}
                 <Button size="sm" variant="ghost" onClick={() => setAnswers(clearRejected)}>다시 보이기</Button>
               </p>
             )}
-          </>
-        )}
+          </div>
+          <ClusterPanel graph={graph} selected={shown} onSelect={setSelected} />
+        </div>
       </Card>
-      <MapDrawer pick={pick} onClose={() => setPick(null)} map={map} byId={byId} answers={answers} answer={answer} />
+      <EdgeDrawer edge={edgeId ? map.edges.find(e => e.id === edgeId) : undefined} byId={byId} answers={answers} onClose={() => setEdgeId(null)} answer={(id, a) => setAnswers(prev => answerEdge(prev, id, a))} />
     </>
   );
 }
 
-type DrawerProps = { pick: MapPick | null; onClose: () => void; map: ReturnType<typeof buildMap>; byId: Record<string, RecordItem>; answers: EdgeAnswers; answer: (id: string, a: 'yes' | 'no') => void };
-
-function MapDrawer({ pick, onClose, map, byId, answers, answer }: DrawerProps) {
-  const edge = pick?.kind === 'edge' ? map.edges.find(e => e.id === pick.id) : undefined;
-  const node = pick?.kind === 'node' ? byId[pick.id] : undefined;
-  const title = edge ? `${byId[edge.a]?.title} ↔ ${byId[edge.b]?.title}` : node?.title ?? '';
+/** 노드 종류 둘, 선 종류 둘. 관계 이름은 강조했을 때 선 위에 나온다. */
+function GraphLegend() {
   return (
-    <Drawer open={!!(edge || node)} onClose={onClose} eyebrow={edge ? '이 연결' : '기록'} title={title}>
-      {edge && <EdgeBody edge={edge} byId={byId} answers={answers} answer={answer} />}
-      {node && (
+    <ul className="an-legend an-legend--inline xg-legend" aria-label="그림 읽는 법">
+      <li><span className="xg-key xg-key--axis" aria-hidden="true" />역량</li>
+      <li><span className="xg-key xg-key--rec" aria-hidden="true" />활동</li>
+      <li><span className="an-key an-key--yes" aria-hidden="true" />확인한 근거</li>
+      <li><span className="an-key an-key--est" aria-hidden="true" />AI 추정</li>
+    </ul>
+  );
+}
+
+type DrawerProps = { edge?: MapEdge; byId: Record<string, RecordItem>; answers: EdgeAnswers; onClose: () => void; answer: (id: string, a: 'yes' | 'no') => void };
+
+/** 이어짐 선 하나: 왜 이어졌다고 보는지, 맞는지 답하기, 두 기록 요약 */
+function EdgeDrawer({ edge, byId, answers, onClose, answer }: DrawerProps) {
+  const a = edge && byId[edge.a];
+  const b = edge && byId[edge.b];
+  const st = edge ? edgeState(edge, answers) : 'estimated';
+  return (
+    <Drawer open={!!(edge && a && b)} onClose={onClose} eyebrow="이어짐" title={a && b ? `${a.title} → ${b.title}` : ''}>
+      {edge && a && b && (
         <>
-          <RecordSummary record={node} />
-          <h3 className="an-sub">이어진 기록</h3>
-          {edgesOf(map, node.id, answers).length === 0 ? (
-            <p className="an-muted">이어진 기록이 아직 없어요. 같은 일을 한 회고가 생기면 이어져요.</p>
-          ) : (
-            <ul className="an-stack">
-              {edgesOf(map, node.id, answers).map(e => {
-                const other = byId[e.a === node.id ? e.b : e.a];
-                return (
-                  <li key={e.id} className="an-edgerow">
-                    <div>
-                      <b>{other.title}</b>
-                      <p className="an-rec__meta">{reasonText(e, byId[e.a], byId[e.b], edgeState(e, answers) === 'confirmed')}</p>
-                    </div>
-                    <AnswerButtons id={e.id} answers={answers} answer={answer} />
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <p className="an-edgewhy">{reasonText(edge, a, b, st === 'confirmed')}</p>
+          <p className="an-edgestate">
+            {st === 'confirmed' ? <Badge tone="green" icon="check">확인했어요</Badge> : st === 'rejected' ? <Badge>아니라고 했어요</Badge> : <Badge tone="dashed">AI 추정 · 확인 전</Badge>}
+          </p>
+          <p className="an-edgeq">앞 활동이 뒤 활동으로 이어진 게 맞아요?</p>
+          <span className="an-answer">
+            {(['yes', 'no'] as const).map(v => (
+              <Button key={v} variant={answers[edge.id] === v ? 'primary' : 'secondary'} aria-pressed={answers[edge.id] === v} onClick={() => answer(edge.id, v)}>{v === 'yes' ? '맞아요' : '아니에요'}</Button>
+            ))}
+          </span>
+          <div className="an-stack an-stack--top">{[a, b].map(r => <RecordSummary key={r.id} record={r} />)}</div>
         </>
       )}
     </Drawer>
-  );
-}
-
-function EdgeBody({ edge, byId, answers, answer }: { edge: MapEdge; byId: Record<string, RecordItem>; answers: EdgeAnswers; answer: DrawerProps['answer'] }) {
-  const a = byId[edge.a];
-  const b = byId[edge.b];
-  const st = edgeState(edge, answers);
-  return (
-    <>
-      <p className="an-edgewhy">{reasonText(edge, a, b, st === 'confirmed')}</p>
-      <p className="an-edgestate">
-        {st === 'confirmed' ? <Badge tone="green" icon="check">확인했어요</Badge> : st === 'rejected' ? <Badge>아니라고 했어요</Badge> : <Badge tone="dashed">AI 추정 · 확인 전</Badge>}
-      </p>
-      <p className="an-edgeq">이 연결이 맞아요?</p>
-      <AnswerButtons id={edge.id} answers={answers} answer={answer} large />
-      <div className="an-stack an-stack--top">{[a, b].map(r => <RecordSummary key={r.id} record={r} />)}</div>
-    </>
-  );
-}
-
-function AnswerButtons({ id, answers, answer, large }: { id: string; answers: EdgeAnswers; answer: DrawerProps['answer']; large?: boolean }) {
-  const size = large ? 'md' : 'sm';
-  return (
-    <span className="an-answer">
-      <Button size={size} variant={answers[id] === 'yes' ? 'primary' : 'secondary'} aria-pressed={answers[id] === 'yes'} onClick={() => answer(id, 'yes')}>맞아요</Button>
-      <Button size={size} variant={answers[id] === 'no' ? 'primary' : 'secondary'} aria-pressed={answers[id] === 'no'} onClick={() => answer(id, 'no')}>아니에요</Button>
-    </span>
   );
 }
 
@@ -137,7 +115,7 @@ function reasonText(e: MapEdge, a: RecordItem, b: RecordItem, confirmed: boolean
   const did = DID_LABEL[a.did];
   const group = GROUP_LABEL[FIELD_GROUP[a.field]];
   const parts: string[] = [];
-  if (e.reasons.includes('did')) parts.push(confirmed ? `같은 일(${did})을 했어요` : `같은 일(${did})로 보여요`);
+  if (e.reasons.includes('did')) parts.push(confirmed ? `같은 일(${did})을 이어서 했어요` : `같은 일(${did})을 이어서 한 것으로 보여요`);
   if (e.reasons.includes('field')) parts.push(confirmed ? `같은 분야(${group})예요` : `같은 분야(${group})로 보여요`);
   return `${parts.join(' · ')} · ${semesterLabel(a.semester)} → ${semesterLabel(b.semester)}`;
 }

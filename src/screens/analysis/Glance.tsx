@@ -4,12 +4,14 @@ import type { FlowRow } from '../../domain/analysis/flow';
 import type { TreeGlanceRow } from '../../domain/analysis/glance';
 import { radarScale, radarSpots, radarSub, type Strength } from '../../domain/analysis/strengths';
 import { TREE_COLUMNS } from '../../domain/analysis/techtree';
-import { wrapWords } from '../../domain/analysis/wrap';
-import { flowBars, mapPic } from '../../domain/analysis/visual';
+import { buildGraph, miniGraph } from '../../domain/analysis/graph';
+import { textWidth } from '../../domain/analysis/graphLayout';
+import { flowBars } from '../../domain/analysis/visual';
 import { Radar } from '../../components';
 import './strengths.css';
 import type { RecordItem } from '../../domain/types';
 import './techtree.css';
+import './map.css';
 
 // 나의 분석 요약 카드의 그림. 모든 표시는 그 학생의 기록이고, 이름표는 그림 안에 직접 붙인다.
 // 카드 전체가 링크라서 여기에는 누르는 요소를 두지 않는다.
@@ -63,46 +65,57 @@ export function TreePic({ rows }: { rows: TreeGlanceRow[] }) {
   );
 }
 
-const MAP = { rowH: 40, padX: 10, padTop: 8, labelH: 22, r: 6, minW: 240 };
+const MINI = { rowH: 28, padY: 4, dotR: 3.5, dotStep: 9, dots: 6, nameX: 64, hubR: 9, labelW: 64, minW: 240 };
 
 /** 칸 너비를 재서 그림을 늘이거나 줄이지 않고 그대로 그린다(글자가 늘 12px). 재지 못하면 기본 너비. */
-function useWidth() {
+function useSvgWidth() {
   const ref = useRef<SVGSVGElement>(null);
-  const [w, setW] = useState<number>(MAP.minW + 60);
+  const [w, setW] = useState<number>(MINI.minW + 60);
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => setW(Math.max(MAP.minW, Math.floor(el.getBoundingClientRect().width))));
+    const ro = new ResizeObserver(() => setW(Math.max(MINI.minW, Math.floor(el.getBoundingClientRect().width))));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
   return [ref, w] as const;
 }
 
-/** 기록 노드 4개와 이름(낱말 단위 두 줄), 연결선(확인=실선, 추정=옅은 점선), 아래에 학기 이름. */
+/**
+ * 경험 지도 작은 그림(지도와 같은 결): 왼쪽은 큰 묶음(활동 점은 분야 색 + 묶음 이름), 오른쪽은 역량 허브(남색 원),
+ * 묶음에서 역량으로 근거 선(확인 실선, AI 추정 점선).
+ */
 export function MapPic({ records, answers }: { records: RecordItem[]; answers: EdgeAnswers }) {
-  const pic = useMemo(() => mapPic(records, answers, 4, undefined, 40), [records, answers]);
-  const [ref, width] = useWidth();
-  const colW = (width - MAP.padX * 2) / pic.semesters.length;
-  const perLine = Math.max(4, Math.floor((colW - MAP.r * 2 - 12) / 12));
-  const height = MAP.padTop + MAP.rowH * pic.rows + MAP.labelH;
-  const at = (n: { col: number; row: number }) => ({ x: MAP.padX + colW * n.col + MAP.r + 1, y: MAP.padTop + MAP.rowH * n.row + MAP.rowH / 2 });
-  const pos = Object.fromEntries(pic.nodes.map(n => [n.id, at(n)]));
+  const mini = useMemo(() => miniGraph(buildGraph(records, answers)), [records, answers]);
+  const [ref, width] = useSvgWidth();
+  const height = MINI.padY * 2 + MINI.rowH * Math.max(1, mini.clusters.length);
+  const rowY = (i: number) => MINI.padY + MINI.rowH * i + MINI.rowH / 2;
+  const hubX = width - MINI.labelW - MINI.hubR;
+  const hubY = (i: number) => MINI.padY + ((height - MINI.padY * 2) * (i + 0.5)) / Math.max(1, mini.axes.length);
+  // 선은 가장 긴 묶음 이름 끝 한 줄에서 출발해 부드러운 곡선으로 허브에 닿는다(엇갈려도 덜 어지럽다)
+  const x1 = MINI.nameX + Math.max(0, ...mini.clusters.map(c => textWidth(c.name, 12))) + 8;
+  const x2 = hubX - MINI.hubR - 2;
+  const label = mini.clusters.map(c => `${c.name} 활동 ${c.groups.length}개`).join(', ');
   return (
-    <svg ref={ref} className="an-mp" width="100%" height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="기록이 이어진 경험 지도">
-      {pic.edges.map(e => <line key={e.id} x1={pos[e.a].x} y1={pos[e.a].y} x2={pos[e.b].x} y2={pos[e.b].y} className={e.confirmed ? 'an-mp__edge an-mp__edge--yes' : 'an-mp__edge'} />)}
-      {pic.nodes.map(n => {
-        const lines = wrapWords(n.label, perLine);
-        return (
-          <g key={n.id} className={`an-g--${n.group}`}>
-            <circle cx={pos[n.id].x} cy={pos[n.id].y} r={MAP.r} className="an-mp__node" />
-            <text x={pos[n.id].x + MAP.r + 5} y={pos[n.id].y - (lines.length - 1) * 7} className="an-mp__label">
-              {lines.map((l, i) => <tspan key={i} x={pos[n.id].x + MAP.r + 5} dy={i === 0 ? '0.35em' : 14}>{l}</tspan>)}
-            </text>
-          </g>
-        );
+    <svg ref={ref} className="xm" width="100%" height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`관련 활동 묶음과 근거가 된 역량: ${label}`}>
+      {mini.links.map(l => {
+        const i = mini.clusters.findIndex(c => c.id === l.cluster);
+        const j = mini.axes.findIndex(a => a.axis === l.axis);
+        const mid = (x1 + x2) / 2;
+        return <path key={`${l.cluster}-${l.axis}`} d={`M${x1} ${rowY(i)}C${mid} ${rowY(i)} ${mid} ${hubY(j)} ${x2} ${hubY(j)}`} className={l.confirmed ? 'xm__edge xm__edge--yes' : 'xm__edge'} />;
       })}
-      {pic.semesters.map((sm, i) => <text key={sm} x={MAP.padX + colW * i} y={height - 4} className="an-mp__sem">{sm.replace(/^d{2}/, '').replace('-', ' ')}</text>)}
+      {mini.clusters.map((c, i) => (
+        <g key={c.id}>
+          {c.groups.slice(0, MINI.dots).map((g, k) => <circle key={k} cx={MINI.dotR + 2 + k * MINI.dotStep} cy={rowY(i)} r={MINI.dotR} className={`xm__dot an-g--${g}`} />)}
+          <text x={MINI.nameX} y={rowY(i)} dy="0.35em" className="xm__name">{c.name}</text>
+        </g>
+      ))}
+      {mini.axes.map((a, j) => (
+        <g key={a.axis}>
+          <circle cx={hubX} cy={hubY(j)} r={MINI.hubR} className="xm__hub" />
+          <text x={hubX + MINI.hubR + 6} y={hubY(j)} dy="0.35em" className="xm__axis">{a.label}</text>
+        </g>
+      ))}
     </svg>
   );
 }
