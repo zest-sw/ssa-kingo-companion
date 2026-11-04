@@ -5,7 +5,8 @@ import { rec } from '../fixtures.test-util';
 import { AXES } from '../vocab';
 import { buildFlow } from './flow';
 import { buildGraph, clusterLinks } from './graph';
-import { discoveryPic, flowBars, flowHeadline, mapHeadline, semesterShort, shortName } from './visual';
+import type { Strength } from './strengths';
+import { discoveryPic, flowBars, flowHeadline, mapHeadline, semesterShort, shortName, strengthGlance } from './visual';
 
 const recs = [
   rec('a', { did: 'listen', field: 'product', semester: '2026-1', title: '아주아주아주 긴 기록 이름' }),
@@ -45,5 +46,14 @@ describe('분석 요약 그림', () => {
     expect(pic.evidence.length).toBeLessThanOrEqual(3);
     expect(pic.target).toBe('직접 만들기');
     expect(pic.evidence.length + pic.more).toBe(ds[0].evidence.length);
+  });
+});
+
+describe('나의 강점 칸 머리말', () => {
+  const s = (axis: Strength['axis'], label: string, confirmed: number, n: number) => ({ axis, label, confirmed, evidence: Array.from({ length: n }) }) as unknown as Strength;
+  it('확인 근거 수로 말하고, 확인 전이면 후보라고 밝힌다', () => {
+    expect(strengthGlance([s('problem', '문제해결', 10, 12), s('communication', '소통', 3, 8)])).toEqual({ text: '문제해결 · 확인 근거 10개', estimated: false });
+    expect(strengthGlance([s('problem', '문제해결', 0, 2)])).toEqual({ text: '강점 후보 문제해결 · 확인 전', estimated: true });
+    expect(strengthGlance([]).text).toBe('회고를 쓰면 강점이 보여요');
   });
 });
