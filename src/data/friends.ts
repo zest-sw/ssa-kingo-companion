@@ -1,6 +1,7 @@
 import type { Field } from '../domain/types';
 import type { RecruitPost } from '../domain/social';
 import type { FeedLike } from '../domain/social/summary';
+import type { PathStep } from '../domain/social/path';
 
 // 친구·모집·명예의 전당 예시 데이터. 이름은 모두 지어낸 가공 이름이다(실제 인물 아님). 친구끼리 비교하거나 순위를 매기는 값은 두지 않는다.
 
@@ -26,13 +27,14 @@ export const FRIENDS: Peer[] = [
 /** 나에게 온 친구 요청 */
 export const INCOMING: Peer[] = [{ id: 'req-a', name: '하람', dept: '미디어커뮤니케이션학과', year: 2, note: '같은 활동 1개', field: 'research' }];
 
-export type FeedItem = FeedLike & { id: string; friendId: string; cheers: number };
+/** 응원은 눌렀는지만 남는다. 응원 수는 세지도 보여 주지도 않는다(숫자 경쟁 없음) */
+export type FeedItem = FeedLike & { id: string; friendId: string };
 export const FEED: FeedItem[] = [
-  { id: 'feed-a', friendId: 'friend-c', who: '서윤', kind: 'shared', subject: '서비스 리서치 크루', cheers: 3 },
-  { id: 'feed-b', friendId: 'friend-a', who: '다온', kind: 'achieved', subject: '세 갈래 길', cheers: 4 },
-  { id: 'feed-c', friendId: 'friend-b', who: '지후', kind: 'hidden', cheers: 2 },
-  { id: 'feed-d', friendId: 'friend-f', who: '태율', kind: 'applied', subject: '교내 UX 개선 공모전', cheers: 1 },
-  { id: 'feed-e', friendId: 'friend-a', who: '다온', kind: 'applied', subject: 'AI 데이터 분석 경진대회', cheers: 0 }
+  { id: 'feed-a', friendId: 'friend-c', who: '서윤', kind: 'shared', subject: '서비스 리서치 크루' },
+  { id: 'feed-b', friendId: 'friend-a', who: '다온', kind: 'achieved', subject: '세 갈래 길' },
+  { id: 'feed-c', friendId: 'friend-b', who: '지후', kind: 'hidden' },
+  { id: 'feed-d', friendId: 'friend-f', who: '태율', kind: 'applied', subject: '교내 UX 개선 공모전' },
+  { id: 'feed-e', friendId: 'friend-a', who: '다온', kind: 'applied', subject: 'AI 데이터 분석 경진대회' }
 ];
 
 /** 친구 프로필 서랍에 보일 것: 친구가 전시한 도전 과제(id)와 한 활동 하나. 친구가 공개한 것만 예시로 둔다 */
@@ -45,14 +47,45 @@ export const FRIEND_PROFILES: Record<string, { showcase: string[]; activity: { t
   'friend-f': { showcase: ['three-paths'], activity: { title: '교내 디자인 해커톤', field: 'product' } }
 };
 
-/** 이 활동을 해 본 친구·선배. 내 활동 이름으로 찾는다 */
-export type DoneBy = { activityTitle: string; people: { name: string; label: string }[] };
+/** 활동 경로를 공개한(또는 하지 않은) 선배. path 가 있는 선배만 '경로 따라 보기' 서랍이 열린다 */
+export type Senior = { id: string; name: string; dept: string; year: number; path?: PathStep[]; retro?: string };
+export const SENIORS: Record<string, Senior> = {
+  'sr-seojin': {
+    id: 'sr-seojin', name: '서진', dept: '소프트웨어학과', year: 4,
+    path: [
+      { title: 'AI 특강', field: 'ai', when: '2-1' }, { title: 'AI 프로젝트 학회', field: 'ai', when: '2-2' },
+      { title: '가을 데이터 해커톤', field: 'data', when: '3-2' }, { title: 'AI 스터디 튜터', field: 'ai', when: '4-1' }
+    ],
+    retro: '학회에서 맡은 작은 모델 하나가 다음 해커톤 주제가 됐다'
+  },
+  'sr-junho': {
+    id: 'sr-junho', name: '준호', dept: '경영학과', year: 4,
+    path: [
+      { title: '사용자 인터뷰 워크숍', field: 'research', when: '2-2' }, { title: '서비스 기획 실무 부트캠프', field: 'product', when: '3 여름' },
+      { title: '캠퍼스 서비스 개선 아이디어톤', field: 'product', when: '3-2' }, { title: '기획 스터디 발표', field: 'product', when: '4-1' }
+    ]
+  },
+  // 유나는 경로를 공개하지 않았다: 이름만 보이고 서랍은 열리지 않는다.
+  'sr-yuna': { id: 'sr-yuna', name: '유나', dept: '글로벌경영학과', year: 4 },
+  'sr-arin': {
+    id: 'sr-arin', name: '아린', dept: '데이터사이언스학과', year: 4,
+    path: [
+      { title: '데이터 분석 입문 스터디', field: 'data', when: '2-1' }, { title: '가을 데이터 해커톤', field: 'data', when: '3-2' },
+      { title: 'AI 데이터 분석 경진대회 수상', field: 'data', when: '4-1' }
+    ],
+    retro: '해커톤에서 못 끝낸 전처리를 대회에서 끝까지 해 봤다'
+  }
+};
+
+/** 이 활동을 해 본 친구·선배. 내 활동 이름으로 찾는다. 친구는 friendId, 선배는 seniorId 로 서랍을 연다 */
+export type DoneByPerson = { name: string; label: string; friendId?: string; seniorId?: string };
+export type DoneBy = { activityTitle: string; people: DoneByPerson[] };
 export const DONE_BY: DoneBy[] = [
-  { activityTitle: 'AI 프로젝트 학회', people: [{ name: '다온', label: '친구' }, { name: '서진', label: '4학년 선배' }] },
-  { activityTitle: '서비스 리서치 크루', people: [{ name: '서윤', label: '친구' }] },
-  { activityTitle: '서비스 기획 실무 부트캠프', people: [{ name: '준호', label: '4학년 선배' }] },
-  { activityTitle: '창업 동아리', people: [{ name: '유나', label: '4학년 선배' }] },
-  { activityTitle: '가을 데이터 해커톤', people: [{ name: '아린', label: '선배' }, { name: '지후', label: '친구' }] }
+  { activityTitle: 'AI 프로젝트 학회', people: [{ name: '다온', label: '친구', friendId: 'friend-a' }, { name: '서진', label: '4학년 선배', seniorId: 'sr-seojin' }] },
+  { activityTitle: '서비스 리서치 크루', people: [{ name: '서윤', label: '친구', friendId: 'friend-c' }] },
+  { activityTitle: '서비스 기획 실무 부트캠프', people: [{ name: '준호', label: '4학년 선배', seniorId: 'sr-junho' }] },
+  { activityTitle: '창업 동아리', people: [{ name: '유나', label: '4학년 선배', seniorId: 'sr-yuna' }] },
+  { activityTitle: '가을 데이터 해커톤', people: [{ name: '아린', label: '4학년 선배', seniorId: 'sr-arin' }, { name: '지후', label: '친구', friendId: 'friend-b' }] }
 ];
 
 export type TeamOpportunity = {
@@ -93,7 +126,7 @@ export type HallEntry = {
   group: 'ai' | 'dev' | 'plan' | 'mentor' | 'global';
   reason: string;
   start: string;
-  path: { title: string; field: Field; when: string }[];
+  path: PathStep[];
   retro?: string;
 };
 
@@ -103,7 +136,7 @@ export const HALL: HallEntry[] = [
     id: 'hall-a', name: '지윤', dept: '통계학과', year: 4, group: 'ai', reason: '교내 해커톤 대상, 데이터 분석 멘토 2학기', start: '처음 시작 · 2학년 1학기',
     path: [
       { title: 'AI 특강', field: 'ai', when: '2-1' }, { title: '데이터 분석 스터디', field: 'data', when: '2-2' }, { title: '데이터 대회', field: 'data', when: '3-1' },
-      { title: '교내 해커톤 대상', field: 'dev', when: '3-2' }, { title: '데이터 분석 멘토', field: 'mentor', when: '4-1' }
+      { title: '교내 해커톤 대상', field: 'dev', when: '3-2', level: 3 }, { title: '데이터 분석 멘토', field: 'mentor', when: '4-1' }
     ],
     retro: '막힐 때마다 팀원에게 설명하다 보니 길이 보였다'
   },
@@ -111,7 +144,7 @@ export const HALL: HallEntry[] = [
     id: 'hall-d', name: '시우', dept: '소프트웨어학과', year: 4, group: 'plan', reason: '개발에서 서비스 기획으로, 교내 서비스 개선안 채택', start: '처음 시작 · 1학년 2학기',
     path: [
       { title: '앱 개발 동아리', field: 'dev', when: '1-2' }, { title: '사용자 인터뷰 워크숍', field: 'research', when: '2-2' }, { title: '서비스 기획 부트캠프', field: 'product', when: '3 여름' },
-      { title: '교내 서비스 개선안 채택', field: 'product', when: '4-1' }
+      { title: '교내 서비스 개선안 채택', field: 'product', when: '4-1', level: 3 }
     ],
     retro: '코드를 짜던 습관이 화면 흐름을 그릴 때 도움이 됐다'
   },
