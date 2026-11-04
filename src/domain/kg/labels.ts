@@ -42,10 +42,11 @@ export function topicScore(topic: KgTopic, records: RecordItem[], terms: { term:
   const coverage = covered / Math.max(1, records.length);
   const total = terms.reduce((s, t) => s + t.w, 0) || 1;
   const term = terms.filter(t => topic.keywords.some(k => hits(t.term, k))).reduce((s, t) => s + t.w, 0) / total;
-  return { score: (coverage + term) / 2, keywords: found.map(x => x.k) };
+  const fieldShare = records.filter(r => topic.fields.includes(r.field)).length / Math.max(1, records.length);
+  return { score: (coverage + term) / 2, keywords: found.map(x => x.k), fieldShare };
 }
 
-/** 사전 이름을 쓰는 기준: 점수 0.5 이상, 맞은 키워드 2개 이상(활동 하나뿐인 묶음은 1개) */
+/** 사전 이름을 쓰는 기준: 점수 0.5 이상, 그리고 맞은 키워드 2개 이상(활동 하나뿐인 묶음은 1개) 또는 모든 활동이 그 주제 분야(글이 짧은 새 기록) */
 export const MATCH = { score: 0.5, keywords: 2 } as const;
 
 /**
@@ -64,7 +65,7 @@ export function nameClusters(groups: RecordItem[][], llm: LlmProvider): ClusterN
     const need = rs.length === 1 ? 1 : MATCH.keywords;
     const best = KG_TAXONOMY
       .map((t, at) => ({ t, at, ...topicScore(t, rs, terms[i]) }))
-      .filter(x => !used.has(x.t.id) && x.score >= MATCH.score && x.keywords.length >= need)
+      .filter(x => !used.has(x.t.id) && x.score >= MATCH.score && (x.keywords.length >= need || x.fieldShare === 1))
       .sort((a, b) => b.score - a.score || a.at - b.at)[0];
     if (best) {
       used.add(best.t.id);

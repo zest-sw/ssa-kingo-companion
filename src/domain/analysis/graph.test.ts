@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { EXAMPLE_EDGE_ANSWERS, SEED_RECORDS } from '../../data/seed';
 import type { Program, RecordItem } from '../types';
-import { axisCount, axisNodeId, buildGraph, clusterInsight, clusterLinks, clusterRecords, focusSet, graphHeadline, hubTags, MAX_CLUSTERS, miniGraph } from './graph';
+import { axisCount, axisNodeId, buildGraph, clusterInsight, clusterLinks, focusSet, graphHeadline, hubTags, MAX_CLUSTERS, miniGraph } from './graph';
 import { liveAxes } from './strengths';
 import { convexHull, joinDots, layoutGraph, placeEdgeLabels, rectsOverlap, textWidth } from './graphLayout';
 
@@ -41,7 +41,7 @@ describe('지식 그래프 모델', () => {
     expect(buildGraph(SEED_RECORDS, { 'r-webcamp~r-appclub': 'no' }).edges.some(e => e.id === 'r-webcamp~r-appclub')).toBe(false);
   });
 
-  it('묶음은 4~5개이고 모든 활동이 꼭 한 묶음에 든다. 이름은 규칙으로 정해진다', () => {
+  it('묶음은 4~5개이고 모든 활동이 꼭 한 묶음에 든다. 이름은 사전 키워드에서 정해진다', () => {
     expect(g.clusters.length).toBeGreaterThanOrEqual(4);
     expect(g.clusters.length).toBeLessThanOrEqual(MAX_CLUSTERS);
     const all = g.clusters.flatMap(c => c.recordIds);
@@ -57,11 +57,11 @@ describe('지식 그래프 모델', () => {
     expect(key(buildGraph(shuffled, EXAMPLE_EDGE_ANSWERS).clusters)).toEqual(key(g.clusters));
   });
 
-  it('활동 하나뿐인 묶음은 가장 닮은 묶음에 합친다', () => {
-    const cs = clusterRecords([rec('a', { field: 'research', did: 'listen' }), rec('b', { field: 'research', did: 'ask' }), rec('c', { field: 'global', did: 'listen' })]);
-    expect(cs).toHaveLength(1);
-    expect(cs[0].name).toBe('사용자 리서치');
-    expect(clusterRecords([])).toEqual([]);
+  it('이어진 데 없는 활동은 혼자 묶음이 되고 고립 활동으로 나온다, 기록이 없으면 묶음도 없다', () => {
+    const lone = buildGraph([rec('a', { field: 'research', did: 'listen' }), rec('b', { field: 'research', did: 'ask' }), rec('c', { field: 'global', did: 'listen', axes: [] })], {}, [], undefined);
+    expect(lone.clusters.find(c => c.recordIds.includes('c'))?.recordIds).toEqual(['c']);
+    expect(lone.analysis.loose.map(x => x.id)).toContain('c');
+    expect(buildGraph([], {}).clusters).toEqual([]);
   });
 
   it('묶음 강조: 그 묶음 활동과 닿은 역량·선만', () => {
@@ -98,7 +98,8 @@ describe('지식 그래프 모델', () => {
     // 대표 회고는 확인한 근거가 가장 많은 기록부터
     const confirmedOf = (id: string) => { const r = recs.find(x => x.id === id)!; return (r.confirmedAxes ?? []).filter(a => liveAxes(r).includes(a)).length; };
     expect(confirmedOf(ins.quotes[0].recordId)).toBe(Math.max(...recs.map(r => confirmedOf(r.id))));
-    expect(ins.next.map(x => x.id)).toEqual(['y', 'z']);
+    // 리서치 묶음에 기획(product)·만들기(make) 활동도 들었으므로 x(만들기)도 이어 갈 기회다
+    expect(ins.next.map(x => x.id)).toEqual(['x', 'y']);
     expect(clusterInsight(g, 'none', [])).toBeNull();
   });
 
