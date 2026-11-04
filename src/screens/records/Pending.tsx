@@ -39,7 +39,7 @@ export function Pending() {
                     <p className="rec-pending__sub">{a.schedule}</p>
                   </div>
                   {drafts.includes(a.id) && <Badge tone="dashed">쓰던 초안 있어요</Badge>}
-                  <Button variant="primary" onClick={() => navigate(`activities/records/interview/${a.id}`)}>{drafts.includes(a.id) ? '이어서 쓰기' : '회고 쓰기'}</Button>
+                  <Button onClick={() => navigate(`activities/records/interview/${a.id}`)}>{drafts.includes(a.id) ? '이어서 쓰기' : '회고 쓰기'}</Button>
                   <Button variant="ghost" onClick={() => skip(a)}>기록만 남기기</Button>
                 </Card>
               </li>

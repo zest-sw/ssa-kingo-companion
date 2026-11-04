@@ -12,7 +12,7 @@
 /* 학기 돌아보기: 해마다 한 단, 많아야 셋 */
 .fl-intro { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2) var(--space-6); margin-bottom: var(--space-4); }
 .fl-story { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
-.fl-story__step { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-3); border: var(--border); border-radius: var(--radius-full); font-size: var(--text-md); }
+.fl-story__step { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-3); border: var(--border); border-radius: var(--radius-sm); font-size: var(--text-md); }
 .fl-story__years { color: var(--ink-muted); font-size: var(--text-sm); }
 .fl-story__arrow { display: inline-flex; color: var(--ink-subtle); }
 .fl-how { color: var(--ink-subtle); font-size: var(--text-xs); }

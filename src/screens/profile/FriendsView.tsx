@@ -54,7 +54,7 @@ export function FriendsView() {
                 <li key={p.id} className="fr-person">
                   <Avatar name={p.name} />
                   <div className="fr-person__text"><p className="fr-person__name">{p.name}</p><p className="fr-person__sub">친구 요청 · {peerLine(p)}</p></div>
-                  <Button size="sm" variant="primary" onClick={() => accept(p)}>수락</Button>
+                  <Button size="sm" onClick={() => accept(p)}>수락</Button>
                   <Button size="sm" variant="ghost" onClick={() => setIncoming(list => list.filter(x => x.id !== p.id))}>다음에</Button>
                 </li>
               ))}
@@ -82,7 +82,7 @@ export function FriendsView() {
                 <div className="fr-person__text"><p className="fr-person__name">{p.name}</p><p className="fr-person__sub">{peerLine(p)}</p></div>
                 {sent.includes(p.id)
                   ? <Badge tone="neutral">요청 보냄</Badge>
-                  : <Button size="sm" variant="primary" onClick={() => { setSent(s => [...s, p.id]); toast(`${p.name}님에게 친구 요청을 보냈어요.`); }}>친구 신청</Button>}
+                  : <Button size="sm" onClick={() => { setSent(s => [...s, p.id]); toast(`${p.name}님에게 친구 요청을 보냈어요.`); }}>친구 신청</Button>}
               </li>
             ))}
           </ul>

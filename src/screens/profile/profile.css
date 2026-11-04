@@ -30,7 +30,7 @@
 
 /* 학기 돌아보기: 지난 학기의 나와만. 막대 둘(회색 지난, 네이비 이번) */
 .pf-replay { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--border); }
-.pf-replay__title { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.pf-replay__title { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
 .pf-replay__legend { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--ink-muted); font-size: var(--text-xs); font-weight: var(--weight-regular); }
 .pf-replay__key { width: var(--space-3); height: var(--pf-bar-h); border-radius: var(--radius-xs); }
 .pf-replay__key--now { margin-left: var(--space-2); }
