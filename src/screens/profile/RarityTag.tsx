@@ -1,5 +1,6 @@
 import { RARITY_LABEL, type Rarity } from '../../data/challenges';
 import { RARITY_STEP } from '../../domain/challenges/wall';
+import { TODAY_YEAR } from '../../domain/today';
 
 /**
  * 희귀도 꼬리표(스팀 전체 달성률 대신): 단계 이름 + 작은 마름모 1~3개. 퍼센트는 없다.
@@ -17,5 +18,6 @@ export function RarityTag({ rarity }: { rarity: Rarity }) {
   );
 }
 
-export const formatWhen = (d: Date) => `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-export const formatDay = (d: Date) => `${d.getMonth() + 1}월 ${d.getDate()}일`;
+export const formatWhen = (d: Date) => `${formatDay(d)} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+/** 올해가 아니면 연도를 붙인다. 연도 없이 '11월 27일'만 있으면 오늘(10월) 뒤의 날처럼 읽힌다. */
+export const formatDay = (d: Date) => `${d.getFullYear() === TODAY_YEAR ? '' : `${d.getFullYear()}년 `}${d.getMonth() + 1}월 ${d.getDate()}일`;

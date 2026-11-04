@@ -5,6 +5,7 @@ import { hrefOf, navigate, PROFILE } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
 import { Badge, Button, Card, Drawer, Icon, PageHeader, type IconName } from '../../components';
 import { showcaseable } from '../../domain/challenges';
+import { SHOWCASE_MAX } from '../../domain/challenges/showcase';
 import { canUseSocial } from '../../domain/social';
 import { myTopGroup } from '../../domain/social/summary';
 import { friendsKeyword, hallKeyword, hallRoute, recruitKeyword } from '../../domain/social/visual';
@@ -68,8 +69,9 @@ export function ProfileHome() {
                 {anyDone && <Button size="sm" variant="ghost" icon="pencil" aria-haspopup="dialog" onClick={() => setPicking(true)}>전시 고르기</Button>}
               </div>
             </div>
-            {shown.length ? (
-              <ul className="fr-tiles pf-showcase" aria-label="전시한 도전 과제">
+            {/* 전시 칸은 3칸 고정. 빈 칸은 점선 '전시할 과제 고르기'(같은 서랍). 달성한 과제가 없으면 고를 게 없어 한 줄만 둔다. */}
+            {anyDone ? (
+              <ul className="pf-showcase pf-slots" aria-label="전시한 도전 과제">
                 {shown.map(c => (
                   <li key={c.def.id} className="fr-tile">
                     <Icon name={c.def.icon} size={22} />
@@ -77,8 +79,16 @@ export function ProfileHome() {
                     {c.achievedAt && <span className="pf-tile__when num">{formatDay(c.achievedAt)}</span>}
                   </li>
                 ))}
+                {Array.from({ length: SHOWCASE_MAX - shown.length }, (_, i) => (
+                  <li key={`empty-${i}`}>
+                    <button type="button" className="pf-slot" aria-haspopup="dialog" onClick={() => setPicking(true)}>
+                      <Icon name="plus" size={18} />
+                      <span>전시할 과제 고르기</span>
+                    </button>
+                  </li>
+                ))}
               </ul>
-            ) : <p className="fr-empty pf-showcase">{anyDone ? '‘전시 고르기’에서 보여 줄 과제를 1~3개 골라 보세요.' : '과제를 달성하면 여기에 전시할 수 있어요.'}</p>}
+            ) : <p className="fr-empty pf-showcase">과제를 달성하면 여기에 전시할 수 있어요.</p>}
             <SemesterReplay />
           </Card>
 
