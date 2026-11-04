@@ -147,6 +147,8 @@
 .pf-sub > .fr-headline { margin-bottom: 0; }
 .pf-sub .fr-cols { align-items: stretch; min-height: 0; }
 .pf-sub .fr-cols > * { min-height: 0; }
+/* 글 올리기 칸은 내용 높이. 목록 칸만 남은 높이를 채운다 */
+.pf-sub .fr-cols--recruit > .fr-col-side { align-self: start; }
 .fr-hall-body { display: flex; flex-direction: column; min-height: 0; }
 .fr-hall-body > .fr-hall { flex: 1; align-content: start; }
 .fr-hall-body > :not(.fr-hall) { flex: none; }

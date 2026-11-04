@@ -194,3 +194,9 @@
 .ui-dg-tl__label { position: absolute; display: block; height: var(--dg-lane-h); line-height: var(--dg-lane-h); max-width: var(--dg-tl-label-max); overflow: hidden; color: var(--ink-muted); font-size: var(--text-xs); white-space: nowrap; text-overflow: ellipsis; cursor: pointer; transform: translateX(var(--dg-tl-label-gap)); }
 .ui-dg-tl__label[data-side='start'] { text-align: right; transform: translateX(calc(-100% - var(--dg-tl-label-gap))); }
 .ui-dg-tl__label:hover { color: var(--ink); text-decoration: underline; }
+
+/* 학기 넘기기: 학기가 많은 지도 머리에 붙는다 */
+.ui-termnav { display: inline-flex; align-items: center; gap: var(--space-1); }
+.ui-termnav__text { display: inline-flex; align-items: baseline; gap: var(--space-2); font-size: var(--text-sm); color: var(--ink); white-space: nowrap; }
+.ui-termnav__more { color: var(--ink-subtle); }
+.ui-termnav .ui-icon-btn:disabled { color: var(--ink-subtle); opacity: 0.4; cursor: default; background: transparent; }

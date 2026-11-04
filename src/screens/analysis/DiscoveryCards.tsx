@@ -24,7 +24,7 @@ function Converge({ pic }: { pic: DiscoveryPic }) {
           <g key={e.id}>
             <line x1={150} y1={y} x2={186} y2={mid} className="an-dpic__line" />
             <circle cx={6} cy={y} r={4} className="an-dpic__dot" />
-            <text x={16} y={y} dominantBaseline="central" className="an-dpic__label">{e.label}</text>
+            <text x={16} y={y} dominantBaseline="central" className="an-dpic__label">{e.full !== e.label && <title>{e.full}</title>}{e.label}</text>
           </g>
         );
       })}

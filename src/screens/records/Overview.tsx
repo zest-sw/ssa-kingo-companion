@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, EmptyState, GhostPic, Icon, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
+import { Button, EmptyState, GhostPic, Icon, Legend, PageHeader, SegmentedControl, TermNav, type LegendItem } from '../../components';
 import { navigate } from '../../app/router';
 import { openEntity } from '../../app/entity';
 import { useApp } from '../../app/AppState';
@@ -11,6 +11,7 @@ import { mapDots, mapRows, mapTerms, splitMapRows } from './map';
 import { RecordMap } from './RecordMap';
 import { takeMapFocus } from './mapFocus';
 import { nextStep } from '../../domain/nextStep';
+import { stepWindow, termWindow } from '../../domain/analysis/window';
 
 const LEGEND: LegendItem[] = [{ label: '학교 확인', mark: 'dot', tone: 'ink' }, { label: '직접 입력', mark: 'ring', tone: 'ink' }];
 
@@ -30,8 +31,13 @@ export function Overview() {
   const pending = state.activities.filter(a => a.status === 'ended');
   const step = nextStep(state.activities);
   const rows = mapRows(state.records);
-  const { drawn, empty } = splitMapRows(state.records);
-  const cols = mapTerms(state.records, CURRENT_TERM.semester);
+  // 학기가 많이 쌓이면 최근 몇 학기만 그리고 앞 학기는 넘겨서 본다(칸이 좁아져 이름이 부서지지 않게).
+  const [end, setEnd] = useState<number | undefined>(undefined);
+  const win = termWindow(mapTerms(state.records, CURRENT_TERM.semester), undefined, end);
+  const cols = win.shown;
+  const inView = new Set(cols.map(c => c.id));
+  const viewRecords = state.records.filter(r => inView.has(r.semester));
+  const { drawn, empty } = splitMapRows(viewRecords);
 
   // 회고를 막 저장하고 왔으면 새 기록의 점을 표시한다.
   useEffect(() => {
@@ -68,6 +74,7 @@ export function Overview() {
           <section className={`rm-card${state.records.length === 0 ? ' rm-card--empty' : ''}`} aria-labelledby="rm-title">
             <div className="rm-card__head">
               <h2 id="rm-title" className="rm-card__title">기록 지도</h2>
+              <TermNav range={cols.length ? `${cols[0].label} ~ ${cols[cols.length - 1].label}` : ''} before={win.before} after={win.after} onPrev={() => setEnd(stepWindow(win, -1))} onNext={() => setEnd(stepWindow(win, 1))} />
               <Legend items={LEGEND} />
             </div>
             {state.records.length === 0 ? (
@@ -77,7 +84,7 @@ export function Overview() {
                 action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>}
               />
             ) : (
-              <RecordMap label="기록 지도" rows={drawn} empty={empty} cols={cols} items={mapDots(state.records)} selectedId={focus} onSelect={open} />
+              <RecordMap label="기록 지도" rows={drawn} empty={empty} emptyLabel={win.before + win.after > 0 ? '이 학기들에 기록 없는 분야' : undefined} cols={cols} items={mapDots(viewRecords)} selectedId={focus} onSelect={open} />
             )}
           </section>
         )}

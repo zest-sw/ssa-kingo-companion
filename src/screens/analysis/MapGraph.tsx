@@ -22,7 +22,8 @@ export function MapGraph({ map, answers, picked, onPick }: { map: ExperienceMap;
   });
 
   return (
-    <svg className="an-map" viewBox={`0 0 ${layout.width} ${layout.height}`} role="group" aria-label="경험 지도">
+    // 넓은 화면에서 지도가 커지지 않게 제 폭까지만 늘린다.
+    <svg className="an-map" viewBox={`0 0 ${layout.width} ${layout.height}`} style={{ maxWidth: layout.width }} role="group" aria-label="경험 지도">
       {map.semesters.map((s, i) => (
         <text key={s} x={layout.colX[i]} y={24} className="an-map__col" textAnchor="middle">{semesterLabel(s)}</text>
       ))}

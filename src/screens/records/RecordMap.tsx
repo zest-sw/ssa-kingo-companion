@@ -7,8 +7,8 @@ import { mapLinks } from './map';
  * 칸 선은 그리지 않는다. 학기 이름은 위 한 줄 눈금, 분야 사이는 여백으로 나눈다. 기록 없는 분야(empty)는 줄 대신 아래 한 줄에 모은다.
  * 채운 점 = 학교 확인, 테두리 점 = 직접 입력. 점을 누르면 그 기록 서랍이 열린다.
  */
-export function RecordMap({ label, rows, empty = [], cols, items, selectedId, onSelect }: {
-  label: string; rows: GridAxisItem[]; empty?: GridAxisItem[]; cols: GridAxisItem[]; items: DotItem[]; selectedId?: string; onSelect: (id: string) => void;
+export function RecordMap({ label, rows, empty = [], emptyLabel = '기록 없는 분야', cols, items, selectedId, onSelect }: {
+  label: string; rows: GridAxisItem[]; empty?: GridAxisItem[]; emptyLabel?: string; cols: GridAxisItem[]; items: DotItem[]; selectedId?: string; onSelect: (id: string) => void;
 }) {
   const links = useMemo(() => {
     const tone = new Map(items.map(i => [i.id, i.tone ?? 'global']));
@@ -41,7 +41,7 @@ export function RecordMap({ label, rows, empty = [], cols, items, selectedId, on
           ))}
         </Fragment>
       ))}
-      {empty.length > 0 && <p className="rm__empty"><span>기록 없는 분야</span><b>{empty.map(e => e.label).join(' · ')}</b></p>}
+      {empty.length > 0 && <p className="rm__empty"><span>{emptyLabel}</span><b>{empty.map(e => e.label).join(' · ')}</b></p>}
     </div>
   );
 }
