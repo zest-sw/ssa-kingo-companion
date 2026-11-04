@@ -11,13 +11,12 @@ export function GapLine({ gap }: { gap: Gap }) {
   );
 }
 
-/** 하위 분석 화면 머리 한 줄: 그래서(해석) · 이제(행동) · 전체 이야기로 */
-export function StoryNote({ line, href }: { line: ScreenLine; href: string }) {
+/** 하위 분석 화면 머리 한 줄: 그래서(해석) · 이제(행동). 요약으로 가는 길은 구역 탭 '한눈에' 하나라 링크를 두지 않는다 */
+export function StoryNote({ line }: { line: ScreenLine }) {
   return (
     <p className="ui-story-note">
       <span className="ui-story-note__so">{line.soWhat}</span>
       {line.nowWhat && <span className="ui-story-note__now">{line.nowWhat}</span>}
-      <a className="ui-story-note__back" href={href}>전체 이야기로</a>
     </p>
   );
 }

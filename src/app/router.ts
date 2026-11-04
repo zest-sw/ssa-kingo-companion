@@ -10,24 +10,30 @@ export type RouteName = ScreenName | 'settings' | '_kit';
 const OTHER_ROUTES: readonly string[] = ['settings', '_kit'];
 
 export type NavChild = { path: string; label: string };
-export type NavItem = { id: ScreenName; path: string; label: string; icon: IconName; children?: NavChild[] };
+export type NavItem = { id: ScreenName; path: string; label: string; icon: IconName };
 
-/** 메인 메뉴 4개. 사이드바가 유일한 이동 수단이고, 하위 항목은 지금 보고 있는 부모 아래에만 펼친다. */
+/** 메인 메뉴 4개. 사이드바는 이 1단만 그리고 펼치지 않는다(결정 2026-11-04). 하위 화면은 페이지 안 구역 탭(SECTION_TABS)으로 간다. */
 export const NAV: NavItem[] = [
   { id: 'home', path: 'home', label: '홈', icon: 'home' },
   { id: 'recommend', path: 'recommend', label: '추천', icon: 'compass' },
-  {
-    id: 'activities', path: 'activities', label: '내 활동', icon: 'board',
-    children: [{ path: 'activities/schedule', label: '일정' }, { path: 'activities/records', label: '기록' }]
-  },
-  {
-    id: 'analysis', path: 'analysis', label: '나의 분석', icon: 'analysis',
-    children: [
-      { path: 'analysis/techtree', label: '테크 트리' }, { path: 'analysis/map', label: '경험 지도' },
-      { path: 'analysis/flow', label: '관심 흐름' }, { path: 'analysis/strengths', label: '나의 강점' }
-    ]
-  }
+  { id: 'activities', path: 'activities', label: '내 활동', icon: 'board' },
+  { id: 'analysis', path: 'analysis', label: '나의 분석', icon: 'analysis' }
 ];
+
+/** 구역 탭을 두는 메뉴 */
+export type SectionId = 'activities' | 'analysis';
+/** 구역 탭. 첫 칸 '한눈에'는 구역 요약(사이드바 항목과 같은 목적지), 나머지가 하위 화면이다. */
+export const SECTION_TABS: Record<SectionId, NavChild[]> = {
+  activities: [{ path: 'activities', label: '한눈에' }, { path: 'activities/schedule', label: '일정' }, { path: 'activities/records', label: '기록' }],
+  analysis: [
+    { path: 'analysis', label: '한눈에' },
+    { path: 'analysis/techtree', label: '테크 트리' }, { path: 'analysis/map', label: '경험 지도' },
+    { path: 'analysis/flow', label: '관심 흐름' }, { path: 'analysis/strengths', label: '나의 강점' }
+  ]
+};
+const SECTION_LABEL: Record<SectionId, string> = { activities: '내 활동', analysis: '나의 분석' };
+/** 메뉴의 하위 화면('한눈에' 뺀 구역 탭) */
+export const subsOf = (id: ScreenName): NavChild[] => (id === 'activities' || id === 'analysis' ? SECTION_TABS[id].slice(1) : []);
 
 /** 프로필은 메인 메뉴가 아니라 사이드바 왼쪽 아래 학생 카드로 연다. 친구·팀원 모집·명예의 전당은 프로필 요약의 카드로만 간다. */
 // 사이드바 학생 카드의 이름(aria-label)과 화면 제목을 같게 둔다.
@@ -118,7 +124,7 @@ const within = (path: string, base: string) => path === base || path.startsWith(
 export function navMatch(route: Route): { item?: NavItem; child?: NavChild; exact: boolean } {
   const path = pathOf(route);
   const item = NAV.find(n => within(path, n.path));
-  const child = item?.children?.find(c => within(path, c.path));
+  const child = item && subsOf(item.id).find(c => within(path, c.path));
   return { item, child, exact: path === (child ?? item)?.path };
 }
 
@@ -134,8 +140,19 @@ export function screenLabel(route: Route): string | undefined {
 
 /** 흐름 화면의 빵부스러기 첫 칸. parentLink('activities/records') → { label: '기록', href: '#/activities/records' } */
 export function parentLink(path: string): { label: string; href: string } {
-  const label = [...NAV.flatMap(n => [n, ...(n.children ?? [])]), PROFILE, ...PROFILE_SUBS].find(n => n.path === path)?.label ?? path;
+  const label = [...NAV.flatMap(n => [n, ...subsOf(n.id)]), PROFILE, ...PROFILE_SUBS].find(n => n.path === path)?.label ?? path;
   return { label, href: hrefOf(path) };
+}
+
+export type SectionTabItem = { href: string; label: string; current: boolean };
+/**
+ * 구역 탭 줄의 값. 지금 탭은 가장 긴 앞부분이 맞는 칸이다(일정의 보기 전환 'activities/schedule/board' 도 '일정').
+ * sectionTabs('analysis', 'analysis/map') → { label: '나의 분석 하위 화면', items: [{ href: '#/analysis', label: '한눈에', current: false }, …] }
+ */
+export function sectionTabs(section: SectionId, current: string): { label: string; items: SectionTabItem[] } {
+  const tabs = SECTION_TABS[section];
+  const on = [...tabs].reverse().find(t => within(current, t.path))?.path;
+  return { label: `${SECTION_LABEL[section]} 하위 화면`, items: tabs.map(t => ({ href: hrefOf(t.path), label: t.label, current: t.path === on })) };
 }
 
 /** '#/analysis/techtree/x' → { name: 'analysis', sub: 'techtree/x' }. 모르는 경로는 홈, 옮긴 경로는 새 자리. */

@@ -1,8 +1,8 @@
 import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
-import { hrefOf, navigate } from '../../app/router';
+import { hrefOf, navigate, sectionTabs } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Button, Card, EmptyState, GanttRows, GhostPic, Icon, Legend, PageHeader, type LegendItem } from '../../components';
+import { Button, Card, EmptyState, GanttRows, GhostPic, Icon, Legend, PageHeader, SectionTabs, type LegendItem } from '../../components';
 import { CURRENT_TERM } from '../../data/records';
 import { semesterTally } from '../../domain/recommend-flow/summary';
 import { PROTOTYPE_TODAY } from '../../domain/today';
@@ -35,13 +35,14 @@ export function Overview() {
   const month = monthRange();
   const clipped = clipRows(timelineOf(state.activities).rows, month, MONTH_ROWS);
   const [, m] = month.start.split('-').map(Number);
+  const tabs = <SectionTabs {...sectionTabs('activities', 'activities')} />;
   const monthTitle = <a className="act-month__link" href={hrefOf('activities/schedule')}>{m}월 일정<Icon name="chevron" size={16} /></a>;
 
   if (empty) {
     // 첫 사용: 세 칸 모두 그림 틀 + 한 줄. 다음 행동 버튼은 첫 칸 한 곳에만 둔다.
     return (
       <div className="os">
-        <PageHeader title="내 활동" />
+        <PageHeader title="내 활동" tabs={tabs} />
         <div className="os__body act-sum">
           <div className="act-now">
             <Card className="os-card" title="할 일 상태">
@@ -61,7 +62,7 @@ export function Overview() {
 
   return (
     <div className="os">
-      <PageHeader title="내 활동" />
+      <PageHeader title="내 활동" tabs={tabs} />
       <div className="os__body act-sum">
         <div className="act-now">
           <Card className="os-card" title="할 일 상태" aria-label="할 일 상태">

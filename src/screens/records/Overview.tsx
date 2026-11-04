@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Button, EmptyState, GhostPic, Legend, PageHeader, SegmentedControl, TermNav, type LegendItem } from '../../components';
-import { navigate } from '../../app/router';
+import { Button, EmptyState, GhostPic, Legend, PageHeader, SectionTabs, SegmentedControl, TermNav, type LegendItem } from '../../components';
+import { navigate, sectionTabs } from '../../app/router';
 import { openEntity } from '../../app/entity';
 import { useApp } from '../../app/AppState';
 import { useOverviewState } from '../../app/useOverviewState';
@@ -53,6 +53,7 @@ export function Overview() {
     <div className="os">
       <PageHeader
         title="기록"
+        tabs={<SectionTabs {...sectionTabs('activities', 'activities/records')} />}
         actions={
           <>
             {state.records.length > 0 && <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={view => setSel(s => ({ ...s, view }))} items={VIEWS} />}

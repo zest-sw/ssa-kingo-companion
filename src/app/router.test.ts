@@ -1,10 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalPath, inProfile, movedPath, NAV, navMatch, parentLink, parseHash, screenLabel } from './router';
+import { canonicalPath, inProfile, movedPath, NAV, navMatch, parentLink, parseHash, screenLabel, SECTION_TABS, sectionTabs } from './router';
 
 describe('메뉴 트리', () => {
-  it('메인 4개, 하위 6개 (프로필은 메뉴가 아니라 학생 카드)', () => {
+  it('사이드바는 메인 4개 1단, 하위 화면 6개는 구역 탭에 (프로필은 메뉴가 아니라 학생 카드)', () => {
     expect(NAV.map(n => n.label)).toEqual(['홈', '추천', '내 활동', '나의 분석']);
-    expect(NAV.flatMap(n => n.children ?? []).length).toBe(6);
+    expect(NAV.every(n => !('children' in n))).toBe(true);
+    expect(Object.values(SECTION_TABS).flatMap(t => t.slice(1)).length).toBe(6);
+    expect(SECTION_TABS.activities.map(t => t.label)).toEqual(['한눈에', '일정', '기록']);
+    expect(SECTION_TABS.analysis.map(t => t.label)).toEqual(['한눈에', '테크 트리', '경험 지도', '관심 흐름', '나의 강점']);
+  });
+  it('구역 탭의 지금 칸: 가장 긴 앞부분, 보기 전환 주소도 그 탭', () => {
+    const on = (s: 'activities' | 'analysis', p: string) => sectionTabs(s, p).items.filter(t => t.current).map(t => t.label);
+    expect(on('analysis', 'analysis')).toEqual(['한눈에']);
+    expect(on('analysis', 'analysis/map')).toEqual(['경험 지도']);
+    expect(on('activities', 'activities/schedule/board')).toEqual(['일정']);
+    expect(on('activities', 'activities/records')).toEqual(['기록']);
+    expect(sectionTabs('activities', 'activities').items[1]).toEqual({ href: '#/activities/schedule', label: '일정', current: false });
   });
   it('프로필 화면 전체에서 학생 카드가 활성이고 메뉴는 활성이 없다', () => {
     for (const h of ['#/profile', '#/profile/friends', '#/profile/recruit', '#/profile/hall']) {
@@ -19,7 +30,10 @@ describe('메뉴 트리', () => {
     expect(screenLabel(parseHash('#/analysis/map'))).toBe('경험 지도');
   });
   it('하위 경로는 부모 경로 아래에 있다', () => {
-    for (const n of NAV) for (const c of n.children ?? []) expect(c.path.startsWith(n.path + '/')).toBe(true);
+    for (const [id, tabs] of Object.entries(SECTION_TABS)) {
+      expect(tabs[0].path).toBe(id);
+      for (const c of tabs.slice(1)) expect(c.path.startsWith(id + '/')).toBe(true);
+    }
   });
   it('지금 위치: 하위 화면, 흐름 화면, 메인 화면', () => {
     expect(navMatch(parseHash('#/analysis/map'))).toMatchObject({ item: { id: 'analysis' }, child: { path: 'analysis/map' }, exact: true });

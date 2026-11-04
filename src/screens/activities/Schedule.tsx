@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
-import { navigate } from '../../app/router';
+import { navigate, sectionTabs } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Button, Card, EmptyState, GanttRows, GhostPic, Legend, PageHeader, SegmentedControl, type LegendItem } from '../../components';
+import { Button, Card, EmptyState, GanttRows, GhostPic, Legend, PageHeader, SectionTabs, SegmentedControl, type LegendItem } from '../../components';
 import { PROTOTYPE_TODAY } from '../../domain/today';
 import { FIELD_GROUP } from '../../domain/vocab';
 import { BoardView } from './BoardView';
@@ -84,7 +84,7 @@ export function Schedule({ sub }: { sub?: string }) {
 
   return (
     <div className="os">
-      <PageHeader title="일정" actions={state.activities.length > 0 && <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={v => setSel(s => ({ ...s, view: v }))} items={VIEWS} />} />
+      <PageHeader title="일정" tabs={<SectionTabs {...sectionTabs('activities', 'activities/schedule')} />} actions={state.activities.length > 0 && <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={v => setSel(s => ({ ...s, view: v }))} items={VIEWS} />} />
       {state.activities.length > 0 && <p className="act-headline">{scheduleHeadline(state.activities)}</p>}
       <div className="os__body">{body}</div>
     </div>
