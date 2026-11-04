@@ -106,8 +106,11 @@ export function DetailView({ programId, actions }: { programId: string; actions:
       </div>
 
       <Drawer open={why} title="근거 기록" eyebrow={p.title} onClose={() => setWhy(false)}>
-        <p className="rec-dialog__sub">내 기록 근거는 추천에 쓸지 고를 수 있어요. 끄면 이 기록은 추천과 발견에서 빠져요.</p>
+        {(reasons.some(r => r.recordId) || offRecords.length > 0) && <p className="rec-dialog__sub">내 기록 근거는 추천에 쓸지 고를 수 있어요. 끄면 이 기록은 추천과 발견에서 빠져요.</p>}
         <ul className="rec-drawer__list">
+          {nodes.filter(n => n.kind === 'goal').map(n => (
+            <li key={n.kind} className="rec-drawer__item"><Badge>{n.label}</Badge><p>{n.text}</p></li>
+          ))}
           {reasons.map(r => (
             <li key={r.kind} className="rec-drawer__item">
               <div className="rec-drawer__row">
@@ -119,6 +122,9 @@ export function DetailView({ programId, actions }: { programId: string; actions:
               {!r.url && r.source && <p className="rec-muted">{r.source}</p>}
             </li>
           ))}
+          {nodes.filter(n => n.kind === 'interest-miss').map(n => (
+            <li key={n.kind} className="rec-drawer__item"><Badge>{n.label}</Badge><p>{n.text}</p></li>
+          ))}
           {offRecords.map(r => (
             <li key={r.id} className="rec-drawer__item rec-drawer__item--off">
               <div className="rec-drawer__row">
@@ -129,7 +135,7 @@ export function DetailView({ programId, actions }: { programId: string; actions:
               <p className="rec-muted">추천에 쓰지 않는 기록이에요</p>
             </li>
           ))}
-          {reasons.length === 0 && offRecords.length === 0 && <li className="rec-muted">아직 이어진 근거가 없어요. 회고를 남기면 여기에 쌓여요.</li>}
+          {reasons.length === 0 && offRecords.length === 0 && !nodes.some(n => n.text) && <li className="rec-muted">아직 이어진 근거가 없어요. 회고를 남기면 여기에 쌓여요.</li>}
         </ul>
         <p className="rec-drawer__foot"><span className="rec-muted">관심 분야·목표 근거는 설정에서 바꿔요</span><a className="rec-link" href={hrefOf('settings/profile')}>관심·목표 바꾸기<Icon name="chevron" size={14} /></a></p>
       </Drawer>

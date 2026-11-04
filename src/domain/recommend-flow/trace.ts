@@ -1,6 +1,7 @@
 import { FIELD_GROUP, fieldName, GROUP_LABEL, REASON_LABEL } from '../vocab';
 import type { FieldGroup, Interest, Program, Reason, RecordItem } from '../types';
 import { sortedReasons } from '../recommend';
+import { josa } from '../text';
 import { confirmedStrengthsFor } from '../analysis/strengths';
 
 // 추천 이유를 '근거 → 이 활동' 도식의 점으로. 문장 대신 짧은 키워드만 뽑는다.
@@ -14,6 +15,8 @@ export type TraceNode = {
   /** 학생 기록에 이어진 근거. 없으면 관심·탐색처럼 기록 밖의 이유 */
   recordId?: string;
   date?: string;
+  /** 근거 서랍에 쓰는 한 문장. 이유(Reason)에서 오지 않은 새 학생 점(목표·관심 없음)에만 있다 */
+  text?: string;
 };
 
 /** 기록이 없는 학생의 근거에 쓰는 가입 정보. interestOpen = 이번 주 후보 중 고른 관심 분야가 하나라도 있는지 */
@@ -66,13 +69,14 @@ const NEWCOMER_ORDER: TraceNode['kind'][] = ['goal', 'interest', 'novelty', 'int
 function newcomerNodes(reasons: Reason[], p: Program, who: Newcomer): TraceNode[] {
   const nodes: TraceNode[] = [];
   const goal = who.goal.trim();
-  if (goal && goalGroups(goal).includes(FIELD_GROUP[p.field])) nodes.push({ kind: 'goal', label: '목표', detail: goal });
+  if (goal && goalGroups(goal).includes(FIELD_GROUP[p.field])) nodes.push({ kind: 'goal', label: '목표', detail: goal, text: `가입할 때 적은 목표 ‘${goal}’${josa(goal, '과', '와')} 같은 ${fieldName(p.field)} 분야예요.` });
   for (const r of sortedReasons(reasons)) {
     const detail = r.kind === 'novelty' ? `처음 해 보는 ${fieldName(p.field)}` : quoted(r.text) || fieldName(p.field);
     nodes.push({ kind: r.kind, label: REASON_LABEL[r.kind], detail });
   }
   const picked = who.interests.filter((i): i is FieldGroup => i !== 'unknown');
-  if (!who.interestOpen && picked.length) nodes.push({ kind: 'interest-miss', label: '관심', detail: `${picked.map(g => GROUP_LABEL[g]).join('·')} 모집은 이번 주 없어요` });
+  const names = picked.map(g => GROUP_LABEL[g]).join('·');
+  if (!who.interestOpen && picked.length) nodes.push({ kind: 'interest-miss', label: '관심', detail: `${names} 모집은 이번 주 없어요`, text: `처음에 고른 관심 ‘${names}’ 모집이 이번 주엔 없어서 다른 분야를 넓혀 봤어요.` });
   const at = (k: TraceNode['kind']) => { const i = NEWCOMER_ORDER.indexOf(k); return i < 0 ? NEWCOMER_ORDER.length : i; };
   return nodes.sort((a, b) => at(a.kind) - at(b.kind)).slice(0, MAX_NODES);
 }

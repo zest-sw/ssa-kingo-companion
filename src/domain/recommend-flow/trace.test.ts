@@ -49,7 +49,7 @@ describe('traceNodes: 기록이 없는 새 학생', () => {
   it('목표 글이 이 분야를 가리키면 목표 점을 맨 앞에 둔다', () => {
     const nodes = traceNodes([novelty], [], plan, { goal: '서비스 기획 직무', interests: ['plan'], interestOpen: true });
     expect(nodes.map(n => n.kind)).toEqual(['goal', 'novelty']);
-    expect(nodes[0]).toMatchObject({ label: '목표', detail: '서비스 기획 직무' });
+    expect(nodes[0]).toMatchObject({ label: '목표', detail: '서비스 기획 직무', text: '가입할 때 적은 목표 ‘서비스 기획 직무’와 같은 창업·기획 분야예요.' });
     expect(nodes[1].detail).toBe('처음 해 보는 창업·기획');
   });
   it('목표가 다른 분야거나 비어 있으면 목표 점을 지어내지 않는다', () => {
