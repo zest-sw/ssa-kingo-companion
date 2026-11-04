@@ -3,6 +3,7 @@ import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
 import { Button, Card, EmptyState, GhostPic, PageHeader } from '../../components';
+import { semesterTally } from '../../domain/recommend-flow/summary';
 import { pendingRetros } from './summary';
 import { StatusBarsPic, WeekPic } from './Pictures';
 import { statusBars, weekHeadline, weekOf } from './visual';
@@ -20,6 +21,8 @@ export function Overview() {
   const empty = state.activities.length === 0;
   const week = weekOf(state.activities);
   const bars = statusBars(state.activities);
+  // 연속 기록 대신 쌓이기만 하는 숫자. 줄어들거나 끊기는 장치는 두지 않는다.
+  const tally = semesterTally(state.activities);
 
   const toRetro = () => navigate(retros.length === 1 ? `activities/records/interview/${retros[0].id}` : 'activities/records/interview');
 
@@ -42,7 +45,7 @@ export function Overview() {
           </div>
         ) : (
           <div className="act-now">
-            <Card className="os-card" title="할 일 상태" aria-label="할 일 상태"><div className="act-now__pic"><StatusBarsPic bars={bars} /></div></Card>
+            <Card className="os-card" title="할 일 상태" aria-label="할 일 상태"><div className="act-now__pic"><StatusBarsPic bars={bars} />{tally && <p className="act-now__far">{tally}</p>}</div></Card>
             <Card className="os-card" title={weekHeadline(week)} aria-label="이번 주 마감" action={<Button size="sm" variant="ghost" onClick={() => navigate('activities/schedule')}>일정 보기</Button>}>
               <div className="act-now__pic">
                 <WeekPic week={week} onOpen={id => openEntity({ kind: 'activity', id })} />
