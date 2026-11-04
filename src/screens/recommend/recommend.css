@@ -254,3 +254,15 @@
 .rec-drawer__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; }
 .rec-drawer__item--off > p:first-of-type { color: var(--ink-muted); }
 .rec-drawer__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); }
+/* 신청 뒤: 에이전트가 일정에 넣은 활동 일시 한 줄 */
+.rec-done__cal { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border: var(--border); border-radius: var(--radius-md); font-size: var(--text-md); color: var(--ink-muted); }
+.rec-done__cal b { color: var(--ink); }
+.rec-done__cal svg { color: var(--navy-900); }
+/* 막대 오른쪽 안내: 자물쇠와 글이 떨어지지 않게 */
+.rec-note { display: inline-flex; align-items: center; gap: var(--space-1); }
+.rec-note svg { flex: none; }
+/* 실행 기록 접기: 열림·닫힘을 화살표로 */
+.rec-runlog__head { gap: var(--space-1); list-style: none; }
+.rec-runlog__head::-webkit-details-marker { display: none; }
+.rec-runlog__head svg { transform: rotate(90deg); }
+.rec-runlog[open] .rec-runlog__head svg { transform: rotate(-90deg); }

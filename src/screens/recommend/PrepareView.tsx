@@ -113,7 +113,7 @@ export function PrepareView({ programId }: { programId: string }) {
   );
 
   if (submitted) {
-    return <div className="os">{header}<div className="os__body os__body--fill"><PrepDone /></div></div>;
+    return <div className="os">{header}<div className="os__body os__body--fill"><PrepDone when={activity?.schedule || p.when} /></div></div>;
   }
 
   const quit = <Button onClick={giveUp}>안 할래</Button>;
@@ -138,13 +138,15 @@ export function PrepareView({ programId }: { programId: string }) {
     );
     note = revising ? undefined : '고치면 초안을 바로 다시 써요';
   } else {
+    // Asana 승인처럼 이대로 신청 / 고쳐 줘 / 안 할래 셋을 한 자리에. 고쳐 줘는 초안 단계로 돌아가 고칠 칸을 연다.
     footer = (
       <>
         <Button variant="primary" disabled={!!reason} aria-describedby="prep-reason" onClick={submit}>이대로 신청</Button>
+        <Button disabled={!draftReady} onClick={() => { setStep('draft'); setRevising(true); }}>고쳐 줘</Button>
         {quit}
       </>
     );
-    note = <span id="prep-reason"><Icon name="lock" size={14} />{reason ?? '신청은 내가 누를 때만 챌린지스퀘어에서 열려요'}</span>;
+    note = <span id="prep-reason" className="rec-note"><Icon name="lock" size={14} />{reason ?? '신청은 내가 누를 때만 챌린지스퀘어에서 열려요'}</span>;
   }
 
   return (
