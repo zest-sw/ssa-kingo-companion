@@ -19,6 +19,8 @@
 .ui-btn--ghost:hover:not(:disabled) { background: var(--surface-hover); color: var(--ink); }
 .ui-btn:disabled { background: var(--grey-100); color: var(--ink-subtle); border-color: var(--line); }
 .ui-btn:focus-visible { border-radius: var(--radius-sm); }
+/* 넘어가기(>)·펼치기(⌄) 표시는 어느 화면에서나 글자 뒤에 둔다('전체 목록 >') */
+.ui-btn > svg[data-icon='chevron'], .ui-btn > svg[data-icon='down'] { order: 1; margin-right: calc(-1 * var(--space-1)); color: var(--ink-subtle); }
 
 .ui-icon-btn {
   display: inline-grid; place-items: center; width: var(--hit-min); height: var(--hit-min); flex: none;
@@ -34,6 +36,8 @@
 .ui-card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--card-head-gap); }
 .ui-card__title { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .ui-card__action { display: flex; align-items: center; gap: var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
+/* 카드 머리 오른쪽 '더 보기' 글자 버튼은 화면마다 한 모양: 작은 크기, 보조 글자색, 끝을 카드 안쪽 선에 맞춘다 */
+.ui-card__action > .ui-btn--ghost { min-height: var(--hit-min); padding: 0 var(--space-2); margin-right: calc(-1 * var(--space-2)); font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--ink-muted); }
 
 /* Chip */
 .ui-chip {
@@ -83,7 +87,7 @@
 .ui-dot { display: inline-block; width: 14px; height: 14px; border-radius: var(--radius-full); flex: none; vertical-align: middle; }
 .ui-dot--confirmed { background: var(--green-900); }
 .ui-dot--estimated { border: 1.5px dashed var(--ink-subtle); background: transparent; }
-.ui-legend { display: inline-flex; gap: var(--space-4); font-size: var(--text-xs); color: var(--ink-muted); }
+.ui-legend { display: inline-flex; gap: var(--space-1) var(--space-4); font-size: var(--text-xs); color: var(--ink-muted); }
 .ui-legend > span { display: inline-flex; align-items: center; gap: var(--space-1); }
 .ui-legend .ui-dot { width: 10px; height: 10px; }
 

@@ -40,7 +40,7 @@ export const ICON_NAMES = Object.keys(PATHS) as IconName[];
 /** 장식용 선 아이콘. 기본 16px, 선 굵기 1.5 로 통일한다. 뜻을 전해야 하면 옆에 글자를 두거나 부모에 aria-label 을 단다. */
 export function Icon({ name, size = 16 }: { name: IconName; size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false" data-icon={name}>
       {PATHS[name]}
     </svg>
   );
