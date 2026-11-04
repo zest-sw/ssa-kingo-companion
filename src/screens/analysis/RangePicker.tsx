@@ -1,5 +1,6 @@
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react';
 import { semesterLabel } from '../../domain/analysis/semester';
+import { semesterShort } from '../../domain/analysis/visual';
 
 type Which = 'from' | 'to';
 
@@ -39,22 +40,24 @@ export function RangePicker({ axis, from, to, onMove }: { axis: string[]; from: 
 
   const thumb = (which: Which, value: number, label: string) => (
     <span
-      role="slider" tabIndex={0} data-which={which} className="an-range__thumb" style={{ left: at(value) }}
+      role="slider" tabIndex={0} data-which={which} className="fl-range__thumb" style={{ left: at(value) }}
       aria-label={label} aria-valuemin={0} aria-valuemax={last} aria-valuenow={value} aria-valuetext={semesterLabel(axis[value])}
       onKeyDown={key(which, value)}
     />
   );
 
+  // 한 줄로 둔다. 그림 높이를 아끼려고 끝 학기 이름은 막대 양옆에 붙인다.
   return (
-    <div className="an-range">
-      <p className="an-range__head"><span>보는 구간</span><b>{semesterLabel(axis[from])}{from !== to && ` ~ ${semesterLabel(axis[to])}`}</b></p>
-      <div ref={track} className="an-range__track" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
-        <span className="an-range__rail" aria-hidden="true" />
-        <span className="an-range__sel" aria-hidden="true" style={{ left: at(from), width: `calc(${at(to)} - ${at(from)})` }} />
+    <div className="fl-range">
+      <p className="fl-range__head"><span>보는 구간</span><b>{semesterLabel(axis[from])}{from !== to && ` ~ ${semesterLabel(axis[to])}`}</b></p>
+      <span className="fl-range__end" aria-hidden="true">{semesterShort(axis[0])}</span>
+      <div ref={track} className="fl-range__track" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+        <span className="fl-range__rail" aria-hidden="true" />
+        <span className="fl-range__sel" aria-hidden="true" style={{ left: at(from), width: `calc(${at(to)} - ${at(from)})` }} />
         {thumb('from', from, '시작 학기')}
         {thumb('to', to, '끝 학기')}
       </div>
-      <p className="an-range__ends" aria-hidden="true"><span>{semesterLabel(axis[0])}</span><span>{semesterLabel(axis[last])}</span></p>
+      <span className="fl-range__end" aria-hidden="true">{semesterShort(axis[last])}</span>
     </div>
   );
 }
