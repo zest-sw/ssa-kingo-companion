@@ -81,8 +81,7 @@ export const EXAMPLE_VISIBILITY: Visibility = {
   profilePublic: true,
   hallOfFameConsent: false,
   hiddenActivityIds: [],
-  sharedRecordIds: ['e2', 'r-mentor'],
-  showcaseChallengeIds: ['role-swap', 'explainer']
+  sharedRecordIds: ['e2', 'r-mentor']
 };
 
 /** 예시 학생이 이미 달성한 도전 과제의 달성 시각. 들어오자마자 달성 토스트가 쏟아지지 않게 미리 둔다. */

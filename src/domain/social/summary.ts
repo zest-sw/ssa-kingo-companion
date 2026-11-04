@@ -37,9 +37,6 @@ export function hallLine(entries: { group: FieldGroup }[], mine?: FieldGroup): s
   return near ? `걸어온 길 ${entries.length}개, ${label}${josa(label, '은', '는')} ${near}개` : `걸어온 길 ${entries.length}개, ${label} 길은 아직 없어요`;
 }
 
-export type FeedKind = 'achieved' | 'hidden' | 'applied' | 'shared';
-export type FeedLike = { who: string; kind: FeedKind; subject?: string };
-
 /**
  * 비슷한 학생 줄의 이유. 예시 이유 '같은 활동 2개'는 내 활동이 없으면 사실이 아니라서, 그 학생이 한 분야로 바꿔 말한다.
  * ponytail: 같은 활동 수는 예시 값이다. 친구 연동이 생기면 내 활동과 실제로 겹친 수를 센다.

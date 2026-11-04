@@ -77,7 +77,7 @@ export type Action =
   | { type: 'undo'; patch: Partial<AppState> }
   | { type: 'reset' };
 
-export const DEFAULT_VISIBILITY: Visibility = { profilePublic: false, hallOfFameConsent: false, hiddenActivityIds: [], sharedRecordIds: [], showcaseChallengeIds: [] };
+export const DEFAULT_VISIBILITY: Visibility = { profilePublic: false, hallOfFameConsent: false, hiddenActivityIds: [], sharedRecordIds: [] };
 
 export const DEFAULT_SETTINGS: Settings = { discover: true, career: true };
 export const DEFAULT_NOTIFY: NotifyPrefs = { newCandidates: true, dayBefore: true, retro: true, hour: 9 };

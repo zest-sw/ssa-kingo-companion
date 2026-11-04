@@ -19,8 +19,3 @@ export const isInProgress = (r: ChallengeResult) => !r.achieved && !r.def.hidden
 export const newlyAchieved = <T extends ChallengeDef>(results: ChallengeResult<T>[], seen: ReadonlySet<string>) =>
   results.filter(r => r.achieved && !seen.has(r.def.id));
 
-/** 전시는 달성한 과제만 된다. 달성이 풀리거나 없는 id 는 목록에서 거른다. */
-export const showcaseable = (results: ChallengeResult[], ids: string[]) => {
-  const ok = new Set(results.filter(r => r.achieved).map(r => r.def.id));
-  return ids.filter(id => ok.has(id));
-};

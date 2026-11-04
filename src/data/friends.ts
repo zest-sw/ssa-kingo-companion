@@ -1,6 +1,5 @@
 import type { Field } from '../domain/types';
 import type { RecruitPost } from '../domain/social';
-import type { FeedLike } from '../domain/social/summary';
 import type { PathStep } from '../domain/social/path';
 
 // 친구·모집·명예의 전당 예시 데이터. 이름은 모두 지어낸 가공 이름이다(실제 인물 아님). 친구끼리 비교하거나 순위를 매기는 값은 두지 않는다.
@@ -27,24 +26,14 @@ export const FRIENDS: Peer[] = [
 /** 나에게 온 친구 요청 */
 export const INCOMING: Peer[] = [{ id: 'req-a', name: '하람', dept: '미디어커뮤니케이션학과', year: 2, note: '같은 활동 1개', field: 'research' }];
 
-/** 응원은 눌렀는지만 남는다. 응원 수는 세지도 보여 주지도 않는다(숫자 경쟁 없음) */
-export type FeedItem = FeedLike & { id: string; friendId: string };
-export const FEED: FeedItem[] = [
-  { id: 'feed-a', friendId: 'friend-c', who: '서윤', kind: 'shared', subject: '서비스 리서치 크루' },
-  { id: 'feed-b', friendId: 'friend-a', who: '다온', kind: 'achieved', subject: '세 갈래 길' },
-  { id: 'feed-c', friendId: 'friend-b', who: '지후', kind: 'hidden' },
-  { id: 'feed-d', friendId: 'friend-f', who: '태율', kind: 'applied', subject: '교내 UX 개선 공모전' },
-  { id: 'feed-e', friendId: 'friend-a', who: '다온', kind: 'applied', subject: 'AI 데이터 분석 경진대회' }
-];
-
-/** 친구 프로필 서랍에 보일 것: 친구가 전시한 도전 과제(id)와 한 활동 하나. 친구가 공개한 것만 예시로 둔다 */
-export const FRIEND_PROFILES: Record<string, { showcase: string[]; activity: { title: string; field: Field } }> = {
-  'friend-a': { showcase: ['first-retro', 'three-paths'], activity: { title: 'AI 프로젝트 학회', field: 'ai' } },
-  'friend-b': { showcase: ['first-retro', 'explainer'], activity: { title: '리서치 스터디', field: 'research' } },
-  'friend-c': { showcase: ['first-retro'], activity: { title: '서비스 리서치 크루', field: 'research' } },
-  'friend-d': { showcase: ['explainer', 'role-swap'], activity: { title: '앱 개발 동아리 프로젝트', field: 'dev' } },
-  'friend-e': { showcase: ['first-places'], activity: { title: '글로벌 버디 · 교환학생 도우미', field: 'global' } },
-  'friend-f': { showcase: ['three-paths'], activity: { title: '교내 디자인 해커톤', field: 'product' } }
+/** 친구 프로필 서랍에 보일 것: 친구가 공개한 한 활동 하나 */
+export const FRIEND_PROFILES: Record<string, { activity: { title: string; field: Field } }> = {
+  'friend-a': { activity: { title: 'AI 프로젝트 학회', field: 'ai' } },
+  'friend-b': { activity: { title: '리서치 스터디', field: 'research' } },
+  'friend-c': { activity: { title: '서비스 리서치 크루', field: 'research' } },
+  'friend-d': { activity: { title: '앱 개발 동아리 프로젝트', field: 'dev' } },
+  'friend-e': { activity: { title: '글로벌 버디 · 교환학생 도우미', field: 'global' } },
+  'friend-f': { activity: { title: '교내 디자인 해커톤', field: 'product' } }
 };
 
 /** 활동 경로를 공개한(또는 하지 않은) 선배. path 가 있는 선배만 '경로 따라 보기' 서랍이 열린다 */

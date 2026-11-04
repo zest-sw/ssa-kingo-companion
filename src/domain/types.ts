@@ -108,8 +108,6 @@ export type Visibility = {
   hiddenActivityIds: string[];
   /** 공개할 회고(기록 id) */
   sharedRecordIds: string[];
-  /** 전시할 도전 과제 id */
-  showcaseChallengeIds: string[];
 };
 
 export type PrepItem = {
