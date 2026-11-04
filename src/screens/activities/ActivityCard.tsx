@@ -30,7 +30,7 @@ export function ActivityCard({ a, onOpen }: { a: Activity; onOpen: (id: string) 
       </h3>
       <p className="act-card__meta"><ActivityMeta a={a} /></p>
       {a.prep && <ProgressBar value={a.prep.done} max={a.prep.total} label={`${a.title} 준비`} />}
-      {a.status === 'ended' && <div className="act-card__cta"><Button variant="primary" size="sm" onClick={() => goInterview(a.id)}>회고 쓰기</Button></div>}
+      {a.status === 'ended' && <div className="act-card__cta"><Button size="sm" onClick={() => goInterview(a.id)}>회고 쓰기</Button></div>}
     </article>
   );
 }

@@ -39,7 +39,7 @@ export function ListView({ activities, onOpen }: { activities: Activity[]; onOpe
                 <td><StatusBadge status={a.status} /></td>
                 <td className="act-table__meta"><DueCell due={a.due} /></td>
                 <td className="act-table__meta">{a.schedule}</td>
-                <td className="act-table__act">{a.status === 'ended' && <Button size="sm" variant="primary" onClick={() => goInterview(a.id)}>회고 쓰기</Button>}</td>
+                <td className="act-table__act">{a.status === 'ended' && <Button size="sm" onClick={() => goInterview(a.id)}>회고 쓰기</Button>}</td>
               </tr>
             ))}
           </tbody>
