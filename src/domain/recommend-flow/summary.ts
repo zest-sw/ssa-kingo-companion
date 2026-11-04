@@ -80,3 +80,22 @@ export function semesterTag(bars: SemesterBar[]): string {
 /** 추천을 어떻게 골랐는지 한 줄. 누르면 깔때기 그림이 서랍으로 열린다. */
 export const pickingLine = (f: Funnel): string =>
   f.pool === 0 ? '이번 주에 모집 중인 활동이 아직 없어요.' : `후보 ${f.pool}개 중 마감·대상·시간을 맞춘 ${f.fit}개예요.`;
+
+/**
+ * 홈 '에이전트가 해 둔 일' 한 줄. 학생이 묻기 전에 에이전트가 모집글을 읽고 걸러 둔 결과와, 준비 중인 활동에서 대신 해 둔 일(대상 확인·일정 등록)을 센다.
+ * 읽은 모집글이 없으면 보여 줄 게 없어 undefined.
+ */
+export function agentLine(f: Funnel, activities: Activity[]): string | undefined {
+  if (f.pool === 0) return undefined;
+  const picked = `모집글 ${f.pool}개를 읽고 ${f.fit}개를 골라 뒀어요`;
+  const prepped = activities.filter(a => a.status === 'preparing' && a.prepItems?.some(i => i.by === 'agent' && i.done)).length;
+  return prepped > 0 ? `${picked} · 신청 준비 ${prepped}개 챙기는 중` : picked;
+}
+
+/** 쌓이는 숫자 한 줄(연속 기록 대신, 줄어들지 않는다): '이번 학기 활동 4개 · 회고 3개'. 활동이 없으면 undefined. */
+export function semesterTally(activities: Activity[]): string | undefined {
+  const n = activities.filter(isSemesterActivity).length;
+  if (n === 0) return undefined;
+  const retro = activities.filter(a => a.status === 'recorded').length;
+  return `이번 학기 활동 ${n}개 · 회고 ${retro}개`;
+}
