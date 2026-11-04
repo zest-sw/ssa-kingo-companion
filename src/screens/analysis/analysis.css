@@ -12,7 +12,6 @@
   --an-row-gap: var(--space-5);
   --an-cand-h: var(--space-12);
   --an-disc-min: 380px;
-  --an-map-max-h: 560px;
   --an-side-w: 320px;
   --an-sem-w: 104px;
   --an-track-h: var(--hit-min);
@@ -98,27 +97,6 @@
 .an-disc__evidence { display: flex; flex-wrap: wrap; gap: var(--space-1); }
 .an-disc__actions { display: flex; gap: var(--space-2); margin-top: auto; }
 
-/* 경험 지도 */
-/* 지도는 제 크기로 그린다(글자를 줄이지 않는다). 높이가 모자라면 이 칸 안에서만 세로로 스크롤한다 */
-.an-mapbox { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; }
-.an-map { display: block; width: 100%; height: auto; margin: 0 auto; }
-.an-map__col { fill: var(--ink-muted); font-size: var(--text-sm); }
-.an-map__row { fill: var(--ink); font-size: var(--text-sm); font-weight: var(--weight-bold); }
-.an-map__rule { stroke: var(--line); }
-.an-node, .an-edge { cursor: pointer; }
-.an-node__hit, .an-edge__hit { fill: transparent; stroke: transparent; stroke-width: 18; }
-.an-node__dot { fill: var(--fill); stroke: var(--surface); stroke-width: 1.5; }
-.an-g--other .an-node__dot { stroke: var(--grey-500); }
-.an-node__label { fill: var(--ink); font-size: var(--text-xs); paint-order: stroke; stroke: var(--surface); stroke-width: var(--an-halo); stroke-linejoin: round; }
-.an-node.is-picked .an-node__dot { stroke: var(--ink-strong); stroke-width: 2; }
-.an-edge__line { fill: none; stroke-linecap: butt; }
-.an-edge__line--est { stroke: var(--ink-subtle); stroke-width: 1.5; stroke-dasharray: 5 5; }
-.an-edge__line--yes { stroke: var(--green-900); stroke-width: 2; }
-.an-edge.is-picked .an-edge__line { stroke: var(--ink-strong); }
-.an-node:focus-visible, .an-edge:focus-visible { box-shadow: none; }
-.an-node:focus-visible .an-node__dot { stroke: var(--focus); stroke-width: 4; }
-.an-edge:focus-visible .an-edge__line { stroke: var(--focus); stroke-width: 4; }
-.an-edgerow { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--surface); }
 .an-answer { display: inline-flex; gap: var(--space-2); }
 .an-edgewhy { font-size: var(--text-md); font-weight: var(--weight-bold); }
 .an-edgestate { margin: var(--space-2) 0 var(--space-5); }
@@ -176,13 +154,6 @@
 .an-board .ui-sum__value { display: none; }
 
 /* 경험 지도 그림 */
-.an-mp { display: block; height: auto; }
-.an-mp__node { fill: var(--c); }
-.an-g--other .an-mp__node { fill: var(--grey-500); }
-.an-mp__label { fill: var(--ink); font-size: var(--text-xs); paint-order: stroke; stroke: var(--surface); stroke-width: var(--an-halo); stroke-linejoin: round; }
-.an-mp__sem { fill: var(--ink-subtle); font-size: var(--text-xs); }
-.an-mp__edge { stroke: var(--ink-subtle); stroke-width: var(--an-line-w-thin); stroke-dasharray: 2 4; stroke-linecap: round; opacity: 0.7; }
-.an-mp__edge--yes { stroke: var(--green-900); stroke-dasharray: none; stroke-width: var(--an-line-w); opacity: 1; }
 
 /* 관심 흐름 그림 */
 .an-fp { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; }
@@ -252,8 +223,6 @@
 .an-swhen__sem { color: var(--ink-muted); font-size: var(--text-xs); }
 
 
-.an-mp { width: 100%; }
 
 .an-swhen__dot.an-g--other:not(.is-est), .an-g--other > .an-swhen__dot { border: var(--an-line-w-thin) solid var(--c); }
 .an-kw.is-est { color: var(--ink-muted); text-decoration: underline dashed var(--ink-subtle); text-underline-offset: var(--space-1); }
-.an-maphead { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; justify-content: flex-end; }

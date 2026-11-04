@@ -1,0 +1,130 @@
+/* 경험 지도(v1.9 지식 그래프)와 요약 판의 작은 그림. 클래스는 xg-(지도), xm-(작은 그림)로 시작한다.
+   색·간격·글자는 토큰만 쓴다. 처음엔 옅게, 강조한 부분만 진하게. */
+:root {
+  --xg-side-w: 288px;
+  /* 카드가 본문 남은 높이를 다 쓰게 하는 바람 높이. 본문 칸이 이 값을 남은 높이로 줄인다 */
+  --xg-want-h: 2000px;
+  --xg-hull-round: 16px;
+  --xg-dim: 0.18;
+  --xg-line: 1px;
+  --xg-line-hot: 2px;
+  --xm-hub-r: 9px;
+}
+
+.xg-card { min-height: 0; }
+.xg-body { flex: 1 1 var(--xg-want-h); min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) var(--xg-side-w); gap: var(--space-4); }
+.xg-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+/* 그래프 칸: 남은 높이를 채운다. 다 못 넣으면 이 칸 안에서만 세로 스크롤 */
+.xg-stage { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+.xg { display: block; }
+.xg-note { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); }
+
+/* 묶음 영역: 옅은 바탕. 둥근 이음으로 모서리를 부드럽게 */
+.xg-hull { fill: var(--grey-100); stroke: var(--grey-100); stroke-width: var(--xg-hull-round); stroke-linejoin: round; transition: opacity 0.15s; }
+.xg-hull.is-picked { fill: var(--green-100); stroke: var(--green-100); }
+.xg .xg-hull.is-dim { opacity: 0.5; }
+
+/* 선: 처음엔 옅게. 확인한 근거는 실선, AI 추정은 점선 */
+.xg-edge__line { fill: none; stroke: var(--line-strong); stroke-width: var(--xg-line); transition: opacity 0.15s; }
+.xg-edge--yes .xg-edge__line { stroke: var(--grey-500); }
+.xg-edge--est .xg-edge__line { stroke-dasharray: 4 3; }
+.xg-edge.is-hot .xg-edge__line { stroke: var(--ink-muted); stroke-width: var(--an-line-w-thin); }
+.xg-edge--yes.is-hot .xg-edge__line { stroke: var(--green-900); stroke-width: var(--xg-line-hot); }
+.xg-edge.is-dim { opacity: var(--xg-dim); }
+.xg-edge__hit { stroke: transparent; stroke-width: 14; }
+.xg-edge--press { cursor: pointer; }
+.xg-edge--press:focus-visible { box-shadow: none; }
+.xg-edge--press:focus-visible .xg-edge__line { stroke: var(--focus); stroke-width: 4; }
+.xg-arrow--base path { fill: var(--line-strong); }
+.xg-arrow--hot path { fill: var(--ink-muted); }
+.xg-arrow--yes path { fill: var(--green-900); }
+
+/* 관계 이름(근거·이어짐): 강조했을 때만 */
+.xg-rel { fill: var(--ink-muted); font-size: var(--text-xs); paint-order: stroke; stroke: var(--surface); stroke-width: var(--an-halo); stroke-linejoin: round; pointer-events: none; }
+.xg-rel.is-yes { fill: var(--green-900); font-weight: var(--weight-bold); }
+
+/* 역량 허브: 큰 남색 원, 이름은 원 안 */
+.xg-axis, .xg-rec, .xg-name { cursor: pointer; transition: opacity 0.15s; }
+.xg-axis:focus-visible, .xg-rec:focus-visible, .xg-name:focus-visible { box-shadow: none; }
+/* 허브는 옅은 남색 원 + 남색 테두리. AI·데이터 활동(채운 남색 점)과 종류가 달라 보이게 채우지 않는다 */
+.xg-axis__dot { fill: var(--navy-100); stroke: var(--navy-900); stroke-width: var(--xg-line-hot); }
+.xg-axis__label { fill: var(--navy-900); font-size: var(--text-xs); font-weight: var(--weight-bold); pointer-events: none; }
+.xg-axis.is-empty .xg-axis__dot { fill: var(--surface); stroke: var(--line-strong); stroke-dasharray: 3 2; stroke-width: 1.5; }
+.xg-axis.is-empty .xg-axis__label { fill: var(--ink-subtle); font-weight: var(--weight-medium); }
+.xg-axis:hover .xg-axis__dot { stroke-width: 3; }
+.xg-axis.is-picked .xg-axis__dot { fill: var(--navy-900); }
+.xg-axis.is-picked .xg-axis__label { fill: var(--ink-inverse); }
+.xg-axis:focus-visible .xg-axis__dot { stroke: var(--focus); stroke-width: 4; }
+
+/* 활동: 분야 색 작은 원, 이름은 아래 두 줄까지 */
+.xg-rec__hit { fill: transparent; }
+.xg-rec__dot { fill: var(--fill); stroke: var(--surface); stroke-width: 1.5; }
+.an-g--other .xg-rec__dot { stroke: var(--grey-500); }
+.xg-rec__label { fill: var(--ink); font-size: var(--text-xs); paint-order: stroke; stroke: var(--surface); stroke-width: var(--an-halo); stroke-linejoin: round; }
+.xg-rec:hover .xg-rec__dot { stroke: var(--ink-strong); stroke-width: 2; }
+.xg-rec:focus-visible .xg-rec__dot { stroke: var(--focus); stroke-width: 4; }
+.xg .is-dim { opacity: var(--xg-dim); }
+
+/* 묶음 이름표: 누르면 그 묶음 강조 */
+.xg-name__bg { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
+.xg-name__text { fill: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); pointer-events: none; }
+.xg-name:hover .xg-name__bg { stroke: var(--ink-muted); }
+.xg-name.is-picked .xg-name__bg { fill: var(--green-900); stroke: var(--green-900); }
+.xg-name.is-picked .xg-name__text { fill: var(--ink-inverse); }
+.xg .xg-name.is-dim { opacity: 0.5; }
+.xg-name:focus-visible .xg-name__bg { stroke: var(--focus); stroke-width: 3; }
+
+/* 범례 */
+.xg-legend .xg-key { display: inline-block; flex: none; border-radius: var(--radius-full); }
+.xg-key--axis { width: var(--space-4); height: var(--space-4); border: var(--xg-line-hot) solid var(--navy-900); background: var(--navy-100); }
+.xg-key--rec { width: var(--space-2); height: var(--space-2); background: var(--ink-muted); }
+
+/* 옆 칸: 묶음 목록과 고른 묶음의 분석 */
+.xg-side { min-height: 0; padding-left: var(--space-4); border-left: var(--border); }
+.xg-side__h { margin-bottom: var(--space-2); font-size: var(--text-md); font-weight: var(--weight-bold); }
+.xg-side__hint { margin-top: var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
+.xg-cls { display: flex; flex-direction: column; gap: var(--space-1); }
+.xg-cls > li.is-picked { border: var(--border); border-radius: var(--radius-md); background: var(--surface-alt); }
+.xg-cl { border: 0; display: flex; align-items: center; gap: var(--space-2); width: 100%; min-height: var(--space-10); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+.xg-cl:hover { background: var(--surface-hover); }
+.xg-cl__mark { display: inline-flex; gap: var(--an-gap-thin); min-width: calc(3 * var(--an-dot-sm) + 2 * var(--an-gap-thin)); flex: none; }
+.xg-cl__mark i { width: var(--an-dot-sm); height: var(--an-dot-sm); border-radius: var(--radius-full); background: var(--fill); }
+.xg-cl__mark i.an-g--other { border: 1px solid var(--c); }
+.xg-cls > li.is-picked .xg-cl { background: var(--green-100); }
+.xg-cl__name { flex: 1; font-size: var(--text-md); font-weight: var(--weight-bold); }
+.xg-cl__n { color: var(--ink-muted); font-size: var(--text-sm); white-space: nowrap; }
+.xg-axisnote { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); padding: var(--space-2) var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--navy-100); font-size: var(--text-sm); }
+
+.xg-in { display: flex; flex-direction: column; gap: var(--space-2); padding: 0 var(--space-3) var(--space-3); }
+.xg-in__meta { color: var(--ink-muted); font-size: var(--text-sm); }
+.xg-in__h { margin-top: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.xg-in__axes { display: flex; flex-direction: column; gap: var(--space-1); }
+.xg-in__axes li { display: grid; grid-template-columns: var(--an-sp-name-w) minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
+.xg-in__axis { font-weight: var(--weight-medium); }
+.xg-in__dots { display: flex; align-items: center; gap: var(--space-1); }
+.xg-in__dots .ui-dot { width: var(--an-dot-sm); height: var(--an-dot-sm); }
+.xg-in__more, .xg-in__count { color: var(--ink-muted); font-size: var(--text-xs); }
+.xg-in__quotes { display: flex; flex-direction: column; gap: var(--space-2); }
+.xg-in__quotes li { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-2) var(--space-3); border-left: var(--an-line-w) solid var(--green-900); background: var(--surface); font-size: var(--text-sm); }
+.xg-in__src { color: var(--ink-muted); font-size: var(--text-xs); }
+.xg-in__next { display: flex; flex-direction: column; gap: var(--space-2); }
+.xg-next { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; min-height: var(--hit-min); padding: var(--space-2) var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
+.xg-next:hover { background: var(--surface-hover); }
+.xg-next__title { font-size: var(--text-sm); }
+.xg-next__meta { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-xs); }
+
+/* 요약 판 작은 그림: 왼쪽 묶음(활동 점 + 이름), 오른쪽 역량 허브, 그 사이 근거 선 */
+.xm { display: block; width: 100%; height: auto; }
+.xm__dot { fill: var(--fill); }
+.an-g--other .xm__dot { fill: var(--grey-500); }
+.xm__name { fill: var(--ink); font-size: var(--text-xs); font-weight: var(--weight-bold); }
+.xm__n { fill: var(--ink-muted); font-size: var(--text-xs); }
+.xm__hull { fill: var(--grey-100); }
+.xm__hub { fill: var(--navy-100); stroke: var(--navy-900); stroke-width: var(--an-line-w-thin); }
+.xm__axis { fill: var(--ink); font-size: var(--text-xs); }
+.xm__edge { fill: none; stroke: var(--ink-subtle); stroke-width: var(--xg-line); stroke-dasharray: 3 3; }
+.xm__edge--yes { stroke: var(--green-900); stroke-width: var(--an-line-w-thin); stroke-dasharray: none; }
+
+@media (max-height: 759px) {
+  :root { --xg-side-w: 264px; }
+}
