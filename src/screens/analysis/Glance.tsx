@@ -9,36 +9,50 @@ import { flowBars, mapPic } from '../../domain/analysis/visual';
 import { Radar } from '../../components';
 import './strengths.css';
 import type { RecordItem } from '../../domain/types';
+import './techtree.css';
 
 // 나의 분석 요약 카드의 그림. 모든 표시는 그 학생의 기록이고, 이름표는 그림 안에 직접 붙인다.
 // 카드 전체가 링크라서 여기에는 누르는 요소를 두지 않는다.
 
-const KIND_CLASS = { done: 'is-done', ongoing: 'is-ongoing', candidate: 'is-candidate' } as const;
+const KIND_CLASS = { done: 'is-done', ongoing: 'is-ongoing', skipped: 'is-skipped', candidate: 'is-candidate' } as const;
 
-/** 단계 i 의 가로 위치(%). 네 단계를 같은 간격으로 둔다. */
-const stageAt = (i: number) => `${((i + 0.5) / TREE_COLUMNS.length) * 100}%`;
+/** 단계 i 의 가로 위치(%). 세 단계(입문·중급·심화)를 같은 간격으로 둔다. */
+const stagePct = (i: number) => ((i + 0.5) / TREE_COLUMNS.length) * 100;
+const stageAt = (i: number) => `${stagePct(i)}%`;
+
+/** 시작점(0%)에서 점과 점 사이 구간. 건너뛴 단계에 닿거나 할 수 있는 활동으로 가는 구간은 회색. */
+function segments(cells: TreeGlanceRow['cells']) {
+  const out: { from: number; to: number; gray: boolean }[] = [];
+  let prev = -1;
+  cells.forEach((c, i) => {
+    if (!c) return;
+    const gray = c === 'skipped' || c === 'candidate' || (prev >= 0 && cells[prev] === 'skipped');
+    out.push({ from: prev < 0 ? 0 : stagePct(prev), to: stagePct(i), gray });
+    prev = i;
+  });
+  return out;
+}
 
 /**
- * 분야마다 짧은 가지 하나: 시작점에서 가장 뒤 단계의 점까지 선을 긋고, 단계 위치에 점을 찍는다.
- * 해 본 단계 채운 점, 하는 중 겹테두리, 후보 점선 테두리. 안 해 본 분야는 시작점이 '?'. 칸·격자 선은 그리지 않는다.
+ * 분야마다 짧은 가지 하나: 시작점에서 단계 위치의 점까지 구간을 잇는다. 가로 = 심화 수준(입문 → 심화).
+ * 한 활동 분야색 점, 하는 중 겹테두리, 건너뛴 단계 회색 점, 할 수 있는 활동 회색 점선 점. 안 해 본 분야는 시작점이 '?'.
  */
 export function TreePic({ rows }: { rows: TreeGlanceRow[] }) {
   // 기타 줄은 해 본 칸이 있을 때만 그린다(없는 줄을 그려 카드를 키우지 않는다).
   const shown = rows.filter(r => r.group !== 'other' || r.cells.some(c => c === 'done' || c === 'ongoing'));
   return (
-    <span className="an-tp" role="img" aria-label="분야별로 해 본 활동 단계 가지">
+    <span className="an-tp" role="img" aria-label="분야별로 해 본 활동의 심화 수준 가지">
       <span className="an-tp__row an-tp__row--axis">
         <span />
         <span className="an-tp__track">{TREE_COLUMNS.map((c, i) => <span key={c} className="an-tp__tick" style={{ left: stageAt(i) }}>{c}</span>)}</span>
       </span>
       {shown.map(r => {
         const unknown = !r.cells.some(c => c === 'done' || c === 'ongoing');
-        const last = r.cells.reduce((n, c, i) => (c ? i : n), -1);
         return (
           <span key={r.group} className={`an-tp__row an-g--${r.group}${unknown ? ' is-unknown' : ''}`}>
             <span className="an-tp__name">{r.label}</span>
             <span className="an-tp__track">
-              {last >= 0 && <span className="an-tp__line" style={{ width: stageAt(last) }} />}
+              {segments(r.cells).map(g => <span key={g.to} className={`an-tp__line${g.gray ? ' is-gray' : ''}`} style={{ left: `${g.from}%`, width: `${g.to - g.from}%` }} />)}
               <span className="an-tp__root">{unknown ? '?' : null}</span>
               {r.cells.map((c, i) => c && <span key={i} className={`an-tp__dot ${KIND_CLASS[c]}`} style={{ left: stageAt(i) }} />)}
             </span>
