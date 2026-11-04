@@ -151,3 +151,43 @@ export function fewLine(few: Strength[]): string {
   const none = few.filter(f => f.evidence.length === 0).map(f => f.label);
   return [next.length ? `그다음 강점: ${next.join(' · ')}` : '', none.length ? `아직 근거가 없어요: ${none.join(' · ')}` : ''].filter(Boolean).join('. ');
 }
+
+// ── 육각형 레이더: 축 6개 = 역량 6개, 값 = 근거 기록 수(점수 아님) ──
+
+/** 레이더 꼭짓점 하나. confirmed 는 학생이 확인한 근거 수, total 은 AI 추정까지 합친 근거 수 */
+export type RadarSpot = { axis: Axis; label: string; confirmed: number; total: number };
+/** 보는 시점. upTo 가 null 이면 지금까지, 아니면 그 학기(키)까지 */
+export type RadarMoment = { id: string; label: string; upTo: number | null };
+
+/** 역량 순서(AXES)대로 한 바퀴. upTo 가 있으면 그 학기까지 쓴 기록의 근거만 센다(그때의 확인 상태가 아니라 지금 확인한 것 중 그때까지 쓴 것). */
+export function radarSpots(rows: Strength[], upTo: number | null = null): RadarSpot[] {
+  const within = (e: StrengthEvidence) => upTo === null || semesterKey(e.semester) <= upTo;
+  return AXES.map(({ id, label }) => {
+    const ev = (rows.find(r => r.axis === id)?.evidence ?? []).filter(within);
+    return { axis: id, label, confirmed: ev.filter(e => e.confirmed).length, total: ev.length };
+  });
+}
+
+/** 동심 육각형 눈금: 2개 단위(바깥이 8을 넘으면 4개 단위). 바깥 눈금은 가장 많은 전체 근거 수를 덮고 최소 4 */
+export function radarScale(spots: RadarSpot[]): { max: number; ticks: number[] } {
+  const peak = Math.max(0, ...spots.map(s => s.total));
+  const step = peak > 8 ? 4 : 2;
+  const max = Math.max(4, Math.ceil(peak / step) * step);
+  return { max, ticks: Array.from({ length: max / step }, (_, i) => (i + 1) * step) };
+}
+
+/** 지난 나와 비교하는 시점: 지금 + 기록이 있는 지난 해 말(최근 두 해). 다른 학생과는 비교하지 않는다. */
+export function radarMoments(rows: Strength[]): RadarMoment[] {
+  const years = [...new Set(rows.flatMap(r => r.evidence.map(e => Number(e.semester.slice(0, 4)))).filter(y => !Number.isNaN(y)))].sort((a, b) => b - a);
+  const past = years.slice(1, 3).map(y => ({ id: `y${y}`, label: `${y}년 말`, upTo: semesterKey(`${y}-겨울`) }));
+  return [{ id: 'now', label: '지금', upTo: null }, ...past];
+}
+
+/** 처음 보여 줄 꼭짓점: 확인한 근거가 가장 많은 역량, 없으면 전체 근거가 가장 많은 역량. 근거가 하나도 없으면 null */
+export function defaultRadarAxis(rows: Strength[]): Axis | null {
+  const lead = leadStrengths(rows).rows[0];
+  return lead ? lead.axis : null;
+}
+
+/** 꼭짓점 이름표 한 줄: '확인 2 · 전체 5' */
+export const radarSub = (s: RadarSpot) => `확인 ${s.confirmed} · 전체 ${s.total}`;
