@@ -92,17 +92,22 @@ export function agentLine(f: Funnel, activities: Activity[]): string | undefined
   return prepped > 0 ? `${picked} · 신청 준비 ${prepped}개 챙기는 중` : picked;
 }
 
-/** 회고를 거친 기록인지: 학생이 답한 칸(역할·한 일·결과·배운 점·다음)이 하나라도 있으면. 회고를 건너뛴 기록(사실만)은 아니다. */
-export const hasRetro = (r: RecordItem): boolean => !!r.card && (['role', 'action', 'result', 'learned', 'next'] as const).some(k => !!r.card?.[k]?.trim());
+/**
+ * 회고를 거친 기록인지. 회고 인터뷰로 쓴 기록은 학생이 답한 칸(역할·한 일·결과·배운 점·다음)이 하나라도 있으면 그렇다.
+ * 칸 없이 메모·한마디로만 된 기록(예시 데이터, 옛 직접 입력)은 이미 회고한 것으로 본다. 회고를 건너뛰고 사실만 남긴 기록(skippedRecord)은 아니다.
+ */
+export function hasRetro(r: RecordItem): boolean {
+  if (!r.card) return !!(r.note.trim() || r.quote.trim());
+  return (['role', 'action', 'result', 'learned', 'next'] as const).some(k => !!r.card?.[k]?.trim());
+}
 
 /**
- * 쌓이는 숫자 한 줄(연속 기록 대신, 줄어들지 않는다): '이번 학기 활동 4개 · 회고 3개'. 활동이 없으면 undefined.
- * 회고는 기록됨 활동 가운데 회고를 거친 것만 센다. 기록이 연결되지 않은 기록됨 활동(예시 데이터)은 회고한 것으로 본다.
+ * 쌓이는 숫자 한 줄(연속 기록 대신, 줄어들지 않는다): '이번 학기 활동 8개 · 회고 3개'. 활동이 없으면 undefined.
+ * 회고는 이번 학기(semester) 기록 가운데 회고를 거친 것을 센다. 활동과 이어지지 않은 직접 기록도 이번 학기 것이면 센다.
  */
-export function semesterTally(activities: Activity[], records: RecordItem[]): string | undefined {
+export function semesterTally(activities: Activity[], records: RecordItem[], semester: string): string | undefined {
   const n = activities.filter(isSemesterActivity).length;
   if (n === 0) return undefined;
-  const byId = new Map(records.map(r => [r.id, r]));
-  const retro = activities.filter(a => a.status === 'recorded' && (() => { const r = a.recordId ? byId.get(a.recordId) : undefined; return !r || hasRetro(r); })()).length;
+  const retro = records.filter(r => r.semester === semester && hasRetro(r)).length;
   return `이번 학기 활동 ${n}개 · 회고 ${retro}개`;
 }
