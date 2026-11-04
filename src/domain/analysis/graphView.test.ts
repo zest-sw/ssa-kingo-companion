@@ -3,7 +3,7 @@ import { EXAMPLE_EDGE_ANSWERS, SEED_RECORDS } from '../../data/seed';
 import { buildGraph } from './graph';
 import { layoutGraph } from './graphLayout';
 import {
-  boundsOf, centerOn, clampK, clusterBounds, findNodes, fitView, keepInView, layoutBounds, lerpView, nodeBrief, nodeInv, pinLayout,
+  boundsOf, centerOn, clampK, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, lerpView, nodeBrief, nodeInv, pinLayout,
   textInv, toScreen, toWorld, zoomAt, zoomDetail, ZOOM
 } from './graphView';
 
@@ -69,7 +69,11 @@ describe('보기 계산(확대·이동)', () => {
       expect(px).toBeLessThanOrEqual(15 + 1e-9);
     }
     expect(nodeInv(0.5)).toBe(2);
-    expect(nodeInv(2)).toBe(1);
+    expect(nodeInv(1.2)).toBe(1);
+    // 확대해도 허브·점은 화면에서 1.5배까지만 커진다
+    expect(3 * nodeInv(3)).toBeCloseTo(1.5);
+    expect(dotInv(0.5)).toBe(1);
+    expect(3 * dotInv(3)).toBeCloseTo(1.5);
   });
 
   it('상자 합치기', () => {

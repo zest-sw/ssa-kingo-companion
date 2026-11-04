@@ -101,8 +101,12 @@ export function pinLayout(l: GraphLayout, g: KnowledgeGraph, pins: Record<string
 export type ZoomDetail = 'far' | 'mid' | 'near';
 export const DETAIL_AT = { mid: 0.9, near: 1.6 } as const;
 export const zoomDetail = (k: number): ZoomDetail => (k < DETAIL_AT.mid ? 'far' : k < DETAIL_AT.near ? 'mid' : 'near');
-/** 역량 허브·묶음 이름표를 거꾸로 키우는 배율: 축소해도 화면 크기는 그대로 */
-export const nodeInv = (k: number) => Math.max(1, 1 / k);
+/** 노드가 확대로 커지는 상한(화면 크기 기준 1.5배). 확대해도 원이 화면을 덮지 않고 선·이름이 들어갈 틈이 생긴다 */
+export const NODE_GROW = 1.5;
+/** 역량 허브를 거꾸로 보정하는 배율: 축소해도 화면 크기 그대로, 확대하면 1.5배까지만 */
+export const nodeInv = (k: number) => (k < 1 ? 1 / k : k > NODE_GROW ? NODE_GROW / k : 1);
+/** 활동 점 보정: 축소하면 같이 작아지고(묶음만 보이게), 확대하면 1.5배까지만 */
+export const dotInv = (k: number) => (k > NODE_GROW ? NODE_GROW / k : 1);
 /** 글자를 거꾸로 보정하는 배율. 화면 글자 = 12px × k × textInv: 축소하면 12px 그대로, 확대하면 15px 까지만 커진다 */
 export const TEXT_GROW = 1.25;
 export const textInv = (k: number) => (k < 1 ? 1 / k : k > TEXT_GROW ? TEXT_GROW / k : 1);
