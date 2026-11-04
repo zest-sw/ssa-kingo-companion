@@ -77,8 +77,11 @@ export function savedSummary(before: RecordItem[], record: RecordItem): SavedSum
   return { newDiscoveries: after.filter(d => !keys.has(d.key)), usedForRecommend: record.useForRecommend };
 }
 
-/** 인터뷰를 거치지 않은 기록(예시·직접 입력)은 메모를 '한 일', 한마디를 '배운 점'으로 보여 준다. */
-export const cardOf = (r: RecordItem): RecordCard => r.card ?? { ...(r.note && { action: r.note }), ...(r.quote && { learned: r.quote }) };
+/**
+ * 기록 카드 칸. 메모는 '한 일', 한마디는 '배운 점' 자리다. 카드에 그 칸이 비어 있으면 메모·한마디로 채운다
+ * (예시 기록처럼 역할만 카드에 있고 한 일은 메모에 있는 경우가 있어서). 인터뷰·고치기는 둘을 늘 같이 적는다.
+ */
+export const cardOf = (r: RecordItem): RecordCard => ({ ...(r.note && { action: r.note }), ...(r.quote && { learned: r.quote }), ...r.card });
 
 export type ManualInput = { id: string; title: string; note: string; quote: string; energy: Energy; date: string; semester: string };
 
