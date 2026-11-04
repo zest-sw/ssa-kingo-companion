@@ -131,3 +131,8 @@
   .home-status { gap: var(--space-2); }
   .home-title { padding: var(--space-2) 0; }
 }
+
+/* 홈에서는 알림을 머리 줄 오른쪽(비어 있는 자리)에 띄운다. 아래 가운데에 두면 상태창의 가진 것·지금 상황을 가린다 */
+body:has(.home-grid) .ui-toast-region { top: var(--main-pad-t); right: var(--main-pad-x); bottom: auto; left: auto; transform: none; }
+/* 홈의 육각형은 누르지 않는 그림이라 꼭짓점 hover 칸을 칠하지 않는다 */
+.home-stat .ui-radar__vx:hover .ui-radar__hit { fill: transparent; }

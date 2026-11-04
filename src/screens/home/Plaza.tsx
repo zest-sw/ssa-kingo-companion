@@ -1,6 +1,7 @@
 import type { MouseEvent, ReactNode } from 'react';
 import { useApp } from '../../app/AppState';
 import { hrefOf } from '../../app/router';
+import { useStory } from '../../app/useStory';
 import { Card } from '../../components';
 import { HALL, SEED_POSTS } from '../../data/friends';
 import { HALL_JOINED } from '../../data/hall';
@@ -22,6 +23,7 @@ type Door = { kind: Building; path: string; name: string; sub: string; facts: Re
 export function Plaza() {
   const { state, view } = useApp();
   const { incoming } = useFriends();
+  const { next } = useStory();
   const open = canUseSocial(state.visibility);
   const picks = view.primary ? [view.primary, ...view.alternatives] : [];
   const near = nearestDday(picks.map(s => ddayOf(s.p, state.week)));
@@ -32,7 +34,8 @@ export function Plaza() {
     {
       kind: 'board', path: 'recommend', name: '퀘스트 게시판', sub: '활동 탐색',
       facts: <>새 퀘스트 <b className="num">{view.newCount}</b>{near !== undefined && <> · 가까운 마감 <b className="num">{ddayText(near)}</b></>}</>,
-      line: view.primary ? view.primary.p.title : '관심 분야를 고르면 퀘스트가 붙어요'
+      // 추천 퀘스트 = 이야기의 다음 한 걸음(나의 분석·추천과 같은 후보)
+      line: next ? next.title : '관심 분야를 고르면 퀘스트가 붙어요'
     },
     {
       kind: 'hall', path: 'profile/hall', name: '명예의 전당', sub: '먼저 걸어온 길',

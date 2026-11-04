@@ -1,20 +1,15 @@
 import { LEVEL_NAME, levelOf } from './analysis/level';
-import { leadStrengths, type Strength } from './analysis/strengths';
 import { answerReady } from './interview/answer';
-import { josa } from './text';
 import type { Activity, FieldGroup, Program, RecordItem } from './types';
 import { FIELD_GROUP, GROUP_LABEL } from './vocab';
 
-// 홈 '상태창' 계산. 값은 모두 센 개수다(점수·레벨 아님). 화면은 이 값을 그리기만 한다.
+// 홈 '상태창' 계산. 값은 모두 센 개수다(점수·레벨 아님). 칭호는 이야기 모델(insight/story)의 정체성 문장을 쓴다.
 
 /** 가진 것: 기록 · 경험 카드(STAR 칸을 채운 기록) · 학교 확인 · 달성한 도전 과제 · 가장 깊이 간 분야 */
 export type Inventory = { records: number; cards: number; school: number; challenges: number; deepest?: string };
 
 /** 지금 상황 한 줄: 하는 중 · 이번 주 마감 · 회고 대기 */
 export type Situation = { doing: number; dueThisWeek: number; reviewWaiting: number };
-
-/** 칭호 = 정체성 가설 한 줄. estimated 면 AI 추정(점선 밑줄)이다. 근거가 없으면 empty */
-export type Title = { text: string; estimated: boolean; empty: boolean };
 
 // 면접 답변으로 꺼낼 수 있는 기록(answerReady: STAR 칸이 하나라도 있다)을 경험 카드로 센다.
 const starFilled = (r: RecordItem) => !!r.card && answerReady(r.card);
@@ -49,24 +44,6 @@ export function situationOf(activities: Activity[]): Situation {
     dueThisWeek: activities.filter(a => (a.status === 'preparing' || a.status === 'applied') && a.due && a.due.dday >= 0 && a.due.dday <= 6).length,
     reviewWaiting: activities.filter(a => a.status === 'ended').length
   };
-}
-
-/** 기록이 가장 많은 분야 묶음(기타 제외) */
-function topGroup(records: RecordItem[]): FieldGroup | undefined {
-  const n = new Map<FieldGroup, number>();
-  for (const r of records) { const g = FIELD_GROUP[r.field]; if (g !== 'other') n.set(g, (n.get(g) ?? 0) + 1); }
-  return [...n].sort((a, b) => b[1] - a[1])[0]?.[0];
-}
-
-/**
- * 칭호 한 줄: '창업·기획 길에서 협업을 쌓는 사람'. 가장 많이 간 분야 + 근거가 가장 많은 강점.
- * ponytail: 이야기 모델(buildStory 의 정체성)이 들어오면 그 문장으로 바꾼다. v23-story 병합 때.
- */
-export function titleOf(records: RecordItem[], strengths: Strength[]): Title {
-  const lead = leadStrengths(strengths).rows[0];
-  const g = topGroup(records);
-  if (!lead || !g) return { text: '아직 이야기가 시작되지 않았어요', estimated: false, empty: true };
-  return { text: `${GROUP_LABEL[g]} 길에서 ${lead.label}${josa(lead.label, '을', '를')} 쌓는 사람`, estimated: true, empty: false };
 }
 
 /** 퀘스트 게시판 문 카드 숫자: 새 퀘스트 수 · 가장 가까운 마감(D-n) */

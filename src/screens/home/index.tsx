@@ -27,7 +27,7 @@ export default function HomeScreen(_props: ScreenProps) {
         <div className="os__body home-onbwrap">
           <Onboarding
             onDone={profile => run({ type: 'profile/complete', profile, demo: false })}
-            onExample={() => run({ type: 'profile/complete', profile: EXAMPLE_PROFILE, demo: true }, { toast: '예시 프로필로 둘러보고 있어요. 프로필은 언제든 바꿀 수 있어요.' })}
+            onExample={() => run({ type: 'profile/complete', profile: EXAMPLE_PROFILE, demo: true }, { toast: '예시 학생으로 둘러보고 있어요.' })}
           />
         </div>
       </div>

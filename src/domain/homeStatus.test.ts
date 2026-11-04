@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { rec } from './fixtures.test-util';
 import { byJoined, joinedLabel, pathLine, recentJoined, wrapOffset } from './hallStage';
-import { deepestField, inventoryOf, nearestDday, situationOf, titleOf } from './homeStatus';
+import { deepestField, inventoryOf, nearestDday, situationOf } from './homeStatus';
 import type { Activity } from './types';
 
 const act = (id: string, over: Partial<Activity>): Activity => ({ id, title: id, field: 'dev', status: 'preparing', schedule: '', ...over });
@@ -27,11 +27,6 @@ describe('상태창', () => {
     expect(s).toEqual({ doing: 1, dueThisWeek: 2, reviewWaiting: 1 });
   });
 
-  it('근거가 없으면 칭호는 빈 이야기, 있으면 AI 추정 한 줄', () => {
-    expect(titleOf([], [])).toMatchObject({ empty: true, estimated: false });
-    const t = titleOf([rec('a', { field: 'startup' })], [{ axis: 'collab', label: '협업', confirmed: 0, evidence: [{ recordId: 'a', title: 'a', semester: '2026-2', group: 'plan', text: '', confirmed: false }] } as never]);
-    expect(t).toMatchObject({ text: '창업·기획 길에서 협업을 쌓는 사람', estimated: true });
-  });
 
   it('가장 가까운 마감은 지난 것을 뺀다', () => {
     expect(nearestDday([5, -1, 2])).toBe(2);
