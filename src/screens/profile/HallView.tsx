@@ -1,29 +1,16 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { Badge, Button, Card, Drawer, EmptyState, Icon, Modal, SegmentedControl } from '../../components';
-import { FIELD_GROUP, GROUP_LABEL } from '../../domain/vocab';
+import { GROUP_LABEL } from '../../domain/vocab';
 import { hallLine, myTopGroup } from '../../domain/social/summary';
 import { HALL, type HallEntry } from '../../data/friends';
+import { PathTree } from './PathTree';
 
 type Filter = 'all' | HallEntry['group'];
 const FILTERS: { id: Filter; label: string }[] = [
   { id: 'all', label: '전체' }, { id: 'ai', label: GROUP_LABEL.ai }, { id: 'dev', label: GROUP_LABEL.dev },
   { id: 'plan', label: GROUP_LABEL.plan }, { id: 'mentor', label: GROUP_LABEL.mentor }, { id: 'global', label: GROUP_LABEL.global }
 ];
-
-function Timeline({ entry }: { entry: HallEntry }) {
-  return (
-    <ol className="fr-timeline">
-      {entry.path.map(step => (
-        <li key={step.title} className="fr-timeline__item">
-          <span className={`ui-field__dot ui-field__dot--${FIELD_GROUP[step.field]}`} aria-hidden="true" />
-          <span className="fr-timeline__title">{step.title}</span>
-          <span className="fr-timeline__when num">{step.when}</span>
-        </li>
-      ))}
-    </ol>
-  );
-}
 
 export function HallView() {
   const { state, run } = useApp();
@@ -82,7 +69,7 @@ export function HallView() {
           <div className="fr-stack">
             <div className="fr-reason"><p className="fr-reason__label">선정 이유</p><p>{open.reason}</p></div>
             <p className="fr-hall__start">{open.start}</p>
-            <Timeline entry={open} />
+            <PathTree path={open.path} label={`${open.name}님이 거쳐 온 활동`} />
             {open.retro && <blockquote className="fr-quote"><span className="fr-quote__label">공개한 회고</span>{open.retro}</blockquote>}
             <p className="fr-empty">같은 길을 따라가야 하는 건 아니에요. 마음이 가는 활동 하나만 골라 봐도 돼요.</p>
           </div>

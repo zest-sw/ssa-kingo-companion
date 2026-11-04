@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Button, Card, Icon, type IconName } from '../../components';
 import { CHALLENGES } from '../../data/challenges';
 import { useFriends } from './useFriends';
+import { toggled } from '../../domain/social';
 import { initialOf } from '../../domain/social/glance';
 import type { FeedKind } from '../../domain/social/summary';
 import { feedTag } from '../../domain/social/visual';
@@ -22,7 +23,6 @@ export function FriendFeed({ footer }: { footer?: ReactNode }) {
         <ul className="pf-feed os-scroll">
           {feed.slice(0, SHOWN).map(f => {
             const on = cheered.includes(f.id);
-            const n = f.cheers + (on ? 1 : 0);
             const icon = CHALLENGES.find(c => c.name === f.subject)?.icon ?? KIND_ICON[f.kind];
             return (
               <li key={f.id} className="pf-feed__row">
@@ -31,7 +31,8 @@ export function FriendFeed({ footer }: { footer?: ReactNode }) {
                   <span className="pf-feed__badge" aria-hidden="true"><Icon name={icon} size={18} /></span>
                   <span className="pf-feed__text"><b>{f.who}</b><span>{feedTag(f.kind, f.subject)}</span></span>
                 </button>
-                <Button size="sm" aria-pressed={on} onClick={() => setCheered(c => (on ? c.filter(x => x !== f.id) : [...c, f.id]))}>응원{n > 0 ? ` ${n}` : '하기'}</Button>
+                {/* 응원은 보냈는지만 보인다. 몇 명이 응원했는지는 세지 않는다(숫자 경쟁 없음). */}
+                <Button size="sm" icon={on ? 'check' : undefined} aria-pressed={on} aria-label={`${f.who} 님 응원`} className="pf-cheer" onClick={() => setCheered(c => toggled(c, f.id))}>{on ? '응원함' : '응원하기'}</Button>
               </li>
             );
           })}

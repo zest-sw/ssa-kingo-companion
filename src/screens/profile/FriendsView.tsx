@@ -2,10 +2,22 @@ import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { Badge, Button, Card, useToast } from '../../components';
 import { friendsLine } from '../../domain/social/summary';
-import { DONE_BY, SIMILAR_PEERS, type Peer } from '../../data/friends';
+import { canFollow } from '../../domain/social/path';
+import { DONE_BY, SENIORS, SIMILAR_PEERS, type DoneByPerson, type Peer } from '../../data/friends';
+import { FriendDrawer } from './FriendDrawer';
+import { SeniorDrawer } from './SeniorDrawer';
 import { useFriends } from './useFriends';
 
 const Avatar = ({ name }: { name: string }) => <span className="fr-avatar" aria-hidden="true">{name.slice(0, 1)}</span>;
+
+/** 친구는 친구 프로필 서랍, 경로를 공개한 선배는 경로 서랍을 연다. 공개하지 않은 선배는 이름만. */
+function DoneByChip({ person: p, onFriend, onSenior }: { person: DoneByPerson; onFriend: (id: string) => void; onSenior: (id: string) => void }) {
+  const senior = p.seniorId ? SENIORS[p.seniorId] : undefined;
+  const open = p.friendId ? () => onFriend(p.friendId!) : senior && canFollow(senior) ? () => onSenior(senior.id) : undefined;
+  const text = <><b>{p.name}</b><span>{p.label}</span></>;
+  if (!open) return <span className="fr-who fr-who--closed" title="경로를 공개하지 않았어요">{text}<span className="fr-who__note">경로 비공개</span></span>;
+  return <button type="button" className="fr-who" aria-haspopup="dialog" onClick={open}>{text}</button>;
+}
 /** 친구 칸에 처음 보이는 친구 수. 받은 요청과 합쳐 덩어리 안 항목이 5개를 넘지 않게 하고, 나머지는 '더 보기'로 연다 */
 const FRIENDS_SHOWN = 4;
 const peerLine =(p: Peer) => `${p.dept} ${p.year}학년 · ${p.note}`;
@@ -19,6 +31,8 @@ export function FriendsView() {
   const [incoming, setIncoming] = useState<Peer[]>(start.incoming);
   const [sent, setSent] = useState<string[]>([]);
   const [allFriends, setAllFriends] = useState(false);
+  const [friend, setFriend] = useState<string | null>(null);
+  const [senior, setSenior] = useState<string | null>(null);
   const mine = new Set(state.activities.map(a => a.title));
   const doneBy = DONE_BY.filter(d => mine.has(d.activityTitle));
 
@@ -78,18 +92,25 @@ export function FriendsView() {
       <div className="fr-col-side fr-stack">
         <Card padding="md" title="이 활동을 해 본 친구·선배">
           {doneBy.length ? (
-            <ul className="fr-people">
-              {doneBy.map(d => (
-                <li key={d.activityTitle} className="fr-doneby">
-                  <p className="fr-person__name">{d.activityTitle}</p>
-                  <p className="fr-person__sub">{d.people.map(p => `${p.name} · ${p.label}`).join(', ')}</p>
-                </li>
-              ))}
-            </ul>
+            <>
+              <p className="fr-empty">이름을 누르면 공개한 경로를 따라 볼 수 있어요.</p>
+              <ul className="fr-people">
+                {doneBy.map(d => (
+                  <li key={d.activityTitle} className="fr-doneby">
+                    <p className="fr-person__name">{d.activityTitle}</p>
+                    <ul className="fr-doneby__people">
+                      {d.people.map(p => <li key={p.name}><DoneByChip person={p} onFriend={setFriend} onSenior={setSenior} /></li>)}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </>
           ) : <p className="fr-empty">내 활동을 해 본 사람이 아직 없어요. 활동을 추가하면 찾아 줘요.</p>}
         </Card>
       </div>
     </div>
+    <FriendDrawer friendId={friend} onClose={() => setFriend(null)} />
+    <SeniorDrawer seniorId={senior} onClose={() => setSenior(null)} />
     </>
   );
 }
