@@ -97,6 +97,19 @@ export function pinLayout(l: GraphLayout, g: KnowledgeGraph, pins: Record<string
   return { ...l, pos, boxes, hulls };
 }
 
+/**
+ * 노드·이름 상자를 제 자리(점·이름 가운데) 기준으로 scaleOf(id) 배 줄이거나 키운다.
+ * 확대하면 글자·점이 거꾸로 보정돼 작게 그려지므로, 관계 이름 자리를 찾을 때 실제 크기의 상자로 본다.
+ */
+export function scaleBoxes(l: GraphLayout, scaleOf: (id: string) => number): GraphLayout {
+  const boxes: GraphLayout['boxes'] = {};
+  for (const [id, b] of Object.entries(l.boxes)) {
+    const s = scaleOf(id), c = l.pos[id];
+    boxes[id] = s === 1 || !c ? b : { x: c.x + (b.x - c.x) * s, y: c.y + (b.y - c.y) * s, w: b.w * s, h: b.h * s };
+  }
+  return { ...l, boxes };
+}
+
 /** 의미 기반 확대 단계. far: 묶음·역량만, mid: 활동 이름까지(처음 배치 그대로), near: 활동마다의 근거 선과 관계 이름까지 */
 export type ZoomDetail = 'far' | 'mid' | 'near';
 export const DETAIL_AT = { mid: 0.9, near: 1.6 } as const;

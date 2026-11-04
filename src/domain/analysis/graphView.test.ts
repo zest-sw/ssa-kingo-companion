@@ -3,7 +3,7 @@ import { EXAMPLE_EDGE_ANSWERS, SEED_RECORDS } from '../../data/seed';
 import { buildGraph } from './graph';
 import { layoutGraph } from './graphLayout';
 import {
-  boundsOf, centerOn, clampK, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, lerpView, nodeBrief, nodeInv, pinLayout,
+  boundsOf, centerOn, clampK, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, lerpView, nodeBrief, nodeInv, pinLayout, scaleBoxes,
   textInv, toScreen, toWorld, zoomAt, zoomDetail, ZOOM
 } from './graphView';
 
@@ -108,6 +108,14 @@ describe('그래프 위 계산(끌기·찾기·요약)', () => {
     expect(Math.max(...p.hulls[c.id].map(q => q.x))).toBeGreaterThan(to.x);
     for (const other of g.clusters.slice(1)) expect(p.hulls[other.id]).toBe(l.hulls[other.id]);
     expect(l.pos[id]).not.toEqual(to);
+  });
+
+  it('상자 줄이기: 제 자리 기준으로 줄고, 1배면 그대로', () => {
+    const id = g.clusters[0].recordIds[0];
+    const s = scaleBoxes(l, () => 0.5);
+    expect(s.boxes[id].w).toBeCloseTo(l.boxes[id].w / 2);
+    expect(s.boxes[id].x + s.boxes[id].w / 2).toBeCloseTo(l.pos[id].x + (l.boxes[id].x + l.boxes[id].w / 2 - l.pos[id].x) / 2);
+    expect(scaleBoxes(l, () => 1).boxes[id]).toBe(l.boxes[id]);
   });
 
   it('찾기: 이름 일부, 띄어쓰기·대소문자 무시, 활동이 역량보다 먼저', () => {

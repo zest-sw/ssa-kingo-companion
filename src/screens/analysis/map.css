@@ -84,6 +84,10 @@
 .xg-edge--yes.is-hot .xg-edge__line { stroke: var(--green-900); stroke-width: var(--xg-line-hot); }
 .xg-edge.is-dim { opacity: var(--xg-dim); }
 .xg-edge__hit { stroke: transparent; stroke-width: 14; }
+/* 마우스를 올린 근거 선: 그 선에만 '근거' 이름표가 붙는다 */
+.xg-edge.is-over { opacity: 1; }
+.xg-edge.is-over .xg-edge__line { stroke: var(--ink-muted); stroke-width: var(--xg-line-hot); }
+.xg-edge--yes.is-over .xg-edge__line { stroke: var(--green-900); }
 .xg-edge--press { cursor: pointer; }
 .xg-edge--press:focus-visible { box-shadow: none; }
 .xg-edge--press:focus-visible .xg-edge__line { stroke: var(--focus); stroke-width: 4; }

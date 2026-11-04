@@ -3,7 +3,7 @@ import { useZoomPan, ZoomIcon, ZoomPanBar } from '../../components';
 import { RELATION_LABEL, clusterLinks, focusSet, hubTags, type GraphEdge, type GraphFocus, type GraphNode, type KnowledgeGraph, type RecordNode } from '../../domain/analysis/graph';
 import { GRAPH_METRICS as M, hullExit, layoutGraph, placeEdgeLabels, placeHubTags, radiusOf, trimSegment, type GraphLayout, type Pt } from '../../domain/analysis/graphLayout';
 import {
-  centerOn, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, nodeBrief, nodeInv, pinLayout, textInv, toScreen, zoomDetail, ZOOM, type View
+  centerOn, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, nodeBrief, nodeInv, pinLayout, scaleBoxes, textInv, toScreen, zoomDetail, ZOOM, type View
 } from '../../domain/analysis/graphView';
 
 /** 두 번 누르거나 Enter: 활동은 기록 서랍, 역량은 근거 서랍, 이어짐 선은 맞는지 답하기 */
@@ -69,6 +69,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
   const content = useRef<SVGGElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<string | null>(null);
+  const [hoverEdge, setHoverEdge] = useState<string | null>(null);
   const live = useRef({ layout, base, frame, bounds: layoutBounds(layout), hover });
   live.current = { layout, base, frame, bounds: live.current.layout === layout ? live.current.bounds : layoutBounds(layout), hover };
   const dragFrom = useRef<Pt | null>(null);
@@ -144,12 +145,17 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
   const active: GraphFocus | null = zp.dragging ? { kind: 'node', id: zp.dragging.slice(5) } : hover ? { kind: 'node', id: hover } : selected;
   const hot = useMemo(() => focusSet(graph, active), [graph, active?.kind, active?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const drawn = useMemo(() => graph.edges.filter(e => e.kind === 'follow' || detail === 'near' || hot?.edges.has(e.id)), [graph, detail, hot]);
-  // 관계 이름: 확대(near)하면 그린 선 모두(강조한 게 있으면 그 선만), 아니면 강조한 이어짐 선만. 자리가 없으면 생략(겹쳐 그리지 않는다)
+  // 관계 이름. '근거'는 허브 옆 '근거 n' 한 번이 기본이고, 선마다는 그 선이나 그 활동에 마우스를 올렸을 때만.
+  // '이어짐'은 강조했을 때, 확대(near)하면 늘. 자리가 없으면 생략(겹쳐 그리지 않는다)
   const relEdges = useMemo(
-    () => drawn.filter(e => (hot ? hot.edges.has(e.id) && (detail === 'near' || e.kind === 'follow') : detail === 'near')),
-    [drawn, detail, hot]
+    () => drawn.filter(e => (e.kind === 'follow'
+      ? (hot ? hot.edges.has(e.id) : detail === 'near')
+      : e.id === hoverEdge || (!!hover && !hover.startsWith('ax:') && e.from === hover))),
+    [drawn, detail, hot, hover, hoverEdge]
   );
-  const relPos = useMemo(() => placeEdgeLabels(relEdges.map(e => ({ id: e.id, from: e.from, to: e.to, label: RELATION_LABEL[e.kind] })), layout, M, 12 * tinv), [relEdges, layout, tinv]);
+  // 자리 찾기는 지금 그려진 크기의 상자로(허브는 inv, 활동·이름표는 글자 보정 tinv)
+  const drawnBoxes = useMemo(() => scaleBoxes(layout, id => (id.startsWith('ax:') ? inv : tinv)), [layout, inv, tinv]);
+  const relPos = useMemo(() => placeEdgeLabels(relEdges.map(e => ({ id: e.id, from: e.from, to: e.to, label: RELATION_LABEL[e.kind] })), drawnBoxes, M, 12 * tinv), [relEdges, drawnBoxes, tinv]);
   const tags = useMemo(() => (hot ? hubTags(graph, hot.edges) : []), [graph, hot]);
   const tagPos = useMemo(() => placeHubTags(tags, layout, { ...M, axisR: M.axisR * inv }, 12 * tinv), [tags, layout, inv, tinv]);
   const clusterName = useMemo(() => Object.fromEntries(graph.clusters.map(c => [c.id, c.name])), [graph]);
@@ -191,13 +197,15 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
     const cls = `xg-edge xg-edge--${e.kind} xg-edge--${e.confirmed ? 'yes' : 'est'}${hot ? (on ? ' is-hot' : ' is-dim') : ''}${nearOnly}`;
     const marker = `url(#${mk}-${on ? (e.confirmed ? 'yes' : 'hot') : 'base'})`;
     const line = <line x1={s.a.x} y1={s.a.y} x2={s.b.x} y2={s.b.y} className="xg-edge__line" markerEnd={marker} />;
-    if (e.kind !== 'follow') return <g key={e.id} className={cls}>{line}</g>;
+    const hit = <line x1={s.a.x} y1={s.a.y} x2={s.b.x} y2={s.b.y} className="xg-edge__hit" />;
+    const edgeHover = { onMouseEnter: () => setHoverEdge(e.id), onMouseLeave: () => setHoverEdge(h => (h === e.id ? null : h)) };
+    if (e.kind !== 'follow') return <g key={e.id} className={`${cls}${hoverEdge === e.id ? ' is-over' : ''}`} {...edgeHover}>{hit}{line}</g>;
     const from = nodeById.get(e.from) as RecordNode | undefined;
     const to = nodeById.get(e.to) as RecordNode | undefined;
     return (
       <g key={e.id} className={`${cls} xg-edge--press`} data-zp-id={`follow|${e.id}`} aria-label={`${from?.label}에서 ${to?.label}(으)로 이어짐, ${e.confirmed ? '확인함' : 'AI 추정'}. 맞는지 보기`}
-        {...keys(ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); onOpen({ kind: 'follow', id: e.id }); } })}>
-        <line x1={s.a.x} y1={s.a.y} x2={s.b.x} y2={s.b.y} className="xg-edge__hit" />
+        {...edgeHover} {...keys(ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); onOpen({ kind: 'follow', id: e.id }); } })}>
+        {hit}
         {line}
       </g>
     );
@@ -241,7 +249,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
           <g>{drawn.map(edgeEl)}</g>
           <g aria-hidden="true">
             {relEdges.map(e => relPos[e.id] && (
-              <text key={e.id} x={relPos[e.id].x} y={relPos[e.id].y} dy="0.35em" textAnchor="middle" className={`xg-rel${e.confirmed ? ' is-yes' : ''}${e.kind === 'evidence' ? ' xg-near-only' : ''}`}>{RELATION_LABEL[e.kind]}</text>
+              <text key={e.id} x={relPos[e.id].x} y={relPos[e.id].y} dy="0.35em" textAnchor="middle" className={`xg-rel${e.confirmed ? ' is-yes' : ''}${e.kind === 'follow' && !hot ? ' xg-near-only' : ''}`}>{RELATION_LABEL[e.kind]}</text>
             ))}
           </g>
           {graph.clusters.map(c => {
