@@ -95,3 +95,22 @@
 @media (max-width: 1199px) {
   .home-ask__form { width: auto; }
 }
+
+/* 가장 추천의 세 버튼: 주 1 + 보조 2 */
+.home-pick__go { gap: var(--space-2); flex-wrap: wrap; }
+
+/* 다른 대안: 가장 추천 아래 작은 두 줄(층 구조 A). 선 하나로 가장 추천과 나눈다 */
+.home-alt { display: flex; flex-direction: column; gap: var(--space-1); padding-top: var(--space-3); border-top: var(--border); }
+.home-alt__head { padding: 0 var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
+.home-alt__list { display: flex; flex-direction: column; }
+.home-alt__row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3); min-height: var(--hit-min); padding: 0 var(--space-2); border-radius: var(--radius-sm); color: var(--ink); text-decoration: none; font-size: var(--text-md); }
+.home-alt__row:hover { background: var(--surface-hover); }
+.home-alt__row:focus-visible { box-shadow: var(--focus-ring-inset); outline: none; }
+.home-alt__row .ui-field { order: 2; font-size: var(--text-sm); }
+.home-alt__title { order: 1; min-width: 0; font-weight: var(--weight-medium); }
+.home-alt__dday { order: 3; font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
+
+/* 에이전트가 해 둔 일: 오늘 할 일 칸 맨 아래 한 줄 */
+.home-agent { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-2); margin-top: auto; padding-top: var(--space-3); border-top: var(--border); color: var(--ink-muted); font-size: var(--text-sm); }
+.home-agent b { color: var(--ink); font-weight: var(--weight-bold); }
+.home-agent svg { flex: none; }

@@ -2,10 +2,22 @@ import { Badge, Button, Card, EmptyState, FieldTag, GhostPic, PageHeader } from 
 import { nextStep } from '../../domain/nextStep';
 import { navigate, parentLink } from '../../app/router';
 import { useApp } from '../../app/AppState';
+import { factsOf } from '../../data/activities';
+import { CURRENT_TERM } from '../../data/records';
+import { skippedRecord } from '../../domain/interview/record';
+import type { Activity } from '../../domain/types';
 
-/** 활동 없이 '회고 쓰기'를 열었을 때: 회고 대기 활동 목록 */
+/** 활동 없이 '회고 쓰기'를 열었을 때: 회고 대기 활동 목록. 회고는 건너뛰어도 확인된 사실만으로 기록이 남는다(잃는 것 없음). */
 export function Pending() {
-  const { state } = useApp();
+  const { state, run } = useApp();
+  const skip = (a: Activity) => {
+    const facts = factsOf(a);
+    const record = skippedRecord({
+      activityId: a.id, title: a.title, field: a.field, programId: a.programId, kind: facts.kind, verification: facts.verified ? 'school' : 'self',
+      date: CURRENT_TERM.date, semester: CURRENT_TERM.semester, card: facts.situation ? { situation: facts.situation } : {}
+    });
+    run({ type: 'record/add', record, activityId: a.id }, { toast: '기록만 남겼어요. 기록에서 언제든 채울 수 있어요.', undoable: true });
+  };
   const drafts = Object.keys(state.drafts);
   const list = state.activities.filter(a => a.status === 'ended');
   // 여기가 비면 끝난 활동이 없다는 뜻이라, 하는 활동이 있으면 일정, 없으면 추천으로 보낸다.
@@ -28,6 +40,7 @@ export function Pending() {
                   </div>
                   {drafts.includes(a.id) && <Badge tone="dashed">쓰던 초안 있어요</Badge>}
                   <Button variant="primary" onClick={() => navigate(`activities/records/interview/${a.id}`)}>{drafts.includes(a.id) ? '이어서 쓰기' : '회고 쓰기'}</Button>
+                  <Button variant="ghost" onClick={() => skip(a)}>기록만 남기기</Button>
                 </Card>
               </li>
             ))}

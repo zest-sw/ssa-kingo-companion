@@ -80,7 +80,7 @@ export function Overview({ actions, onOpenLater }: Props) {
     body = (
       <div className="os__body os__body--fill rec-split">
         <CandidateList list={list} currentId={current?.p.id} week={state.week} onPick={setPicked} heading={filtering ? `맞는 후보 ${list.length}개` : `후보 ${list.length}개`} />
-        {current && <CandidateCard key={current.p.id} pick={current} isPrimary={current.p.id === view.primary?.p.id} week={state.week} records={state.records} actions={actions} />}
+        {current && <CandidateCard key={current.p.id} pick={current} isPrimary={current.p.id === view.primary?.p.id} week={state.week} records={state.records} activities={state.activities} actions={actions} />}
       </div>
     );
   }

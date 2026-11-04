@@ -226,3 +226,9 @@
 
 /* 내용이 짧은 패널은 늘이지 않는다: 높이는 내용에 맞추고 행동 막대는 내용 바로 아래. 넘치면 패널 안에서만 스크롤 */
 .rec-split > .rec-pick, .os__body--fill > .ui-panel[aria-label="후보 자세히"], .os__body--fill > .ui-panel[aria-label="후보 없음"] { align-self: start; max-height: 100%; }
+
+/* 고르기 카드: 이유 줄 끝의 '자세히' 링크는 오른쪽 끝에 붙는다 */
+.rec-pick__more { flex: none; margin-left: auto; }
+.rec-pick__meta { flex-wrap: wrap; }
+/* 나중에 보기 칩: 한 줄에 세 개, 좁으면 줄을 바꾼다 */
+.rec-later__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }

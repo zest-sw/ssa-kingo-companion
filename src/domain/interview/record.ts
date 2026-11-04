@@ -57,6 +57,14 @@ export function buildRecord(i: NewRecordInput): RecordItem {
   };
 }
 
+/**
+ * 회고를 건너뛴 기록: 확인된 사실(활동명·분야·학기·상황)만 남긴다. 학생이 답한 내용이 없으니 역량 근거를 만들지 않고 추천에도 쓰지 않는다.
+ * 나중에 기록 서랍에서 칸을 채우고 '추천에 쓰기'를 켤 수 있다.
+ */
+export function skippedRecord(i: Omit<NewRecordInput, 'energy' | 'visibility' | 'useForRecommend'>): RecordItem {
+  return { ...buildRecord({ ...i, energy: 'same', visibility: 'me', useForRecommend: false }), axes: [] };
+}
+
 export type SavedSummary = {
   /** 이 기록 덕분에 새로 생긴 발견 후보. 학생이 확인하기 전에는 추천에 쓰지 않는다 */
   newDiscoveries: Discovery[];

@@ -1,5 +1,5 @@
 import { ddayText } from '../text';
-import type { Activity, FieldGroup, Funnel } from '../types';
+import type { Activity, FieldGroup, Funnel, RecordItem } from '../types';
 import { FIELD_GROUP, GROUP_LABEL, GROUP_ORDER } from '../vocab';
 import { prepareHref } from './flow';
 import { whenOffset } from './upcoming';
@@ -80,3 +80,34 @@ export function semesterTag(bars: SemesterBar[]): string {
 /** 추천을 어떻게 골랐는지 한 줄. 누르면 깔때기 그림이 서랍으로 열린다. */
 export const pickingLine = (f: Funnel): string =>
   f.pool === 0 ? '이번 주에 모집 중인 활동이 아직 없어요.' : `후보 ${f.pool}개 중 마감·대상·시간을 맞춘 ${f.fit}개예요.`;
+
+/**
+ * 홈 '에이전트가 해 둔 일' 한 줄. 학생이 묻기 전에 에이전트가 모집글을 읽고 걸러 둔 결과와, 준비 중인 활동에서 대신 해 둔 일(대상 확인·일정 등록)을 센다.
+ * 읽은 모집글이 없으면 보여 줄 게 없어 undefined.
+ */
+export function agentLine(f: Funnel, activities: Activity[]): string | undefined {
+  if (f.pool === 0) return undefined;
+  const picked = `모집글 ${f.pool}개를 읽고 ${f.fit}개를 골라 뒀어요`;
+  const prepped = activities.filter(a => a.status === 'preparing' && a.prepItems?.some(i => i.by === 'agent' && i.done)).length;
+  return prepped > 0 ? `${picked} · 신청 준비 ${prepped}개 챙기는 중` : picked;
+}
+
+/**
+ * 회고를 거친 기록인지. 회고 인터뷰로 쓴 기록은 학생이 답한 칸(역할·한 일·결과·배운 점·다음)이 하나라도 있으면 그렇다.
+ * 칸 없이 메모·한마디로만 된 기록(예시 데이터, 옛 직접 입력)은 이미 회고한 것으로 본다. 회고를 건너뛰고 사실만 남긴 기록(skippedRecord)은 아니다.
+ */
+export function hasRetro(r: RecordItem): boolean {
+  if (!r.card) return !!(r.note.trim() || r.quote.trim());
+  return (['role', 'action', 'result', 'learned', 'next'] as const).some(k => !!r.card?.[k]?.trim());
+}
+
+/**
+ * 쌓이는 숫자 한 줄(연속 기록 대신, 줄어들지 않는다): '이번 학기 활동 8개 · 회고 3개'. 활동이 없으면 undefined.
+ * 회고는 이번 학기(semester) 기록 가운데 회고를 거친 것을 센다. 활동과 이어지지 않은 직접 기록도 이번 학기 것이면 센다.
+ */
+export function semesterTally(activities: Activity[], records: RecordItem[], semester: string): string | undefined {
+  const n = activities.filter(isSemesterActivity).length;
+  if (n === 0) return undefined;
+  const retro = records.filter(r => r.semester === semester && hasRetro(r)).length;
+  return `이번 학기 활동 ${n}개 · 회고 ${retro}개`;
+}

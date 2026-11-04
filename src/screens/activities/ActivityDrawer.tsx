@@ -4,6 +4,8 @@ import { useApp } from '../../app/AppState';
 import { PROGRAM_BY_ID } from '../../data/catalog';
 import type { Activity, ActivityStatus } from '../../domain/types';
 import { STATUS_LABEL } from '../../domain/vocab';
+import { runLog } from '../../domain/recommend-flow/draft';
+import { RunLog } from '../recommend/RunLog';
 import { ActivityMeta, StatusBadge, goInterview } from './ActivityCard';
 import { canQuit, dueView } from './helpers';
 
@@ -48,6 +50,8 @@ function Facts({ a }: { a: Activity }) {
 export function ActivityDrawer({ a, onClose }: { a: Activity | undefined; onClose: () => void }) {
   const { run } = useApp();
   const go = (path: string) => { onClose(); navigate(path); };
+  // ponytail: 예시 데이터(seed)의 준비 중 활동에는 체크리스트가 없어 실행 기록이 비어 보인다. seed 를 맡은 워커가 prepItems 를 넣으면 보인다.
+  const log = a?.prepItems ? runLog(a.prepItems) : [];
   const quit = () => {
     if (!a) return;
     run({ type: 'activity/remove', id: a.id }, { toast: '활동을 그만뒀어요.', undoable: true });
@@ -74,6 +78,8 @@ export function ActivityDrawer({ a, onClose }: { a: Activity | undefined; onClos
           <Stages status={a.status} />
           <p className="act-drawer__line"><ActivityMeta a={a} /></p>
           <Facts a={a} />
+          {/* 에이전트가 이 활동에서 대신 한 일(Jira 자동화 실행 기록처럼 활동별로) */}
+          {log.length > 0 && <RunLog log={log} />}
         </div>
       )}
     </Drawer>

@@ -1,6 +1,7 @@
 import { hrefOf } from '../../app/router';
 import { Badge, Button, ErrorState, Icon, LoadingState } from '../../components';
 import { OUTSIDE_URL } from '../../data/recommend';
+import { RunLog } from './RunLog';
 import type { Draft } from '../../domain/recommend-flow/draft';
 import { canCheck, dateLabel, type PrepItem } from '../../domain/recommend-flow/flow';
 
@@ -34,18 +35,7 @@ export function TodoStep({ items, week, enabled, draftReady, urgentLine, left, l
           </li>
         ))}
       </ul>
-      <details className="rec-runlog">
-        <summary className="rec-runlog__head">에이전트가 한 일 {log.length}개</summary>
-        <ul>
-          {log.map((l, n) => (
-            <li key={n} className={l.ok ? '' : 'rec-runlog__fail'}>
-              <Icon name={l.ok ? 'check' : 'alert'} size={14} />
-              <span className="num">오늘 {l.time}</span>
-              <span>{l.text}</span>
-            </li>
-          ))}
-        </ul>
-      </details>
+      <RunLog log={log} day="오늘" />
     </>
   );
 }

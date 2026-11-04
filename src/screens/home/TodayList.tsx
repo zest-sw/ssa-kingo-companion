@@ -1,10 +1,10 @@
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
-import { Button, Card, EmptyState, GhostPic } from '../../components';
+import { Button, Card, EmptyState, GhostPic, Icon } from '../../components';
 import { MAX_TODAY_TASKS, timelineOrder, type TodayTask } from '../../domain/recommend-flow/summary';
 
 /** 오늘 할 일(오늘·내일): 가까운 날·이른 시각 순의 세로 타임라인. 3개까지 그리고 나머지는 개수만. 점 하나가 한 일이고, 이름과 무슨 일인지만 짧게 붙인다. 누르면 그 일을 하는 화면이나 서랍으로 간다. */
-export function TodayList({ tasks, fresh }: { tasks: TodayTask[]; fresh: boolean }) {
+export function TodayList({ tasks, fresh, agent }: { tasks: TodayTask[]; fresh: boolean; agent?: string }) {
   const go = (t: TodayTask) => ('path' in t.target ? navigate(t.target.path) : openEntity(t.target));
   // 고르기는 급한 순(todayTasks 순서), 그리기는 시간순.
   const shown = timelineOrder(tasks.slice(0, MAX_TODAY_TASKS));
@@ -39,6 +39,8 @@ export function TodayList({ tasks, fresh }: { tasks: TodayTask[]; fresh: boolean
         </ol>
       )}
       {more > 0 && <p className="home-more">외 {more}개 · 내 활동에서 볼 수 있어요</p>}
+      {/* 묻기 전에 먼저 챙긴 일. 할 일 칸 맨 아래 한 줄이라 덩어리를 늘리지 않는다 */}
+      {agent && <p className="home-agent"><Icon name="sparkle" size={14} /><b>에이전트가 해 둔 일</b><span>{agent}</span></p>}
     </Card>
   );
 }

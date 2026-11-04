@@ -1,6 +1,7 @@
-import { Button, Drawer, EmptyState, Modal } from '../../components';
+import { Button, Chip, Drawer, EmptyState, Modal } from '../../components';
 import { DISLIKES } from '../../data/options';
-import { dateLabel, laterDateLabel, LATER_CHOICES } from '../../domain/recommend-flow/flow';
+import { ddayOf } from '../../domain/recommend';
+import { dateLabel, laterChoices, laterDateLabel } from '../../domain/recommend-flow/flow';
 import type { DislikeKind, Program } from '../../domain/types';
 
 /** 관심 없음: 이유를 고르면 추천 규칙에 반영된다 */
@@ -21,20 +22,21 @@ export function DismissModal({ program, onPick, onClose }: { program?: Program; 
   );
 }
 
-/** 나중에 보기: 다시 볼 날을 고른다 */
+/** 나중에 보기(Linear 스누즈): 다시 볼 날을 칩으로 고른다. 마감 전에 다시 보이는 날만 나온다. */
 export function LaterModal({ week, program, onPick, onClose }: { week: number; program?: Program; onPick: (p: Program, days: number) => void; onClose: () => void }) {
+  const choices = program ? laterChoices(ddayOf(program, week)) : [];
   return (
     <Modal open={!!program} title="언제 다시 볼까요?" onClose={onClose} actions={<Button onClick={onClose}>취소</Button>}>
-      <p className="rec-dialog__sub">고른 날까지 추천에서 숨겨요.</p>
-      <ul className="rec-reasons">
-        {LATER_CHOICES.map(c => (
-          <li key={c.days}>
-            <button type="button" className="rec-reason" onClick={() => program && onPick(program, c.days)}>
-              <b>{c.label}</b><span>{dateLabel(c.days, week)}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      {choices.length === 0 ? (
+        <p className="rec-dialog__sub">마감이 가까워 미룰 수 없어요. 지금 신청 준비를 하거나 관심 없음을 골라 주세요.</p>
+      ) : (
+        <>
+          <p className="rec-dialog__sub">고른 날까지 추천에서 숨기고, 그날 다시 보여 드려요.</p>
+          <div className="rec-later__chips" role="group" aria-label="다시 볼 날">
+            {choices.map(c => <Chip key={c.days} onClick={() => program && onPick(program, c.days)}>{c.label} · {dateLabel(c.days, week)}</Chip>)}
+          </div>
+        </>
+      )}
     </Modal>
   );
 }
