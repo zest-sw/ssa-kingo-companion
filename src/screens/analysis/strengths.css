@@ -1,0 +1,24 @@
+/* 나의 강점: 왼쪽 육각형 레이더(주인공) + 오른쪽 고른 역량의 대표 근거·살릴 기회. 카드는 내용 높이 */
+.an-str-cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--os-gap); align-items: start; min-height: 0; }
+.an-str-cols > * { min-height: 0; }
+.an-shead { margin: 0 0 var(--space-2); color: var(--ink-strong); font-size: var(--text-2xl); font-weight: var(--weight-heavy); line-height: var(--leading-tight); }
+/* 확인한 근거가 없을 때의 머리 문장: AI 추정이라 점선 점과 옅은 글자로 */
+.an-shead.is-est { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-lg); font-weight: var(--weight-bold); }
+.an-rlegend { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-5); margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-xs); }
+.an-rlegend span { display: inline-flex; align-items: center; gap: var(--space-2); }
+.an-rlegend i { display: inline-block; width: var(--space-5); height: var(--space-3); box-sizing: border-box; }
+.an-rlegend .an-rlegend__own { border: 2px solid var(--navy-900); background: var(--navy-100); }
+.an-rlegend .an-rlegend__est { height: 0; border-top: 1.5px dashed var(--ink-subtle); }
+.an-rlegend .an-rlegend__trace { height: 0; border-top: 1px solid var(--ink-muted); }
+.an-rcount { margin: 0 0 var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
+.an-rev { display: flex; flex-direction: column; gap: var(--space-3); }
+.an-rev li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: start; }
+.an-rev li > .ui-dot { margin-top: var(--space-1); }
+.an-rev li > span { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.an-rev__text { font-size: var(--text-md); line-height: var(--leading-tight); }
+.an-rev__meta { color: var(--ink-muted); font-size: var(--text-xs); }
+.an-rev .is-est .an-rev__text { color: var(--ink-muted); }
+.an-rsub { margin-top: var(--space-4); font-size: var(--text-md); }
+/* 요약 판의 작은 육각형 + 키워드 */
+.an-spic { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; min-height: 0; }
+.an-spic .ui-radar { width: 112px; height: 112px; }

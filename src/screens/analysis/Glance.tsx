@@ -2,10 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { EdgeAnswers } from '../../domain/analysis/map';
 import type { FlowRow } from '../../domain/analysis/flow';
 import type { TreeGlanceRow } from '../../domain/analysis/glance';
-import type { Strength } from '../../domain/analysis/strengths';
+import { radarScale, radarSpots, radarSub, type Strength } from '../../domain/analysis/strengths';
 import { TREE_COLUMNS } from '../../domain/analysis/techtree';
 import { wrapWords } from '../../domain/analysis/wrap';
 import { flowBars, mapPic } from '../../domain/analysis/visual';
+import { Radar } from '../../components';
+import './strengths.css';
 import type { RecordItem } from '../../domain/types';
 
 // 나의 분석 요약 카드의 그림. 모든 표시는 그 학생의 기록이고, 이름표는 그림 안에 직접 붙인다.
@@ -110,23 +112,14 @@ export function FlowPic({ rows }: { rows: FlowRow[] }) {
   );
 }
 
-const STR_ROWS = 3;
-const STR_DOTS = 6;
-
-/** 근거가 많은 강점 n줄: 이름 + 근거 기록 점(기록 하나 = 점 하나, 확인 = 채운 점, AI 추정 = 점선). 점수가 아니라 실제 개수다. */
+/** 요약 판의 나의 강점: 작은 육각형(확인 = 실선+옅은 채움, AI 추정까지 = 점선). 값은 역량별 근거 기록 수다. */
 export function StrengthPic({ rows }: { rows: Strength[] }) {
-  const shown = rows.filter(r => r.evidence.length > 0).slice(0, STR_ROWS);
+  const spots = radarSpots(rows);
+  const { max, ticks } = radarScale(spots);
+  const vertices = spots.map(s => ({ key: s.axis, name: s.label, solid: s.confirmed, dashed: s.total, sub: radarSub(s) }));
   return (
-    <span className="an-sp" role="img" aria-label={shown.map(r => `${r.label} 근거 ${r.evidence.length}개`).join(', ')}>
-      {shown.map(r => (
-        <span key={r.axis} className="an-sp__row">
-          <span className="an-sp__name">{r.label}</span>
-          <span className="an-sp__dots">
-            {r.evidence.slice(0, STR_DOTS).map(e => <span key={e.recordId} className={`ui-dot ui-dot--${e.confirmed ? 'confirmed' : 'estimated'}`} />)}
-            {r.evidence.length > STR_DOTS && <span className="an-sp__more">+{r.evidence.length - STR_DOTS}</span>}
-          </span>
-        </span>
-      ))}
+    <span className="an-spic" role="img" aria-label={spots.map(s => `${s.label} 확인 ${s.confirmed}개 전체 ${s.total}개`).join(', ')}>
+      <Radar mini vertices={vertices} max={max} ticks={ticks} label="역량별 근거 기록 수" radius={52} />
     </span>
   );
 }
