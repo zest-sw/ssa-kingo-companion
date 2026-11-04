@@ -9,13 +9,13 @@ const ORDER: (keyof RecordCard)[] = ['situation', 'role', 'action', 'result', 'l
 
 const sentence = (t: string) => (/[.!?。]$/.test(t) ? t : `${t}.`);
 
-/** 칸마다 한 문장. 빈 칸은 건너뛴다. 결과 칸만 '그 결과'로 앞 문장과 잇는다(이미 '결과'로 시작하면 그대로). */
+/** 칸마다 한 문장. 빈 칸은 건너뛴다. 칸 안에 붙어 쓴 문장도 마침표 뒤를 한 칸 띄운다(3.5 같은 숫자는 그대로). 결과 칸만 '그 결과'로 앞 문장과 잇는다(이미 '결과'로 시작하면 그대로). */
 export function starAnswer(card: RecordCard): string {
   return ORDER.flatMap(k => {
     const t = card[k]?.trim();
     if (!t) return [];
     return [sentence(k === 'result' && !t.startsWith('결과') && !t.startsWith('그 결과') ? `그 결과 ${t}` : t)];
-  }).join(' ');
+  }).join(' ').replace(/([.!?。])(?=[^\s\d.!?。])/g, '$1 ').replace(/\s+/g, ' ');
 }
 
 const STAR: (keyof RecordCard)[] = ['situation', 'role', 'action', 'result'];

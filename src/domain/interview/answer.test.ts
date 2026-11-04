@@ -11,6 +11,9 @@ describe('starAnswer', () => {
     expect(starAnswer({ role: ' ', result: '결과는 3위였다' })).toBe('결과는 3위였다.');
     expect(starAnswer({})).toBe('');
   });
+  it('마침표 뒤는 늘 한 칸: 붙여 쓴 문장은 띄우고, 겹친 공백·줄바꿈은 하나로, 숫자 소수점은 그대로', () => {
+    expect(starAnswer({ action: '아이디어를 제안했다.그 뒤 발표했다.', result: '평점 3.5점,  상위권\n진출', next: '다시   해 볼래요' })).toBe('아이디어를 제안했다. 그 뒤 발표했다. 그 결과 평점 3.5점, 상위권 진출. 다시 해 볼래요.');
+  });
 });
 
 describe('answerReady', () => {
