@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { Badge, Button, Card, useToast } from '../../components';
-import { friendsLine } from '../../domain/social/summary';
+import { friendsLine, peerNote } from '../../domain/social/summary';
 import { canFollow } from '../../domain/social/path';
 import { DONE_BY, SENIORS, SIMILAR_PEERS, type DoneByPerson, type Peer } from '../../data/friends';
 import { FriendDrawer } from './FriendDrawer';
@@ -20,7 +20,7 @@ function DoneByChip({ person: p, onFriend, onSenior }: { person: DoneByPerson; o
 }
 /** 친구 칸에 처음 보이는 친구 수. 받은 요청과 합쳐 덩어리 안 항목이 5개를 넘지 않게 하고, 나머지는 '더 보기'로 연다 */
 const FRIENDS_SHOWN = 4;
-const peerLine =(p: Peer) => `${p.dept} ${p.year}학년 · ${p.note}`;
+const peerLine = (p: Peer, mine: number) => `${p.dept} ${p.year}학년 · ${peerNote(p.note, p.field, mine)}`;
 
 /** 프로필 › 친구: 받은 요청, 친구 목록, 비슷한 학생, 내 활동을 해 본 사람. 공개한 학생만 본다. */
 export function FriendsView() {
@@ -34,6 +34,8 @@ export function FriendsView() {
   const [friend, setFriend] = useState<string | null>(null);
   const [senior, setSenior] = useState<string | null>(null);
   const mine = new Set(state.activities.map(a => a.title));
+  // 신청만 하고 아직 안 한 활동은 '같은 활동'으로 세지 않는다.
+  const mineCount = state.activities.filter(a => a.status === 'ongoing' || a.status === 'ended' || a.status === 'recorded').length;
   const doneBy = DONE_BY.filter(d => mine.has(d.activityTitle));
 
   const accept = (p: Peer) => {
@@ -53,7 +55,7 @@ export function FriendsView() {
               {incoming.map(p => (
                 <li key={p.id} className="fr-person">
                   <Avatar name={p.name} />
-                  <div className="fr-person__text"><p className="fr-person__name">{p.name}</p><p className="fr-person__sub">친구 요청 · {peerLine(p)}</p></div>
+                  <div className="fr-person__text"><p className="fr-person__name">{p.name}</p><p className="fr-person__sub">친구 요청 · {peerLine(p, mineCount)}</p></div>
                   <Button size="sm" onClick={() => accept(p)}>수락</Button>
                   <Button size="sm" variant="ghost" onClick={() => setIncoming(list => list.filter(x => x.id !== p.id))}>다음에</Button>
                 </li>
@@ -63,7 +65,7 @@ export function FriendsView() {
           {friends.length ? (
             <>
               <ul className="fr-people">
-                {(allFriends ? friends : friends.slice(0, FRIENDS_SHOWN)).map(p => <li key={p.id} className="fr-person"><Avatar name={p.name} /><div className="fr-person__text"><p className="fr-person__name">{p.name}</p><p className="fr-person__sub">{peerLine(p)}</p></div></li>)}
+                {(allFriends ? friends : friends.slice(0, FRIENDS_SHOWN)).map(p => <li key={p.id} className="fr-person"><Avatar name={p.name} /><div className="fr-person__text"><p className="fr-person__name">{p.name}</p><p className="fr-person__sub">{peerLine(p, mineCount)}</p></div></li>)}
               </ul>
               {friends.length > FRIENDS_SHOWN && (
                 <Button size="sm" variant="ghost" icon={allFriends ? 'down' : 'chevron'} aria-expanded={allFriends} onClick={() => setAllFriends(v => !v)}>
@@ -71,7 +73,7 @@ export function FriendsView() {
                 </Button>
               )}
             </>
-          ) : <p className="fr-empty">아직 친구가 없어요. 비슷한 친구에게 신청해 보세요.</p>}
+          ) : <p className="fr-empty">친구 신청을 받아 주면 여기에 모여요.</p>}
         </Card>
 
         <Card padding="md" title="나와 비슷한 친구">
@@ -79,7 +81,7 @@ export function FriendsView() {
             {SIMILAR_PEERS.map(p => (
               <li key={p.id} className="fr-person">
                 <Avatar name={p.name} />
-                <div className="fr-person__text"><p className="fr-person__name">{p.name}</p><p className="fr-person__sub">{peerLine(p)}</p></div>
+                <div className="fr-person__text"><p className="fr-person__name">{p.name}</p><p className="fr-person__sub">{peerLine(p, mineCount)}</p></div>
                 {sent.includes(p.id)
                   ? <Badge tone="neutral">요청 보냄</Badge>
                   : <Button size="sm" onClick={() => { setSent(s => [...s, p.id]); toast(`${p.name}님에게 친구 요청을 보냈어요.`); }}>친구 신청</Button>}
