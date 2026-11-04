@@ -5,7 +5,7 @@ import type { Axis, FieldGroup } from '../types';
 // 정체성 문장 틀: '<묶음이 하는 일> <강점이 하는 일> 쪽으로 자라고 있어요'.
 // 앞 조각은 '~하고/~하며'로 끝나는 동사구, 뒤 조각은 '~하는'으로 끝나는 관형구라서 어떤 짝을 붙여도 조사가 어긋나지 않는다.
 
-/** 활동 묶음(graph.ts 의 묶음 id)이 하는 일 */
+/** 활동 묶음이 하는 일. 키는 사전 주제 id(data/kgTaxonomy, 묶음의 topic) */
 export const CLUSTER_DOING: Record<string, string> = {
   research: '사용자 이야기를 듣고',
   plan: '서비스를 그려 보며',

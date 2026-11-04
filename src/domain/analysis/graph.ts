@@ -1,122 +1,73 @@
-import type { Axis, Did, Field, FieldGroup, Program, RecordItem } from '../types';
-import { AXES, FIELD_GROUP, GROUP_LABEL } from '../vocab';
-import { buildMap, edgeState, type EdgeAnswers } from './map';
+import type { Axis, FieldGroup, Program, RecordItem } from '../types';
+import { AXES, FIELD_GROUP } from '../vocab';
+import { analyzeKg, type KgAnalysis } from '../kg/analyze';
+import { buildKg, pairWhy, type Kg, type KgOrigin } from '../kg/build';
+import type { NameSource } from '../kg/labels';
+import { mockLlm, type LlmProvider } from '../kg/llm';
+import type { EdgeAnswers } from './map';
 import { semesterKey, sortRecords } from './semester';
 import { liveAxes, textOf } from './strengths';
 
-// 경험 지도(v1.9): 지식 그래프. 역량은 허브, 활동(기록)은 작은 노드.
-// 선은 두 가지다. 활동 →(근거)→ 역량, 활동 →(이어짐)→ 다음 활동. 관련 활동은 묶음(클러스터)으로 모은다.
-// 묶음은 '이 활동들이 어떤 역량의 근거가 됐나'를 한 번에 보려고 만든다. 점수가 아니라 개수만 센다.
+// 경험 지도 화면 모델. 지식 그래프 생성(kg/build)과 분석(kg/analyze) 결과를 화면이 쓰는 노드·선·묶음으로 옮기는 얇은 어댑터다.
+// 역량은 허브, 활동(기록)은 작은 노드. 선은 두 가지: 활동 →(근거)→ 역량, 활동 —(이어짐)— 활동(규칙·AI·내가 확인).
+// 묶음은 Leiden 커뮤니티, 이름은 사전 키워드 우선·없으면 AI 제안. 점수가 아니라 개수만 센다.
 
 export type AxisNode = { id: string; kind: 'axis'; axis: Axis; label: string; evidence: number };
 export type RecordNode = { id: string; kind: 'record'; record: RecordItem; label: string; group: FieldGroup; cluster: string };
 export type GraphNode = AxisNode | RecordNode;
-/** evidence: 활동 → 역량. follow: 앞 활동 → 뒤 활동(같은 일·같은 분야를 이어서 했다). confirmed 가 아니면 AI 추정이다. */
-export type GraphEdge = { id: string; kind: 'evidence' | 'follow'; from: string; to: string; confirmed: boolean };
-export type Cluster = { id: string; name: string; recordIds: string[] };
-export type KnowledgeGraph = { nodes: GraphNode[]; edges: GraphEdge[]; clusters: Cluster[] };
+/**
+ * evidence: 활동 → 역량. follow: 활동 — 활동(지식 그래프에서 이어진 쌍). confirmed 가 아니면 AI 추정이다.
+ * follow 는 origin(규칙으로 이음 · AI 가 이음 · 내가 확인)과 why(규칙 n · AI m), reasons(이유 문장)를 갖는다.
+ */
+export type GraphEdge = {
+  id: string; kind: 'evidence' | 'follow'; from: string; to: string; confirmed: boolean;
+  origin?: KgOrigin; why?: { rule: number; llm: number; student: number }; reasons?: { text: string; origin: KgOrigin }[];
+};
+/** source: 이름이 사전에서 왔나(taxonomy), AI 가 제안했나(llm). topic 은 맞은 사전 주제 id(kgTaxonomy), keywords 는 맞은 사전 키워드 */
+export type Cluster = { id: string; name: string; recordIds: string[]; source: NameSource; topic?: string; keywords: string[]; summary?: string; confirmed?: boolean };
+/** 학생이 AI 제안 이름에 한 답: 맞아요(ok) 또는 바꾼 이름 */
+export type ClusterNameAnswers = Record<string, { ok?: boolean; name?: string }>;
+
+/** 묶음 이름표 글자. 확인 전 AI 제안 이름은 'AI 제안: ' 을 붙인다(확인 전 AI 는 점선과 같은 뜻) */
+export const clusterLabel = (c: Cluster) => (c.source === 'llm' && !c.confirmed ? `AI 제안: ${c.name}` : c.name);
+/** AI 제안 이름은 사전 이름이 아니라서 학생이 확인해야 확정된다. 바꾼 이름은 학생이 정한 것이므로 확인으로 본다 */
+export const isTentative = (c: Cluster) => c.source === 'llm' && !c.confirmed;
+
+/** 학생 답을 묶음 이름에 덧입힌다. 사전 이름에는 답을 받지 않는다 */
+export function withClusterNames(g: KnowledgeGraph, answers: ClusterNameAnswers): KnowledgeGraph {
+  if (!Object.keys(answers).length) return g;
+  const clusters = g.clusters.map(c => {
+    const a = c.source === 'llm' ? answers[c.id] : undefined;
+    return a ? { ...c, name: a.name?.trim() || c.name, confirmed: !!(a.ok || a.name?.trim()) } : c;
+  });
+  return { ...g, clusters };
+}
+export type KnowledgeGraph = { nodes: GraphNode[]; edges: GraphEdge[]; clusters: Cluster[]; kg: Kg; analysis: KgAnalysis };
 
 export const RELATION_LABEL: Record<GraphEdge['kind'], string> = { evidence: '근거', follow: '이어짐' };
 export const axisNodeId = (a: Axis) => `ax:${a}`;
-/** 묶음 목록은 덩어리 안 항목 상한(5개)을 넘지 않는다. */
-export const MAX_CLUSTERS = 5;
-
-type Theme = { id: string; name: string };
-const THEMES: Record<string, Theme> = {
-  research: { id: 'research', name: '사용자 리서치' },
-  plan: { id: 'plan', name: '서비스 기획' },
-  data: { id: 'data', name: '데이터 분석' },
-  devBasic: { id: 'devBasic', name: '개발 기초' },
-  devMake: { id: 'devMake', name: '개발 프로젝트' },
-  share: { id: 'share', name: '멘토링·나눔' },
-  club: { id: 'club', name: '동아리 활동' },
-  global: { id: 'global', name: '글로벌 교류' },
-  career: { id: 'career', name: '진로 탐색' }
-};
-const THEME_ORDER = Object.keys(THEMES);
-
-/** 처음 묶는 규칙: 세부 분야와 한 일. 개발은 '배운 것'과 '만든 것', '가르친 것'으로 나눈다. */
-function themeOf(field: Field, did: Did): Theme {
-  if (field === 'research') return THEMES.research;
-  if (field === 'product' || field === 'startup') return THEMES.plan;
-  if (field === 'data' || field === 'ai') return THEMES.data;
-  if (field === 'dev') return did === 'present' ? THEMES.share : did === 'make' || did === 'idea' ? THEMES.devMake : THEMES.devBasic;
-  if (field === 'mentor') return THEMES.share;
-  if (field === 'club') return THEMES.club;
-  if (field === 'global') return THEMES.global;
-  return THEMES.career;
-}
-
-/** 두 활동이 얼마나 닮았나: 같은 분야 2, 같은 역량 하나에 1, 같은 일 1, 이어진 활동 3. 묶음을 합칠 때만 쓴다(화면에 내지 않는다). */
-function likeness(a: RecordItem, b: RecordItem, linked: boolean) {
-  const shared = liveAxes(a).filter(x => liveAxes(b).includes(x)).length;
-  return (FIELD_GROUP[a.field] === FIELD_GROUP[b.field] ? 2 : 0) + shared + (a.did === b.did ? 1 : 0) + (linked ? 3 : 0);
-}
+export { MAX_CLUSTERS } from '../kg/analyze';
 
 /**
- * 같은 일을 같은 분야에서 이어서 한 활동끼리, 그리고 학생이 '맞아요' 한 연결만 '이어짐'으로 잇는다.
- * 같은 일만, 같은 분야만 겹친 것까지 그으면 선이 너무 많아진다.
+ * 기록에서 지식 그래프를 만들고 분석한다. '아니에요'라고 한 근거·연결은 뺀다. 역량 허브는 근거가 없어도 여섯 개 다 둔다.
+ * programs 는 '이어질 수 있는 활동'(링크 예측) 후보다. llm 은 기본이 모의 LLM(예시 값)이다.
  */
-export function followEdges(records: RecordItem[], answers: EdgeAnswers): GraphEdge[] {
-  return buildMap(records).edges
-    .filter(e => edgeState(e, answers) === 'confirmed' || (e.reasons.includes('did') && e.reasons.includes('field') && edgeState(e, answers) !== 'rejected'))
-    .map(e => ({ id: e.id, kind: 'follow' as const, from: e.a, to: e.b, confirmed: edgeState(e, answers) === 'confirmed' }));
-}
-
-/**
- * 관련 활동 묶음. 규칙으로 먼저 나누고(themeOf), 활동 하나뿐인 묶음은 가장 닮은 묶음에 합치고,
- * 묶음이 MAX_CLUSTERS 를 넘으면 작은 묶음부터 가장 닮은 묶음에 합친다. 같은 기록이면 늘 같은 결과다.
- * 합친 묶음이 모두 한 분야면 분야 이름(예: 개발), 아니면 큰 쪽 이름을 쓴다.
- */
-export function clusterRecords(records: RecordItem[], follows: GraphEdge[] = []): Cluster[] {
-  const linked = new Set(follows.map(e => `${e.from}~${e.to}`));
-  const isLinked = (a: string, b: string) => linked.has(`${a}~${b}`) || linked.has(`${b}~${a}`);
-  const byId = new Map(records.map(r => [r.id, r]));
-  type Draft = { id: string; name: string; ids: string[] };
-  let drafts: Draft[] = THEME_ORDER
-    .map(t => ({ id: t, name: THEMES[t].name, ids: sortRecords(records).filter(r => themeOf(r.field, r.did).id === t).map(r => r.id) }))
-    .filter(d => d.ids.length > 0);
-
-  const sim = (x: Draft, y: Draft) => {
-    let sum = 0;
-    for (const a of x.ids) for (const b of y.ids) sum += likeness(byId.get(a)!, byId.get(b)!, isLinked(a, b));
-    return sum / (x.ids.length * y.ids.length);
-  };
-  const merge = (small: Draft) => {
-    const rest = drafts.filter(d => d !== small);
-    const into = rest.reduce((best, d) => (sim(small, d) > sim(small, best) ? d : best), rest[0]);
-    const ids = sortRecords([...into.ids, ...small.ids].map(i => byId.get(i)!)).map(r => r.id);
-    const groups = new Set(ids.map(i => FIELD_GROUP[byId.get(i)!.field]));
-    // 활동 하나를 받아들인 묶음은 제 이름을 지킨다. 두 묶음이 합쳐졌는데 한 분야뿐이면 분야 이름이 더 정확하다.
-    const name = small.ids.length > 1 && groups.size === 1 ? GROUP_LABEL[[...groups][0]] : into.ids.length >= small.ids.length ? into.name : small.name;
-    drafts = rest.map(d => (d === into ? { id: into.id, name, ids } : d));
-  };
-  // 작은 것부터. 같은 크기면 다른 묶음과 가장 닮은 것(합쳐도 어색하지 않은 것)부터.
-  const smallest = (pool: Draft[]) => pool.reduce((a, b) => {
-    if (b.ids.length !== a.ids.length) return b.ids.length < a.ids.length ? b : a;
-    const best = (d: Draft) => Math.max(...drafts.filter(o => o !== d).map(o => sim(d, o)));
-    return best(b) > best(a) ? b : a;
-  });
-
-  while (drafts.length > 1 && drafts.some(d => d.ids.length === 1)) merge(smallest(drafts.filter(d => d.ids.length === 1)));
-  while (drafts.length > MAX_CLUSTERS) merge(smallest(drafts));
-  return drafts
-    .sort((a, b) => b.ids.length - a.ids.length || THEME_ORDER.indexOf(a.id) - THEME_ORDER.indexOf(b.id))
-    .map(d => ({ id: d.id, name: d.name, recordIds: d.ids }));
-}
-
-/** 기록에서 지식 그래프를 만든다. '아니에요'라고 한 근거·연결은 뺀다. 역량 허브는 근거가 없어도 여섯 개 다 둔다. */
-export function buildGraph(records: RecordItem[], answers: EdgeAnswers): KnowledgeGraph {
+export function buildGraph(records: RecordItem[], answers: EdgeAnswers, programs: Program[] = [], llm: LlmProvider = mockLlm()): KnowledgeGraph {
   const sorted = sortRecords(records);
-  const follows = followEdges(sorted, answers);
-  const clusters = clusterRecords(sorted, follows);
+  const kg = buildKg(sorted, { answers, llm });
+  const analysis = analyzeKg(kg, programs, llm);
+  const clusters: Cluster[] = analysis.clusters.map(c => ({ id: c.id, name: c.name, recordIds: c.recordIds, source: c.source, topic: c.topic, keywords: c.keywords, summary: c.summary }));
   const clusterOf = new Map(clusters.flatMap(c => c.recordIds.map(id => [id, c.id] as const)));
+  const follows: GraphEdge[] = analysis.shown.map(p => ({
+    id: p.id, kind: 'follow', from: p.a, to: p.b, confirmed: p.origin === 'student', origin: p.origin, why: pairWhy(p),
+    reasons: p.parts.map(e => ({ text: e.reason, origin: e.origin }))
+  }));
   const evidence: GraphEdge[] = sorted.flatMap(r => liveAxes(r).map(a => ({
     id: `${r.id}>${a}`, kind: 'evidence' as const, from: r.id, to: axisNodeId(a), confirmed: !!r.confirmedAxes?.includes(a)
   })));
   const axes: AxisNode[] = AXES.map(a => ({ id: axisNodeId(a.id), kind: 'axis', axis: a.id, label: a.label, evidence: evidence.filter(e => e.to === axisNodeId(a.id)).length }));
   const recs: RecordNode[] = sorted.map(r => ({ id: r.id, kind: 'record', record: r, label: r.title, group: FIELD_GROUP[r.field], cluster: clusterOf.get(r.id) ?? '' }));
-  return { nodes: [...axes, ...recs], edges: [...evidence, ...follows], clusters };
+  return { nodes: [...axes, ...recs], edges: [...evidence, ...follows], clusters, kg, analysis };
 }
 
 /** 강조할 대상: 묶음 하나, 역량 하나, 또는 마우스를 올린 노드 하나 */

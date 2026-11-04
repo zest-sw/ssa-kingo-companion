@@ -1,4 +1,4 @@
-import type { GraphEdge, KnowledgeGraph } from './graph';
+import { clusterLabel, type GraphEdge, type KnowledgeGraph } from './graph';
 import { wrapWords } from './wrap';
 
 // 경험 지도 그래프 배치. 같은 기록이면 늘 같은 그림이 나오도록 난수 없이 힘 기반으로 계산한다.
@@ -11,11 +11,13 @@ export type GraphMetrics = {
   perLine: number; lineH: number; labelGap: number; charW: number;
   /** 묶음 이름 상자 높이와 글자 폭 */
   nameH: number; nameCharW: number;
+  /** 묶음 이름 아래 맞은 키워드 줄 높이 */
+  kwH: number;
   /** 상자 사이 최소 틈, 가장자리 여백(묶음 영역의 둥근 테두리가 칸 끝에서 잘리지 않을 만큼) */
   gap: number; pad: number;
 };
 
-export const GRAPH_METRICS: GraphMetrics = { axisR: 28, recR: 8, perLine: 9, lineH: 15, labelGap: 5, charW: 12, nameH: 20, nameCharW: 13, gap: 6, pad: 14 };
+export const GRAPH_METRICS: GraphMetrics = { axisR: 28, recR: 8, perLine: 9, lineH: 15, labelGap: 5, charW: 12, nameH: 20, nameCharW: 13, kwH: 15, gap: 6, pad: 14 };
 
 export type Pt = { x: number; y: number };
 /** 상자: 왼쪽 위와 크기 */
@@ -46,6 +48,8 @@ type Item = { id: string; kind: 'axis' | 'record' | 'name'; cluster: string; w: 
 export const joinDots = (s: string) => s.replace(/\s+·\s*/g, '· ');
 
 const nameId = (c: string) => `name:${c}`;
+/** 묶음 이름 아래 키워드 줄: '인터뷰·설문·사용자'. 없으면 빈 문자열 */
+export const keywordLine = (kw: string[]) => kw.slice(0, 3).join('·');
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
 
 function makeItems(g: KnowledgeGraph, m: GraphMetrics, lines: Record<string, string[]>): Item[] {
@@ -59,7 +63,12 @@ function makeItems(g: KnowledgeGraph, m: GraphMetrics, lines: Record<string, str
       items.push({ id: n.id, kind: 'record', cluster: n.cluster, w, h: m.recR * 2 + m.labelGap + ls.length * m.lineH, top: -m.recR, x: 0, y: 0 });
     }
   }
-  for (const c of g.clusters) items.push({ id: nameId(c.id), kind: 'name', cluster: c.id, w: textWidth(c.name, m.nameCharW) + 12, h: m.nameH, top: -m.nameH / 2, x: 0, y: 0 });
+  // 사전에 맞은 묶음은 이름 아래에 맞은 키워드를 작은 글씨로 한 줄 둔다(이름이 왜 붙었는지)
+  for (const c of g.clusters) {
+    const kw = keywordLine(c.keywords);
+    const w = Math.max(textWidth(clusterLabel(c), m.nameCharW) + 12, kw ? textWidth(kw, m.charW) : 0);
+    items.push({ id: nameId(c.id), kind: 'name', cluster: c.id, w, h: m.nameH + (kw ? m.kwH : 0), top: -m.nameH / 2, x: 0, y: 0 });
+  }
   return items;
 }
 

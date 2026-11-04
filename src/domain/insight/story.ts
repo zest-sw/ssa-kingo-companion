@@ -63,11 +63,25 @@ const ownCount = (r: TreeRow) => [...r.cells, ...r.folds.flatMap(f => f.cells)].
 /** 목표 글과 관심 분야가 가리키는 분야 묶음 */
 const goalOf = (p: Profile): FieldGroup[] => [...new Set([...goalGroups(p.goal), ...p.interests.filter((i): i is FieldGroup => i !== 'unknown')])];
 
-/** 지금 모이는 분야(관심 흐름의 끝)에 기록이 가장 많은 묶음. 같으면 큰 묶음(clusters 순서) */
+/**
+ * 지금 모이는 분야(관심 흐름의 끝)에 기록이 가장 많은 묶음. 같으면 사전 이름이 붙은 묶음(이름이 왜 붙었는지 설명할 수 있다), 그래도 같으면 큰 묶음(clusters 순서).
+ * 묶음은 지식 그래프 분석(kg/analyze)의 Leiden 묶음이다.
+ */
 function pickCluster(g: KnowledgeGraph, end: FieldGroup | undefined, records: RecordItem[]): Cluster | undefined {
   const groupOf = new Map(records.map(r => [r.id, FIELD_GROUP[r.field]]));
   const inEnd = (c: Cluster) => c.recordIds.filter(id => groupOf.get(id) === end).length;
-  return g.clusters.reduce<Cluster | undefined>((a, b) => (!a || inEnd(b) > inEnd(a) ? b : a), undefined);
+  const named = (c: Cluster) => Number(c.source === 'taxonomy');
+  return g.clusters.reduce<Cluster | undefined>((a, b) => (!a || inEnd(b) > inEnd(a) || (inEnd(b) === inEnd(a) && named(b) > named(a)) ? b : a), undefined);
+}
+
+/** 묶음이 하는 일: 사전 주제가 있으면 그 주제의 말, AI 제안 이름 묶음이면 그 묶음에 가장 많은 분야의 말 */
+export function clusterDoing(c: Cluster | undefined, records: RecordItem[], fallback: FieldGroup = 'other'): string {
+  if (!c) return GROUP_DOING[fallback];
+  if (c.topic && CLUSTER_DOING[c.topic]) return CLUSTER_DOING[c.topic];
+  const count = new Map<FieldGroup, number>();
+  for (const r of records) if (c.recordIds.includes(r.id)) count.set(FIELD_GROUP[r.field], (count.get(FIELD_GROUP[r.field]) ?? 0) + 1);
+  const top = [...count].sort((x, y) => y[1] - x[1])[0]?.[0];
+  return GROUP_DOING[top ?? fallback];
 }
 
 /** 가장 깊이 간 분야. 같은 단계면 지금 모이는 분야, 그다음 활동이 많은 분야 */
@@ -161,8 +175,8 @@ export function buildStory(input: StoryInput): Story {
   const gap = found && { ...found, filled, line: filled ? found.line + FILL_LINE : found.line };
 
   // 정체성: 그 묶음이 하는 일 + 가장 확실한 강점이 하는 일. 대안은 강점이나 묶음 하나만 바꾼 짝이라 학생이 '어느 쪽이 더 나인가'만 고르면 된다.
-  const doingOf = (c?: Cluster) => (c ? CLUSTER_DOING[c.id] ?? GROUP_DOING[end ?? 'other'] : GROUP_DOING[end ?? 'other']);
-  const otherCluster = graph.clusters.find(c => c !== cluster && CLUSTER_DOING[c.id] !== doingOf(cluster));
+  const doingOf = (c?: Cluster) => clusterDoing(c, records, end ?? 'other');
+  const otherCluster = graph.clusters.find(c => c !== cluster && doingOf(c) !== doingOf(cluster));
   const third = strengths.find(s => s !== top && s !== second && s.evidence.length > 0);
   const options = [
     top && identityLine(doingOf(cluster), AXIS_DOING[top.axis]),
