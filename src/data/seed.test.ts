@@ -54,20 +54,30 @@ describe('예시 학생 기록', () => {
 describe('예시 학생 강점', () => {
   const rows = buildStrengths(SEED_RECORDS);
   it('역량 6개 모두 근거가 있다', () => expect(rows.every(r => r.evidence.length > 0)).toBe(true));
-  it('확인한 근거가 역량마다 0~4개로 다르게 퍼져 있다', () => {
-    const confirmed = rows.map(r => r.confirmed);
-    expect(Math.max(...confirmed)).toBeLessThanOrEqual(4);
-    expect(Math.min(...confirmed)).toBe(0);
-    expect(new Set(confirmed).size).toBeGreaterThanOrEqual(4);
+  it('확인한 근거가 역량마다 3~10개로 다르게 퍼지고, 소통·문제해결이 가장 많다', () => {
+    const by = Object.fromEntries(rows.map(r => [r.axis, r.confirmed]));
+    expect(Math.min(...rows.map(r => r.confirmed))).toBeGreaterThanOrEqual(3);
+    expect(Math.max(...rows.map(r => r.confirmed))).toBeLessThanOrEqual(10);
+    expect(new Set(rows.map(r => r.confirmed)).size).toBeGreaterThanOrEqual(4);
+    expect(by.problem).toBeGreaterThanOrEqual(8);
+    expect(by.communication).toBeGreaterThanOrEqual(8);
+    expect(by.collaboration).toBeLessThan(by.communication);
+    expect(by.self).toBeLessThanOrEqual(5);
+    expect(by.creative).toBeLessThanOrEqual(5);
     // 맨 앞 강점은 하나로 갈린다
-    expect(confirmed[0]).toBeGreaterThan(confirmed[1]);
+    expect(rows[0].confirmed).toBeGreaterThan(rows[1].confirmed);
   });
-  it('확인한 기록은 절반쯤, 아니에요 한 기록도 있다', () => {
-    const c = SEED_RECORDS.filter(r => r.confirmedAxes?.length).length;
-    expect(c / SEED_RECORDS.length).toBeGreaterThan(0.35);
-    expect(c / SEED_RECORDS.length).toBeLessThan(0.65);
+  it('역량마다 근거의 절반 넘게 확인했고 추정이 남아 있다', () => {
+    for (const r of rows) {
+      expect(r.confirmed / r.evidence.length, r.axis).toBeGreaterThanOrEqual(0.5);
+      expect(r.confirmed / r.evidence.length, r.axis).toBeLessThanOrEqual(0.8);
+    }
+  });
+  it('최근 학기(2026-2)에는 추정이 남고, 아니에요 한 기록도 있다', () => {
+    expect(SEED_RECORDS.filter(r => r.semester === '2026-2').some(r => !r.confirmedAxes?.length)).toBe(true);
     expect(SEED_RECORDS.filter(r => r.rejectedAxes?.length).length).toBeGreaterThanOrEqual(2);
   });
+
 });
 
 describe('예시 학생 발견', () => {
