@@ -16,3 +16,4 @@ export { linkPath, useLinkPaths, type LinkPath, type LinkSpec } from './useLinkP
 export { TermNav } from './TermNav';
 export { Radar, type RadarVertex } from './Radar';
 export { useWidth } from './useWidth';
+export { useZoomPan, type ZoomPanOptions } from './ZoomPan'; export { ZoomIcon, ZoomPanBar } from './ZoomPanBar';
