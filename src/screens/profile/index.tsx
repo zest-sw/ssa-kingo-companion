@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useApp } from '../../app/AppState';
-import { parentLink, type ScreenProps } from '../../app/router';
+import { hrefOf, parentLink, type ScreenProps } from '../../app/router';
 import { PageHeader, type IconName } from '../../components';
 import { canUseSocial } from '../../domain/social';
 import { SEED_POSTS } from '../../data/friends';
@@ -14,6 +14,8 @@ import './friends.css';
 import './profile.css';
 
 // 공개 설정은 설정(#/settings/visibility)에 있다. 예전 친구·도전 과제 경로는 router 가 여기로 넘긴다.
+// 전당은 광장(홈)의 문으로 들어오는 장면이라 나가는 길도 광장 하나다.
+const HALL_EXIT = { label: '광장으로', href: hrefOf('home') };
 type Sub = 'friends' | 'recruit' | 'hall';
 const SUBS: readonly Sub[] = ['friends', 'recruit', 'hall'];
 const TITLE: Record<Sub, string> = { friends: '친구', recruit: '팀원 모집', hall: '명예의 전당' };
@@ -50,7 +52,7 @@ export default function ProfileScreen({ sub }: ScreenProps) {
 
   return (
     <div className="os">
-      <PageHeader parent={parentLink('profile')} crumb={TITLE[current]} title={TITLE[current]} />
+      <PageHeader parent={current === 'hall' ? HALL_EXIT : parentLink('profile')} crumb={TITLE[current]} title={TITLE[current]} />
       <div className="os__body pf-sub">{body}</div>
     </div>
   );
