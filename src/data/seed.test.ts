@@ -9,7 +9,8 @@ import { FIELD_GROUP } from '../domain/vocab';
 import { CATALOG, PROGRAM_BY_ID } from './catalog';
 import { CHALLENGES } from './challenges';
 import { FRIENDS, HALL, SEED_POSTS } from './friends';
-import { EXAMPLE_CONFIRM, EXAMPLE_PROFILE, SEED_ACTIVITIES, SEED_RECORDS } from './seed';
+import { EXAMPLE_CHALLENGE_AT, EXAMPLE_CONFIRM, EXAMPLE_PROFILE, SEED_ACTIVITIES, SEED_RECORDS } from './seed';
+import { PROTOTYPE_TODAY } from '../domain/today';
 import { DEFAULT_SETTINGS, INITIAL_STATE } from '../app/state';
 
 // 예시 학생이 '3년 쓴 학생'으로 보이게 하는 조건. 데이터를 고치다 이야기가 무너지면 여기서 걸린다.
@@ -122,6 +123,9 @@ describe('예시 학생 보드·추천·과제·친구', () => {
     expect(rs.some(r => r.def.hidden && !r.achieved)).toBe(true);
     // 들어오자마자 달성 토스트가 뜨지 않게 달성 시각을 미리 둔다
     for (const r of done) expect(INITIAL_STATE.challengeAt[r.def.id], r.def.id).toBeDefined();
+    // 달성 시각은 프로토타입의 오늘보다 앞이어야 한다(미래에 달성한 과제가 전시되지 않게)
+    const today = Date.parse(`${PROTOTYPE_TODAY}T23:59:59+09:00`);
+    for (const [id, t] of Object.entries(EXAMPLE_CHALLENGE_AT)) expect(t, id).toBeLessThanOrEqual(today);
     // 전시 과제는 달성한 것만
     for (const id of INITIAL_STATE.visibility.showcaseChallengeIds) expect(done.some(r => r.def.id === id), id).toBe(true);
   });
