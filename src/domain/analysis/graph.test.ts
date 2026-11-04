@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { EXAMPLE_EDGE_ANSWERS, SEED_RECORDS } from '../../data/seed';
 import type { Program, RecordItem } from '../types';
 import { axisCount, axisNodeId, buildGraph, clusterInsight, clusterLinks, clusterRecords, focusSet, graphHeadline, hubTags, MAX_CLUSTERS, miniGraph } from './graph';
+import { liveAxes } from './strengths';
 import { convexHull, joinDots, layoutGraph, placeEdgeLabels, rectsOverlap, textWidth } from './graphLayout';
 
 const rec = (id: string, p: Partial<RecordItem>): RecordItem => ({
@@ -19,10 +20,17 @@ describe('지식 그래프 모델', () => {
   });
 
   it('학생이 확인한 근거만 확인(실선), 아니에요라고 한 근거는 선이 없다', () => {
-    const e = g.edges.find(x => x.id === `r-webcamp>expertise`);
-    expect(e?.confirmed).toBe(true);
-    expect(g.edges.find(x => x.id === 'r-webcamp>creative')?.confirmed).toBe(false);
-    expect(g.edges.find(x => x.id === 'r-algo>self')).toBeUndefined();
+    for (const r of SEED_RECORDS) {
+      for (const a of r.axes) {
+        const e = g.edges.find(x => x.id === `${r.id}>${a}`);
+        if (r.rejectedAxes?.includes(a)) expect(e).toBeUndefined();
+        else expect(e?.confirmed).toBe(!!r.confirmedAxes?.includes(a));
+      }
+    }
+    // 예시 데이터에 확인·추정·거절이 다 있어야 위 검사가 세 경우를 다 본다
+    expect(g.edges.some(e => e.kind === 'evidence' && e.confirmed)).toBe(true);
+    expect(g.edges.some(e => e.kind === 'evidence' && !e.confirmed)).toBe(true);
+    expect(SEED_RECORDS.some(r => r.rejectedAxes?.length)).toBe(true);
   });
 
   it('이어짐: 같은 일·같은 분야를 이어서 했거나 학생이 맞다고 한 연결', () => {
@@ -76,13 +84,20 @@ describe('지식 그래프 모델', () => {
     const c = g.clusters.find(x => x.name === '사용자 리서치')!;
     const p = (id: string, field: Program['field'], did: Program['did']) => ({ id, title: id, field, did }) as Program;
     const ins = clusterInsight(g, c.id, [p('x', 'dev', ['make']), p('y', 'research', ['listen']), p('z', 'product', ['ask'])])!;
-    const comm = ins.axes.find(a => a.axis === 'communication')!;
-    expect(comm.confirmed).toBe(2);
-    expect(ins.axes[0].confirmed).toBeGreaterThanOrEqual(ins.axes[ins.axes.length - 1].confirmed);
+    // 역량마다 확인/추정 수 = 그 묶음 기록의 살아 있는 근거를 직접 센 값
+    const recs = SEED_RECORDS.filter(r => c.recordIds.includes(r.id));
+    for (const a of ins.axes) {
+      const live = recs.filter(r => liveAxes(r).includes(a.axis));
+      expect(a.confirmed).toBe(live.filter(r => r.confirmedAxes?.includes(a.axis)).length);
+      expect(a.confirmed + a.estimated).toBe(live.length);
+    }
+    for (let i = 1; i < ins.axes.length; i++) expect(ins.axes[i - 1].confirmed).toBeGreaterThanOrEqual(ins.axes[i].confirmed);
     expect(ins.first).toBe('2026-1');
     expect(ins.last).toBe('2026-2');
     expect(ins.quotes).toHaveLength(2);
-    expect(ins.quotes[0].recordId).toBe('e2');
+    // 대표 회고는 확인한 근거가 가장 많은 기록부터
+    const confirmedOf = (id: string) => { const r = recs.find(x => x.id === id)!; return (r.confirmedAxes ?? []).filter(a => liveAxes(r).includes(a)).length; };
+    expect(confirmedOf(ins.quotes[0].recordId)).toBe(Math.max(...recs.map(r => confirmedOf(r.id))));
     expect(ins.next.map(x => x.id)).toEqual(['y', 'z']);
     expect(clusterInsight(g, 'none', [])).toBeNull();
   });
@@ -152,15 +167,19 @@ describe('묶음 요약 선과 허브 이름표', () => {
       expect(mine.length).toBeGreaterThan(0);
       expect(mine.length).toBeLessThanOrEqual(3);
     }
-    const r = ls.find(l => l.cluster === 'research' && l.axis === 'communication')!;
-    expect(r).toMatchObject({ count: 4, confirmed: 2 });
+    // 선 하나의 근거 수·확인 수 = 그 묶음에서 그 역량으로 가는 활동 선을 센 값. 확인이 있으면 실선으로 그린다
+    for (const l of ls) {
+      const ev = g.edges.filter(e => e.kind === 'evidence' && e.to === l.to && g.clusters.find(c => c.id === l.cluster)!.recordIds.includes(e.from));
+      expect(l.count).toBe(ev.length);
+      expect(l.confirmed).toBe(ev.filter(e => e.confirmed).length);
+    }
     expect(ls.length).toBeLessThan(g.edges.filter(e => e.kind === 'evidence').length / 3);
   });
   it('허브 이름표는 역량마다 한 번: 근거 n', () => {
     const f = focusSet(g, { kind: 'cluster', id: 'research' })!;
     const tags = hubTags(g, f.edges);
     expect(new Set(tags.map(t => t.id)).size).toBe(tags.length);
-    expect(tags.find(t => t.id === axisNodeId('communication'))?.text).toBe('근거 4');
+    for (const t of tags) expect(t.text).toBe(`근거 ${g.edges.filter(e => e.kind === 'evidence' && e.to === t.id && f.edges.has(e.id)).length}`);
   });
   it('요약 머리말', () => {
     expect(graphHeadline(buildGraph([], {}))).toBe('회고를 쓰면 활동 묶음이 생겨요');
