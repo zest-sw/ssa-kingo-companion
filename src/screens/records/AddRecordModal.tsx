@@ -3,23 +3,26 @@ import { Button, Chip, Modal } from '../../components';
 import { useApp } from '../../app/AppState';
 import { QUOTE_HINTS } from '../../data/options';
 import { CURRENT_TERM } from '../../data/records';
-import { buildManualRecord, inferDid } from '../../domain/interview/record';
-import type { Energy } from '../../domain/types';
-import { ENERGY } from '../../domain/vocab';
+import { buildManualRecord, defaultManualGroup, inferDid } from '../../domain/interview/record';
+import type { Energy, FieldGroup } from '../../domain/types';
+import { ENERGY, GROUP_LABEL, GROUP_ORDER } from '../../domain/vocab';
 
-/** 직접 기록 추가: 제목, 한 일, 에너지 정도, 한마디. 학교가 확인하지 않은 기록이라 '직접 입력'으로 표시된다. */
+/** 직접 기록 추가: 제목, 한 일, 분야, 에너지 정도, 한마디. 학교가 확인하지 않은 기록이라 '직접 입력'으로 표시된다. */
 export function AddRecordModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { run } = useApp();
+  const { state, run } = useApp();
+  // 분야를 안 고르면 모든 직접 기록이 '기타'로 쌓여 분석이 비어 보인다. 가입 때 고른 관심을 먼저 골라 둔다.
+  const first = defaultManualGroup(state.profile.interests);
+  const [group, setGroup] = useState<FieldGroup>(first);
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
   const [energy, setEnergy] = useState<Energy>();
   const [quote, setQuote] = useState('');
   const ready = title.trim() && note.trim() && energy;
 
-  const close = () => { setTitle(''); setNote(''); setEnergy(undefined); setQuote(''); onClose(); };
+  const close = () => { setTitle(''); setNote(''); setEnergy(undefined); setQuote(''); setGroup(first); onClose(); };
   const submit = () => {
     if (!ready) return;
-    run({ type: 'record/add', record: buildManualRecord({ id: `m-${Date.now()}`, title, note, quote, energy, date: CURRENT_TERM.date, semester: CURRENT_TERM.semester }) }, { toast: '직접 입력으로 기록했어요.' });
+    run({ type: 'record/add', record: buildManualRecord({ id: `m-${Date.now()}`, title, note, quote, energy, date: CURRENT_TERM.date, semester: CURRENT_TERM.semester, group }) }, { toast: '직접 입력으로 기록했어요.' });
     close();
   };
 
@@ -37,6 +40,10 @@ export function AddRecordModal({ open, onClose }: { open: boolean; onClose: () =
         <label className="rec-form__field">한 일
           <textarea className="rec-input" rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="한 문장이면 돼요" />
         </label>
+        <div className="rec-form__field" role="group" aria-label="분야">
+          분야
+          <span className="rec-quick">{GROUP_ORDER.map(g => <Chip key={g} selected={group === g} onClick={() => setGroup(g)}>{GROUP_LABEL[g]}</Chip>)}</span>
+        </div>
         <div className="rec-form__field" role="group" aria-label="에너지 정도">
           끝난 뒤 에너지
           <span className="rec-quick">{ENERGY.map(e => <Chip key={e.id} selected={energy === e.id} onClick={() => setEnergy(e.id)}>{e.label}</Chip>)}</span>

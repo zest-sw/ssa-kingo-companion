@@ -1,5 +1,5 @@
 import { discoveriesOf } from '../discoveries';
-import type { Axis, Confirm, Did, Discovery, Energy, Field, RecordCard, RecordItem, RecordVisibility } from '../types';
+import type { Axis, Confirm, Did, Discovery, Energy, Field, FieldGroup, Interest, RecordCard, RecordItem, RecordVisibility } from '../types';
 import { AXES, DID_AXES } from '../vocab';
 
 /** 말한 단어로 '무엇을 했는지'를 어림한다. 학생이 고른 값이 아니라 추정이라, 기록을 고치면 다시 어림한다. */
@@ -83,7 +83,14 @@ export function savedSummary(before: RecordItem[], record: RecordItem): SavedSum
  */
 export const cardOf = (r: RecordItem): RecordCard => ({ ...(r.note && { action: r.note }), ...(r.quote && { learned: r.quote }), ...r.card });
 
-export type ManualInput = { id: string; title: string; note: string; quote: string; energy: Energy; date: string; semester: string };
+export type ManualInput = { id: string; title: string; note: string; quote: string; energy: Energy; date: string; semester: string; group?: FieldGroup };
+
+/** 직접 기록에서 고른 분야 묶음을 기록의 분야로. 고르지 않으면 기타. */
+const MANUAL_FIELD: Record<FieldGroup, Field> = { dev: 'dev', ai: 'data', plan: 'product', mentor: 'mentor', global: 'global', other: 'etc' };
+
+/** 직접 기록 창이 처음 고른 분야: 가입 때 고른 관심 중 첫 분야, 없으면('아직 모르겠어요') 기타. */
+export const defaultManualGroup = (interests: readonly Interest[]): FieldGroup =>
+  interests.find((g): g is FieldGroup => g !== 'unknown') ?? 'other';
 
 /** 직접 기록 추가. 학교가 확인하지 않았으니 '직접 입력'이고, 공개 범위는 나만 보기다. */
 export function buildManualRecord(i: ManualInput): RecordItem {
@@ -91,7 +98,7 @@ export function buildManualRecord(i: ManualInput): RecordItem {
   const quote = i.quote.trim();
   const did = inferDid(note);
   return {
-    id: i.id, v: 1, title: i.title.trim(), kind: '직접 기록', date: i.date, semester: i.semester, field: 'etc', did, energy: i.energy,
+    id: i.id, v: 1, title: i.title.trim(), kind: '직접 기록', date: i.date, semester: i.semester, field: MANUAL_FIELD[i.group ?? 'other'], did, energy: i.energy,
     quote, note, axes: DID_AXES[did], source: 'manual', verification: 'self', visibility: 'me', useForRecommend: true,
     card: { action: note, ...(quote ? { learned: quote } : {}) }
   };

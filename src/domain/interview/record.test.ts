@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { rec } from '../fixtures.test-util';
-import { buildManualRecord, buildRecord, cardOf, editedRecord, evidenceOf, inferDid, savedSummary, usesRecord, type NewRecordInput } from './record';
+import { buildManualRecord, defaultManualGroup, buildRecord, cardOf, editedRecord, evidenceOf, inferDid, savedSummary, usesRecord, type NewRecordInput } from './record';
 
 const input: NewRecordInput = {
   activityId: 'a-hackathon', title: '가을 데이터 해커톤', field: 'data', kind: '교내 해커톤', verification: 'school', date: '2학기 · 10월', semester: '2026-2',
@@ -58,6 +58,12 @@ describe('buildManualRecord', () => {
   });
   it('한마디가 있으면 배운 점으로 담는다', () => {
     expect(buildManualRecord({ id: 'm-2', title: 't', note: '글을 썼다', quote: '쓰면서 정리됐다', energy: 'up', date: 'd', semester: 's' }).card?.learned).toBe('쓰면서 정리됐다');
+  });
+  it('고른 분야로 기록하고, 고르지 않으면 기타. 기본은 가입 때 고른 첫 관심', () => {
+    expect(m.field).toBe('etc');
+    expect(buildManualRecord({ id: 'm-3', title: 't', note: 'n', quote: '', energy: 'up', date: 'd', semester: 's', group: 'mentor' }).field).toBe('mentor');
+    expect(defaultManualGroup(['unknown'])).toBe('other');
+    expect(defaultManualGroup(['unknown', 'plan', 'ai'])).toBe('plan');
   });
 });
 
