@@ -1,24 +1,27 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
-import { Badge, Button, Card, Drawer, EmptyState, Icon, Modal, SegmentedControl } from '../../components';
-import { GROUP_LABEL } from '../../domain/vocab';
-import { hallLine, myTopGroup } from '../../domain/social/summary';
+import { Button, Drawer, Modal } from '../../components';
 import { HALL, type HallEntry } from '../../data/friends';
+import { HALL_JOINED } from '../../data/hall';
+import { byJoined, joinedLabel } from '../../domain/hallStage';
+import { HallArt } from './HallArt';
+import { HallStage } from './HallStage';
 import { PathTree } from './PathTree';
+import './hall.css';
 
-type Filter = 'all' | HallEntry['group'];
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: 'all', label: '전체' }, { id: 'ai', label: GROUP_LABEL.ai }, { id: 'dev', label: GROUP_LABEL.dev },
-  { id: 'plan', label: GROUP_LABEL.plan }, { id: 'mentor', label: GROUP_LABEL.mentor }, { id: 'global', label: GROUP_LABEL.global }
-];
+// View Transitions 가 넘어오는 움직임을 맡으면 장면 쪽 들어서기 움직임은 끈다(두 번 겹치지 않게).
+const cssEnter = typeof document !== 'undefined' && !('startViewTransition' in document);
 
+/**
+ * 명예의 전당 = 표 대신 장면. 옅은 기둥·아치 아래 무대로 오른 사람이 오른 날짜순으로 지나간다.
+ * 누르면 그 사람이 걸어온 길(PathTree) 서랍. 올라가기·내리기는 위 한 줄에서.
+ */
 export function HallView() {
   const { state, run } = useApp();
   const consent = state.visibility.hallOfFameConsent;
-  const [filter, setFilter] = useState<Filter>('all');
   const [asking, setAsking] = useState(false);
   const [open, setOpen] = useState<HallEntry | null>(null);
-  const list = HALL.filter(h => filter === 'all' || h.group === filter);
+  const people = useMemo(() => byJoined(HALL, HALL_JOINED), []);
 
   const join = () => {
     run({ type: 'visibility/set', patch: { hallOfFameConsent: true } }, { toast: '명예의 전당에 올라가요. 설정에서 언제든 내릴 수 있어요.' });
@@ -27,48 +30,19 @@ export function HallView() {
   const leave = () => run({ type: 'visibility/set', patch: { hallOfFameConsent: false } }, { toast: '명예의 전당에서 내렸어요.' });
 
   return (
-    <>
-      <p className="fr-headline">{hallLine(HALL, myTopGroup(state.records))}</p>
-      <div className="fr-hall-body">
-      <Card className="fr-consent" padding="md">
-        <div className="fr-consent__text">
-          <p className="fr-consent__title">{consent ? '내가 명예의 전당에 올라가 있어요' : '명예의 전당에 올라갈지 정해요'}</p>
-          <p className="fr-consent__sub">{consent ? '공개한 활동 경로와 고른 회고가 전시돼요.' : '공개한 학생 중 따로 동의한 학생만 올라가요.'}</p>
-        </div>
-        <Badge tone="dashed" icon="info">선정 기준과 운영 주체는 검토 중이에요</Badge>
-        {consent ? <Button onClick={leave}>내리기</Button> : <Button variant="primary" onClick={() => setAsking(true)}>올라가기</Button>}
-      </Card>
-
-      <div className="fr-hall-filter"><SegmentedControl label="분야" items={FILTERS} value={filter} onChange={setFilter} /></div>
-
-      {list.length === 0 ? (
-        <Card><EmptyState icon="trophy" message="이 분야의 경로는 아직 없어요. 다른 분야를 살펴보세요." action={<Button size="sm" onClick={() => setFilter('all')}>전체 보기</Button>} /></Card>
-      ) : (
-        <ul className="fr-hall os-scroll os-scroll--page" aria-label="먼저 걸어온 학생">
-          {list.map(h => (
-            <li key={h.id}>
-              {/* 카드를 누르면 서랍에서 경로·회고를 본다(진입점 하나). 첫 화면에는 사람과 선정 이유만 둔다. */}
-              <button type="button" className="fr-hall__card" aria-haspopup="dialog" onClick={() => setOpen(h)}>
-                <span className="fr-person">
-                  <span className="fr-avatar" aria-hidden="true">{h.name.slice(0, 1)}</span>
-                  <span className="fr-person__text"><span className="fr-person__name">{h.name}</span><span className="fr-person__sub">{h.dept} · {h.year}학년</span></span>
-                </span>
-                <span className="fr-reason"><span className="fr-reason__label">선정 이유</span>{h.reason}</span>
-                <span className="fr-hall__start">{h.start} · 활동 {h.path.length}개</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <p className="fr-note"><Icon name="check" size={16} />순위와 점수는 없어요. 결과보다 거쳐 온 활동을 보여 줘요.</p>
+    <div className="hall-scene" data-enter={cssEnter || undefined}>
+      <HallArt />
+      <div className="hall-scene__top">
+        <p className="hall-scene__note">공개하고 전당에 오르기로 동의한 학생만 있어요. 순위 없이 오른 날짜순이에요.</p>
+        {consent ? <Button size="sm" onClick={leave}>내 자리 내리기</Button> : <Button size="sm" variant="primary" onClick={() => setAsking(true)}>나도 올라가기</Button>}
       </div>
+      <HallStage people={people} joined={HALL_JOINED} onOpen={setOpen} />
 
-      <Drawer open={open !== null} title={open ? `${open.name}님의 경로` : ''} eyebrow={open?.dept} onClose={() => setOpen(null)}>
+      <Drawer open={open !== null} title={open ? `${open.name}님이 걸어온 길` : ''} eyebrow={open && `${open.dept} · ${open.year}학년`} onClose={() => setOpen(null)}>
         {open && (
           <div className="fr-stack">
-            <div className="fr-reason"><p className="fr-reason__label">선정 이유</p><p>{open.reason}</p></div>
-            <p className="fr-hall__start">{open.start}</p>
+            <p className="hall-drawer__why">{open.reason}</p>
+            <p className="fr-empty">{[open.start, joinedLabel(HALL_JOINED[open.id])].filter(Boolean).join(' · ')}</p>
             <PathTree path={open.path} label={`${open.name}님이 거쳐 온 활동`} />
             {open.retro && <blockquote className="fr-quote"><span className="fr-quote__label">공개한 회고</span>{open.retro}</blockquote>}
             <p className="fr-empty">같은 길을 따라가야 하는 건 아니에요. 마음이 가는 활동 하나만 골라 봐도 돼요.</p>
@@ -84,6 +58,6 @@ export function HallView() {
       >
         <p>프로필 공개와 따로 받는 동의예요. 공개한 활동 경로와 고른 회고가 다른 학생에게 전시돼요. 순위와 점수는 없고, 언제든 내릴 수 있어요.</p>
       </Modal>
-    </>
+    </div>
   );
 }

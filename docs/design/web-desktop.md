@@ -80,7 +80,7 @@
 | `#/activities/records/interview[/<활동 id>]` | 회고 대기 목록 · 회고 인터뷰(흐름 화면) |
 | `#/activities/records/portfolio` | 경험 카드 묶음: 보관함에서 고른 2~5개를 STAR 경험 카드로 한 화면에(인쇄·전체 복사, 대리 제출 없음) |
 | `#/analysis` · `/techtree` · `/map` · `/flow` · `/strengths` | 나의 분석 요약 · 하위 넷 |
-| `#/profile` · `/friends` · `/recruit` · `/hall` | 프로필(나, 도전 과제, 함께하기 링크) · 친구 · 팀원 모집 · 명예의 전당. 비공개면 하위 화면은 '공개하면 열려요' |
+| `#/profile` · `/friends` · `/recruit` · `/hall` | 프로필(나, 도전 과제, 함께하기 링크) · 친구 · 팀원 모집 · 명예의 전당. 비공개면 하위 화면은 '공개하면 열려요'. 명예의 전당은 표 대신 장면: 옅은 기둥·아치 아래로 오른 사람 카드가 오른 날짜순으로 천천히 지나간다(마우스·포커스면 멈춤, ◀ ▶·방향키, 누르면 걸어온 길 서랍). 광장 문에서 View Transitions 로 들어오고(움직임 줄이기면 바로), 나가는 길은 빵부스러기 '광장으로' 하나 |
 | `#/settings/<id>` | 설정 |
 
 옛 경로는 `MOVED` 로 새 경로에 넘긴다(주소도 바꿔 둔다): `#/records`·`/archive` → `#/activities/records`, `#/records/interview/*` → `#/activities/records/interview/*`, `#/activities/board`·`/list` → `#/activities/schedule`, `#/challenges/*` → `#/profile`, `#/friends` → `#/profile`, `#/friends/profile` → `#/profile/friends`, `#/friends/recruit`·`/hall` → `#/profile/…`, `#/friends/visibility` → `#/settings/visibility`, `#/recommend/list`·`/compare` → `#/recommend`.
@@ -93,7 +93,7 @@
 
 | 경로 | 화면 | 목업 | 담당 |
 | --- | --- | --- | --- |
-| `#/home` | 홈: 오늘 할 일과 에이전트가 해 둔 일, 가장 추천 + 대안, 곧 있어요 14일 | `home-status.png` | home-recommend |
+| `#/home` | 홈 = 상태창 + 광장(v2.3): 상태창(이니셜·칭호=정체성 가설 점선·역량 육각형 '확인 n'·가진 것 다섯 칸·지금 상황 한 줄), 광장(퀘스트 게시판 → 추천 · 명예의 전당 → 전당 장면 · 광장 게시판 → 팀원 모집, 얇은 선 건물 문 카드에 개수·이름), 오늘의 퀘스트(새 학생은 첫 추천 하나). 곧 있어요·묻기 칸은 일정·추천에 있다 | `home-status.png` | home-recommend |
 | `#/recommend` | 탭 [추천 활동] 가장 추천 1 + 대안 목록, [전체 기회 n] 지금 열린 기회 모두(종류 칩·마감순/새로 열린 순). 행을 누르면 가운데 모달. 나중에 보기, 신청 준비(체크리스트·승인 요청) | `recommend-top` `recommend-compare` `recommend-prepare` | home-recommend |
 | (가입) | 가입 인터뷰: 관심 분야, 목표, 가능한 시간. 처음 한 번 | (목업 없음, 기존 Onboarding 이식) | home-recommend |
 | `#/activities` | 내 활동 요약 › 일정(타임라인·보드·목록) | `activities-board.png` | activities-records |

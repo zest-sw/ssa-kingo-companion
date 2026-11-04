@@ -1,0 +1,53 @@
+import { LEVEL_NAME, levelOf } from './analysis/level';
+import { answerReady } from './interview/answer';
+import type { Activity, FieldGroup, Program, RecordItem } from './types';
+import { FIELD_GROUP, GROUP_LABEL } from './vocab';
+
+// 홈 '상태창' 계산. 값은 모두 센 개수다(점수·레벨 아님). 칭호는 이야기 모델(insight/story)의 정체성 문장을 쓴다.
+
+/** 가진 것: 기록 · 경험 카드(STAR 칸을 채운 기록) · 학교 확인 · 달성한 도전 과제 · 가장 깊이 간 분야 */
+export type Inventory = { records: number; cards: number; school: number; challenges: number; deepest?: string };
+
+/** 지금 상황 한 줄: 하는 중 · 이번 주 마감 · 회고 대기 */
+export type Situation = { doing: number; dueThisWeek: number; reviewWaiting: number };
+
+// 면접 답변으로 꺼낼 수 있는 기록(answerReady: STAR 칸이 하나라도 있다)을 경험 카드로 센다.
+const starFilled = (r: RecordItem) => !!r.card && answerReady(r.card);
+
+/** 가장 깊이 간 분야: 기록의 심화 수준이 가장 높은 분야 묶음. 같으면 기록이 많은 쪽. '창업·기획 심화' */
+export function deepestField(records: RecordItem[], programs?: Record<string, Program>): string | undefined {
+  const by = new Map<FieldGroup, { level: number; n: number }>();
+  for (const r of records) {
+    const g = FIELD_GROUP[r.field];
+    if (g === 'other') continue;
+    const cur = by.get(g) ?? { level: 0, n: 0 };
+    by.set(g, { level: Math.max(cur.level, levelOf(r, programs)), n: cur.n + 1 });
+  }
+  const best = [...by].sort((a, b) => b[1].level - a[1].level || b[1].n - a[1].n)[0];
+  return best && `${GROUP_LABEL[best[0]]} ${LEVEL_NAME[best[1].level as 1 | 2 | 3]}`;
+}
+
+export function inventoryOf(records: RecordItem[], achieved: number, programs?: Record<string, Program>): Inventory {
+  return {
+    records: records.length,
+    cards: records.filter(starFilled).length,
+    school: records.filter(r => r.verification === 'school').length,
+    challenges: achieved,
+    deepest: deepestField(records, programs)
+  };
+}
+
+/** 이번 주 = 오늘부터 6일 안에 마감이 있는, 아직 신청 전·신청한 활동 */
+export function situationOf(activities: Activity[]): Situation {
+  return {
+    doing: activities.filter(a => a.status === 'ongoing').length,
+    dueThisWeek: activities.filter(a => (a.status === 'preparing' || a.status === 'applied') && a.due && a.due.dday >= 0 && a.due.dday <= 6).length,
+    reviewWaiting: activities.filter(a => a.status === 'ended').length
+  };
+}
+
+/** 퀘스트 게시판 문 카드 숫자: 새 퀘스트 수 · 가장 가까운 마감(D-n) */
+export function nearestDday(ddays: number[]): number | undefined {
+  const open = ddays.filter(d => d >= 0);
+  return open.length ? Math.min(...open) : undefined;
+}
