@@ -1,5 +1,5 @@
 import { ddayText } from '../text';
-import type { Activity, FieldGroup, Funnel } from '../types';
+import type { Activity, FieldGroup, Funnel, RecordItem } from '../types';
 import { FIELD_GROUP, GROUP_LABEL, GROUP_ORDER } from '../vocab';
 import { prepareHref } from './flow';
 import { whenOffset } from './upcoming';
@@ -92,10 +92,17 @@ export function agentLine(f: Funnel, activities: Activity[]): string | undefined
   return prepped > 0 ? `${picked} · 신청 준비 ${prepped}개 챙기는 중` : picked;
 }
 
-/** 쌓이는 숫자 한 줄(연속 기록 대신, 줄어들지 않는다): '이번 학기 활동 4개 · 회고 3개'. 활동이 없으면 undefined. */
-export function semesterTally(activities: Activity[]): string | undefined {
+/** 회고를 거친 기록인지: 학생이 답한 칸(역할·한 일·결과·배운 점·다음)이 하나라도 있으면. 회고를 건너뛴 기록(사실만)은 아니다. */
+export const hasRetro = (r: RecordItem): boolean => !!r.card && (['role', 'action', 'result', 'learned', 'next'] as const).some(k => !!r.card?.[k]?.trim());
+
+/**
+ * 쌓이는 숫자 한 줄(연속 기록 대신, 줄어들지 않는다): '이번 학기 활동 4개 · 회고 3개'. 활동이 없으면 undefined.
+ * 회고는 기록됨 활동 가운데 회고를 거친 것만 센다. 기록이 연결되지 않은 기록됨 활동(예시 데이터)은 회고한 것으로 본다.
+ */
+export function semesterTally(activities: Activity[], records: RecordItem[]): string | undefined {
   const n = activities.filter(isSemesterActivity).length;
   if (n === 0) return undefined;
-  const retro = activities.filter(a => a.status === 'recorded').length;
+  const byId = new Map(records.map(r => [r.id, r]));
+  const retro = activities.filter(a => a.status === 'recorded' && (() => { const r = a.recordId ? byId.get(a.recordId) : undefined; return !r || hasRetro(r); })()).length;
   return `이번 학기 활동 ${n}개 · 회고 ${retro}개`;
 }

@@ -22,7 +22,7 @@ export function Overview() {
   const week = weekOf(state.activities);
   const bars = statusBars(state.activities);
   // 연속 기록 대신 쌓이기만 하는 숫자. 줄어들거나 끊기는 장치는 두지 않는다.
-  const tally = semesterTally(state.activities);
+  const tally = semesterTally(state.activities, state.records);
 
   const toRetro = () => navigate(retros.length === 1 ? `activities/records/interview/${retros[0].id}` : 'activities/records/interview');
 

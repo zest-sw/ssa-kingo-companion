@@ -51,10 +51,16 @@ describe('agentLine: 에이전트가 해 둔 일', () => {
 describe('semesterTally: 쌓이는 숫자', () => {
   it('이번 학기 활동(하는 중·끝남·기록됨)과 회고(기록됨)를 센다', () => {
     const list = [act({ id: '1', status: 'ongoing' }), act({ id: '2', status: 'ended' }), act({ id: '3', status: 'recorded' }), act({ id: '4', status: 'preparing' })];
-    expect(semesterTally(list)).toBe('이번 학기 활동 3개 · 회고 1개');
+    expect(semesterTally(list, [])).toBe('이번 학기 활동 3개 · 회고 1개');
+  });
+  it('회고를 건너뛰고 사실만 남긴 기록은 회고로 세지 않는다', () => {
+    const skipped = skippedRecord({ activityId: 's', title: 'S', field: 'dev', kind: 'k', verification: 'self', date: 'd', semester: '2026-2', card: { situation: '상황' } });
+    const list = [act({ id: 's', status: 'recorded', recordId: skipped.id }), act({ id: 't', status: 'recorded', recordId: 'r-t' })];
+    const done = { ...skipped, id: 'r-t', card: { situation: '상황', learned: '배움' } };
+    expect(semesterTally(list, [skipped, done])).toBe('이번 학기 활동 2개 · 회고 1개');
   });
   it('활동이 없으면 없다', () => {
-    expect(semesterTally([act({ status: 'preparing' })])).toBeUndefined();
+    expect(semesterTally([act({ status: 'preparing' })], [])).toBeUndefined();
   });
 });
 
