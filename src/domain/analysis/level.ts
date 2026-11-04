@@ -1,4 +1,4 @@
-import type { Did, Program, RecordItem } from '../types';
+import type { Did, Program } from '../types';
 
 // 활동의 심화 수준(난이도). 테크 트리의 가로 위치다. 숫자는 계산에만 쓰고 화면에는 단계 이름만 낸다.
 
@@ -11,7 +11,7 @@ export const LEVEL_EXAMPLES: Record<Level, string> = {
   3: '대회 수상·팀 리드·튜터·발표'
 };
 
-type Levelled = { title: string; kind?: string; did?: Did; level?: Level; programId?: string };
+export type Levelled = { title: string; kind?: string; did?: Did; level?: Level; programId?: string };
 export type LevelSource = 'set' | 'program' | 'rule';
 
 // 규칙은 위에서부터 먼저 맞는 것을 쓴다.
@@ -41,10 +41,10 @@ export function levelWithSource(item: Levelled, programs: Record<string, Program
 export const levelOf = (item: Levelled, programs?: Record<string, Program>): Level => levelWithSource(item, programs).level;
 
 /** 서랍의 '이 자리에 놓인 이유' 한 줄 */
-export function levelReason(record: Pick<RecordItem, 'title' | 'kind' | 'did' | 'level' | 'programId'>, programs?: Record<string, Program>): string {
-  const { level, source } = levelWithSource(record, programs);
+export function levelReason(item: Levelled, programs?: Record<string, Program>): string {
+  const { level, source } = levelWithSource(item, programs);
   const name = LEVEL_NAME[level];
   if (source === 'program') return `연결된 기회가 ‘${name}’ 수준이라 이 자리에 놓았어요.`;
   if (source === 'set') return `‘${name}’ 수준 활동이라 이 자리에 놓았어요. 보통 ${LEVEL_EXAMPLES[level]} 같은 활동이 여기예요.`;
-  return `이름과 한 일로 보면 ‘${name}’ 수준이라 이 자리에 놓았어요. 보통 ${LEVEL_EXAMPLES[level]} 같은 활동이 여기예요.`;
+  return `이름${item.did ? '과 한 일' : ''}로 보면 ‘${name}’ 수준이라 이 자리에 놓았어요. 보통 ${LEVEL_EXAMPLES[level]} 같은 활동이 여기예요.`;
 }

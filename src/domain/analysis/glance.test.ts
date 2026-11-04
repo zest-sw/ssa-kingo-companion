@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { discoveriesOf } from '../discoveries';
-import { rec } from '../fixtures.test-util';
+import { prog, rec } from '../fixtures.test-util';
 import type { Confirm } from '../types';
 import { buildFlow } from './flow';
 import { pendingCount, recentFlow, treeGlance } from './glance';
@@ -26,6 +26,13 @@ describe('분석 L1 요약', () => {
     expect(g.rows.find(r => r.group === 'dev')?.cells).toEqual(['skipped', 'done', null]);
     expect(g.filled).toBe(1);
     expect(g.blankRows).toBe(5);
+  });
+  it('테크 트리 작은 그림은 +n 으로 접힌 한 활동도 본다', () => {
+    const cands = ['p1', 'p2'].map((id, i) => ({ program: prog(id, { field: 'dev', level: 2 }), dday: i }));
+    const done = ['a', 'b', 'c'].map(id => rec(id, { field: 'dev', level: 2 }));
+    const t = buildTechTree({ records: done, activities: [{ id: 'x', title: '팀 프로젝트', field: 'dev', status: 'ongoing', schedule: '' }], candidates: cands });
+    expect(t.rows.find(r => r.group === 'dev')!.folds.length).toBeGreaterThan(0);
+    expect(treeGlance(t).rows.find(r => r.group === 'dev')?.cells[1]).toBe('done');
   });
   it('관심 흐름은 기록이 있는 최근 학기만 오래된 순서로 남긴다', () => {
     const rows = buildFlow(recs, ['2025-2', '2026-1', '2026-여름', '2026-2']);

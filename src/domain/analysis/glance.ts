@@ -19,7 +19,7 @@ export function treeGlance(tree: TechTree): { rows: TreeGlanceRow[]; filled: num
     group: r.group,
     label: r.label,
     cells: TREE_COLUMNS.map((_, col): GlanceKind | null =>
-      r.cells.filter(c => c.col === col).map(c => c.kind).sort((a, b) => RANK[b] - RANK[a])[0] ?? null)
+      [...r.cells, ...r.folds.flatMap(f => f.cells)].filter(c => c.col === col).map(c => c.kind).sort((a, b) => RANK[b] - RANK[a])[0] ?? null)
   }));
   const filled = rows.reduce((n, r) => n + r.cells.filter(c => c === 'done' || c === 'ongoing').length, 0);
   return { rows, filled, blankRows: tree.rows.filter(r => r.unknown).length };
