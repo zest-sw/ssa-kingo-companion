@@ -97,7 +97,8 @@ export type Clipped = { rows: GanttRow[]; hidden: number };
 
 /**
  * 범위와 겹치는 행만 남기고 막대를 범위 안으로 자른다(범위 밖 마감·발표 표시는 뺀다).
- * 한 번에 limit 줄까지만 보여 준다. 넘치면 끝난 활동부터 빼고, 빠진 수를 hidden 으로 알린다.
+ * 한 번에 limit 줄까지만 보여 준다. 넘치면 남길 순서: 범위 안에 마감·발표가 있는 준비·대기(가까운 날 먼저) → 진행 중 → 끝난 것.
+ * 진행 중이 있으면 준비·대기는 limit - 2 줄까지만 먼저 남겨, 두 종류가 함께 보이게 한다. 그린 순서는 원래 순서를 지킨다.
  */
 export function clipRows(rows: GanttRow[], range: DateRange, limit = 5): Clipped {
   const inside = (d?: string) => (d && d >= range.start && d <= range.end ? d : undefined);
@@ -105,6 +106,12 @@ export function clipRows(rows: GanttRow[], range: DateRange, limit = 5): Clipped
     .filter(r => r.end >= range.start && r.start <= range.end)
     .map(r => ({ ...r, start: r.start < range.start ? range.start : r.start, end: r.end > range.end ? range.end : r.end, deadline: inside(r.deadline), result: inside(r.result) }));
   if (hit.length <= limit) return { rows: hit, hidden: 0 };
-  const keep = new Set(hit.map((r, i) => ({ r, i })).sort((a, b) => Number(a.r.state === 'done') - Number(b.r.state === 'done') || a.i - b.i).slice(0, limit).map(x => x.i));
+  const idx = hit.map((r, i) => ({ r, i }));
+  const mark = (r: GanttRow) => r.deadline ?? r.result;
+  const dated = idx.filter(x => x.r.state === 'prep' && mark(x.r)).sort((a, b) => mark(a.r)!.localeCompare(mark(b.r)!) || a.i - b.i);
+  const active = idx.filter(x => x.r.state === 'active');
+  const cap = active.length ? Math.max(1, limit - 2) : limit;
+  const order = [...dated.slice(0, cap), ...active, ...dated.slice(cap), ...idx.filter(x => !dated.includes(x) && !active.includes(x))];
+  const keep = new Set(order.slice(0, limit).map(x => x.i));
   return { rows: hit.filter((_, i) => keep.has(i)), hidden: hit.length - limit };
 }

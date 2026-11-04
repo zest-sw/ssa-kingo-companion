@@ -127,11 +127,11 @@ describe('홈 요약 문장', () => {
     act({ id: 'd3', title: '먼 마감', due: { label: '신청 마감', dday: 20 } }),
     act({ id: 'o', title: '학회', status: 'ongoing', field: 'ai', schedule: '10.13(화) 19:00' })
   ];
-  it('오늘 할 일은 오늘·내일 일만: 회고, 급한 마감, 오늘 활동 순', () => {
+  it('오늘 할 일은 오늘·내일 일만: 급한 마감, 회고, 오늘 활동 순(회고가 많아도 오늘 마감이 밀리지 않게)', () => {
     const t = todayTasks(list, 1);
-    expect(t.map(x => x.id)).toEqual(['review:r', 'due:d1', 'today:o']);
-    expect(t[1].text).toBe('튜터, 사전 설문 마감 18:00');
-    expect(t[0].target).toEqual({ path: 'activities/records/interview/r' });
+    expect(t.map(x => x.id)).toEqual(['due:d1', 'review:r', 'today:o']);
+    expect(t[0].text).toBe('튜터, 사전 설문 마감 18:00');
+    expect(t[1].target).toEqual({ path: 'activities/records/interview/r' });
   });
   it('회고를 쓰면 할 일에서 빠진다', () => {
     const t = todayTasks(list.map(a => (a.id === 'r' ? { ...a, status: 'recorded' as const } : a)), 1);

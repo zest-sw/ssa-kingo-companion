@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityFromProgram, groupByColumn } from './activities';
+import { activityFromProgram, groupByColumn, splitDone } from './activities';
 import { buildCandidates, dismissEffect } from './candidates';
 import { catalog, prog, profile, rec } from './fixtures.test-util';
 import { ddayText, hasBatchim, josa } from './text';
@@ -82,4 +82,14 @@ describe('조사: 으로/로', () => {
     expect(josaRo('서울')).toBe('로');
     expect(josaRo('특강')).toBe('으로');
   });
+});
+
+describe('splitDone', () => {
+  const a = (id: string, status: ActivityStatus): Activity => ({ id, title: id, field: 'etc', status, schedule: '' });
+  it('회고 대기는 앞에, 기록됨·안 됨은 접는다', () => {
+    const r = splitDone([a('r', 'recorded'), a('e', 'ended'), a('x', 'declined')]);
+    expect(r.open.map(x => x.id)).toEqual(['e']);
+    expect(r.settled.map(x => x.id)).toEqual(['r', 'x']);
+  });
+  it('회고 대기가 없으면 접지 않는다', () => expect(splitDone([a('r', 'recorded')])).toEqual({ open: [a('r', 'recorded')], settled: [] }));
 });

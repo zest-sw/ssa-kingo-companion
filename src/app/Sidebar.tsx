@@ -57,7 +57,7 @@ export function Sidebar({ route }: { route: Route }) {
           <span className="app-student__avatar" aria-hidden="true">나</span>
           <span className="app-student__text">
             <b>{me.name}</b>
-            <span>{me.sub}</span>
+            <span data-keep={state.demo || undefined}>{me.sub}</span>
           </span>
         </a>
         <a className="app-gear" href={hrefOf('settings')} aria-label="설정" title="설정" aria-current={route.name === 'settings' ? 'page' : undefined}>

@@ -70,5 +70,12 @@ describe('clipRows', () => {
     expect(out.hidden).toBe(2);
     expect(out.rows.map(r => r.id)).toEqual(['r2', 'r3', 'r4', 'r5', 'r6']);
   });
+  it('넘치면 이번 달 마감이 있는 준비를 먼저, 진행 중도 두 줄은 남긴다', () => {
+    const { rows: out, hidden } = clipRows(rows, oct, 5);
+    const ids = out.map(r => r.id);
+    expect(ids).toEqual(expect.arrayContaining(['a-tutor', 'a-swm', 'a-ux-contest']));
+    expect(out.filter(r => r.state === 'active')).toHaveLength(2);
+    expect(hidden).toBeGreaterThan(0);
+  });
   it('limit 이하면 그대로', () => expect(clipRows([], oct)).toEqual({ rows: [], hidden: 0 }));
 });
