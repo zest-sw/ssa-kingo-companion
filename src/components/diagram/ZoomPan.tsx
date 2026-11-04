@@ -27,7 +27,9 @@ export type ZoomPanOptions = {
 type Mode = 'idle' | 'pan' | 'node' | 'pinch';
 type Gesture = { mode: Mode; id: string | null; start: Pt; view: View; moved: boolean; dist: number; mid: Pt };
 
+/** 빈 곳은 4px 움직이면 이동. 누를 수 있는 것 위에서는 손떨림(트랙패드·빠른 클릭)을 누름으로 보도록 8px 까지 봐준다 */
 const MOVE_PX = 4;
+const CLICK_SLOP_PX = 8;
 const DOUBLE_MS = 350;
 const SETTLE_MS = 140;
 const ANIM_MS = 260;
@@ -186,7 +188,7 @@ export function useZoomPan(stage: RefObject<HTMLElement | null>, content: RefObj
       return;
     }
     const p = local(e);
-    if (!g.moved && Math.hypot(p.x - g.start.x, p.y - g.start.y) < MOVE_PX) return;
+    if (!g.moved && Math.hypot(p.x - g.start.x, p.y - g.start.y) < (g.id ? CLICK_SLOP_PX : MOVE_PX)) return;
     // 끌기가 시작될 때만 잡는다. 그냥 누르면 노드가 평소처럼 포커스를 받는다
     if (!g.moved) capture(e.pointerId);
     if (g.mode === 'pan') {
@@ -212,6 +214,8 @@ export function useZoomPan(stage: RefObject<HTMLElement | null>, content: RefObj
       }
     }
     pointers.current.delete(e.pointerId);
+    // 잡은 포인터를 바로 놓는다. 다음 누름이 노드·이름표로 곧장 가게
+    try { if (stage.current?.hasPointerCapture?.(e.pointerId)) stage.current.releasePointerCapture(e.pointerId); } catch { /* 이미 풀림 */ }
     // 핀치 중 손가락 하나를 떼면 남은 손가락으로 이어서 이동한다
     if (pointers.current.size === 1 && g.mode === 'pinch') {
       const [p] = [...pointers.current.values()];
