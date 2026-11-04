@@ -4,15 +4,15 @@ import { studentCard } from './student';
 import { hrefOf, inProfile, NAV, navMatch, PROFILE, type Route } from './router';
 
 /**
- * 메인 메뉴 4개와 왼쪽 아래 학생 카드(프로필). 지금 위치의 부모만 하위 항목을 펼친다. 하위 화면은 그 항목이, 흐름 화면(신청 준비·회고 인터뷰)은 가장 가까운 항목이 활성이다.
- * 좁은 폭(아이콘만)에서는 하위 항목을 숨기고, 부모를 누르면 요약 화면의 카드로 하위에 간다.
+ * 메인 메뉴 4개(1단 고정)와 왼쪽 아래 학생 카드(프로필)·설정. 누르거나 옮겨도 펼치거나 밀지 않는다(결정 2026-11-04).
+ * 하위 화면은 페이지 안 구역 탭이 맡고, 사이드바는 그 구역 항목에 지금 위치를 표시한다(하위·흐름 화면도 구역 항목이 활성).
  */
 export function Sidebar({ route }: { route: Route }) {
   const { state, view } = useApp();
   const me = studentCard(state.demo, state.profile);
   const at = navMatch(route);
-  // 화면 자체면 'page', 그 아래 흐름 화면이면 'location'
-  const mark = (on: boolean) => (on ? (at.exact ? 'page' : 'location') : undefined);
+  // 구역 요약 자체면 'page', 그 아래 하위·흐름 화면이면 'location'
+  const mark = (on: boolean) => (on ? (at.exact && !at.child ? 'page' : 'location') : undefined);
   return (
     <aside className="app-side">
       <a className="app-brand" href={hrefOf('home')}>
@@ -24,32 +24,15 @@ export function Sidebar({ route }: { route: Route }) {
       </a>
       <nav aria-label="주 메뉴">
         <ul className="app-nav">
-          {NAV.map(item => {
-            const open = at.item?.id === item.id;
-            return (
-              <li key={item.id}>
-                <a
-                  className={`app-nav__link${open && at.child ? ' app-nav__link--parent' : ''}`}
-                  href={hrefOf(item.path)}
-                  aria-current={mark(open && !at.child)}
-                  title={item.label}
-                >
-                  <Icon name={item.icon} />
-                  <span className="app-nav__label">{item.label}</span>
-                  {item.id === 'recommend' && state.onboarded && <CountBadge count={view.newCount} label="새 후보" />}
-                </a>
-                {open && item.children && (
-                  <ul className="app-nav__sub" aria-label={`${item.label} 하위 메뉴`}>
-                    {item.children.map(c => (
-                      <li key={c.path}>
-                        <a className="app-nav__sublink" href={hrefOf(c.path)} aria-current={mark(at.child?.path === c.path)}>{c.label}</a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            );
-          })}
+          {NAV.map(item => (
+            <li key={item.id}>
+              <a className="app-nav__link" href={hrefOf(item.path)} aria-current={mark(at.item?.id === item.id)}>
+                <Icon name={item.icon} />
+                <span className="app-nav__label">{item.label}</span>
+                {item.id === 'recommend' && state.onboarded && <CountBadge count={view.newCount} label="새 후보" />}
+              </a>
+            </li>
+          ))}
         </ul>
       </nav>
       <div className="app-side__foot">

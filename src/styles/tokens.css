@@ -106,7 +106,15 @@
   /* 틀 */
   --sidebar-width: 220px;
   --sidebar-width-compact: 64px;
-  --nav-item-h: 34px;
+  /* 1279px 이하(narrow)·1099px 이하(tight): 아이콘+글자는 그대로 두고 폭만 줄인다 */
+  --sidebar-width-narrow: 176px;
+  --sidebar-width-tight: 148px;
+  --nav-item-h: 38px;
+  /* 지금 위치 표시: 사이드바 왼쪽 막대·구역 탭 밑줄 두께, 사이드바 지금 항목의 아주 옅은 바탕 */
+  --nav-mark: 2px;
+  --nav-current-bg: var(--surface-hover);
+  /* 구역 탭 한 칸 높이 */
+  --stabs-h: var(--control-h);
   --drawer-width: 480px;
   --modal-width: 420px;
   --modal-width-wide: 880px;
@@ -173,7 +181,8 @@
     --main-pad-b: var(--space-5);
     --card-pad: var(--space-4);
     --card-head-gap: var(--space-3);
-    --nav-item-h: var(--hit-min);
+    --nav-item-h: 36px;
+    --stabs-h: var(--hit-min);
     --dg-row-h: 36px;
   }
 }
