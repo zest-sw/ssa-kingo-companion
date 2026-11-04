@@ -17,11 +17,8 @@
   --an-sem-w: 104px;
   --an-track-h: var(--hit-min);
   --an-track-sum-h: var(--space-2);
-  --an-str-label-w: 120px;
   --an-bar-h: 28px;
   --an-sem-w-sm: 48px;
-  --an-sp-row-h: 24px;
-  --an-sp-name-w: 56px;
   /* 근거 점(ui-dot 14px) 하나가 차지하는 폭 */
   --an-sdot-step: calc(14px + var(--space-1));
   --an-dq-h: 96px;
@@ -292,23 +289,9 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 .an-dpic__label { fill: var(--ink); font-size: var(--text-xs); }
 .an-dpic__more { fill: var(--ink-subtle); font-size: var(--text-xs); }
 .an-dpic__name { fill: var(--ink-strong); font-size: var(--text-xs); font-weight: var(--weight-bold); }
-
-/* 나의 강점: 왼쪽 근거 점 행(누르면 서랍) + 오른쪽 그 강점을 쓸 수 있는 기회. 카드는 내용 높이 */
-.an-str-cols { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: var(--os-gap); align-items: start; min-height: 0; }
-.an-str-cols > * { min-height: 0; }
-.an-shead { margin: 0 0 var(--space-3); color: var(--ink-strong); font-size: var(--text-2xl); font-weight: var(--weight-heavy); line-height: var(--leading-tight); }
-.an-srows { display: flex; flex-direction: column; }
-.an-srows li + li { border-top: var(--border); }
-.an-srow { display: grid; grid-template-columns: var(--an-str-label-w) calc(var(--an-dots, 4) * var(--an-sdot-step) + var(--space-8)) minmax(0, 1fr); align-items: center; gap: var(--space-4); width: 100%; min-height: var(--space-12); padding: var(--space-3); border: 0; border-radius: var(--radius-md); background: none; color: var(--ink); text-align: left; cursor: pointer; }
-.an-srow:hover { background: var(--surface-hover); }
-.an-srow__name { font-size: var(--text-lg); }
-.an-srow__ev { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-.an-srow__text { font-size: var(--text-md); line-height: var(--leading-tight); }
-.an-srow__meta { color: var(--ink-muted); font-size: var(--text-xs); }
 .an-sdots { display: inline-flex; align-items: center; gap: var(--space-2); }
 .an-sdots__set { display: inline-flex; gap: var(--space-1); }
 .an-sdots__n { color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-regular); white-space: nowrap; }
-.an-sfew { margin: var(--space-2) 0 0; padding: var(--space-3) var(--space-3) 0; border-top: var(--border); color: var(--ink-muted); font-size: var(--text-sm); }
 .an-chances { display: flex; flex-direction: column; gap: var(--space-3); }
 .an-chance { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; padding: var(--space-3) var(--space-4); border: var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
 .an-chance:hover { background: var(--surface-hover); }
@@ -342,12 +325,6 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 .an-swhen__dot.is-est { border: var(--an-line-w-thin) dashed var(--c); background: transparent; }
 .an-swhen__sem { color: var(--ink-muted); font-size: var(--text-xs); }
 
-/* 요약 판의 강점 그림: 상위 강점 줄마다 이름 + 근거 점 */
-.an-sp { display: flex; flex-direction: column; justify-content: center; gap: var(--space-2); width: 100%; }
-.an-sp__row { display: grid; grid-template-columns: var(--an-sp-name-w) minmax(0, 1fr); align-items: center; gap: var(--space-3); min-height: var(--an-sp-row-h); color: var(--ink-muted); font-size: var(--text-xs); }
-.an-sp__name { white-space: nowrap; }
-.an-sp__dots { display: flex; align-items: center; gap: var(--space-1); }
-.an-sp__more { color: var(--ink-muted); font-size: var(--text-xs); }
 
 .an-mp { width: 100%; }
 
@@ -365,7 +342,5 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 .an-pill--more { min-width: var(--hit-min); border-color: var(--line-strong); background: var(--surface); color: var(--ink-muted); font-weight: var(--weight-medium); }
 .an-pill--more:hover { background: var(--surface-hover); color: var(--ink); }
 .an-swhen__dot.an-g--other:not(.is-est), .an-g--other > .an-swhen__dot { border: var(--an-line-w-thin) solid var(--c); }
-/* 확인한 근거가 없을 때의 머리 문장: AI 추정이라 점선 점과 옅은 글자로 */
-.an-shead.is-est { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-lg); font-weight: var(--weight-bold); }
 .an-kw.is-est { color: var(--ink-muted); text-decoration: underline dashed var(--ink-subtle); text-underline-offset: var(--space-1); }
 .an-maphead { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; justify-content: flex-end; }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { prog, rec } from '../fixtures.test-util';
-import { answerAxis, fewLine, buildStrengths, chancesFor, samplesOf, splitStrengths, strengthHeadline, strengthKeyword, leadStrengths, usableSentences, whenOf, withAnswers } from './strengths';
+import { answerAxis, fewLine, buildStrengths, chancesFor, samplesOf, splitStrengths, strengthHeadline, strengthKeyword, leadStrengths, usableSentences, whenOf, withAnswers, radarSpots, radarScale, radarMoments, defaultRadarAxis, radarSub } from './strengths';
 
 const recs = [
   rec('a', { axes: ['problem', 'communication'], semester: '2026-1', note: '문제 문장을 정리했다', confirmedAxes: ['problem'] }),
@@ -88,5 +88,32 @@ describe('fewLine', () => {
   it('근거가 있는 것은 그다음 강점, 없는 것은 아직 없다고 나눠 말한다', () => {
     expect(fewLine([row('창의성', 8), row('자기주도', 0)])).toBe('그다음 강점: 창의성. 아직 근거가 없어요: 자기주도');
     expect(fewLine([row('자기주도', 0)])).toBe('아직 근거가 없어요: 자기주도');
+  });
+});
+
+describe('강점 레이더', () => {
+  const rows = buildStrengths(recs);
+  it('역량 순서대로 여섯 꼭짓점, 값은 확인 수와 전체 수', () => {
+    const s = radarSpots(rows);
+    expect(s.map(x => x.axis)).toEqual(['expertise', 'problem', 'communication', 'collaboration', 'self', 'creative']);
+    expect(s.find(x => x.axis === 'problem')).toMatchObject({ confirmed: 1, total: 3 });
+    expect(radarSub(s[1])).toBe('확인 1 · 전체 3');
+  });
+  it('학기까지만 세면 그 뒤 기록은 빠진다', () => {
+    const s = radarSpots(rows, 2026 * 4 + 0);
+    expect(s.find(x => x.axis === 'problem')).toMatchObject({ confirmed: 1, total: 1 });
+    expect(s.find(x => x.axis === 'creative')!.total).toBe(0);
+  });
+  it('눈금은 2개 단위로 최소 4, 많으면 4개 단위', () => {
+    expect(radarScale(radarSpots(rows))).toEqual({ max: 4, ticks: [2, 4] });
+    expect(radarScale([{ axis: 'self', label: '', confirmed: 0, total: 7 }])).toEqual({ max: 8, ticks: [2, 4, 6, 8] });
+    expect(radarScale([{ axis: 'self', label: '', confirmed: 0, total: 11 }])).toEqual({ max: 12, ticks: [4, 8, 12] });
+  });
+  it('시점은 지금과 지난 해 말, 기본 꼭짓점은 가장 확실한 강점', () => {
+    expect(radarMoments(rows).map(m => m.id)).toEqual(['now']);
+    const two = buildStrengths([rec('p', { axes: ['self'], semester: '2025-1' }), ...recs]);
+    expect(radarMoments(two).map(m => m.label)).toEqual(['지금', '2025년 말']);
+    expect(defaultRadarAxis(rows)).toBe('problem');
+    expect(defaultRadarAxis(buildStrengths([]))).toBeNull();
   });
 });
