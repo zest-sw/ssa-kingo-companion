@@ -22,3 +22,4 @@ export { Switch } from './Switch';
 export { SegmentedControl, TabPanel, Tabs, type TabItem } from './Tabs';
 export { Toast, ToastProvider, useToast } from './Toast';
 export * from './diagram';
+export * from './story';

@@ -1,0 +1,108 @@
+/* 이야기 부품. 클래스는 ui-story-, ui-proof, ui-pp 로 시작한다. 색·간격·글자는 토큰만 쓴다.
+   큰 색 면 없이 얇은 선과 작은 점으로만. 강조는 정체성 문장 하나. */
+:root {
+  --story-dot: 6px;
+  --story-dot-gap: 2px;
+  --story-bar-w: 24px;
+  --story-bar-h: 6px;
+  --story-stage: 10px;
+  --story-pic-h: 16px;
+  --story-mark: 10px;
+  --story-underline: 1.5px;
+  --story-underline-gap: 6px;
+  --story-list-name: 80px;
+  --story-list-pic: 128px;
+  --story-ghost-w: 96px;
+}
+
+/* 분야 색: 점·막대가 쓰는 --g */
+.ui-pp--g-dev { --g: var(--field-dev); }
+.ui-pp--g-ai { --g: var(--field-ai); }
+.ui-pp--g-plan { --g: var(--field-startup); }
+.ui-pp--g-mentor { --g: var(--field-mentor); }
+.ui-pp--g-global { --g: var(--field-global); }
+.ui-pp--g-other { --g: var(--grey-500); }
+
+/* ── 정체성 한 문장 ── */
+.ui-story-hero { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.ui-story-hero__basis { display: flex; align-items: center; gap: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); }
+.ui-story-hero__basis svg { flex: none; color: var(--green-900); }
+.ui-story-hero__text { margin: 0; font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); color: var(--ink-strong); }
+/* 확인 전 = AI 가설: 옅은 점선 밑줄. 확인 후 = 실선 */
+.ui-story-hero__text > span:first-child { text-decoration: underline dashed var(--ink-subtle) var(--story-underline); text-underline-offset: var(--story-underline-gap); }
+.ui-story-hero__text.is-confirmed > span:first-child { text-decoration: underline solid var(--green-900) var(--story-underline); }
+.ui-story-hero__act { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.ui-story-hero__alts { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; padding: 0; border: 0; min-width: 0; }
+.ui-story-hero__legend { padding: 0; margin-bottom: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); }
+.ui-story-hero__alt { min-height: var(--hit-min); padding: var(--space-1) var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--surface); text-align: left; font-size: var(--text-md); color: var(--ink); }
+.ui-story-hero__alt:hover { border-color: var(--line-strong); background: var(--surface-hover); }
+.ui-story-hero__alt[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); }
+
+/* ── 근거 칸 ── */
+.ui-proofs { display: grid; gap: 0; border-top: var(--border); border-bottom: var(--border); }
+.ui-proofs--row { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+.ui-proofs--row > li + li { border-left: var(--border); }
+.ui-proofs--list { grid-template-columns: minmax(0, 1fr); }
+.ui-proofs--list > li + li { border-top: var(--border); }
+.ui-proof { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; height: 100%; padding: var(--space-3); color: var(--ink); text-decoration: none; }
+a.ui-proof:hover { background: var(--surface-hover); }
+a.ui-proof:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
+.ui-proof__title { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); color: var(--ink-muted); font-size: var(--text-xs); font-weight: var(--weight-medium); }
+.ui-proof__title svg { color: var(--ink-subtle); }
+.ui-proof__pic { display: flex; align-items: center; min-height: var(--story-pic-h); }
+.ui-proof__text { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.ui-proof__line { font-size: var(--text-md); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+.ui-proof__value { color: var(--ink-muted); font-size: var(--text-sm); }
+/* 세로 줄: 이름 | 그림 | 해석 | 숫자 한 줄 */
+.ui-proofs--list .ui-proof { display: grid; grid-template-columns: var(--story-list-name) var(--story-list-pic) minmax(0, 1fr); align-items: center; gap: var(--space-4); min-height: var(--space-12); padding: var(--space-2) var(--space-3); }
+.ui-proofs--list .ui-proof__text { flex-direction: row; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.ui-proofs--list .ui-proof__value { flex: none; }
+.ui-proof--ghost { color: var(--ink-subtle); }
+.ui-proofs--list .ui-proof--ghost { display: grid; grid-template-columns: var(--story-list-name) var(--story-list-pic) minmax(0, 1fr); align-items: center; gap: var(--space-4); min-height: var(--space-12); }
+
+/* 작은 그림 */
+.ui-pp { display: inline-flex; align-items: center; min-height: var(--story-pic-h); }
+.ui-pp--dots { gap: var(--story-dot-gap); }
+.ui-pp__dot { display: block; box-sizing: border-box; width: var(--story-dot); height: var(--story-dot); border-radius: var(--radius-full); background: var(--g, var(--green-900)); }
+.ui-pp__dot.is-est { background: transparent; border: 1px dashed var(--ink-subtle); }
+.ui-pp--flow { gap: var(--space-1); }
+.ui-pp__step { display: inline-flex; align-items: center; gap: var(--space-1); }
+.ui-pp__step + .ui-pp__step::before { content: ''; width: var(--space-2); border-top: 1px solid var(--line-strong); margin-right: var(--space-1); }
+.ui-pp__bar { display: block; width: var(--story-bar-w); height: var(--story-bar-h); border-radius: var(--radius-xs); background: var(--g); }
+.ui-pp__year { color: var(--ink-muted); font-size: var(--text-xs); }
+.ui-pp--depth { position: relative; gap: var(--space-4); }
+.ui-pp--depth::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--line-strong); }
+.ui-pp__stage { position: relative; display: block; box-sizing: border-box; width: var(--story-stage); height: var(--story-stage); border-radius: var(--radius-full); border: 1.5px solid var(--line-strong); background: var(--surface); }
+.ui-pp__stage.is-done { border-color: var(--g); background: var(--g); }
+.ui-pp__stage.is-skipped { border-color: var(--grey-500); background: var(--grey-100); }
+.ui-pp--ghost { width: 100%; max-width: var(--story-ghost-w); height: var(--story-bar-h); border: 1px dashed var(--line-strong); border-radius: var(--radius-xs); }
+
+/* ── 비어 있는 곳 ── */
+.ui-story-gap { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-2); min-width: 0; color: var(--ink); font-size: var(--text-md); }
+.ui-story-gap b { color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.ui-story-gap__mark { flex: none; box-sizing: border-box; width: var(--story-mark); height: var(--story-mark); border: 1.5px dashed var(--grey-500); border-radius: var(--radius-full); }
+
+/* ── 그래서 이번 주 ── */
+.ui-story-next { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.ui-story-next__eyebrow { color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.ui-story-next__row { display: flex; align-items: center; gap: var(--space-4); }
+.ui-story-next__main { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.ui-story-next__title { align-self: flex-start; display: inline-flex; align-items: center; min-height: var(--hit-min); color: var(--ink-strong); font-size: var(--text-xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); text-decoration: none; }
+.ui-story-next__title:hover { text-decoration: underline; text-underline-offset: var(--space-1); }
+.ui-story-next__why { display: flex; align-items: center; gap: var(--space-1); color: var(--ink); font-size: var(--text-md); }
+.ui-story-next__why svg { flex: none; color: var(--green-900); }
+.ui-story-next__meta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
+.ui-story-next__note { color: var(--ink-muted); font-size: var(--text-sm); }
+.ui-story-next__row > .ui-btn { flex: none; }
+.ui-story-next__more { align-self: flex-start; display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); color: var(--ink-muted); font-size: var(--text-sm); text-decoration: none; }
+.ui-story-next__more:hover { color: var(--ink); text-decoration: underline; }
+
+/* ── 하위 분석 화면 머리 한 줄 ── */
+.ui-story-note { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-3); min-width: 0; font-size: var(--text-md); }
+.ui-story-note__so { font-weight: var(--weight-bold); color: var(--ink); }
+.ui-story-note__now { color: var(--ink-muted); }
+.ui-story-note__now::before { content: '·'; margin-right: var(--space-3); color: var(--ink-subtle); }
+.ui-story-note__back { display: inline-flex; align-items: center; min-height: var(--hit-min); margin-left: auto; color: var(--ink-muted); font-size: var(--text-sm); text-decoration: underline; text-underline-offset: var(--space-1); }
+.ui-story-note__back:hover { color: var(--ink); }
+.ui-pp--dots, .ui-pp--flow, .ui-pp__step, .ui-pp__year { flex-wrap: nowrap; white-space: nowrap; }
+.ui-story-next__meta > span { display: inline-flex; align-items: center; gap: var(--space-1); }

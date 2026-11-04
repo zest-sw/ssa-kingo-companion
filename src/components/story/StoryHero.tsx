@@ -1,0 +1,60 @@
+import { useState } from 'react';
+import type { Identity } from '../../domain/insight/story';
+import { Button } from '../Button';
+import { Icon } from '../Icon';
+
+type Props = {
+  identity: Identity;
+  /** 학생이 고른 문장(맞아요 = 지금 문장). null 이면 고른 것을 지운다 */
+  onAnswer?: (text: string | null) => void;
+  /** 머리 제목 수준. 홈·분석 요약 모두 카드 안이라 기본 h2 */
+  as?: 'h1' | 'h2';
+};
+
+/**
+ * 나는 어떤 사람인가 한 문장. 시스템이 기록을 읽고 세운 가설이라 확인 전에는 옅은 점선 밑줄, 학생이 고르면 실선.
+ * 맞아요 / 다르게 볼래요(대안 2~3개 중 고르기). 대안이 없으면(새 학생의 시작점) 버튼을 두지 않는다.
+ */
+export function StoryHero({ identity, onAnswer, as: H = 'h2' }: Props) {
+  const [choosing, setChoosing] = useState(false);
+  const confirmed = identity.status === 'confirmed';
+  const canAnswer = !!onAnswer && (identity.alternatives.length > 0 || confirmed);
+  const pick = (text: string) => { onAnswer?.(text); setChoosing(false); };
+
+  return (
+    <div className="ui-story-hero">
+      <p className="ui-story-hero__basis">
+        <Icon name="sparkle" size={14} />
+        <span>{identity.basis} {confirmed ? '내가 고른 문장이에요' : '세운 가설이에요'}</span>
+      </p>
+      <H className={`ui-story-hero__text${confirmed ? ' is-confirmed' : ''}`}>
+        <span>{identity.text}</span>
+        {!confirmed && <span className="sr-only"> (AI 추정, 확인 전)</span>}
+      </H>
+      {canAnswer && !choosing && (
+        <div className="ui-story-hero__act">
+          {confirmed ? (
+            <Button size="sm" variant="ghost" onClick={() => setChoosing(true)}>다시 고르기</Button>
+          ) : (
+            <>
+              <Button size="sm" icon="check" onClick={() => pick(identity.text)}>맞아요</Button>
+              <Button size="sm" variant="ghost" onClick={() => setChoosing(true)}>다르게 볼래요</Button>
+            </>
+          )}
+        </div>
+      )}
+      {canAnswer && choosing && (
+        <fieldset className="ui-story-hero__alts">
+          <legend className="ui-story-hero__legend">어느 쪽이 더 나 같나요?</legend>
+          {(confirmed ? [identity.text, ...identity.alternatives] : identity.alternatives).map(t => (
+            <button key={t} type="button" className="ui-story-hero__alt" aria-pressed={confirmed && t === identity.text} onClick={() => pick(t)}>{t}</button>
+          ))}
+          <div className="ui-story-hero__act">
+            {confirmed && <Button size="sm" variant="ghost" onClick={() => { onAnswer?.(null); setChoosing(false); }}>고른 것 지우기</Button>}
+            <Button size="sm" variant="ghost" onClick={() => setChoosing(false)}>그대로 둘게요</Button>
+          </div>
+        </fieldset>
+      )}
+    </div>
+  );
+}
