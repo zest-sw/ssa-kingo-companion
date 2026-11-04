@@ -10,6 +10,7 @@
   --xg-line-hot: 2px;
   --xm-hub-r: 9px;
   --xg-hub-ring: 3px;
+  --xg-axis-name-w: 56px;
 }
 
 .xg-card { min-height: 0; }
@@ -106,7 +107,7 @@
 .xg-in__meta { color: var(--ink-muted); font-size: var(--text-sm); }
 .xg-in__h { margin-top: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold); }
 .xg-in__axes { display: flex; flex-direction: column; gap: var(--space-1); }
-.xg-in__axes li { display: grid; grid-template-columns: var(--an-sp-name-w) minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
+.xg-in__axes li { display: grid; grid-template-columns: var(--xg-axis-name-w) minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
 .xg-in__axis { font-weight: var(--weight-medium); }
 .xg-in__dots { display: flex; align-items: center; gap: var(--space-1); }
 .xg-in__dots .ui-dot { width: var(--an-dot-sm); height: var(--an-dot-sm); }
