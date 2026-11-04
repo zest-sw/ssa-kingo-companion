@@ -19,11 +19,11 @@ describe('분석 L1 요약', () => {
     expect(pendingCount(ds, stale)).toBe(ds.length);
     expect(pendingCount([], {})).toBe(0);
   });
-  it('테크 트리는 6줄 × 4칸으로 줄고 채운 칸만 센다', () => {
+  it('테크 트리는 6줄 × 난이도 3칸으로 줄고, 건너뛴 단계는 회색 칸, 채운 칸만 센다', () => {
     const g = treeGlance(buildTechTree({ records: recs, activities: [], candidates: [] }));
     expect(g.rows).toHaveLength(6);
-    expect(g.rows.every(r => r.cells.length === 4)).toBe(true);
-    expect(g.rows.find(r => r.group === 'dev')?.cells[2]).toBe('done');
+    expect(g.rows.every(r => r.cells.length === 3)).toBe(true);
+    expect(g.rows.find(r => r.group === 'dev')?.cells).toEqual(['skipped', 'done', null]);
     expect(g.filled).toBe(1);
     expect(g.blankRows).toBe(5);
   });

@@ -1,16 +1,21 @@
+import { josa } from '../text';
 import type { Activity, Did, Field, FieldGroup, Program, RecordItem } from '../types';
 import { FIELD_GROUP, GROUP_LABEL } from '../vocab';
+import { LEVEL_NAME, levelOf, type Level } from './level';
 import { sortRecords } from './semester';
 
-// ponytail: 분야 줄과 활동 유형 기준은 기준 문서에서 미정이다. 임시로 '한 일(did)'을 유형 칸에 접는다. 기준이 정해지면 이 표만 고친다.
-export const TREE_COLUMNS = ['들어 보기', '해 보기', '만들기', '나누기'] as const;
-export const COLUMN_OF_DID: Record<Did, number> = { listen: 0, ask: 0, organize: 1, idea: 1, make: 2, present: 3 };
+// 테크 트리: 가로줄은 분야, 왼쪽에서 오른쪽은 활동의 심화 수준(입문 → 중급 → 심화).
+// 내가 한 활동만 분야색, 내가 넘어선 단계인데 한 활동이 없으면 회색(건너뜀), 지금 할 수 있는 활동은 회색 점선.
+
+/** 단계 이름. 칸 번호(col) = 난이도 - 1 */
+export const TREE_COLUMNS = [LEVEL_NAME[1], LEVEL_NAME[2], LEVEL_NAME[3]] as const;
 export const TREE_GROUPS: FieldGroup[] = ['ai', 'dev', 'plan', 'mentor', 'global', 'other'];
+const levelAt = (col: number) => (col + 1) as Level;
 
 export type TreeCell = {
   id: string;
-  /** done 채운 칸, ongoing 하는 중, candidate 지금 신청할 수 있는 추천 후보(테두리만) */
-  kind: 'done' | 'ongoing' | 'candidate';
+  /** done 한 활동, ongoing 하는 중, skipped 건너뛴 단계(회색), candidate 지금 할 수 있는 활동(회색 점선) */
+  kind: 'done' | 'ongoing' | 'skipped' | 'candidate';
   label: string;
   field: Field;
   group: FieldGroup;
@@ -21,9 +26,13 @@ export type TreeCell = {
   programId?: string;
   /** 후보의 마감까지 남은 날 */
   dday?: number;
+  /** 건너뛴 단계: 그 단계에서 지금 열린 기회(마감 가까운 순) */
+  open?: TreeCell[];
+  /** 건너뛴 단계: 그 분야·단계의 다른 기회(지금은 안 열림) */
+  examples?: Program[];
 };
-/** unknown: 아직 안 해 본 분야 */
-export type TreeRow = { group: FieldGroup; label: string; cells: TreeCell[]; folds: TreeFold[]; unknown: boolean };
+/** unknown: 아직 한 활동이 없는 분야. top: 그 분야에서 내가 한 가장 높은 단계(없으면 -1) */
+export type TreeRow = { group: FieldGroup; label: string; cells: TreeCell[]; folds: TreeFold[]; unknown: boolean; top: number };
 /** 한 단계에 다 그리지 못해 '+n' 노드로 접힌 노드들 */
 export type TreeFold = { col: number; cells: TreeCell[] };
 /** cross: 다른 줄로 건너가는 경로 */
@@ -36,8 +45,9 @@ export const CANDIDATES_PER_CELL = 2;
 export const NODES_PER_STAGE = 4;
 export type CandidateRef = { program: Program; dday: number };
 
-/** 남길 순서가 앞인 것부터: 추천(마감 가까운 것) → 하는 중 → 한 활동(최근 것). */
-const keepRank = (c: TreeCell, i: number) => (c.kind === 'candidate' ? [0, c.dday ?? 999] : c.kind === 'ongoing' ? [1, -i] : [2, -i]);
+/** 남길 순서가 앞인 것부터: 건너뜀 → 추천(마감 가까운 것) → 하는 중 → 한 활동(최근 것). */
+const keepRank = (c: TreeCell, i: number) =>
+  (c.kind === 'skipped' ? [-1, 0] : c.kind === 'candidate' ? [0, c.dday ?? 999] : c.kind === 'ongoing' ? [1, -i] : [2, -i]);
 
 /**
  * 한 단계의 노드를 자리 수에 맞춰 그릴 것과 접을 것으로 나눈다. 그릴 노드는 원래 순서(시간순)를 지킨다.
@@ -52,37 +62,60 @@ export function foldStage(cells: TreeCell[]): { visible: TreeCell[]; folded: Tre
   return { visible: cells.filter(c => keep.has(c.id)), folded: cells.filter(c => !keep.has(c.id)) };
 }
 
-export function buildTechTree(input: { records: RecordItem[]; activities: Activity[]; candidates: CandidateRef[] }): TechTree {
-  const sorted = sortRecords(input.records);
-  const cells: TreeCell[] = sorted.map(r => ({
-    id: `r:${r.id}`, kind: 'done', label: r.title, field: r.field, group: FIELD_GROUP[r.field], col: COLUMN_OF_DID[r.did], did: r.did, recordId: r.id
+/** 내가 한 활동 노드: 기록 + 기록으로 옮기지 않은 하는 중·끝난 활동 */
+function ownCells(records: RecordItem[], activities: Activity[], programs: Record<string, Program>): TreeCell[] {
+  const cells: TreeCell[] = sortRecords(records).map(r => ({
+    id: `r:${r.id}`, kind: 'done', label: r.title, field: r.field, group: FIELD_GROUP[r.field], col: levelOf(r, programs) - 1, did: r.did, recordId: r.id
   }));
-
   // 기록으로 옮겨진 활동은 기록 칸이 대신한다. 신청 전·결과 대기·떨어진 신청은 아직 한 활동이 아니라서 뺀다.
-  for (const a of input.activities) {
+  for (const a of activities) {
     if (a.status !== 'ongoing' && a.status !== 'ended' && a.status !== 'recorded') continue;
-    if (recordOfActivity(input.records, a)) continue;
-    cells.push({ id: `a:${a.id}`, kind: a.status === 'ongoing' ? 'ongoing' : 'done', label: a.title, field: a.field, group: FIELD_GROUP[a.field], col: 1, activityId: a.id });
-  }
-  const candidateCells: TreeCell[] = [];
-  for (const c of input.candidates) {
-    candidateCells.push({
-      id: `p:${c.program.id}`, kind: 'candidate', label: c.program.title, field: c.program.field, group: FIELD_GROUP[c.program.field],
-      col: COLUMN_OF_DID[c.program.did[0] ?? 'listen'], programId: c.program.id, dday: c.dday
+    if (recordOfActivity(records, a)) continue;
+    cells.push({
+      id: `a:${a.id}`, kind: a.status === 'ongoing' ? 'ongoing' : 'done', label: a.title, field: a.field, group: FIELD_GROUP[a.field],
+      col: levelOf(a, programs) - 1, activityId: a.id
     });
   }
-  const all = [...cells, ...candidateCells];
+  return cells;
+}
+
+/**
+ * 건너뛴 단계 노드. 이름은 그 단계에서 지금 열린 기회 → 카탈로그의 같은 분야·단계 기회 → '중급 활동' 순서.
+ * 회색 실선 노드라서 '추천'으로 읽히지 않게 마감 표시는 서랍에만 둔다.
+ */
+function skippedCell(group: FieldGroup, col: number, open: TreeCell[], programs: Program[], fallbackField: Field): TreeCell {
+  const examples = programs.filter(p => FIELD_GROUP[p.field] === group && p.level === levelAt(col) && !open.some(o => o.programId === p.id));
+  const label = open[0]?.label ?? examples[0]?.title ?? `${TREE_COLUMNS[col]} 활동`;
+  return { id: `s:${group}:${col}`, kind: 'skipped', label, field: open[0]?.field ?? examples[0]?.field ?? fallbackField, group, col, open, examples };
+}
+
+export function buildTechTree(input: { records: RecordItem[]; activities: Activity[]; candidates: CandidateRef[]; programs?: Program[] }): TechTree {
+  const catalog = input.programs ?? input.candidates.map(c => c.program);
+  const byId = Object.fromEntries(catalog.map(p => [p.id, p])) as Record<string, Program>;
+  const cells = ownCells(input.records, input.activities, byId);
+  const candidateCells: TreeCell[] = input.candidates.map(c => ({
+    id: `p:${c.program.id}`, kind: 'candidate', label: c.program.title, field: c.program.field, group: FIELD_GROUP[c.program.field],
+    col: c.program.level - 1, programId: c.program.id, dday: c.dday
+  }));
 
   const rows: TreeRow[] = TREE_GROUPS.map(group => {
-    const own = all.filter(c => c.group === group);
+    const own = cells.filter(c => c.group === group);
+    const cands = candidateCells.filter(c => c.group === group).sort((a, b) => (a.dday ?? 999) - (b.dday ?? 999));
+    const top = own.length ? Math.max(...own.map(c => c.col)) : -1;
     const shown: TreeCell[] = [];
     const folds: TreeFold[] = [];
     for (const col of TREE_COLUMNS.keys()) {
-      const { visible, folded } = foldStage(own.filter(c => c.col === col));
+      const mine = own.filter(c => c.col === col);
+      const here = cands.filter(c => c.col === col);
+      let stage: TreeCell[];
+      if (!mine.length && col < top) stage = [skippedCell(group, col, here, catalog, own[0].field)];
+      // 지금 할 수 있는 활동은 내가 한 가장 높은 단계와 그 위에만 놓는다(이미 넘어선 아래 단계는 목록 보기에서).
+      else stage = [...mine, ...(col >= top ? here : [])];
+      const { visible, folded } = foldStage(stage);
       shown.push(...visible);
       if (folded.length) folds.push({ col, cells: folded });
     }
-    return { group, label: GROUP_LABEL[group], cells: shown, folds, unknown: !own.some(c => c.kind !== 'candidate') };
+    return { group, label: GROUP_LABEL[group], cells: shown, folds, unknown: !own.length, top };
   });
 
   const links: TreeLink[] = [];
@@ -90,7 +123,7 @@ export function buildTechTree(input: { records: RecordItem[]; activities: Activi
     for (const cell of row.cells) {
       const before = row.cells.filter(c => c.col < cell.col).map(c => c.col);
       if (!before.length) continue;
-      // 앞 칸이 여럿이어도 한 줄만 잇는다. 같은 순서의 칸끼리 이어 선이 엉키지 않게 한다.
+      // 앞 단계가 여럿이어도 한 줄만 잇는다. 같은 순서의 노드끼리 이어 선이 엉키지 않게 한다.
       const prevCol = row.cells.filter(c => c.col === Math.max(...before));
       const same = row.cells.filter(c => c.col === cell.col);
       links.push({ from: prevCol[Math.min(same.indexOf(cell), prevCol.length - 1)].id, to: cell.id, cross: false });
@@ -109,6 +142,34 @@ export function buildTechTree(input: { records: RecordItem[]; activities: Activi
     lastByDid.set(cell.did!, cell);
   }
   return { rows, links, candidates: candidateCells };
+}
+
+/** 그 분야에서 건너뛴 단계 이름들 */
+export const skippedStages = (row: TreeRow) => row.cells.filter(c => c.kind === 'skipped').map(c => TREE_COLUMNS[c.col]);
+
+/**
+ * 머리 키워드 한 줄: '창업·기획 심화까지 · 글로벌은 중급을 건너뜀'.
+ * 가장 높은 단계까지 간 분야(같으면 활동이 많은 분야), 그다음 건너뛴 단계가 있는 분야, 없으면 안 해 본 분야.
+ */
+export function treeHeadline(tree: TechTree): string {
+  const rows = tree.rows.filter(r => r.group !== 'other');
+  // '+n' 으로 접힌 노드도 센다. 많이 한 분야일수록 많이 접혀서, 보이는 노드만 세면 순서가 뒤집힌다.
+  const own = (r: TreeRow) => [...r.cells, ...r.folds.flatMap(f => f.cells)].filter(c => c.kind === 'done' || c.kind === 'ongoing').length;
+  const lead = rows.filter(r => r.top >= 0).sort((a, b) => b.top - a.top || own(b) - own(a))[0];
+  if (!lead) return '회고를 쓰면 가지가 자라요';
+  const head = `${lead.label} ${TREE_COLUMNS[lead.top]}까지`;
+  const skip = rows.find(r => skippedStages(r).length);
+  if (skip) {
+    const stage = skippedStages(skip).join('·');
+    return `${head} · ${skip.label}${josa(skip.label, '은', '는')} ${stage}${josa(stage, '을', '를')} 건너뜀`;
+  }
+  const blank = rows.find(r => r.unknown);
+  return blank ? `${head} · ${blank.label} 미경험` : head;
+}
+
+export function treeValue(tree: TechTree): string | undefined {
+  const blank = tree.rows.filter(r => r.unknown && r.group !== 'other').length;
+  return blank ? `안 해 본 분야 ${blank}곳` : undefined;
 }
 
 /** 칸 서랍에서 같은 분야의 다른 기록 */

@@ -22,22 +22,8 @@ function topBy<T>(list: T[], n: (t: T) => number): T | undefined {
   return list.reduce<T | undefined>((a, b) => (!a || n(b) > n(a) ? b : a), undefined);
 }
 
-/** 테크 트리 머리말: '창업·기획 집중 · 개발 미경험'. 해 본 분야가 없으면 다음 할 일. */
-export function treeHeadline(tree: TechTree): string {
-  const rows = tree.rows.filter(r => r.group !== 'other');
-  // '+n' 으로 접힌 노드도 센다. 많이 한 분야일수록 많이 접혀서, 보이는 노드만 세면 순서가 뒤집힌다.
-  const own = (r: (typeof rows)[number]) => [...r.cells, ...r.folds.flatMap(f => f.cells)].filter(c => c.kind !== 'candidate').length;
-  const done = rows.map(r => ({ r, n: own(r) })).filter(x => x.n > 0);
-  const top = topBy(done, x => x.n);
-  if (!top) return '회고를 쓰면 가지가 자라요';
-  const blank = rows.find(r => r.unknown);
-  return blank ? `${top.r.label} 집중 · ${blank.label} 미경험` : `${top.r.label} 집중`;
-}
-
-export function treeValue(tree: TechTree): string | undefined {
-  const blank = tree.rows.filter(r => r.unknown && r.group !== 'other').length;
-  return blank ? `안 해 본 분야 ${blank}곳` : undefined;
-}
+// 테크 트리 머리말은 난이도 규칙과 함께 techtree.ts 에 있다. 요약 화면은 여기서 가져간다.
+export { treeHeadline, treeValue } from './techtree';
 
 export type MapPicNode = { id: string; label: string; group: FieldGroup; col: number; row: number };
 export type MapPicEdge = { id: string; a: string; b: string; confirmed: boolean };

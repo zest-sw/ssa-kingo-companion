@@ -9,11 +9,11 @@ import { TREE_COLUMNS, type TechTree } from './techtree';
 export const pendingCount = (discoveries: Discovery[], confirm: Record<string, Confirm>) =>
   discoveries.filter(d => { const s = discState(d, confirm); return s === 'none' || s === 'changed'; }).length;
 
-export type GlanceKind = 'done' | 'ongoing' | 'candidate';
+export type GlanceKind = 'done' | 'ongoing' | 'skipped' | 'candidate';
 export type TreeGlanceRow = { group: FieldGroup; label: string; cells: (GlanceKind | null)[] };
-const RANK: Record<GlanceKind, number> = { done: 3, ongoing: 2, candidate: 1 };
+const RANK: Record<GlanceKind, number> = { done: 4, ongoing: 3, skipped: 2, candidate: 1 };
 
-/** 테크 트리를 분야 줄 × 유형 칸의 점 격자로 줄인다. 한 칸에 여럿이면 가장 센 것(한 활동 > 하는 중 > 후보) 하나. */
+/** 테크 트리를 분야 줄 × 난이도 칸의 점으로 줄인다. 한 칸에 여럿이면 가장 센 것(한 활동 > 하는 중 > 건너뜀 > 할 수 있는 활동) 하나. */
 export function treeGlance(tree: TechTree): { rows: TreeGlanceRow[]; filled: number; blankRows: number } {
   const rows = tree.rows.map(r => ({
     group: r.group,
