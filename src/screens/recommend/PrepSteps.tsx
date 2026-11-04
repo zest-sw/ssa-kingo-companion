@@ -65,9 +65,10 @@ export function DraftStep({ draft, team, revised, revising, onRetry }: { draft: 
 }
 
 /** 준비 ③ 신청: 나갈 것을 세 줄로 확인하고 승인 하나. 남은 준비가 있으면 승인은 열리지 않는다. */
-export function ApplyStep({ title, left, draftReady, dueText, ready }: { title: string; left: number; draftReady: boolean; dueText: string; ready: boolean }) {
+export function ApplyStep({ title, left, draftReady, dueText, ready, onBack }: { title: string; left: string[]; draftReady: boolean; dueText: string; ready: boolean; onBack: () => void }) {
   const rows = [
-    { ok: left === 0, text: left === 0 ? '준비할 것을 모두 마쳤어요' : `준비할 것이 ${left}개 남았어요` },
+    // 몇 개가 아니라 무엇이 남았는지 말해 준다.
+    { ok: left.length === 0, text: left.length === 0 ? '준비할 것을 모두 마쳤어요' : `남은 준비: ${left.join(', ')}` },
     { ok: draftReady, text: draftReady ? '신청서 초안이 준비됐어요' : '신청서 초안을 쓰는 중이에요' },
     { ok: true, text: `마감 ${dueText}` }
   ];
@@ -79,7 +80,7 @@ export function ApplyStep({ title, left, draftReady, dueText, ready }: { title: 
           <li key={r.text} data-ok={r.ok || undefined}><span className="rec-apply__mark" aria-hidden="true"><Icon name={r.ok ? 'check' : 'alert'} size={16} /></span>{r.text}</li>
         ))}
       </ul>
-      {!ready && <p className="rec-muted">위 ‘준비할 것’ 단계로 돌아가 남은 일을 체크해 주세요.</p>}
+      {!ready && left.length > 0 && <Button size="sm" onClick={onBack}>남은 준비 하러 가기</Button>}
     </div>
   );
 }
