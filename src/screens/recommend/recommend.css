@@ -230,3 +230,5 @@
 /* 고르기 카드: 이유 줄 끝의 '자세히' 링크는 오른쪽 끝에 붙는다 */
 .rec-pick__more { flex: none; margin-left: auto; }
 .rec-pick__meta { flex-wrap: wrap; }
+/* 나중에 보기 칩: 한 줄에 세 개, 좁으면 줄을 바꾼다 */
+.rec-later__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }

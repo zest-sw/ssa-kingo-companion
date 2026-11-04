@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { prog } from '../fixtures.test-util';
+import { prog, rec } from '../fixtures.test-util';
 import { skippedRecord } from '../interview/record';
 import type { Activity, Funnel } from '../types';
+import { laterChoices } from './flow';
 import { myWeekCount, TIGHT_AT, weekLoad } from './load';
-import { agentLine, semesterTally } from './summary';
+import { agentLine, hasRetro, semesterTally } from './summary';
 
 // 오늘은 10.13(1주차 첫날). 이번 주 = 10.13~10.19.
 const act = (over: Partial<Activity>): Activity => ({ id: over.id ?? 'a', title: 'A', field: 'dev', status: 'applied', schedule: '', ...over });
@@ -49,18 +50,20 @@ describe('agentLine: 에이전트가 해 둔 일', () => {
 });
 
 describe('semesterTally: 쌓이는 숫자', () => {
-  it('이번 학기 활동(하는 중·끝남·기록됨)과 회고(기록됨)를 센다', () => {
+  const T = '2026-2';
+  it('이번 학기 활동(하는 중·끝남·기록됨)과 이번 학기 회고를 센다. 지난 학기 기록은 세지 않는다', () => {
     const list = [act({ id: '1', status: 'ongoing' }), act({ id: '2', status: 'ended' }), act({ id: '3', status: 'recorded' }), act({ id: '4', status: 'preparing' })];
-    expect(semesterTally(list, [])).toBe('이번 학기 활동 3개 · 회고 1개');
+    const records = [rec('e1', { note: '메모' }), rec('e2', { quote: '한마디' }), rec('old', { semester: '2025-1', note: '메모' })];
+    expect(semesterTally(list, records, T)).toBe('이번 학기 활동 3개 · 회고 2개');
   });
-  it('회고를 건너뛰고 사실만 남긴 기록은 회고로 세지 않는다', () => {
-    const skipped = skippedRecord({ activityId: 's', title: 'S', field: 'dev', kind: 'k', verification: 'self', date: 'd', semester: '2026-2', card: { situation: '상황' } });
-    const list = [act({ id: 's', status: 'recorded', recordId: skipped.id }), act({ id: 't', status: 'recorded', recordId: 'r-t' })];
-    const done = { ...skipped, id: 'r-t', card: { situation: '상황', learned: '배움' } };
-    expect(semesterTally(list, [skipped, done])).toBe('이번 학기 활동 2개 · 회고 1개');
+  it('예시 데이터처럼 칸 없이 메모만 있는 기록은 회고한 것, 사실만 남긴 기록은 아니다', () => {
+    const skipped = skippedRecord({ activityId: 's', title: 'S', field: 'dev', kind: 'k', verification: 'self', date: 'd', semester: T, card: { situation: '상황' } });
+    expect(hasRetro(skipped)).toBe(false);
+    expect(hasRetro(rec('seed', { note: '관찰하고 물었다' }))).toBe(true);
+    expect(hasRetro({ ...skipped, card: { situation: '상황', learned: '배움' } })).toBe(true);
   });
   it('활동이 없으면 없다', () => {
-    expect(semesterTally([act({ status: 'preparing' })], [])).toBeUndefined();
+    expect(semesterTally([act({ status: 'preparing' })], [], T)).toBeUndefined();
   });
 });
 
@@ -68,5 +71,16 @@ describe('skippedRecord: 회고 없이 남기는 기록', () => {
   it('사실만 남기고 역량 근거를 만들지 않으며 추천에 쓰지 않는다', () => {
     const r = skippedRecord({ activityId: 'a1', title: '해커톤', field: 'dev', kind: '교내 해커톤', verification: 'school', date: '2학기 · 10월', semester: '2026-2', card: { situation: '24시간, 4인 팀' } });
     expect(r).toMatchObject({ id: 'r-a1', title: '해커톤', axes: [], useForRecommend: false, visibility: 'me', verification: 'school', card: { situation: '24시간, 4인 팀' } });
+  });
+});
+
+describe('laterChoices: 나중에 보기 다시 볼 날', () => {
+  it('마감이 멀면 내일 / 다음 주 / 마감 3일 전', () => {
+    expect(laterChoices(14).map(c => [c.label, c.days])).toEqual([['내일', 1], ['다음 주', 7], ['마감 3일 전', 11]]);
+  });
+  it('마감 뒤로 미루지 않는다: 마감 전날까지 다시 보이는 날만, 같은 날은 하나', () => {
+    expect(laterChoices(5).map(c => c.label)).toEqual(['내일', '마감 3일 전']);
+    expect(laterChoices(4).map(c => c.label)).toEqual(['내일']);
+    expect(laterChoices(1)).toEqual([]);
   });
 });

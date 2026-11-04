@@ -104,7 +104,18 @@ export function dateLabel(dday: number, week = 1): string {
 export const clockLabel = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
 /** 나중에 보기에서 고르는 날 */
-export const LATER_CHOICES = [{ days: 1, label: '내일' }, { days: 3, label: '3일 뒤' }, { days: 7, label: '다음 주' }] as const;
+export type LaterChoice = { days: number; label: string };
+/** 마감 며칠 전에 다시 띄울지 */
+export const LATER_BEFORE_DUE = 3;
+/**
+ * 나중에 보기(Linear 스누즈)의 다시 볼 날: 내일 / 다음 주 / 마감 3일 전. 기회를 놓치지 않게 마감 전날까지 다시 보이는 날만 남긴다.
+ * 같은 날이 겹치면 하나만, 가까운 날부터. 마감이 내일이거나 지났으면 빈 목록(미룰 수 없다).
+ */
+export function laterChoices(dday: number): LaterChoice[] {
+  const all: LaterChoice[] = [{ days: 1, label: '내일' }, { days: 7, label: '다음 주' }, { days: dday - LATER_BEFORE_DUE, label: '마감 3일 전' }];
+  const ok = all.filter(c => c.days >= 1 && c.days < dday);
+  return ok.filter((c, i) => ok.findIndex(x => x.days === c.days) === i).sort((a, b) => a.days - b.days);
+}
 
 /** 1주차 첫날부터 센 날 번호. 나중에 보기의 '다시 볼 날'을 이 값으로 저장한다. */
 export const laterUntilDay = (week: number, days: number) => 7 * (week - 1) + days;
