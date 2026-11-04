@@ -5,9 +5,11 @@ import { Button, Card, Drawer, EmptyState, GhostPic } from '../../components';
 import { nextStep } from '../../domain/nextStep';
 import { buildFlow, clampRange, defaultRange, legendGroups, moveRange, summarizeFlow, type FlowRange, type FlowSegment } from '../../domain/analysis/flow';
 import { semesterAxis, semesterLabel } from '../../domain/analysis/semester';
+import { flowBars } from '../../domain/analysis/visual';
 import type { FieldGroup, RecordItem } from '../../domain/types';
 import { GROUP_LABEL } from '../../domain/vocab';
 import { SEMESTER_FROM, SEMESTER_NOW } from '../../data/analysis';
+import { RangePicker } from './RangePicker';
 import { RecordSummary } from './RecordSummary';
 
 const pct = (share: number) => `${Math.round(share * 100)}%`;
@@ -24,7 +26,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   const step = nextStep(useApp().state.activities);
   const summary = summarizeFlow(rows, from, to);
   // 구간 밖 학기는 그리지 않는다. 시작 학기 슬라이더를 앞으로 당기면 그 학기가 다시 보인다.
-  const shown = rows.slice(from, to + 1);
+  const shown = flowBars(rows.slice(from, to + 1));
   // 학기가 많아 칸 안에서 스크롤될 때는 지금 학기가 보이게 맨 아래(최근)에서 시작한다.
   const scroller = useRef<HTMLDivElement>(null);
   const shownKey = `${from}-${to}`;
@@ -54,7 +56,8 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
                       aria-label={`${semesterLabel(r.semester)} ${GROUP_LABEL[s.group]} ${s.count}개, ${pct(s.share)}. 활동 목록 보기`}
                       onClick={() => setPick({ semester: r.semester, segment: s })}
                     >
-                      <span className="num">{s.count}</span>
+                      {s.main && <span className="an-flow__name">{s.name}</span>}
+                      <span className="an-flow__count num">{s.count}</span>
                     </button>
                   ))}
                 </span>
@@ -64,14 +67,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
         </ol></div>
         <Legend groups={legendGroups(rows)} />
         {shown.some(r => r.total === 0) && <p className="an-note">비어 있는 칸은 기록이 없는 학기예요. 쉬어 간 학기도 흐름의 일부예요.</p>}
-        <div className="an-range">
-          <label>시작 학기 <b>{semesterLabel(axis[from])}</b>
-            <input type="range" min={0} max={last} value={from} onChange={e => setRange(moveRange([from, to], 'from', Number(e.target.value), last))} aria-valuetext={semesterLabel(axis[from])} />
-          </label>
-          <label>끝 학기 <b>{semesterLabel(axis[to])}</b>
-            <input type="range" min={0} max={last} value={to} onChange={e => setRange(moveRange([from, to], 'to', Number(e.target.value), last))} aria-valuetext={semesterLabel(axis[to])} />
-          </label>
-        </div>
+        <RangePicker axis={axis} from={from} to={to} onMove={(which, v) => setRange(moveRange([from, to], which, v, last))} />
       </Card>
 
       <Drawer open={sumOpen} onClose={() => setSumOpen(false)} eyebrow="고른 구간" title={`${semesterLabel(axis[from])}${from !== to ? ' ~ ' + semesterLabel(axis[to]) : ''}`}>
@@ -106,3 +102,4 @@ function Legend({ groups }: { groups: FieldGroup[] }) {
     </ul>
   );
 }
+

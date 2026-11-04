@@ -40,6 +40,10 @@
   --an-ring-out: 4px;
   --an-halo: 4px;
   --an-edge: 3px;
+  /* 손잡이 누르는 자리 반지름(32px 원). 보이는 점은 테두리를 투명하게 비워 작게 그린다 */
+  --an-thumb-r: calc(var(--hit-min) / 2);
+  --an-thumb-pad: var(--space-2);
+  --an-rail-h: var(--space-1);
   --an-dot-gap: 5px;
 }
 
@@ -181,8 +185,12 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 .an-flow__track { display: flex; gap: var(--an-gap-thin); height: var(--an-track-h); border-radius: var(--radius-sm); overflow: hidden; }
 .an-flow__track--empty { align-items: center; padding: 0 var(--space-4); background: var(--bg-sunken); color: var(--ink-subtle); font-size: var(--text-sm); }
 .an-flow__track--sum { height: var(--an-track-sum-h); margin: var(--space-4) 0; border-radius: var(--radius-xs); }
-.an-flow__seg { flex-basis: 0; min-width: var(--hit-min); border: 0; border-top: var(--an-edge) solid var(--fill); background: var(--grey-100); color: var(--ink); font-weight: var(--weight-bold); font-size: var(--text-sm); }
-.an-flow__seg:hover { background: var(--bg-sunken); }
+/* 학기 막대 칸: 분야색을 바탕 쪽으로 옅게 섞어 채운다(토큰 색 그대로, 채도만 낮춤). 넓은 칸은 분야 이름 + 작은 개수, 좁은 칸은 개수만(이름은 범례) */
+.an-flow__seg { --soft: color-mix(in srgb, var(--fill) 72%, var(--surface)); flex-basis: 0; min-width: var(--hit-min); display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: 0 var(--space-3); border: 0; background: var(--soft); color: var(--on); font-size: var(--text-sm); overflow: hidden; }
+.an-flow__seg:hover { background: var(--fill); }
+.an-flow__name { font-weight: var(--weight-bold); white-space: nowrap; }
+.an-flow__count { margin-left: auto; font-size: var(--text-xs); opacity: 0.85; }
+.an-g--other .an-flow__seg { --soft: var(--grey-100); }
 .an-flow__seg:focus-visible { box-shadow: inset 0 0 0 var(--an-ring) var(--surface), inset 0 0 0 var(--an-ring-out) var(--focus); border-radius: 0; }
 .an-flow__fill { flex-basis: 0; background: var(--fill); }
 .an-flow__none { margin-top: var(--space-4); }
@@ -191,11 +199,18 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 .an-sumlist b { margin-left: auto; }
 .an-sumlist__dot { width: var(--an-dot-sm); height: var(--an-dot-sm); border-radius: var(--radius-full); background: var(--fill); flex: none; }
 .an-g--other .an-sumlist__dot { border: var(--an-line-w-thin) solid var(--c); }
-.an-range { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-top: var(--space-5); padding-top: var(--space-4); border-top: var(--border); }
-.an-range label { display: flex; flex-direction: column; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); }
-.an-range b { color: var(--ink); }
-.an-range input { width: 100%; min-height: var(--hit-min); accent-color: var(--green-900); }
-.an-range input:focus-visible { border-radius: var(--radius-sm); }
+/* 구간 고르기: 막대 하나 + 양 끝 손잡이. 두 input 을 겹치고 손잡이만 눌리게 한다 */
+.an-range { display: flex; flex-direction: column; gap: var(--space-1); margin-top: var(--space-5); padding-top: var(--space-4); border-top: var(--border); }
+.an-range__head { display: flex; align-items: baseline; gap: var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
+.an-range__head b { color: var(--ink); }
+.an-range__track { position: relative; height: var(--hit-min); margin: 0 var(--an-thumb-r); cursor: pointer; touch-action: none; }
+.an-range__rail, .an-range__sel { position: absolute; top: 50%; height: var(--an-rail-h); transform: translateY(-50%); border-radius: var(--radius-full); }
+.an-range__rail { left: 0; right: 0; background: var(--grey-100); }
+.an-range__sel { background: var(--green-900); }
+/* 손잡이: 32px 누르는 자리 안에 작은 점. 테두리를 투명하게 비워 점만 보인다 */
+.an-range__thumb { position: absolute; top: 50%; width: calc(2 * var(--an-thumb-r)); height: calc(2 * var(--an-thumb-r)); transform: translate(-50%, -50%); border: var(--an-thumb-pad) solid transparent; border-radius: var(--radius-full); background: var(--green-900); background-clip: padding-box; cursor: grab; touch-action: none; }
+.an-range__thumb:focus-visible { outline: none; box-shadow: inset 0 0 0 var(--an-ring) var(--focus); }
+.an-range__ends { display: flex; justify-content: space-between; color: var(--ink-subtle); font-size: var(--text-xs); }
 
 @media (max-width: 1360px) {
   .an-tree { --label: var(--an-label-w-narrow); --gap: var(--an-col-gap-narrow); }
