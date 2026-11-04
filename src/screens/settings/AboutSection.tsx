@@ -1,30 +1,26 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
-import { Button, Card, Modal, SegmentedControl, useToast } from '../../components';
+import { Button, Card, Modal, useToast } from '../../components';
 import { ABOUT_LINES, PRINCIPLE_LINES } from '../../data/settings';
 import { Group, Row } from './Row';
 
-type Mode = 'demo' | 'new';
-const MODES: { id: Mode; label: string }[] = [{ id: 'demo', label: '예시 데이터로 보기' }, { id: 'new', label: '새 학생으로 시작' }];
-
-/** 프로토타입 정보. 데이터가 예시임을 밝히는 단 한 곳이고, 예시 데이터/새 학생 전환과 처음 상태로 돌리기도 여기 있다. */
+/** 프로토타입 정보. 데이터가 예시임을 밝히는 단 한 곳이고, 예시 학생으로 보기와 처음부터 다시(새 학생)도 여기 있다. */
 export function AboutSection() {
   const { state, run, resetAll } = useApp();
   const toast = useToast();
   const [ask, setAsk] = useState(false);
   const [askMode, setAskMode] = useState(false);
-  const reset = () => { resetAll(); setAsk(false); navigate('home'); toast('처음 상태로 돌렸어요.'); };
-  // 새 학생이 직접 쓴 활동·기록은 예시로 바꾸면 사라진다. 그럴 때만 한 번 묻는다.
+  const reset = () => { resetAll(); setAsk(false); navigate('home'); toast('처음부터 다시 시작해요. 가입 인터뷰부터 해 볼까요?'); };
+  // 지금 상태를 예시로 덮기 전에 한 번 묻는다. 무엇이 사라지는지 말한다.
   const mine = state.demo ? 0 : state.activities.length + state.records.length;
-  const switchTo = (demo: boolean) => {
+  const overwrite = state.demo
+    ? '둘러보며 고른 것과 답한 것이 처음 예시로 돌아가요.'
+    : mine > 0 ? `새 학생으로 쓴 활동·기록 ${mine}개가 지워져요.` : '지금 고른 것과 답한 것이 예시 학생 것으로 바뀌어요.';
+  const toExample = () => {
     setAskMode(false);
-    run({ type: 'data/mode', demo });
-    toast(demo ? '예시 학생의 활동·기록으로 보고 있어요.' : '새 학생으로 시작했어요. 추천에서 첫 활동을 골라 보세요.');
-  };
-  const choose = (m: Mode) => {
-    if ((m === 'demo') === state.demo) return;
-    if (m === 'demo' && mine > 0) setAskMode(true); else switchTo(m === 'demo');
+    run({ type: 'data/mode', demo: true });
+    toast('예시 학생으로 보고 있어요. 3년 동안 쌓인 활동·기록이에요.');
   };
   return (
     <div className="st-stack">
@@ -41,30 +37,30 @@ export function AboutSection() {
         </Group>
         <Group title="이 브라우저에 남긴 것">
           <ul className="st-rows">
-            <Row title="보는 데이터" sub={state.demo ? '예시 학생의 활동·기록·친구로 둘러보는 중이에요' : '새 학생이에요. 활동·기록이 비어 있고 기회만 있어요'}>
-              <SegmentedControl label="보는 데이터" items={MODES} value={state.demo ? 'demo' : 'new'} onChange={choose} />
+            <Row title="예시 학생으로 보기" sub={state.demo ? '지금 예시 학생으로 보는 중이에요. 누르면 처음 예시로 돌아가요' : '소프트웨어학과 3학년 예시 학생의 3년 치 활동·기록으로 바꿔요'}>
+              <Button onClick={() => setAskMode(true)}>예시 학생으로 보기</Button>
             </Row>
-            <Row title="처음 상태로 돌리기" sub="프로필, 고른 것, 초안, 설정을 지우고 가입 인터뷰부터 다시 해요">
-              <Button onClick={() => setAsk(true)}>처음 상태로 돌리기</Button>
+            <Row title="처음부터 다시(새 학생)" sub="프로필, 고른 것, 초안, 설정을 지우고 가입 인터뷰부터 다시 해요">
+              <Button onClick={() => setAsk(true)}>처음부터 다시</Button>
             </Row>
           </ul>
         </Group>
       </Card>
       <Modal
         open={ask}
-        title="처음 상태로 돌릴까요?"
+        title="처음부터 다시 할까요?"
         onClose={() => setAsk(false)}
-        actions={<><Button onClick={() => setAsk(false)}>취소</Button><Button variant="primary" onClick={reset}>돌리기</Button></>}
+        actions={<><Button onClick={() => setAsk(false)}>취소</Button><Button variant="primary" onClick={reset}>다시 하기</Button></>}
       >
         이 브라우저에 남긴 프로필, 고른 것, 초안, 설정도 지워져요.
       </Modal>
       <Modal
         open={askMode}
-        title="예시 데이터로 바꿀까요?"
+        title="예시 학생으로 볼까요?"
         onClose={() => setAskMode(false)}
-        actions={<><Button onClick={() => setAskMode(false)}>취소</Button><Button variant="primary" onClick={() => switchTo(true)}>바꾸기</Button></>}
+        actions={<><Button onClick={() => setAskMode(false)}>취소</Button><Button variant="primary" onClick={toExample}>예시 학생으로 보기</Button></>}
       >
-        새 학생으로 쓴 활동·기록 {mine}개가 지워져요.
+        {overwrite}
       </Modal>
     </div>
   );

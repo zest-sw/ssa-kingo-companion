@@ -28,7 +28,7 @@ describe('timelineOf', () => {
     const ids = [...rows.map(r => r.id), ...undated.map(a => a.id)].sort();
     expect(ids).toEqual(SEED_ACTIVITIES.map(a => a.id).sort());
   });
-  it('기간 없는 활동은 날짜 미정', () => expect(undated.map(a => a.id).sort()).toEqual(['a-dataviz', 'a-exchange']));
+  it('기간 없는 활동은 날짜 미정', () => expect(undated.map(a => a.id).sort()).toEqual(['a-exchange']));
   it('신청 준비는 오늘부터 마감까지, 마감 ◆ 가 끝에 있다', () => {
     const swm = rows.find(r => r.id === 'a-swm');
     expect(swm).toMatchObject({ start: PROTOTYPE_TODAY, end: '2026-10-18', deadline: '2026-10-18', state: 'prep' });
@@ -44,7 +44,7 @@ describe('timelineOf', () => {
 });
 
 describe('columnCounts', () => {
-  it('보드 세 칸 개수', () => expect(columnCounts(SEED_ACTIVITIES)).toEqual({ todo: 3, doing: 2, done: 3 }));
+  it('보드 세 칸 개수', () => expect(columnCounts(SEED_ACTIVITIES)).toEqual({ todo: 5, doing: 3, done: 6 }));
 });
 
 describe('monthRange', () => {
@@ -69,6 +69,13 @@ describe('clipRows', () => {
     const out = clipRows(many, oct, 5);
     expect(out.hidden).toBe(2);
     expect(out.rows.map(r => r.id)).toEqual(['r2', 'r3', 'r4', 'r5', 'r6']);
+  });
+  it('넘치면 이번 달 마감이 있는 준비를 먼저, 진행 중도 두 줄은 남긴다', () => {
+    const { rows: out, hidden } = clipRows(rows, oct, 5);
+    const ids = out.map(r => r.id);
+    expect(ids).toEqual(expect.arrayContaining(['a-tutor', 'a-swm', 'a-ux-contest']));
+    expect(out.filter(r => r.state === 'active')).toHaveLength(2);
+    expect(hidden).toBeGreaterThan(0);
   });
   it('limit 이하면 그대로', () => expect(clipRows([], oct)).toEqual({ rows: [], hidden: 0 }));
 });

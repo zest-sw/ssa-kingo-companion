@@ -10,7 +10,7 @@ describe('nextDues', () => {
 });
 
 describe('일정 문장', () => {
-  it('머리 한 줄', () => expect(scheduleHeadline(SEED_ACTIVITIES, '2026-10-13')).toBe('이번 달 마감 2개, 진행 중 2개'));
+  it('머리 한 줄', () => expect(scheduleHeadline(SEED_ACTIVITIES, '2026-10-13')).toBe('이번 달 마감 4개, 진행 중 3개'));
   it('다음 달로 넘어간 마감은 이번 달이 아니다', () => expect(scheduleHeadline([act({ due: { label: '마감', dday: 25 } })], '2026-10-13')).toBe('이번 달 마감도, 진행 중인 활동도 없어요'));
 });
 
@@ -19,6 +19,6 @@ describe('기록 머리 한 줄', () => {
     const fresh = { ...SEED_RECORDS[0], id: 'n', title: '새 회고', semester: '2026-2', date: '2학기 · 10월' };
     expect(latestRecord([...SEED_RECORDS, fresh])?.title).toBe('새 회고');
   });
-  it('머리 한 줄', () => expect(recordHeadline(SEED_RECORDS)).toMatch(/^기록 6개 중 \d개가 .+(이에요|예요)$/));
+  it('머리 한 줄', () => expect(recordHeadline(SEED_RECORDS)).toMatch(/^기록 25개 중 \d개가 .+(이에요|예요)$/));
   it('빈 머리 한 줄', () => expect(recordHeadline([])).toBe('아직 기록이 없어요'));
 });

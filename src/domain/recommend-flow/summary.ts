@@ -20,7 +20,8 @@ export const MAX_TODAY_TASKS = 3;
 const DUE_SOON_DAYS = 1;
 
 /**
- * 오늘·내일 할 일 전부. 순서: 회고 대기 → 마감 임박 준비(빠른 순) → 오늘·내일 있는 활동. 화면은 앞의 MAX_TODAY_TASKS 개만 그리고 나머지는 개수로 센다.
+ * 오늘·내일 할 일 전부. 순서(급한 순): 마감 임박 준비(빠른 순) → 회고 대기 → 오늘·내일 있는 활동. 화면은 앞의 MAX_TODAY_TASKS 개를 골라 시간순으로 그리고 나머지는 개수로 센다.
+ * 회고는 오늘 안 써도 되지만 마감은 지나면 끝이라, 회고가 여럿 쌓여도 마감이 '외 n개'로 밀리지 않게 마감을 앞에 둔다.
  * ponytail: 오늘 활동은 일정 글이 '10.14(수) 18:30' 꼴일 때만 읽는다. 일정이 날짜 필드가 되면 바꾼다.
  */
 export function todayTasks(activities: Activity[], week: number): TodayTask[] {
@@ -38,7 +39,7 @@ export function todayTasks(activities: Activity[], week: number): TodayTask[] {
     .map(a => ({ a, day: whenOffset(a.schedule, week) }))
     .filter((x): x is { a: Activity; day: number } => (x.a.status === 'applied' || x.a.status === 'ongoing') && x.day !== undefined && x.day >= 0 && x.day <= DUE_SOON_DAYS)
     .map(({ a, day }) => ({ id: `today:${a.id}`, kind: 'today', text: `${a.title}, ${a.schedule}`, title: a.title, what: '모임', day, at: clock(a.schedule), badge: day === 0 ? '오늘' : '내일', target: { kind: 'activity', id: a.id } }));
-  return [...reviews, ...deadlines, ...today];
+  return [...deadlines, ...reviews, ...today];
 }
 
 /** 미니 타임라인 순서: 가까운 날부터, 같은 날이면 시각이 이른 것부터(시각이 없으면 그 날의 맨 앞). */

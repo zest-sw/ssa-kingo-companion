@@ -23,6 +23,14 @@ describe('분석 요약 그림', () => {
     expect(treeHeadline(tree)).toBe('창업·기획 집중 · AI·데이터 미경험');
     expect(treeHeadline(buildTechTree({ records: [], activities: [], candidates: [] }))).toBe('회고를 쓰면 가지가 자라요');
   });
+  it('테크 트리 머리말은 +n 으로 접힌 노드까지 센다', () => {
+    // 기획은 한 단계에 여섯 개라 일부가 접히고, 개발은 네 단계에 하나씩이라 다 보인다.
+    const plan = Array.from({ length: 6 }, (_, i) => rec(`p${i}`, { did: 'listen', field: 'product' }));
+    const dev = (['listen', 'organize', 'make', 'present'] as const).map((did, i) => rec(`d${i}`, { did, field: 'dev' }));
+    const tree = buildTechTree({ records: [...dev, ...plan], activities: [], candidates: [] });
+    expect(tree.rows.find(r => r.group === 'plan')?.folds.length).toBeGreaterThan(0);
+    expect(treeHeadline(tree)).toMatch(/^창업·기획 집중/);
+  });
   it('경험 지도는 최근 기록 max 개만 노드로 두고 같은 학기는 세로로 쌓는다', () => {
     const pic = mapPic(recs, {}, 2);
     expect(pic.nodes.map(n => n.id)).toEqual(['b', 'c']);

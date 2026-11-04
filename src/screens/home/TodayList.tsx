@@ -6,7 +6,8 @@ import { MAX_TODAY_TASKS, timelineOrder, type TodayTask } from '../../domain/rec
 /** 오늘 할 일(오늘·내일): 가까운 날·이른 시각 순의 세로 타임라인. 3개까지 그리고 나머지는 개수만. 점 하나가 한 일이고, 이름과 무슨 일인지만 짧게 붙인다. 누르면 그 일을 하는 화면이나 서랍으로 간다. */
 export function TodayList({ tasks, fresh }: { tasks: TodayTask[]; fresh: boolean }) {
   const go = (t: TodayTask) => ('path' in t.target ? navigate(t.target.path) : openEntity(t.target));
-  const shown = timelineOrder(tasks).slice(0, MAX_TODAY_TASKS);
+  // 고르기는 급한 순(todayTasks 순서), 그리기는 시간순.
+  const shown = timelineOrder(tasks.slice(0, MAX_TODAY_TASKS));
   const more = tasks.length - shown.length;
   return (
     <Card title="오늘 할 일" className="home-today">

@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, Drawer, EmptyState, GhostPic } from '../../components';
+import { Badge, Button, Card, Drawer, EmptyState, GhostPic, TermNav } from '../../components';
+import { stepWindow, termWindow } from '../../domain/analysis/window';
 import { nextStep } from '../../domain/nextStep';
 import { answerEdge, buildMap, clearRejected, edgesOf, edgeState, type EdgeAnswers, type MapEdge } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
@@ -13,7 +14,15 @@ import { RecordSummary } from './RecordSummary';
 type Props = { records: RecordItem[]; answers: EdgeAnswers; setAnswers: (next: (prev: EdgeAnswers) => EdgeAnswers) => void };
 
 export default function ExperienceMapTab({ records, answers, setAnswers }: Props) {
-  const map = useMemo(() => buildMap(records), [records]);
+  // 학기가 많이 쌓이면 최근 몇 학기만 그린다. 앞 학기는 넘겨서 본다(글자를 줄여 다 넣지 않는다).
+  const [end, setEnd] = useState<number | undefined>(undefined);
+  const terms = useMemo(() => buildMap(records).semesters, [records]);
+  const win = termWindow(terms, undefined, end);
+  const shownKey = win.shown.join('|');
+  const map = useMemo(() => {
+    const keep = new Set(shownKey.split('|'));
+    return buildMap(records.filter(r => keep.has(r.semester)));
+  }, [records, shownKey]);
   const [pick, setPick] = useState<MapPick | null>(null);
   const step = nextStep(useApp().state.activities);
   const rejected = map.edges.filter(e => edgeState(e, answers) === 'rejected');
@@ -26,10 +35,16 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
         className="os-card"
         title="경험 지도"
         action={records.length === 0 ? undefined : (
-          <ul className="an-legend an-legend--inline" aria-label="선 표시">
-            <li><span className="an-key an-key--yes" aria-hidden="true" />확인한 연결</li>
-            <li><span className="an-key an-key--est" aria-hidden="true" />AI 추정</li>
-          </ul>
+          <div className="an-maphead">
+            <TermNav
+              range={win.shown.length ? `${semesterLabel(win.shown[0])} ~ ${semesterLabel(win.shown[win.shown.length - 1])}` : ''}
+              before={win.before} after={win.after} onPrev={() => setEnd(stepWindow(win, -1))} onNext={() => setEnd(stepWindow(win, 1))}
+            />
+            <ul className="an-legend an-legend--inline" aria-label="선 표시">
+              <li><span className="an-key an-key--yes" aria-hidden="true" />확인한 연결</li>
+              <li><span className="an-key an-key--est" aria-hidden="true" />AI 추정</li>
+            </ul>
+          </div>
         )}
       >
         {records.length === 0 ? (

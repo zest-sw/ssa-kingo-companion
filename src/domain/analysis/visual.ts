@@ -25,7 +25,9 @@ function topBy<T>(list: T[], n: (t: T) => number): T | undefined {
 /** 테크 트리 머리말: '창업·기획 집중 · 개발 미경험'. 해 본 분야가 없으면 다음 할 일. */
 export function treeHeadline(tree: TechTree): string {
   const rows = tree.rows.filter(r => r.group !== 'other');
-  const done = rows.map(r => ({ r, n: r.cells.filter(c => c.kind !== 'candidate').length })).filter(x => x.n > 0);
+  // '+n' 으로 접힌 노드도 센다. 많이 한 분야일수록 많이 접혀서, 보이는 노드만 세면 순서가 뒤집힌다.
+  const own = (r: (typeof rows)[number]) => [...r.cells, ...r.folds.flatMap(f => f.cells)].filter(c => c.kind !== 'candidate').length;
+  const done = rows.map(r => ({ r, n: own(r) })).filter(x => x.n > 0);
   const top = topBy(done, x => x.n);
   if (!top) return '회고를 쓰면 가지가 자라요';
   const blank = rows.find(r => r.unknown);
@@ -89,11 +91,11 @@ export function flowHeadline(rows: FlowRow[]): string {
   return from < seen.length - 1 ? `${semesterShort(seen[from].semester)}부터 ${GROUP_LABEL[group]}` : `${semesterShort(last.semester)}에는 ${GROUP_LABEL[group]}`;
 }
 
-export type DiscoveryPic = { question: string; evidence: { id: string; label: string }[]; more: number; target: string };
+export type DiscoveryPic = { question: string; evidence: { id: string; label: string; full: string }[]; more: number; target: string };
 
-/** 확인할 발견 한 장의 짧은 질문('듣고 정리하기, 하면 힘이 나요?')과 근거 기록 → 발견 도식 값 */
+/** 확인할 발견 한 장의 짧은 질문과 근거 기록 → 발견 도식 값. 근거는 최근 기록부터(기록이 쌓여도 지금의 나를 보여 주게) */
 export function discoveryPic(d: Discovery, shown = 3): DiscoveryPic {
   const did = DID_LABEL[d.did];
   const question = d.kind === 'up' ? `${did}, 하면 힘이 나요?` : `${did}${josa(did, '을', '를')} 자주 맡나요?`;
-  return { question, evidence: d.evidence.slice(0, shown).map(r => ({ id: r.id, label: shortName(r.title, 11) })), more: Math.max(0, d.evidence.length - shown), target: did };
+  return { question, evidence: [...d.evidence].reverse().slice(0, shown).map(r => ({ id: r.id, label: shortName(r.title, 11), full: r.title })), more: Math.max(0, d.evidence.length - shown), target: did };
 }

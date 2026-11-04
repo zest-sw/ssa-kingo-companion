@@ -28,3 +28,13 @@ export function activityFromProgram(p: Program, week: number): Activity {
     programId: p.id
   };
 }
+
+/**
+ * 끝난 것 칸을 할 일이 남은 것(회고 대기)과 정리된 것(기록됨·이번엔 안 됨)으로 나눈다.
+ * 정리된 카드는 접어 두어, 칸이 길어져도 회고 쓸 활동이 먼저 보이게 한다. 할 일이 남은 게 없으면 접지 않는다.
+ */
+export function splitDone(done: Activity[]): { open: Activity[]; settled: Activity[] } {
+  const open = done.filter(a => a.status === 'ended');
+  if (open.length === 0) return { open: done, settled: [] };
+  return { open, settled: done.filter(a => a.status !== 'ended') };
+}

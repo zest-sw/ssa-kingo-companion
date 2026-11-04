@@ -10,7 +10,8 @@ import type { RecruitPost } from '../domain/social';
 import type { Activity, ActivityStatus, Axis, CandidateChoice, Confirm, Discovery, DislikeKind, Field, LastDone, NotifyPrefs, PrepItem, Profile, RecordItem, Settings, Visibility } from '../domain/types';
 import { DID_AXES } from '../domain/vocab';
 import { INITIAL_REQ_EVIDENCE, PROGRAM_BY_ID } from '../data/catalog';
-import { EMPTY_PROFILE, EXAMPLE_PROFILE, SEED_ACTIVITIES, SEED_RECORDS } from '../data/seed';
+import { EXAMPLE_MY_POSTS } from '../data/friends';
+import { EMPTY_PROFILE, EXAMPLE_CHALLENGE_AT, EXAMPLE_CONFIRM, EXAMPLE_EDGE_ANSWERS, EXAMPLE_PROFILE, EXAMPLE_VISIBILITY, SEED_ACTIVITIES, SEED_RECORDS } from '../data/seed';
 
 export type AppState = {
   /** 예시 학생의 활동·기록·친구로 둘러보는 중인지. false 면 가입 인터뷰를 마친 새 학생이다(활동·기록 0, 기회만 있음) */
@@ -51,7 +52,7 @@ export type Action =
   | { type: 'profile/save'; profile: Profile }
   /** 가입 인터뷰를 마친다. demo 면 예시 학생 데이터로, 아니면 새 학생으로 시작한다 */
   | { type: 'profile/complete'; profile: Profile; demo: boolean }
-  /** 설정 › 프로토타입 정보: 예시 데이터로 보기 / 새 학생으로 시작. 프로필과 설정은 그대로 둔다 */
+  /** 설정 › 프로토타입 정보의 '예시 학생으로 보기'(demo: true). 데이터와 공개 범위만 바꾸고 프로필·설정은 그대로 둔다 */
   | { type: 'data/mode'; demo: boolean }
   | { type: 'candidate/choose'; programId: string; choice: CandidateChoice; reason?: DislikeKind; until?: number }
   | { type: 'candidate/clear'; programId: string }
@@ -93,16 +94,16 @@ export const INITIAL_STATE: AppState = {
   dislikedFields: [],
   preferEasier: false,
   records: SEED_RECORDS,
-  confirm: {},
+  confirm: EXAMPLE_CONFIRM,
   lastDone: null,
   settings: DEFAULT_SETTINGS,
   notify: DEFAULT_NOTIFY,
-  visibility: DEFAULT_VISIBILITY,
+  visibility: EXAMPLE_VISIBILITY,
   reqEvidence: INITIAL_REQ_EVIDENCE,
   drafts: {},
-  edgeAnswers: {},
-  challengeAt: {},
-  recruitPosts: []
+  edgeAnswers: EXAMPLE_EDGE_ANSWERS,
+  challengeAt: EXAMPLE_CHALLENGE_AT,
+  recruitPosts: EXAMPLE_MY_POSTS
 };
 
 /** 처음 연 앱과 가입 인터뷰를 마친 새 학생: 활동·기록·도전 과제·친구 0, 기회(추천 후보)만 있다 */
@@ -112,11 +113,16 @@ export const NEW_STUDENT_STATE: AppState = {
   profile: EMPTY_PROFILE,
   activities: [],
   records: [],
-  reqEvidence: {}
+  confirm: {},
+  visibility: DEFAULT_VISIBILITY,
+  reqEvidence: {},
+  challengeAt: {},
+  edgeAnswers: {},
+  recruitPosts: []
 };
 
-/** 학생 데이터 조각(활동·기록·고른 것·답한 것)만 예시 또는 빈 값으로 바꾼다 */
-const DATA_KEYS = ['activities', 'records', 'reqEvidence', 'choices', 'laterUntil', 'dislikedFields', 'preferEasier', 'confirm', 'lastDone', 'drafts', 'edgeAnswers', 'challengeAt', 'recruitPosts'] as const;
+/** 학생 데이터 조각(활동·기록·고른 것·답한 것·공개 범위)만 예시 또는 빈 값으로 바꾼다. 예시 학생은 공개, 새 학생은 비공개로 시작한다 */
+const DATA_KEYS = ['visibility', 'activities', 'records', 'reqEvidence', 'choices', 'laterUntil', 'dislikedFields', 'preferEasier', 'confirm', 'lastDone', 'drafts', 'edgeAnswers', 'challengeAt', 'recruitPosts'] as const;
 export const dataOf = (demo: boolean): Pick<AppState, (typeof DATA_KEYS)[number] | 'demo'> => {
   const base = demo ? INITIAL_STATE : NEW_STUDENT_STATE;
   return { demo, ...Object.fromEntries(DATA_KEYS.map(k => [k, base[k]])) } as Pick<AppState, (typeof DATA_KEYS)[number] | 'demo'>;
@@ -142,7 +148,8 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'profile/complete':
       return { ...state, ...dataOf(action.demo), profile: action.profile, onboarded: true };
     case 'data/mode':
-      return state.demo === action.demo ? state : { ...state, ...dataOf(action.demo) };
+      // 새 학생 → 새 학생은 그대로. 예시 → 예시는 둘러보며 바꾼 것을 지우고 처음 예시로 다시 연다.
+      return !action.demo && !state.demo ? state : { ...state, ...dataOf(action.demo) };
 
     case 'candidate/choose': {
       const p = PROGRAM_BY_ID[action.programId];
