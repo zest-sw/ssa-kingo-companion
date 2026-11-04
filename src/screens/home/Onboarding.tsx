@@ -60,7 +60,7 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
       {step === 0 && (
         <section aria-labelledby="onb-q">
           <h1 id="onb-q" ref={head} tabIndex={-1} className="home-onb__q" data-page-title>요즘 관심 가는 걸 골라 주세요</h1>
-          <p className="home-onb__sub">최대 {MAX_INTERESTS}개 · 몰라도 괜찮아요</p>
+          <p className="home-onb__sub">{draft.interests.includes('unknown') ? '괜찮아요. 안 해 본 분야부터 보여 드릴게요' : `최대 ${MAX_INTERESTS}개 · 몰라도 괜찮아요`}</p>
           <div className="home-onb__chips" role="group" aria-labelledby="onb-q">
             {INTEREST_OPTIONS.map(o => <Chip key={o.id} selected={draft.interests.includes(o.id)} onClick={() => toggle(o.id)}>{o.label}</Chip>)}
           </div>
@@ -97,7 +97,7 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
       {step === 2 && (
         <section aria-labelledby="onb-q">
           <h1 id="onb-q" ref={head} tabIndex={-1} className="home-onb__q" data-page-title>이루고 싶은 목표가 있나요?</h1>
-          <p className="home-onb__sub">비워 둬도 돼요. 나중에 바꿀 수 있어요</p>
+          <p className="home-onb__sub">비워 둬도 돼요. 설정에서 언제든 고칠 수 있어요</p>
           <label className="home-onb__field">
             <span className="sr-only">목표</span>
             <input className="home-onb__input" value={draft.goal} maxLength={40} placeholder="예: 서비스 기획 직무" onChange={e => { const goal = e.target.value; setDraft(d => ({ ...d, goal })); }} />
@@ -116,6 +116,7 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
           ? <Button variant="primary" disabled={!canNext} onClick={() => setStep(step + 1)}>다음</Button>
           : <Button variant="primary" onClick={finish}>이번 주 활동 보기</Button>}
       </div>
+      {step === STEPS - 1 && <p className="home-onb__hint">학교 데이터는 동의한 것만 써요. 지금은 이 세 가지로만 골라요</p>}
       {step === 0 && !canNext && <p className="home-onb__hint" role="status">하나 이상 고르면 다음으로 갈 수 있어요</p>}
     </Card>
   );
