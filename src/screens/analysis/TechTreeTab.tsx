@@ -6,6 +6,7 @@ import { Badge, Button, Card, Drawer, EmptyState, FieldTag, SegmentedControl } f
 import { PROGRAM_BY_ID } from '../../data/catalog';
 import { LEVEL_EXAMPLES, levelReason, type Level } from '../../domain/analysis/level';
 import { recordOfActivity, relatedRecords, TREE_COLUMNS, type TechTree, type TreeCell, type TreeRow } from '../../domain/analysis/techtree';
+import { isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import type { RecordItem } from '../../domain/types';
 import { STATUS_LABEL } from '../../domain/vocab';
@@ -66,7 +67,7 @@ function OpenRow({ cell, sub, onPick }: { cell: TreeCell; sub: ReactNode; onPick
   return (
     <button type="button" className="an-cand" aria-haspopup="dialog" onClick={() => onPick(cell)}>
       <span className="an-cand__main"><b>{cell.label}</b><span className="an-cand__sub">{sub}</span></span>
-      {cell.dday !== undefined && <Badge tone="orange">{ddayText(cell.dday)}</Badge>}
+      {cell.dday !== undefined && <Badge tone={isNearDeadline(cell.dday) ? 'orange' : 'neutral'}>{ddayText(cell.dday)}</Badge>}
       <span className="an-cand__go">자세히</span>
     </button>
   );

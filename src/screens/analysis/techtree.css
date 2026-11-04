@@ -53,6 +53,8 @@
 .an-pill--candidate:hover, .an-pill--skipped:hover { background: var(--surface-hover); }
 /* 마감 배지는 이름 옆 안쪽에 둔다(위로 걸치면 노드 세로 간격을 좁힐 수 없다) */
 .an-pill__dday { flex: none; padding: 0 var(--space-1); border-radius: var(--radius-xs); background: var(--orange-100); color: var(--accent-ink); font-size: var(--text-xs); line-height: 1.5; }
+/* 마감이 가까울 때(D-3 이하)만 오렌지. 앱 다른 곳(추천 목록)과 같은 기준 */
+.an-pill__dday--far { background: none; color: var(--ink-muted); }
 button.an-pill:focus-visible { border-radius: var(--radius-md); }
 /* 다른 분야로 이어진 경로를 그리는 중인 노드 */
 .an-pill.is-linked { outline: 1px dashed var(--ink-subtle); outline-offset: var(--an-ring); }

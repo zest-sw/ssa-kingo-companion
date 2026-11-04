@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useLinkPaths, type LinkSpec } from '../../components';
 import { TREE_COLUMNS, rootTargets, splitTreeRows, type TechTree, type TreeCell, type TreeLink, type TreeRow } from '../../domain/analysis/techtree';
+import { isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 
 /**
@@ -54,7 +55,7 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
                   <span className="an-pill__text">{c.label}</span>
                   {c.kind === 'ongoing' && <span className="an-pill__tag">하는 중</span>}
                   {c.kind === 'skipped' && <span className="an-pill__tag">건너뜀</span>}
-                  {c.kind === 'candidate' && c.dday !== undefined && <span className="an-pill__dday num">{ddayText(c.dday)}</span>}
+                  {c.kind === 'candidate' && c.dday !== undefined && <span className={`an-pill__dday num${isNearDeadline(c.dday) ? '' : ' an-pill__dday--far'}`}>{ddayText(c.dday)}</span>}
                 </button>
               ))}
               {row.folds.filter(f => f.col === col).map(f => (
