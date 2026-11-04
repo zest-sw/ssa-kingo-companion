@@ -26,9 +26,11 @@ export function writeReports(out, results, skipped, states) {
   })));
   const fails = rows.filter(r => r.level === 'fail').length;
   const warns = rows.length - fails;
-  writeFileSync(join(out, 'report.json'), JSON.stringify({ at: new Date().toISOString(), screens: results.length, rows, skipped }, null, 2));
+  const retried = results.filter(r => r.retries);
+  const retryTotal = retried.reduce((n, r) => n + r.retries, 0);
+  writeFileSync(join(out, 'report.json'), JSON.stringify({ at: new Date().toISOString(), screens: results.length, retries: retryTotal, rows, skipped }, null, 2));
 
-  const lines = ['# 레이아웃 검사 결과', '', `화면 ${results.length}개 · 실패 ${fails} · 경고 ${warns}`, ''];
+  const lines = ['# 레이아웃 검사 결과', '', `화면 ${results.length}개 · 실패 ${fails} · 경고 ${warns} · 다시 시도 ${retryTotal}번(${retried.length}화면)`, ''];
   const stateName = k => (k === 'onboarding' ? '가입 인터뷰' : states[k]?.label ?? k);
   for (const a of Object.keys(AREA)) {
     const list = rows.filter(r => r.area === a);
@@ -36,6 +38,11 @@ export function writeReports(out, results, skipped, states) {
     if (!list.length) { lines.push('걸린 것 없음', ''); continue; }
     lines.push('| 상태 | 크기 | 경로 | 항목 | 요소 | 상자·상대 | px | 스크린샷 |', '|---|---|---|---|---|---|---|---|');
     for (const r of list) lines.push(`| ${cell(stateName(r.state))} | ${r.size} | ${cell(r.route)} | ${cell(KIND[r.k] ?? r.k)} | ${cell(r.el)} | ${cell(r.with ?? r.box)} | ${r.d ?? ''} | ${r.shot} |`);
+    lines.push('');
+  }
+  if (retried.length) {
+    lines.push('## 다시 시도한 화면 (탐색·로드 일시 오류, 최대 2번)', '', '| 상태 | 크기 | 경로 | 다시 시도 |', '|---|---|---|---|');
+    for (const r of retried) lines.push(`| ${cell(stateName(r.state))} | ${r.size.w}x${r.size.h} | ${cell(r.path + (r.step ? ` @${r.step}` : ''))} | ${r.retries}번 |`);
     lines.push('');
   }
   if (skipped.length) {
@@ -55,5 +62,6 @@ export function writeReports(out, results, skipped, states) {
     console.log('\n실패 (앞 40건)');
     console.table(failRows.slice(0, 40).map(r => ({ 상태: r.state, 크기: r.size, 경로: r.route, 항목: KIND[r.k] ?? r.k, 요소: r.el, 상대: r.with ?? r.box ?? '', px: r.d ?? '', 위치: r.rect ? r.rect.join(',') : '', 스크린샷: r.shot })));
   }
+  if (retryTotal) console.log(`\n다시 시도: ${retryTotal}번 (${retried.length}화면)`);
   return { fails, warns };
 }

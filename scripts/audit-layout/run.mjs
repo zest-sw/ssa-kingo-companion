@@ -17,6 +17,7 @@ import { chromium } from 'playwright';
 import { createServer, preview } from 'vite';
 import { probe } from './probe.js';
 import { writeReports } from './report.mjs';
+import { findFreePort, waitForServer, withRetry } from './retry.mjs';
 import { contextOf, routesFor } from './routes.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -96,7 +97,7 @@ async function loadAppModules() {
 async function makeState(browser, base, key) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   const page = await ctx.newPage();
-  await page.goto(base + '/');
+  await withRetry(() => page.goto(base + '/'));
   await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
   await page.reload();
   await STATES[key].make(page);
@@ -122,14 +123,20 @@ async function runJob(browser, base, job) {
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', e => errors.push(String(e.message || e)));
   let issues = [];
+  let retries = 0;
   try {
-    await page.goto(`${base}/#/${job.path}`);
-    await settle(page);
+    // 탐색·로드만 다시 시도한다. 레이아웃 판정은 한 번만 한다.
+    retries = await withRetry(async n => {
+      if (n) await page.waitForTimeout(500 * n);
+      await page.goto(`${base}/#/${job.path}`);
+      await settle(page);
+    });
     if (job.step) { await job.run(page); await settle(page); }
     issues = await page.evaluate(probe, { breakOnly: !!job.size.breakOnly });
     const hash = await page.evaluate(() => location.hash);
     if (hash !== `#/${job.path}`) issues.push({ k: 'route-changed', level: 'warn', el: `${job.path} → ${hash.slice(2)}` });
   } catch (e) {
+    retries = e.retries ?? retries;
     issues.push({ k: 'run-error', level: 'fail', el: String(e.message || e).split('\n')[0].slice(0, 120) });
   }
   for (const e of errors) issues.push({ k: 'console-error', level: 'fail', el: e.slice(0, 120) });
@@ -138,7 +145,7 @@ async function runJob(browser, base, job) {
   if (!args.clean) await page.evaluate(markIssues, issues).catch(() => {});
   await page.screenshot({ path: shot }).catch(() => {});
   await ctx.close();
-  return { ...job, issues, shot: shot.slice(ROOT.length + 1).replace(/\\/g, '/') };
+  return { ...job, issues, retries, shot: shot.slice(ROOT.length + 1).replace(/\\/g, '/') };
 }
 
 /** 스크린샷에 걸린 곳을 빨간(실패)·주황(경고) 틀과 번호로 그린다 */
@@ -179,8 +186,11 @@ async function main() {
     if (r.status !== 0) process.exit(r.status ?? 1);
   }
   const mods = await loadAppModules();
-  const server = await preview({ root: ROOT, logLevel: 'silent', preview: { port: args.port, strictPort: true, open: false } });
-  const base = `http://localhost:${args.port}`;
+  const port = await findFreePort(args.port);
+  if (port !== args.port) console.log(`포트 ${args.port} 사용 중 → ${port} 로 띄워요`);
+  const server = await preview({ root: ROOT, logLevel: 'silent', preview: { port, strictPort: true, open: false } });
+  const base = `http://localhost:${port}`;
+  await waitForServer(base + '/');
   const browser = await chromium.launch();
   try {
     if (!args.route && !args.size && !args.state) rmSync(OUT, { recursive: true, force: true });
