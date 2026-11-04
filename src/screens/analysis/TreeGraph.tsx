@@ -1,11 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLinkPaths, type LinkSpec } from '../../components';
-import { TREE_COLUMNS, rootTargets, splitTreeRows, type TechTree, type TreeCell, type TreeRow } from '../../domain/analysis/techtree';
+import { TREE_COLUMNS, rootTargets, splitTreeRows, type TechTree, type TreeCell, type TreeLink, type TreeRow } from '../../domain/analysis/techtree';
 import { ddayText } from '../../domain/text';
 
 /**
- * 분야마다 왼쪽 시작점에서 오른쪽으로 뻗는 가지. 단계(들어 보기→나누기)는 칸이 아니라 위치로 읽힌다.
- * 같은 분야는 분야색 실선(추천 후보로 가는 선은 옅게), 다른 분야로 건너가는 경로는 점선.
+ * 분야마다 왼쪽 시작점에서 오른쪽으로 뻗는 가지. 심화 수준(입문→중급→심화)은 칸이 아니라 위치로 읽힌다.
+ * 내가 지나온 길은 분야색 실선, 건너뛴 단계를 지나는 구간은 회색, 할 수 있는 활동으로 가는 선은 옅게.
+ * 다른 분야로 건너가는 경로(점선)는 평소에 숨긴다. 여러 줄을 세로로 가로질러 노드 사이가 지저분해져서, 노드에 올리거나 누르거나 포커스했을 때 그 노드의 경로만 그린다.
  */
 export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
   tree: TechTree; onOpen: (cell: TreeCell) => void; onCandidate: (cell: TreeCell) => void; onFold: (row: TreeRow, col: number) => void;
@@ -13,11 +14,17 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
   const links = useMemo(() => treeLinks(tree), [tree]);
   const { wrap, nodeRef, paths } = useLinkPaths<HTMLDivElement>(links);
   const { drawn, untried } = splitTreeRows(tree.rows);
+  const [hover, setHover] = useState<string | null>(null);
+  const [pinned, setPinned] = useState<string | null>(null);
+  const active = hover ?? pinned;
+  const cross = useMemo(() => new Map<string, TreeLink>(tree.links.filter(l => l.cross).map(l => [`${l.from}>${l.to}`, l])), [tree.links]);
+  const shown = (key: string) => { const l = cross.get(key); return !l || (!!active && (l.from === active || l.to === active)); };
+  const hasCross = (id: string) => tree.links.some(l => l.cross && (l.from === id || l.to === id));
 
   return (
     <div ref={wrap} className="an-tree">
       <svg className="an-tree__lines" aria-hidden="true">
-        {paths.map(p => <path key={p.key} d={p.d} className={p.className} />)}
+        {paths.filter(p => shown(p.key)).map(p => <path key={p.key} d={p.d} className={p.className} />)}
       </svg>
       <div className="an-tree__axis" aria-hidden="true">
         <span /><span />
@@ -36,12 +43,17 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
                   key={c.id}
                   ref={nodeRef(c.id)}
                   type="button"
-                  className={`an-pill an-pill--${c.kind}`}
-                  onClick={() => (c.kind === 'candidate' ? onCandidate(c) : onOpen(c))}
+                  className={`an-pill an-pill--${c.kind}${active === c.id && hasCross(c.id) ? ' is-linked' : ''}`}
+                  onMouseEnter={() => setHover(c.id)}
+                  onMouseLeave={() => setHover(null)}
+                  onFocus={() => setHover(c.id)}
+                  onBlur={() => setHover(null)}
+                  onClick={() => { setPinned(c.id); if (c.kind === 'candidate') onCandidate(c); else onOpen(c); }}
                   aria-label={labelOf(c, name)}
                 >
                   <span className="an-pill__text">{c.label}</span>
                   {c.kind === 'ongoing' && <span className="an-pill__tag">하는 중</span>}
+                  {c.kind === 'skipped' && <span className="an-pill__tag">건너뜀</span>}
                   {c.kind === 'candidate' && c.dday !== undefined && <span className="an-pill__dday num">{ddayText(c.dday)}</span>}
                 </button>
               ))}
@@ -68,17 +80,19 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
 const rootId = (row: TreeRow) => `root:${row.group}`;
 const foldId = (row: TreeRow, col: number) => `fold:${row.group}:${col}`;
 
-/** 시작점→첫 노드, 노드→노드 선. 선 색은 도착 노드의 분야, 후보로 가는 선은 옅게. */
+/** 시작점→첫 노드, 노드→노드 선. 선 색은 도착 노드의 분야. 건너뛴 단계에 닿는 구간은 회색, 할 수 있는 활동으로 가는 선은 옅게. */
 function treeLinks(tree: TechTree): LinkSpec[] {
   const cellOf = new Map(tree.rows.flatMap(r => r.cells.map(c => [c.id, c] as const)));
-  const cls = (to: TreeCell, cross = false) => `an-line an-line--${cross ? 'cross' : to.kind === 'candidate' ? 'soft' : 'trunk'} an-g--${to.group}`;
+  const tone = (to: TreeCell, from?: TreeCell) =>
+    to.kind === 'candidate' ? 'soft' : to.kind === 'skipped' || from?.kind === 'skipped' ? 'skip' : 'trunk';
+  const cls = (to: TreeCell, cross = false, from?: TreeCell) => `an-line an-line--${cross ? 'cross' : tone(to, from)} an-g--${to.group}`;
   const out: LinkSpec[] = [];
   for (const row of tree.rows) {
     for (const id of rootTargets(row)) out.push({ key: `${row.group}>${id}`, from: rootId(row), to: id, className: cls(cellOf.get(id)!) });
   }
   for (const l of tree.links) {
     const to = cellOf.get(l.to);
-    if (to) out.push({ key: `${l.from}>${l.to}`, from: l.from, to: l.to, className: cls(to, l.cross) });
+    if (to) out.push({ key: `${l.from}>${l.to}`, from: l.from, to: l.to, className: cls(to, l.cross, cellOf.get(l.from)) });
   }
   // '+n' 노드는 같은 단계의 첫 노드와 같은 곳에서 옅은 선으로 뻗는다(가지 끝에 붙어 보이게).
   for (const row of tree.rows) {
@@ -91,5 +105,5 @@ function treeLinks(tree: TechTree): LinkSpec[] {
   return out;
 }
 
-const labelOf = (c: TreeCell, col: string) =>
-  c.kind === 'candidate' ? `${c.label}, ${col}, 지금 신청할 수 있는 추천. 자세히 보기` : c.kind === 'ongoing' ? `${c.label}, ${col}, 하는 중. 자세히 보기` : `${c.label}, ${col}, 한 활동. 자세히 보기`;
+const KIND_SAY = { done: '한 활동', ongoing: '하는 중', skipped: '건너뛴 단계', candidate: '지금 할 수 있는 활동' } as const;
+const labelOf = (c: TreeCell, col: string) => `${c.label}, ${col}, ${KIND_SAY[c.kind]}. 자세히 보기`;

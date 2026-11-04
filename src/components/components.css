@@ -77,7 +77,7 @@
 .ui-field__dot--plan { background: var(--field-startup); }
 .ui-field__dot--mentor { background: var(--field-mentor); }
 .ui-field__dot--global { background: var(--field-global); }
-.ui-field__dot--other { background: transparent; border: 1.5px solid var(--field-global); }
+.ui-field__dot--other { background: transparent; border: 1.5px solid var(--grey-500); }
 
 /* ConfirmDot */
 .ui-dot { display: inline-block; width: 14px; height: 14px; border-radius: var(--radius-full); flex: none; vertical-align: middle; }

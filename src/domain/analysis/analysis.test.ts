@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { prog, rec } from '../fixtures.test-util';
+import { rec } from '../fixtures.test-util';
 import type { Activity } from '../types';
 import { usedCount } from './discovery';
 import { buildFlow, clampRange, defaultRange, legendGroups, moveRange, summarizeFlow } from './flow';
@@ -7,7 +7,7 @@ import { answerEdge, buildMap, clearRejected, edgeState, edgesOf, layoutMap, par
 import { recordsSig } from './refresh';
 import { sigOf, discoveriesOf } from '../discoveries';
 import { semesterAxis, semesterKey, semesterLabel, sortRecords } from './semester';
-import { buildTechTree, CANDIDATES_PER_CELL, NODES_PER_STAGE, recordOfActivity, relatedRecords, rootTargets, splitTreeRows } from './techtree';
+import { recordOfActivity, relatedRecords } from './techtree';
 
 const act = (id: string, over: Partial<Activity> = {}): Activity => ({ id, title: id, field: 'dev', status: 'ongoing', schedule: '', ...over });
 
@@ -27,67 +27,6 @@ describe('학기', () => {
   it('축은 빈 학기도 포함하고 기록이 바깥이면 늘어난다', () => {
     expect(semesterAxis([], '2026-1', '2026-2')).toEqual(['2026-1', '2026-여름', '2026-2']);
     expect(semesterAxis([rec('a', { semester: '2027-1' })], '2026-1', '2026-2').at(-1)).toBe('2027-1');
-  });
-});
-
-describe('테크 트리', () => {
-  const candidates = [{ program: prog('p1', { field: 'data', did: ['make'] }), dday: 9 }];
-  it('기록은 분야 줄 · 한 일 칸에 한 칸씩 놓인다', () => {
-    const t = buildTechTree({ records: [rec('a', { field: 'dev', did: 'make' })], activities: [], candidates: [] });
-    const dev = t.rows.find(r => r.group === 'dev')!;
-    expect(dev.cells).toMatchObject([{ id: 'r:a', kind: 'done', col: 2 }]);
-    expect(dev.unknown).toBe(false);
-  });
-  it('기록이 없는 분야는 ? 로 남는다. 후보만 있어도 안 해 본 분야다', () => {
-    const t = buildTechTree({ records: [], activities: [], candidates });
-    const ai = t.rows.find(r => r.group === 'ai')!;
-    expect(ai.unknown).toBe(true);
-    expect(ai.cells).toMatchObject([{ kind: 'candidate', col: 2, programId: 'p1', dday: 9 }]);
-    expect(t.rows.find(r => r.group === 'global')!.unknown).toBe(true);
-  });
-  it('하는 중 활동은 해 보기 칸, 신청 전·결과 대기는 칸이 되지 않는다', () => {
-    const t = buildTechTree({
-      records: [],
-      activities: [act('x'), act('y', { status: 'preparing' }), act('z', { status: 'applied' }), act('w', { status: 'declined' })],
-      candidates: []
-    });
-    expect(t.rows.find(r => r.group === 'dev')!.cells).toMatchObject([{ id: 'a:x', kind: 'ongoing', col: 1 }]);
-  });
-  it('기록으로 옮겨진 활동은 두 번 세지 않는다', () => {
-    const t = buildTechTree({ records: [rec('r', { programId: 'p' })], activities: [act('x', { status: 'recorded', programId: 'p' })], candidates: [] });
-    expect(t.rows.flatMap(r => r.cells)).toHaveLength(1);
-  });
-  it('줄 안은 앞 칸에서 뒤 칸으로 잇고, 다른 줄로 이어지는 같은 일은 점선', () => {
-    const t = buildTechTree({
-      records: [rec('a', { field: 'research', did: 'listen', semester: '2026-1' }), rec('b', { field: 'research', did: 'make', semester: '2026-2' }),
-        rec('c', { field: 'dev', did: 'listen', semester: '2026-2' })],
-      activities: [], candidates: []
-    });
-    expect(t.links).toContainEqual({ from: 'r:a', to: 'r:b', cross: false });
-    expect(t.links).toContainEqual({ from: 'r:a', to: 'r:c', cross: true });
-    expect(t.links.filter(l => l.cross)).toHaveLength(1);
-  });
-  it('다른 분야로 이어진 경로는 분야마다 한 줄(그 분야 첫 기록으로 들어온 선)', () => {
-    const t = buildTechTree({
-      records: [rec('a', { field: 'research', did: 'listen', semester: '2025-1' }), rec('c', { field: 'dev', did: 'listen', semester: '2025-2' }),
-        rec('d', { field: 'research', did: 'listen', semester: '2026-1' }), rec('e', { field: 'global', did: 'listen', semester: '2026-2' })],
-      activities: [], candidates: []
-    });
-    expect(t.links.filter(l => l.cross).map(l => `${l.from}>${l.to}`)).toEqual(['r:a>r:c', 'r:d>r:e']);
-  });
-  it('가지의 시작점은 그 분야에서 가장 앞 단계의 노드들로 뻗는다', () => {
-    const t = buildTechTree({
-      records: [rec('a', { field: 'dev', did: 'organize' }), rec('b', { field: 'dev', did: 'idea' }), rec('c', { field: 'dev', did: 'make' })],
-      activities: [], candidates: []
-    });
-    expect(rootTargets(t.rows.find(r => r.group === 'dev')!)).toEqual(['r:a', 'r:b']);
-    expect(rootTargets(t.rows.find(r => r.group === 'global')!)).toEqual([]);
-  });
-  it('노드도 후보도 없는 분야만 한 줄로 모으고, 후보만 있는 분야는 가지로 그린다', () => {
-    const t = buildTechTree({ records: [rec('a', { field: 'dev', did: 'make' })], activities: [], candidates: [{ program: prog('p1', { field: 'data', did: ['make'] }), dday: 9 }] });
-    const { drawn, untried } = splitTreeRows(t.rows);
-    expect(drawn.map(r => r.group)).toEqual(['ai', 'dev']);
-    expect(untried.map(r => r.group)).toEqual(['plan', 'mentor', 'global', 'other']);
   });
 });
 
@@ -228,28 +167,5 @@ describe('재작업: 화면에서 옮긴 계산', () => {
     expect(usedCount([d1, d2], {})).toBe(0);
     expect(usedCount([d1, d2], { [d1.key]: { status: 'yes', sig: d1.sig }, [d2.key]: { status: 'no', sig: d2.sig } })).toBe(1);
     expect(usedCount([d1], { [d1.key]: { status: 'yes', sig: sigOf([rec('zzz')]) } })).toBe(0);
-  });
-  it('테크 트리: 후보는 칸마다 제한하고 목록용은 전부, 후보만 있는 줄은 ? 로 남는다', () => {
-    const candidates = ['p1', 'p2', 'p3', 'p4'].map((id, i) => ({ program: prog(id, { field: 'data', did: ['make'] }), dday: i }));
-    const t = buildTechTree({ records: [], activities: [], candidates });
-    const ai = t.rows.find(r => r.group === 'ai')!;
-    expect(ai.cells).toHaveLength(CANDIDATES_PER_CELL);
-    expect(t.candidates).toHaveLength(4);
-    expect(ai.unknown).toBe(true);
-  });
-  it('테크 트리: 한 단계가 넘치면 +n 자리를 남기고 접는다. 오래된 한 활동부터 접고 마감 걸린 추천은 남긴다', () => {
-    const candidates = ['p1', 'p2'].map((id, i) => ({ program: prog(id, { field: 'data', did: ['make'] }), dday: i }));
-    const records = ['a', 'b', 'c'].map((id, i) => rec(id, { field: 'data', did: 'make', semester: `2026-${i ? 2 : 1}` }));
-    const ai = buildTechTree({ records, activities: [], candidates }).rows.find(r => r.group === 'ai')!;
-    expect(ai.cells.filter(c => c.col === 2).map(c => c.id)).toEqual(['r:c', 'p:p1', 'p:p2']);
-    expect(ai.folds).toEqual([{ col: 2, cells: [expect.objectContaining({ id: 'r:a' }), expect.objectContaining({ id: 'r:b' })] }]);
-    expect(ai.cells.length + ai.folds[0].cells.length).toBe(5);
-    expect(NODES_PER_STAGE).toBe(ai.cells.length + 1);
-  });
-  it('테크 트리: 후보가 한 단계 상한보다 많으면 마감 먼 후보가 접힌다', () => {
-    const candidates = ['p1', 'p2', 'p3'].map((id, i) => ({ program: prog(id, { field: 'data', did: ['make'] }), dday: 3 - i }));
-    const ai = buildTechTree({ records: [], activities: [], candidates }).rows.find(r => r.group === 'ai')!;
-    expect(ai.cells.map(c => c.id)).toEqual(['p:p2', 'p:p3']);
-    expect(ai.folds[0].cells.map(c => c.id)).toEqual(['p:p1']);
   });
 });

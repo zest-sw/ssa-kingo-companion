@@ -48,6 +48,8 @@ export type RecordItem = {
   useForRecommend: boolean;
   card?: RecordCard;
   programId?: string;
+  /** 활동의 심화 수준: 1 입문, 2 중급, 3 심화. 테크 트리 가로 위치. 없으면 이름·한 일 규칙으로 추정한다(analysis/level) */
+  level?: 1 | 2 | 3;
   /** 학생이 '맞아요'를 눌러 확인한 역량 근거. 없는 축은 AI 추정(점선)이다 */
   confirmedAxes?: Axis[];
   /** 학생이 '아니에요'라고 한 역량 근거. 강점 분석에서 뺀다 */
