@@ -4,9 +4,11 @@ import type { EdgeAnswers } from '../analysis/map';
 import { axesOfProgram, buildStrengths, DID_DOING, leadStrengths, type Strength } from '../analysis/strengths';
 import { buildTechTree, TREE_COLUMNS, type TechTree, type TreeRow } from '../analysis/techtree';
 import { ddayOf } from '../recommend';
+import { josa } from '../text';
 import { goalGroups } from '../recommend-flow/trace';
 import type { Activity, Axis, FieldGroup, Profile, Program, RecordItem, Scored } from '../types';
 import { AXES, DID_AXES, FIELD_GROUP, GROUP_LABEL } from '../vocab';
+import { FILL_LINE, fitsNeed, pickGap, type Gap, type GapNeed } from './gap';
 import { AXIS_DOING, CLUSTER_DOING, eul, eun, GROUP_DOING, identityLine, iga, ro, wa } from './phrases';
 
 // 하나의 이야기: 네 분석(나의 강점·경험 지도·관심 흐름·테크 트리)과 추천을 한 줄로 엮는다.
@@ -23,7 +25,7 @@ export type ProofPic =
 /** 근거 한 칸: 해석 한 줄(line) + 숫자 하나(value). 누르면 그 분석 화면 */
 export type Proof = { kind: 'strength' | 'cluster' | 'flow' | 'depth'; title: string; line: string; value: string; route: StoryRoute; pic: ProofPic };
 export type Identity = { text: string; alternatives: string[]; basis: string; status: 'estimate' | 'confirmed' };
-export type Gap = { kind: 'skipped' | 'estimate' | 'untried'; line: string; route: StoryRoute; group?: FieldGroup };
+export type { Gap, GapNeed } from './gap';
 /** same: 지금 가장 추천과 같은 후보인지. 다르면 note 가 이유를 말한다 */
 export type NextPick = { programId: string; title: string; why: string; same: boolean; note?: string };
 export type ScreenLine = { soWhat: string; nowWhat?: string };
@@ -35,8 +37,8 @@ export type Story = {
   gap?: Gap;
   next?: NextPick;
   perScreen: Record<StoryScreen, ScreenLine>;
-  /** 추천 한 줄을 만들 때 쓰는 이야기의 축: 강점 순서, 빈 곳의 분야 */
-  refs: { axes: Axis[]; gapGroup?: FieldGroup; goalWords: string };
+  /** 추천 한 줄을 만들 때 쓰는 이야기의 축: 강점 순서, 빈 곳을 채우는 기회의 조건과 그 이유 */
+  refs: { axes: Axis[]; gapNeed?: GapNeed; gapWhy?: string; goalWords: string };
 };
 
 export type StoryInput = {
@@ -85,32 +87,11 @@ function stagesOf(row: TreeRow): ('done' | 'skipped' | 'none')[] {
 
 const unconfirmed = (s: Strength) => s.evidence.length - s.confirmed;
 
-/**
- * 이야기에서 비어 있는 한 곳. 목표와 닿은 것을 먼저 말한다:
- * 목표 분야의 건너뛴 단계 → 목표 분야인데 안 해 본 것 → 확인 전 근거가 많은 강점(3개 이상) → 다른 분야의 건너뛴 단계 → 안 해 본 분야.
- */
-function pickGap(tree: TechTree, strengths: Strength[], goal: FieldGroup[]): Gap | undefined {
-  const rows = tree.rows.filter(r => r.group !== 'other');
-  const skipped = (r: TreeRow) => r.cells.find(c => c.kind === 'skipped');
-  const skipGap = (r: TreeRow): Gap => ({ kind: 'skipped', line: `${r.label} ${TREE_COLUMNS[skipped(r)!.col]} 단계는 아직 비어 있어요`, route: 'analysis/techtree', group: r.group });
-  const untried = (r: TreeRow): Gap => ({ kind: 'untried', line: `${eun(r.label)} 아직 해 보지 않았어요`, route: 'analysis/techtree', group: r.group });
-  const goalSkip = rows.find(r => goal.includes(r.group) && skipped(r));
-  if (goalSkip) return skipGap(goalSkip);
-  const goalBlank = rows.find(r => goal.includes(r.group) && r.unknown);
-  if (goalBlank) return untried(goalBlank);
-  const est = strengths.filter(s => unconfirmed(s) >= 3).sort((a, b) => unconfirmed(b) - unconfirmed(a))[0];
-  if (est) return { kind: 'estimate', line: `${est.label} 근거 ${unconfirmed(est)}개는 아직 내 확인을 기다려요`, route: 'analysis/strengths' };
-  const anySkip = rows.find(r => skipped(r));
-  if (anySkip) return skipGap(anySkip);
-  const blank = rows.find(r => r.unknown);
-  return blank ? untried(blank) : undefined;
-}
-
 /** 이 기회에서 그 역량을 쓰는 일 */
 const doingFor = (p: Program, axis: Axis) => p.did.find(d => DID_AXES[d].includes(axis));
 
 /**
- * 다음 한 걸음. 빈 곳이 분야(건너뛴 단계·안 해 본 분야)면 그 분야 후보 중 추천 순서가 가장 앞인 것('빈 곳을 채우는'),
+ * 다음 한 걸음. 빈 곳을 채우는 후보(조건이 다 맞는 것만. 조건을 풀면 '채운다'는 말이 거짓이 된다) 중 추천 순서가 가장 앞인 것('빈 곳을 채우는'),
  * 아니면 가장 확실한 강점을 쓰는 후보 중 가장 앞인 것('강점을 한 단계 깊게'). 둘 다 없으면 가장 추천.
  */
 function pickNext(scored: Scored[], lead: Strength | undefined, gap: Gap | undefined, records: RecordItem[]): NextPick | undefined {
@@ -118,12 +99,12 @@ function pickNext(scored: Scored[], lead: Strength | undefined, gap: Gap | undef
   if (!primary) return undefined;
   const pack = (p: Program, why: string): NextPick => ({
     programId: p.id, title: p.title, why, same: p.id === primary.id,
-    note: p.id === primary.id ? undefined : `가장 추천은 ‘${primary.title}’예요. 이야기의 빈 곳에 더 가까워 이쪽을 골랐어요`
+    note: p.id === primary.id ? undefined : `가장 추천은 ‘${primary.title}’${josa(primary.title, '이에요', '예요')}. 이야기의 빈 곳에 더 가까워 이쪽을 골랐어요`
   });
-  if (gap?.group && gap.kind !== 'estimate') {
-    const fill = scored.find(s => FIELD_GROUP[s.p.field] === gap.group)?.p;
-    const label = GROUP_LABEL[gap.group];
-    if (fill) return pack(fill, gap.kind === 'skipped' ? `비어 있는 ${label} 자리를 채워요` : `처음으로 ${eul(label)} 해 봐요`);
+  if (gap?.need && gap.why) {
+    const need = gap.need;
+    const fill = scored.find(s => fitsNeed(s.p, need))?.p;
+    if (fill) return pack(fill, gap.why);
   }
   if (lead) {
     const deep = scored.find(s => doingFor(s.p, lead.axis))?.p;
@@ -173,8 +154,11 @@ export function buildStory(input: StoryInput): Story {
     candidates: input.scored.map(s => ({ program: s.p, dday: ddayOf(s.p, input.week) }))
   });
   const depth = pickDepth(tree, end);
-  const gap = pickGap(tree, strengths, goalOf(input.profile));
-  const next = pickNext(input.scored, top?.evidence.length ? top : undefined, gap, records);
+  const found = pickGap({ tree, strengths, records, goal: goalOf(input.profile), programs: input.programs, now: input.semesters.at(-1) ?? '' });
+  const next = pickNext(input.scored, top?.evidence.length ? top : undefined, found, records);
+  // 다음 한 걸음이 이 빈 곳을 채우면(이유가 빈 곳의 이유) 빈 곳 문장 뒤에 그렇다고 이어 말한다.
+  const filled = !!found?.why && next?.why === found.why;
+  const gap = found && { ...found, filled, line: filled ? found.line + FILL_LINE : found.line };
 
   // 정체성: 그 묶음이 하는 일 + 가장 확실한 강점이 하는 일. 대안은 강점이나 묶음 하나만 바꾼 짝이라 학생이 '어느 쪽이 더 나인가'만 고르면 된다.
   const doingOf = (c?: Cluster) => (c ? CLUSTER_DOING[c.id] ?? GROUP_DOING[end ?? 'other'] : GROUP_DOING[end ?? 'other']);
@@ -252,7 +236,7 @@ export function buildStory(input: StoryInput): Story {
     records: { soWhat: `기록 ${records.length}개가 이야기의 재료예요`, nowWhat: '회고를 하나 더 쓰면 이야기가 또렷해져요' }
   };
 
-  const story: Story = { newStudent: false, identity, proofs: proofs.slice(0, 4), gap, next, perScreen, refs: { axes: strengths.filter(s => s.evidence.length).map(s => s.axis), gapGroup: gap?.kind !== 'estimate' ? gap?.group : undefined, goalWords: input.profile.goal.trim() } };
+  const story: Story = { newStudent: false, identity, proofs: proofs.slice(0, 4), gap, next, perScreen, refs: { axes: strengths.filter(s => s.evidence.length).map(s => s.axis), gapNeed: gap?.need, gapWhy: gap?.why, goalWords: input.profile.goal.trim() } };
   story.perScreen.recommend.soWhat = next ? storyLineFor(story, next.programId, input.scored.map(s => s.p)) : '';
   return story;
 }
@@ -269,7 +253,8 @@ export function storyLineFor(story: Story, programId: string, programs: Program[
   if (!p) return '';
   const group = FIELD_GROUP[p.field];
   if (story.newStudent) return story.refs.goalWords ? `${story.refs.goalWords} 쪽으로 가는 첫 활동이에요` : '넓게 둘러보는 첫 활동이에요';
-  if (story.refs.gapGroup && story.refs.gapGroup === group) return `이야기에서 비어 있는 ${GROUP_LABEL[group]} 자리를 채워요`;
+  const { gapNeed, gapWhy } = story.refs;
+  if (gapNeed && gapWhy && fitsNeed(p, gapNeed)) return gapWhy;
   const uses = axesOfProgram(p);
   const label = (a: Axis) => AXES.find(x => x.id === a)!.label;
   const [a1, a2] = story.refs.axes;

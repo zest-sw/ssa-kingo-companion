@@ -49,7 +49,7 @@ describe('buildStory', () => {
 
   it('목표 분야를 안 해 봤으면 그 빈 곳을 말하고, 다음 한 걸음은 그 분야 후보', () => {
     const s = buildStory(input({ profile: profile({ interests: ['global'], goal: '' }) }));
-    expect(s.gap).toMatchObject({ kind: 'untried', line: '글로벌은 아직 해 보지 않았어요' });
+    expect(s.gap).toMatchObject({ kind: 'untried', filled: true, line: '아직 글로벌 활동은 해 본 적이 없어요 · 다음 한 걸음이 여기를 채워요' });
     expect(s.next?.programId).toBe('p-global');
     expect(s.next?.why).toBe('처음으로 글로벌을 해 봐요');
   });
