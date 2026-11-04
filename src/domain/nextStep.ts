@@ -10,7 +10,7 @@ export type NextStep = { lead: string; label: string; to: string };
 export function nextStep(activities: Activity[]): NextStep {
   if (activities.some(a => a.status === 'ended')) return { lead: '끝난 활동의 회고를 쓰면', label: '회고 쓰러 가기', to: 'activities/records/interview' };
   if (activities.some(a => a.status === 'preparing' || a.status === 'applied' || a.status === 'ongoing')) {
-    return { lead: '하는 활동이 끝나고 회고를 쓰면', label: '일정 보기', to: 'activities/schedule' };
+    return { lead: '신청한 활동이 끝나고 회고를 쓰면', label: '일정 보기', to: 'activities/schedule' };
   }
   return { lead: '활동을 고르고 회고를 쓰면', label: '추천에서 활동 고르기', to: 'recommend' };
 }
