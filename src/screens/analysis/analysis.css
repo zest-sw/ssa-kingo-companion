@@ -67,8 +67,8 @@
 .an-rec__tags { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
 
 /* 범례 */
-.an-legend { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin-top: var(--space-5); color: var(--ink-muted); font-size: var(--text-sm); }
-.an-legend li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.an-legend { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-4); color: var(--ink-muted); font-size: var(--text-xs); }
+.an-legend li { display: inline-flex; align-items: center; gap: var(--space-1); }
 .an-legend--inline { margin: 0; }
 .an-legend__sub { margin-left: calc(-1 * var(--space-3)); }
 .an-key { display: inline-block; width: var(--an-key-w); height: var(--an-key-h); border-radius: var(--radius-sm); flex: none; }

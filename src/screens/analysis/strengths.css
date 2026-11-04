@@ -7,8 +7,8 @@
 .an-shead { margin: 0 0 var(--space-2); color: var(--ink-strong); font-size: var(--text-2xl); font-weight: var(--weight-heavy); line-height: var(--leading-tight); }
 /* 확인한 근거가 없을 때의 머리 문장: AI 추정이라 점선 점과 옅은 글자로 */
 .an-shead.is-est { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-lg); font-weight: var(--weight-bold); }
-.an-rlegend { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-5); margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-xs); }
-.an-rlegend span { display: inline-flex; align-items: center; gap: var(--space-2); }
+.an-rlegend { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-1) var(--space-4); margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-xs); }
+.an-rlegend span { display: inline-flex; align-items: center; gap: var(--space-1); }
 .an-rlegend i { display: inline-block; width: var(--space-5); height: var(--space-3); box-sizing: border-box; }
 .an-rlegend .an-rlegend__own { border: 2px solid var(--navy-900); background: var(--navy-100); }
 .an-rlegend .an-rlegend__est { height: 0; border-top: 1.5px dashed var(--ink-subtle); }
