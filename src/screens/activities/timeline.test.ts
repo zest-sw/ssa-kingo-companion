@@ -28,7 +28,7 @@ describe('timelineOf', () => {
     const ids = [...rows.map(r => r.id), ...undated.map(a => a.id)].sort();
     expect(ids).toEqual(SEED_ACTIVITIES.map(a => a.id).sort());
   });
-  it('기간 없는 활동은 날짜 미정', () => expect(undated.map(a => a.id).sort()).toEqual(['a-dataviz', 'a-exchange']));
+  it('기간 없는 활동은 날짜 미정', () => expect(undated.map(a => a.id).sort()).toEqual(['a-exchange']));
   it('신청 준비는 오늘부터 마감까지, 마감 ◆ 가 끝에 있다', () => {
     const swm = rows.find(r => r.id === 'a-swm');
     expect(swm).toMatchObject({ start: PROTOTYPE_TODAY, end: '2026-10-18', deadline: '2026-10-18', state: 'prep' });
@@ -44,7 +44,7 @@ describe('timelineOf', () => {
 });
 
 describe('columnCounts', () => {
-  it('보드 세 칸 개수', () => expect(columnCounts(SEED_ACTIVITIES)).toEqual({ todo: 3, doing: 2, done: 3 }));
+  it('보드 세 칸 개수', () => expect(columnCounts(SEED_ACTIVITIES)).toEqual({ todo: 5, doing: 3, done: 6 }));
 });
 
 describe('monthRange', () => {

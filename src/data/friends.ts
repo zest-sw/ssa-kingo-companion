@@ -2,7 +2,7 @@ import type { Field } from '../domain/types';
 import type { RecruitPost } from '../domain/social';
 import type { FeedLike } from '../domain/social/summary';
 
-// 친구·모집·명예의 전당 예시 데이터. 이름은 모두 지어낸 가공 이름이다(실제 인물 아님).
+// 친구·모집·명예의 전당 예시 데이터. 이름은 모두 지어낸 가공 이름이다(실제 인물 아님). 친구끼리 비교하거나 순위를 매기는 값은 두지 않는다.
 
 export type Peer = { id: string; name: string; dept: string; year: number; note: string; field: Field };
 
@@ -16,7 +16,11 @@ export const SIMILAR_PEERS: Peer[] = [
 /** 이미 서로 수락한 친구 */
 export const FRIENDS: Peer[] = [
   { id: 'friend-a', name: '다온', dept: '소프트웨어학과', year: 3, note: 'AI 프로젝트 학회', field: 'ai' },
-  { id: 'friend-b', name: '지후', dept: '통계학과', year: 3, note: '리서치 스터디', field: 'research' }
+  { id: 'friend-b', name: '지후', dept: '통계학과', year: 3, note: '리서치 스터디', field: 'research' },
+  { id: 'friend-c', name: '서윤', dept: '시스템경영공학과', year: 3, note: '서비스 리서치 크루', field: 'product' },
+  { id: 'friend-d', name: '로운', dept: '소프트웨어학과', year: 4, note: '앱 개발 동아리 선배', field: 'dev' },
+  { id: 'friend-e', name: '채아', dept: '글로벌리더학부', year: 2, note: '글로벌 버디', field: 'global' },
+  { id: 'friend-f', name: '태율', dept: '인터랙션사이언스학과', year: 3, note: '교내 디자인 해커톤 팀', field: 'product' }
 ];
 
 /** 나에게 온 친구 요청 */
@@ -24,21 +28,29 @@ export const INCOMING: Peer[] = [{ id: 'req-a', name: '하람', dept: '미디어
 
 export type FeedItem = FeedLike & { id: string; friendId: string; cheers: number };
 export const FEED: FeedItem[] = [
-  { id: 'feed-a', friendId: 'friend-a', who: '다온', kind: 'achieved', subject: '첫 회고', cheers: 4 },
-  { id: 'feed-b', friendId: 'friend-b', who: '지후', kind: 'hidden', cheers: 2 },
-  { id: 'feed-c', friendId: 'friend-a', who: '다온', kind: 'applied', subject: 'AI 데이터 분석 경진대회', cheers: 0 }
+  { id: 'feed-a', friendId: 'friend-c', who: '서윤', kind: 'shared', subject: '서비스 리서치 크루 중간 회고', cheers: 3 },
+  { id: 'feed-b', friendId: 'friend-a', who: '다온', kind: 'achieved', subject: '세 갈래 길', cheers: 4 },
+  { id: 'feed-c', friendId: 'friend-b', who: '지후', kind: 'hidden', cheers: 2 },
+  { id: 'feed-d', friendId: 'friend-f', who: '태율', kind: 'applied', subject: '교내 UX 개선 공모전', cheers: 1 },
+  { id: 'feed-e', friendId: 'friend-a', who: '다온', kind: 'applied', subject: 'AI 데이터 분석 경진대회', cheers: 0 }
 ];
 
 /** 친구 프로필 서랍에 보일 것: 친구가 전시한 도전 과제(id)와 한 활동 하나. 친구가 공개한 것만 예시로 둔다 */
 export const FRIEND_PROFILES: Record<string, { showcase: string[]; activity: { title: string; field: Field } }> = {
   'friend-a': { showcase: ['first-retro', 'three-paths'], activity: { title: 'AI 프로젝트 학회', field: 'ai' } },
-  'friend-b': { showcase: ['first-retro', 'explainer'], activity: { title: '리서치 스터디', field: 'research' } }
+  'friend-b': { showcase: ['first-retro', 'explainer'], activity: { title: '리서치 스터디', field: 'research' } },
+  'friend-c': { showcase: ['first-retro'], activity: { title: '서비스 리서치 크루', field: 'research' } },
+  'friend-d': { showcase: ['explainer', 'role-swap'], activity: { title: '앱 개발 동아리 프로젝트', field: 'dev' } },
+  'friend-e': { showcase: ['first-places'], activity: { title: '글로벌 버디 · 교환학생 도우미', field: 'global' } },
+  'friend-f': { showcase: ['three-paths'], activity: { title: '교내 디자인 해커톤', field: 'product' } }
 };
 
 /** 이 활동을 해 본 친구·선배. 내 활동 이름으로 찾는다 */
 export type DoneBy = { activityTitle: string; people: { name: string; label: string }[] };
 export const DONE_BY: DoneBy[] = [
   { activityTitle: 'AI 프로젝트 학회', people: [{ name: '다온', label: '친구' }, { name: '서진', label: '4학년 선배' }] },
+  { activityTitle: '서비스 리서치 크루', people: [{ name: '서윤', label: '친구' }] },
+  { activityTitle: '서비스 기획 실무 부트캠프', people: [{ name: '준호', label: '4학년 선배' }] },
   { activityTitle: '창업 동아리', people: [{ name: '유나', label: '4학년 선배' }] },
   { activityTitle: '가을 데이터 해커톤', people: [{ name: '아린', label: '선배' }, { name: '지후', label: '친구' }] }
 ];
@@ -65,6 +77,11 @@ export const SEED_POSTS: RecruitPost[] = [
   { id: 'post-c', opportunityId: 'opp-ideathon', author: '준호', slots: 1, note: '화면 시안을 그려 줄 분이면 좋아요', mine: false }
 ];
 
+/** 예시 학생이 올린 모집 글. 예시로 볼 때만 있다 */
+export const EXAMPLE_MY_POSTS: RecruitPost[] = [
+  { id: 'post-mine', opportunityId: 'opp-ux', author: '나', slots: 2, note: '사용자 인터뷰를 같이 하고 화면을 그려 줄 분 찾아요', mine: true }
+];
+
 /** 내 글에 지원한 예시 학생(수락은 학생이 직접) */
 export const APPLICANTS = ['하람', '서진'];
 
@@ -89,6 +106,14 @@ export const HALL: HallEntry[] = [
       { title: '교내 해커톤 대상', field: 'dev', when: '3-2' }, { title: '데이터 분석 멘토', field: 'mentor', when: '4-1' }
     ],
     retro: '막힐 때마다 팀원에게 설명하다 보니 길이 보였다'
+  },
+  {
+    id: 'hall-d', name: '시우', dept: '소프트웨어학과', year: 4, group: 'plan', reason: '개발에서 서비스 기획으로, 교내 서비스 개선안 채택', start: '처음 시작 · 1학년 2학기',
+    path: [
+      { title: '앱 개발 동아리', field: 'dev', when: '1-2' }, { title: '사용자 인터뷰 워크숍', field: 'research', when: '2-2' }, { title: '서비스 기획 부트캠프', field: 'product', when: '3 여름' },
+      { title: '교내 서비스 개선안 채택', field: 'product', when: '4-1' }
+    ],
+    retro: '코드를 짜던 습관이 화면 흐름을 그릴 때 도움이 됐다'
   },
   {
     id: 'hall-b', name: '도현', dept: '경영학과', year: 3, group: 'plan', reason: '창업 경진대회 수상', start: '처음 시작 · 1학년 2학기',

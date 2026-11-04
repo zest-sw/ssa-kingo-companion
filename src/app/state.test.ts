@@ -48,8 +48,9 @@ describe('reducer', () => {
     expect(s2.visibility.hallOfFameConsent).toBe(false);
   });
 
-  it('기본은 비공개', () => {
-    expect(INITIAL_STATE.visibility.profilePublic).toBe(false);
+  it('새 학생은 비공개, 예시 학생은 공개로 시작한다', () => {
+    expect(NEW_STUDENT_STATE.visibility.profilePublic).toBe(false);
+    expect(INITIAL_STATE.visibility.profilePublic).toBe(true);
   });
 
   it('되돌리기는 그 행동이 바꾼 조각만 돌린다', () => {
@@ -125,14 +126,14 @@ describe('회고 초안과 역량 근거 확인', () => {
 
 describe('도전 과제·모집 글', () => {
   it('처음 달성한 시각만 남긴다', () => {
-    const s1 = reducer(INITIAL_STATE, { type: 'challenge/achieve', ids: ['first-retro'], at: 1 });
+    const s1 = reducer(NEW_STUDENT_STATE, { type: 'challenge/achieve', ids: ['first-retro'], at: 1 });
     const s2 = reducer(s1, { type: 'challenge/achieve', ids: ['first-retro'], at: 2 });
     expect(s2).toBe(s1);
     expect(s2.challengeAt).toEqual({ 'first-retro': 1 });
   });
   it('새 모집 글이 앞에 온다', () => {
     const post = (id: string) => ({ id, opportunityId: 'o', author: '나', slots: 2, note: '한 줄', mine: true });
-    const s = reducer(reducer(INITIAL_STATE, { type: 'recruit/post', post: post('a') }), { type: 'recruit/post', post: post('b') });
+    const s = reducer(reducer(NEW_STUDENT_STATE, { type: 'recruit/post', post: post('a') }), { type: 'recruit/post', post: post('b') });
     expect(s.recruitPosts.map(p => p.id)).toEqual(['b', 'a']);
   });
 });

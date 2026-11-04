@@ -17,6 +17,9 @@ export const PROGRAMS: Program[] = [
   { id: 'p-coffee', title: '선배 기획자와 커피챗', host: '동문 멘토링 (예시)', field: 'career', format: 'offline', when: '10.22(목) 12:00', hours: 1, durationLabel: '1시간', ddayW1: 9, weeks: [2], place: '학생회관 (예시)', target: '전 학년', eligible: true, seatsKnown: false, did: ['listen', 'ask'], level: 1, summary: '기획 직무 선배에게 첫해에 한 일을 물어봐요.' },
   { id: 'p-dashboard', title: '지표 대시보드 입문 실습', host: '데이터 비교과 (예시)', field: 'data', format: 'online', when: '10.28(수) 19:00', hours: 2, durationLabel: '2시간', ddayW1: 16, weeks: [3], place: '온라인', target: '전 학년', eligible: true, seatsKnown: true, did: ['make', 'organize'], level: 2, career: { req: 'chat-dashboard', part: 'gap', gapLabel: '대시보드' }, summary: '공개 데이터로 지표 세 개를 정하고 대시보드를 만들어요.' },
   { id: 'p-uxstudy', title: 'UX 리서치 입문 스터디', host: '학생성장 비교과 (예시)', field: 'research', format: 'offline', when: '10.27(화) 18:00', hours: 1.5, durationLabel: '1시간 30분', ddayW1: 15, weeks: [3], place: '인문사회과학캠퍼스 (예시)', target: '전 학년', eligible: true, seatsKnown: true, did: ['ask', 'listen'], level: 1, career: { req: 'survey-research', part: 'match' }, summary: '리서치 사례 하나를 읽고 질문을 다시 써 봐요.' },
+  { id: 'p-pmcase', title: '서비스 기획 사례 분석 스터디', host: '경력개발 비교과 (예시)', field: 'product', format: 'online', when: '10.20(화) 19:00', hours: 1.5, durationLabel: '1시간 30분', ddayW1: 5, weeks: [1, 2], place: '온라인', target: '전 학년', eligible: true, seatsKnown: true, did: ['organize', 'idea'], level: 1, career: { req: 'auth-launch', part: 'match' }, summary: '출시된 서비스 하나를 골라 기획 의도를 거꾸로 짚어 봐요.' },
+  { id: 'p-globallunch', title: '유학생과 점심 교류', host: '국제처 비교과 (예시)', field: 'global', format: 'offline', when: '10.19(월) 12:00', hours: 1, durationLabel: '1시간', ddayW1: 4, weeks: [1], place: '인문사회과학캠퍼스 (예시)', target: '전 학년', eligible: true, seatsKnown: false, did: ['listen', 'ask'], level: 1, summary: '유학생 두 명과 점심을 먹으며 학교생활 이야기를 나눠요.' },
+  { id: 'p-sql', title: 'SQL로 지표 뽑기 입문', host: '데이터 비교과 (예시)', field: 'data', format: 'online', when: '10.27(화) 19:00', hours: 2, durationLabel: '2시간', ddayW1: 11, weeks: [1, 2], place: '온라인', target: '전 학년', eligible: true, seatsKnown: true, did: ['make', 'ask'], level: 2, career: { req: 'chat-sql', part: 'gap', gapLabel: 'SQL' }, summary: '예시 서비스 데이터에서 지표 세 개를 직접 뽑아 봐요.' },
   { id: 'p-mentor', title: '지역 아동센터 학습 멘토링', host: '사회봉사 비교과 (예시)', field: 'club', format: 'offline', when: '10.29(목) 16:00', hours: 2, durationLabel: '2시간', ddayW1: 17, weeks: [3], place: '종로구 (예시)', target: '전 학년', eligible: true, seatsKnown: false, did: ['present', 'organize'], level: 1, summary: '초등학생 두 명의 숙제를 함께 봐 줘요.' }
 ];
 export const PROGRAM_BY_ID = Object.fromEntries(PROGRAMS.map(p => [p.id, p])) as Record<string, Program>;
@@ -47,8 +50,8 @@ export const DIRECTIONS: Direction[] = [
 ];
 /** 요건별 근거 기록 id (예시) */
 export const INITIAL_REQ_EVIDENCE: Record<string, string[]> = {
-  'auth-feedback': ['e2', 'e4', 'e6'], 'auth-collab': ['e1', 'e5'], 'auth-launch': [], 'survey-research': ['e2', 'e3', 'e6'], 'survey-collab': ['e1', 'e5'],
-  'survey-platform': [], 'chat-monitor': ['e6'], 'chat-collab': ['e1', 'e5'], 'chat-office': [], 'chat-sql': [], 'chat-dashboard': []
+  'auth-feedback': ['e2', 'e4', 'e6', 'r-surveyviz'], 'auth-collab': ['e1', 'e5', 'r-winterhack'], 'auth-launch': ['r-planws'], 'survey-research': ['e2', 'e3', 'e6', 'r-studytalk'], 'survey-collab': ['e1', 'e5'],
+  'survey-platform': ['r-appclub'], 'chat-monitor': ['e6', 'r-aiidea'], 'chat-collab': ['e1', 'e5', 'r-buddy'], 'chat-office': ['r-surveyviz'], 'chat-sql': [], 'chat-dashboard': ['r-datacamp']
 };
 
 export const CATALOG: Catalog = { programs: PROGRAMS, jobs: JOBS, reqs: REQS, directions: DIRECTIONS };
