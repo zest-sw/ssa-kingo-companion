@@ -58,7 +58,7 @@ export function DraftStep({ draft, team, revised, revising, onRetry }: { draft: 
           {/* 고쳐 달라고 했는데 바꿀 게 없으면 그렇다고 말한다(같은 글에 '고친 초안'을 붙이지 않는다) */}
           {draft.status === 'ready' && draft.prev === draft.draft.motivation && <p className="rec-muted" role="status">더 넣을 기록이 아직 없어서 그대로 뒀어요. 한 줄 요청으로 직접 적어 보세요.</p>}
           <section>
-            <h3>지원 동기</h3>
+            <h3 className="ui-subhead">지원 동기</h3>
             <p className="rec-draft__text">
               {markChanged(draft.status === 'ready' ? draft.prev : undefined, draft.draft.motivation).map((s, n) => (
                 <span key={`${draft.status === 'ready' ? draft.at : 'busy'}-${n}`} className={s.changed ? 'rec-draft__changed' : undefined}>{s.text} </span>
@@ -66,12 +66,12 @@ export function DraftStep({ draft, team, revised, revising, onRetry }: { draft: 
             </p>
           </section>
           <section>
-            <h3>경험 · 내 기록에서 가져왔어요</h3>
+            <h3 className="ui-subhead">경험 · 내 기록에서 가져왔어요</h3>
             {draft.draft.related.length === 0
               ? <p className="rec-muted">가져올 기록이 아직 없어요. 활동을 마치고 회고를 쓰면 여기에 들어가요.</p>
               : <ul className="rec-draft__chips">{draft.draft.related.map(r => <li key={r.id}><Badge tone="navy">{r.title}</Badge></li>)}</ul>}
           </section>
-          {team && <section><h3>팀 이름, 팀원</h3><p className="rec-muted">팀 구성이 끝나면 채워요</p></section>}
+          {team && <section><h3 className="ui-subhead">팀 이름, 팀원</h3><p className="rec-muted">팀 구성이 끝나면 채워요</p></section>}
         </div>
       )}
     </div>

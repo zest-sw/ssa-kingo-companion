@@ -25,7 +25,7 @@ export function TodayList({ groups }: { groups: WeekGroup[] }) {
           {/* 아직 없는 묶음은 이름과 생기는 때만 옅게: 이 칸이 무엇이 될지 보인다 */}
           {GHOST.map(g => (
             <section key={g.kind} className="home-q" data-ghost aria-label={`${GROUP_NAME[g.kind]}: ${g.line}`}>
-              <h3 className="home-q__h" aria-hidden="true">{GROUP_NAME[g.kind]}</h3>
+              <h3 className="ui-subhead home-q__h" aria-hidden="true">{GROUP_NAME[g.kind]}</h3>
               <p className="home-q__ghost" aria-hidden="true">{g.line}</p>
             </section>
           ))}
@@ -34,7 +34,7 @@ export function TodayList({ groups }: { groups: WeekGroup[] }) {
         <>
           {groups.map(g => (
             <section key={g.kind} className="home-q" aria-labelledby={`home-q-${g.kind}`}>
-              <h3 id={`home-q-${g.kind}`} className="home-q__h" data-kind={g.kind}>{GROUP_NAME[g.kind]}<span className="num">{g.tasks.length}</span></h3>
+              <h3 id={`home-q-${g.kind}`} className="ui-subhead home-q__h" data-kind={g.kind}>{GROUP_NAME[g.kind]}<span className="num">{g.tasks.length}</span></h3>
               <ul>
                 {g.tasks.map(t => <li key={t.id}><TaskRow t={t} /></li>)}
               </ul>

@@ -35,7 +35,7 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
             <Card className="an-story" aria-label="나의 이야기">
               <StoryHero identity={story.identity} onAnswer={story.newStudent ? undefined : setStoryAnswer} />
               <section aria-labelledby="an-story-proof-h">
-                <h2 id="an-story-proof-h" className="an-story__h">{story.newStudent ? '기록이 쌓이면 근거가 생길 자리' : '왜 이렇게 읽었나'}</h2>
+                <h2 id="an-story-proof-h" className="ui-subhead an-story__h">{story.newStudent ? '기록이 쌓이면 근거가 생길 자리' : '왜 이렇게 읽었나'}</h2>
                 <ProofList proofs={story.proofs} />
               </section>
               {story.gap && <GapLine gap={story.gap} />}

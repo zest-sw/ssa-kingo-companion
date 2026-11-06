@@ -83,7 +83,7 @@ export function Archive({ records, selectedId, onOpen, switcher }: { records: Re
           <EmptyState icon="records" message="이 조건에 맞는 기록이 없어요. 거르기를 풀어 보세요." action={isFiltered(filter) ? <Button size="sm" onClick={() => setFilter(NO_FILTER)}>거르기 풀기</Button> : undefined} />
         ) : groups.map(g => (
           <section key={g.semester} aria-labelledby={`sem-${g.semester}`}>
-            <h3 id={`sem-${g.semester}`} className="ra__sem">{g.label} <span className="num">{g.items.length}</span></h3>
+            <h3 id={`sem-${g.semester}`} className="ui-subhead ra__sem">{g.label} <span className="num">{g.items.length}</span></h3>
             <ul className="ra__grid">{g.items.map(r => <Tile key={r.id} r={r} selected={selectedId === r.id} picking={picking} picked={picks.includes(r.id)} onPress={press} />)}</ul>
           </section>
         ))}

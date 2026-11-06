@@ -41,7 +41,6 @@
 .home-hex__pic polygon { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
 
 .home-inv { align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding-left: var(--space-6); border-left: var(--border); }
-.home-inv__h { margin-bottom: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
 .home-inv__list li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); min-height: var(--hit-min); }
 .home-inv__list svg { color: var(--ink-subtle); }
 .home-inv__list b { font-size: var(--text-lg); font-weight: var(--weight-heavy); }
@@ -74,7 +73,7 @@
 .home-q[data-ghost] { padding-top: var(--space-3); border-top: var(--border); }
 .home-q[data-ghost] .home-q__h { color: var(--text-faint); }
 .home-q__ghost { color: var(--ink-subtle); font-size: var(--text-sm); }
-.home-q__h { display: flex; align-items: baseline; gap: var(--space-1); margin-bottom: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.home-q__h { display: flex; align-items: baseline; gap: var(--space-1); margin-bottom: var(--space-1); }
 .home-q__h span { color: var(--text-faint); font-weight: var(--weight-regular); }
 .home-q__row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--home-row-h); padding: var(--space-2); border: 0; border-radius: var(--radius-sm); background: none; color: var(--ink); font-size: var(--text-md); text-align: left; text-decoration: none; transition: background-color var(--dur-fast) var(--ease-out); }
 .home-q__row:hover { background: var(--surface-hover); }

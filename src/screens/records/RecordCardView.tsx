@@ -88,9 +88,9 @@ export function RecordCardView({ fieldsOnly, ...p }: RecordCardViewProps & { fie
 export function ProofSection(p: Proof) {
   return (
       <section className="rec-evidence" aria-label="증빙과 역량 근거">
-        <div className="rec-evidence__head"><h3>증빙</h3></div>
+        <div className="rec-evidence__head"><h3 className="ui-subhead">증빙</h3></div>
         <p className="rec-evidence__text">{p.verification === 'school' ? '학교 연동으로 확인된 활동이에요. 경험 카드로 낼 때도 학교 확인 표시가 붙어요.' : '직접 입력한 기록이에요. 올린 증빙 파일은 아직 없어요.'}</p>
-        <div className="rec-evidence__head"><h3>역량 근거</h3><ConfirmLegend /></div>
+        <div className="rec-evidence__head"><h3 className="ui-subhead">역량 근거</h3><ConfirmLegend /></div>
         {p.evidence.length === 0 ? (
           <p className="rec-evidence__text rec-field__empty">한 일을 답하면 근거 문장이 생겨요.</p>
         ) : (

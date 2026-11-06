@@ -76,7 +76,7 @@
 
 .rec-list { display: flex; flex-direction: column; min-height: 0; border: var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
 .rec-list__scroll { flex: 1; min-height: 0; }
-.rec-list__head { position: sticky; top: 0; z-index: 1; padding: var(--space-4) var(--space-4) var(--space-2); background: var(--surface); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
+.rec-list__head { position: sticky; top: 0; z-index: 1; padding: var(--space-4) var(--space-4) var(--space-2); background: var(--surface); margin: 0; }
 .rec-rows { display: flex; flex-direction: column; }
 .rec-rows > li + li { border-top: var(--border); }
 
@@ -86,8 +86,6 @@
 .rec-detail__src { margin-left: auto; font-weight: var(--weight-medium); color: var(--ink-muted); text-decoration: none; }
 .rec-detail__host { margin-top: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); }
 .rec-checks { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
-.rec-why__head { display: flex; align-items: center; justify-content: space-between; }
-.rec-why__head h3 { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
 .rec-detail__note { display: inline-flex; align-items: center; gap: var(--space-1); margin-left: auto; font-size: var(--text-xs); color: var(--ink-muted); }
 
 /* 근거 도식: 기록 점들 → 이 활동 */
@@ -129,7 +127,6 @@
 .rec-draft__title { display: flex; align-items: center; gap: var(--space-2); padding-bottom: var(--space-3); margin-bottom: var(--space-3); border-bottom: var(--border); font-size: var(--text-2xl); font-weight: var(--weight-bold); }
 .rec-draft__body { display: flex; flex-direction: column; gap: var(--space-4); }
 .rec-draft__body section { padding-bottom: var(--space-4); border-bottom: var(--border); }
-.rec-draft__body h3 { margin-bottom: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
 .rec-apply { display: flex; flex-direction: column; gap: var(--space-4); }
 .rec-apply__title { font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
 .rec-apply__rows { display: flex; flex-direction: column; gap: var(--space-2); }
@@ -223,8 +220,8 @@
 /* 가장 추천 카드(주인공): 왼쪽 이름·이유·얻는 것, 오른쪽 D-n과 버튼 */
 .rec-top { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-6); margin-bottom: var(--os-gap); padding: var(--space-5) var(--space-6); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
 .rec-top__main { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
-/* 눈썹 한 줄: 공용 .ui-subhead 와 같은 회색. 색은 의미가 있을 때만 */
-.rec-top__label { color: var(--text-sub); font-size: var(--fs-sub); font-weight: var(--weight-bold); }
+/* 눈썹 한 줄: 공용 .ui-subhead. 위아래 간격은 묶음의 gap 이 맡는다 */
+.rec-top__label { margin: 0; }
 .rec-top__title { font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
 .rec-top__why { font-size: var(--text-md); color: var(--ink-muted); }
 .rec-top__gains { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); margin-top: var(--space-1); font-size: var(--text-md); }

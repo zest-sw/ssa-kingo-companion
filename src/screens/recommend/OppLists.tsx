@@ -52,7 +52,7 @@ export function RecommendList({ list, onOpen, label, modalOpen }: { list: Scored
   return (
     <section className="rec-list" data-fill aria-labelledby="rec-list-h">
       <div className="rec-list__scroll os-scroll">
-        <h2 id="rec-list-h" className="rec-list__head">{label}</h2>
+        <h2 id="rec-list-h" className="ui-subhead rec-list__head">{label}</h2>
         <ul className="rec-rows" {...keys}>
           {list.map(s => (
             <OppRow
@@ -96,7 +96,7 @@ export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen
       </div>
       <section className="rec-list" data-fill aria-labelledby="rec-all-h">
         <div className="rec-list__scroll os-scroll">
-          <h2 id="rec-all-h" className="rec-list__head">{label} {shown.length}개</h2>
+          <h2 id="rec-all-h" className="ui-subhead rec-list__head">{label} {shown.length}개</h2>
           <ul className="rec-rows" {...keys}>
             {shown.map(p => {
               const g = keyGain(p);

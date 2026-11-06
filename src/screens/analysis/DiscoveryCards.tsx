@@ -141,7 +141,7 @@ export function DiscoveryCards() {
         <div className="an-dlist">
           {groups.map(g => (
             <section key={g.id} className="an-dlist__group" aria-label={g.label}>
-              <h3 className="an-dlist__head">{g.label} <span className="num">{g.items.length}</span></h3>
+              <h3 className="ui-subhead an-dlist__head">{g.label} <span className="num">{g.items.length}</span></h3>
               <ul>
                 {g.items.map(x => {
                   const s = discStateOf(x);
