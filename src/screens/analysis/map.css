@@ -70,12 +70,12 @@
 .xg-note { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); }
 
 /* 묶음 영역: 옅은 바탕. 둥근 이음으로 모서리를 부드럽게 */
-.xg-hull { fill: var(--grey-100); stroke: var(--grey-100); stroke-width: var(--xg-hull-round); stroke-linejoin: round; transition: opacity 0.15s; }
+.xg-hull { fill: var(--grey-100); stroke: var(--grey-100); stroke-width: var(--xg-hull-round); stroke-linejoin: round; transition: opacity var(--dur-fast) var(--ease-out); }
 .xg-hull.is-picked { fill: var(--green-100); stroke: var(--green-100); }
 .xg .xg-hull.is-dim { opacity: 0.5; }
 
 /* 선: 처음엔 옅게. 확인한 근거는 실선, AI 추정은 점선 */
-.xg-edge__line { fill: none; stroke: var(--line-strong); stroke-width: var(--xg-line); transition: opacity 0.15s; }
+.xg-edge__line { fill: none; stroke: var(--line-strong); stroke-width: var(--xg-line); transition: opacity var(--dur-fast) var(--ease-out); }
 .xg-edge--yes .xg-edge__line { stroke: var(--grey-500); }
 .xg-edge--est .xg-edge__line { stroke-dasharray: 4 3; }
 .xg-edge.is-hot .xg-edge__line { stroke: var(--ink-muted); stroke-width: var(--an-line-w-thin); }
@@ -96,7 +96,7 @@
 /* 묶음 → 역량 요약 선(기본 화면). 얇은 선 하나(1~1.5px). 확인한 근거가 있으면 실선, 추정뿐이면 점선. 수는 옆 칸과 마우스 올림이 말한다 */
 .xg-link { stroke: var(--line-strong); stroke-width: var(--xg-line); stroke-dasharray: 4 3; stroke-linecap: round; }
 .xg-link.is-yes { stroke: var(--line-strong); stroke-width: var(--an-line-w-thin); stroke-dasharray: none; }
-.xg-links { transition: opacity 0.15s; }
+.xg-links { transition: opacity var(--dur-fast) var(--ease-out); }
 .xg-links.is-dim { opacity: var(--xg-dim); }
 /* 허브 옆 '근거 n': 강조한 근거 선 수를 한 번만 */
 .xg-tag { fill: var(--navy-900); font-size: var(--text-xs); font-weight: var(--weight-bold); paint-order: stroke; stroke: var(--surface); stroke-width: var(--an-halo); stroke-linejoin: round; pointer-events: none; }
@@ -106,7 +106,7 @@
 .xg-rel.is-yes { fill: var(--green-900); font-weight: var(--weight-bold); }
 
 /* 역량: 옅은 남색 원, 이름은 원 안. 그림의 조연이라 묶음 이름보다 물러나 있다 */
-.xg-axis, .xg-rec, .xg-name { cursor: pointer; transition: opacity 0.15s; }
+.xg-axis, .xg-rec, .xg-name { cursor: pointer; transition: opacity var(--dur-fast) var(--ease-out); }
 .xg-axis:focus-visible, .xg-rec:focus-visible, .xg-name:focus-visible { box-shadow: none; }
 /* 옅은 남색 채움 + 남색 글자. 크기로 AI·데이터 활동(작은 남색 점)과 종류가 갈린다 */
 .xg-axis__dot { fill: var(--navy-100); stroke: var(--surface); stroke-width: 1.5; }

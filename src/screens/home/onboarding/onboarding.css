@@ -5,10 +5,6 @@
   --onb-stage-h: 352px;
   --onb-card-h: 64px;
   --onb-seg-h: calc(var(--bar-h) / 2);
-  /* 넘김 거리: 열고 닫을 때(--enter-shift)보다 조금 길게. 움직임 줄이기면 0 */
-  --onb-shift: calc(var(--enter-shift) * 3);
-  /* 들어올 때 처음부터 반쯤 보이게: 내용이 먼저 보이고 움직임은 뒤따른다(토스뱅크 「방해하지 않고, 눈에 띌 수 있을까」) */
-  --onb-from-opacity: 0.4;
 }
 @media (max-height: 759px) {
   :root { --onb-stage-h: 336px; --onb-card-h: 56px; }
@@ -24,10 +20,9 @@
 .onb__seg[data-on] { background: var(--primary); }
 
 .onb__stage { height: var(--onb-stage-h); display: flex; flex-direction: column; }
-.onb__stage[data-dir] { animation: onb-in var(--dur-base) var(--ease-out); }
-.onb__stage[data-dir='back'] { --onb-from: calc(-1 * var(--onb-shift)); }
-/* 다음: 새 질문이 오른쪽에서 들어와 왼쪽으로 멈춘다. 이전: 반대. 빠르게 시작해 부드럽게 감속(--ease-out) */
-@keyframes onb-in { from { transform: translateX(var(--onb-from, var(--onb-shift))); opacity: var(--onb-from-opacity); } }
+/* 단계 넘김은 흐름 화면 공용 모양(components.css ui-step-in): 다음은 오른쪽에서, 이전은 왼쪽에서 */
+.onb__stage[data-dir] { animation: ui-step-in var(--dur-base) var(--ease-out); }
+.onb__stage[data-dir='back'] { animation-name: ui-step-in-back; }
 
 .onb__lead { margin-bottom: var(--space-2); font-size: var(--text-sm); color: var(--ink-muted); }
 .onb__q { font-size: var(--fs-page); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
@@ -78,9 +73,8 @@
 .onb-pick {
   margin-top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2);
   padding: var(--space-5) var(--space-6); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-raise);
-  animation: onb-rise var(--dur-base) var(--ease-out);
+  animation: ui-rise var(--dur-base) var(--ease-out);
 }
-@keyframes onb-rise { from { transform: translateY(var(--onb-shift)); opacity: var(--onb-from-opacity); } }
 /* 움직임 줄이기: 넘김·올라옴 없이 바로 바꾼다(빈 한 프레임도 없게) */
 @media (prefers-reduced-motion: reduce) {
   .onb__stage[data-dir], .onb-pick { animation: none; }

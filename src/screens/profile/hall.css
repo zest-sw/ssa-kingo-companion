@@ -2,14 +2,14 @@
 :root {
   --hall-card-w: 320px;
   --hall-avatar: 48px;
-  --hall-enter: 640ms;
+  /* 문 카드 → 장면도 '열림' 한 박자(--dur-base). 다른 열림보다 길게 두지 않는다 */
+  --hall-enter: var(--dur-base);
 }
 
 /* 장면은 내용 높이 한 덩어리로 머리 바로 아래부터 둔다(다른 화면과 같은 자리). 칸 높이까지 늘리면 아치 위아래가 빈 벽으로 남고, 가운데에 두면 제목 아래가 빈다 */
 .os__body:has(> .hall-scene) { align-content: start; grid-template-rows: minmax(0, max-content); }
 .hall-scene { position: relative; display: flex; flex-direction: column; gap: var(--space-4); min-height: 0; padding: var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; view-transition-name: hall-door; }
-.hall-scene[data-enter] { animation: hall-enter var(--hall-enter) cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-@keyframes hall-enter { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+.hall-scene[data-enter] { animation: ui-rise var(--hall-enter) var(--ease-out) both; }
 
 /* 기둥·아치: 아주 옅게. 무대 뒤에만 깔고, 장면 양옆·아래 끝까지 닿게 장면 여백만큼 넓힌다 */
 .hall-art { position: absolute; top: 0; left: calc(-1 * var(--space-5)); width: calc(100% + 2 * var(--space-5)); height: calc(100% + var(--space-5)); fill: none; stroke: var(--line); stroke-width: 1; pointer-events: none; }
@@ -43,7 +43,7 @@
 .hall-drawer__why { font-weight: var(--weight-bold); }
 
 /* 광장 문 → 전당: 문 카드가 커지며 장면이 된다 */
-::view-transition-group(hall-door) { animation-duration: var(--hall-enter); animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1); }
+::view-transition-group(hall-door) { animation-duration: var(--hall-enter); animation-timing-function: var(--ease-out); }
 ::view-transition-old(hall-door), ::view-transition-new(hall-door) { height: 100%; object-fit: cover; }
 /* 문 카드 그림은 커지면서 빨리 사라져 글자가 번져 보이지 않게 */
 ::view-transition-old(hall-door) { animation-duration: calc(var(--hall-enter) / 2); }

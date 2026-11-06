@@ -142,11 +142,10 @@
 /* v2.8 신청 준비: 주 버튼은 늘 오른쪽 끝, 왼쪽에 한 줄 안내 */
 .rec-pstep .ui-panel__foot { justify-content: flex-end; }
 .rec-foot__note { margin-right: auto; font-size: var(--text-sm); color: var(--ink-muted); }
-/* 단계가 바뀌면 내용이 먼저 보이게 짧게 떠오른다(빠르게 시작해 부드럽게 멈춤). 움직임 줄이기면 바로 바뀐다 */
+/* 단계가 바뀌면 흐름 화면 공용 넘김(ui-step-in)으로 들어온다. 움직임 줄이기면 바로 바뀐다 */
 /* 단계가 바뀌면 초점을 받는 자리(제목처럼 링은 그리지 않는다) */
 .rec-pstep__scene:focus-visible { box-shadow: none; outline: none; }
-.rec-pstep__scene { animation: rec-rise var(--dur-base) var(--ease-out) both; }
-@keyframes rec-rise { from { opacity: 0; transform: translateY(var(--enter-shift)); } }
+.rec-pstep__scene { animation: ui-step-in var(--dur-base) var(--ease-out) both; }
 /* 맨 위 한 줄: 에이전트가 한 일 요약. 펼치면 확인 결과와 한 일 */
 .rec-runlog--top { margin: 0 0 var(--space-3); border-top: 0; border-bottom: var(--border); }
 .rec-runlog__head { flex-wrap: wrap; text-align: left; }
@@ -163,9 +162,8 @@
 @keyframes rec-changed { from, 30% { background: var(--primary-soft); } to { background: transparent; } }
 
 /* 신청했어요 뒤 완료 장면: 표시 하나, 제목, 두 줄(일정·다음 걸음), 갈 곳 하나 */
-.rec-pstep .rec-pdone { width: 100%; max-width: var(--rec-step-w); margin: 0 auto; align-self: start; display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding-block: var(--space-10); text-align: center; animation: rec-rise var(--dur-base) var(--ease-out) both; }
-.rec-pdone__mark { display: grid; place-items: center; width: var(--rec-done-mark); height: var(--rec-done-mark); border: 2px solid var(--green-900); border-radius: var(--radius-full); color: var(--green-900); animation: rec-pop var(--dur-base) var(--ease-out) both; }
-@keyframes rec-pop { from { transform: scale(0.8); } 70% { transform: scale(1.04); } }
+.rec-pstep .rec-pdone { width: 100%; max-width: var(--rec-step-w); margin: 0 auto; align-self: start; display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding-block: var(--space-10); text-align: center; animation: ui-rise var(--dur-base) var(--ease-out) both; }
+.rec-pdone__mark { display: grid; place-items: center; width: var(--rec-done-mark); height: var(--rec-done-mark); border: 2px solid var(--green-900); border-radius: var(--radius-full); color: var(--green-900); }
 .rec-pdone__title { font-size: var(--text-2xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); }
 .rec-pdone__title:focus-visible { box-shadow: none; }
 .rec-pdone__rows { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-2); }
