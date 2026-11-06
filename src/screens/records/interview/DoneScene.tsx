@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
-import { Button, ConfirmDot } from '../../../components';
+import { AiMark, Button, ConfirmDot } from '../../../components';
 import type { ChangeLine } from '../../../domain/interview/outcome';
 import type { RecordCard } from '../../../domain/types';
 import { CardSheet } from './CardSheet';
@@ -32,7 +32,7 @@ export function DoneScene({ title, meta, verification, card, changes, onAnalysis
           <li key={c.text} data-estimate={c.estimate || undefined}>
             {c.estimate ? <ConfirmDot state="estimated" label="확인 전" /> : <span className="iv-done__bullet" aria-hidden="true" />}
             <span>{c.text}</span>
-            {c.estimate && <span className="iv-done__tag" aria-hidden="true">확인 전</span>}
+            {c.estimate && <AiMark />}
           </li>
         ))}
       </ul>

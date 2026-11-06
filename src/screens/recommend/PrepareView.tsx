@@ -78,7 +78,7 @@ export function PrepareView({ programId }: { programId: string }) {
 
   if (!p || !summary) {
     return (
-      <div className="os">
+      <div className="os" data-flow>
         <PageHeader parent={parentLink('recommend')} crumb="신청 준비" title="활동을 찾지 못했어요" />
         <Card className="rec-empty"><EmptyState message="이번 주 후보에 없는 활동이에요. 추천에서 다시 골라 주세요." action={<Button onClick={() => navigate('recommend')}>추천 보기</Button>} /></Card>
       </div>
@@ -134,7 +134,7 @@ export function PrepareView({ programId }: { programId: string }) {
   );
 
   if (submitted) {
-    return <div className="os">{header}<div className="os__body os__body--fill rec-pstep"><PrepDone when={activity.schedule || p.when} /></div></div>;
+    return <div className="os" data-flow>{header}<div className="os__body os__body--fill rec-pstep"><PrepDone when={activity.schedule || p.when} /></div></div>;
   }
 
   // 왼쪽 아래 한 줄 + 보조 버튼, 오른쪽 끝 주 버튼. 고치기 칸은 버튼 줄 위로 열려 주 버튼 자리를 밀지 않는다.
@@ -160,7 +160,7 @@ export function PrepareView({ programId }: { programId: string }) {
   );
 
   return (
-    <div className="os">
+    <div className="os" data-flow>
       {header}
       <div className="os__body os__body--fill rec-pstep">
         <Panel aria-label={PREP_STEPS.find(s => s.id === step)?.label} footer={footer}>

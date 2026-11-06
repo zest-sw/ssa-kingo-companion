@@ -29,7 +29,7 @@ export function StarFields({ card, compact }: { card: RecordCard; compact?: bool
     <div className="xc-groups" data-compact={compact || undefined}>
       {groups.map(g => (
         <section key={g.title} className="xc-group" aria-label={g.title}>
-          <h3 className="xc-group__title">{g.title}</h3>
+          <h3 className="ui-subhead xc-group__title">{g.title}</h3>
           <dl className="xc-rows">
             {g.steps.map(s => (
               <div key={s} className="xc-row">

@@ -18,7 +18,7 @@ export function TopPick({ p, week, why, tight, onOpen, onPrepare }: {
   return (
     <section className="rec-top" aria-labelledby="rec-top-title">
       <div className="rec-top__main">
-        <p className="rec-top__label">가장 추천</p>
+        <p className="ui-subhead rec-top__label">가장 추천</p>
         <h2 id="rec-top-title" className="rec-top__title">
           {p.title}
         </h2>

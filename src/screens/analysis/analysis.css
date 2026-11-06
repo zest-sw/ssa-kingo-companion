@@ -106,7 +106,7 @@
 /* 요약: 왼쪽 이야기(정체성 → 근거 → 빈 곳 → 다음, 세로 흐름), 오른쪽 확인할 발견 한 장 + 한 줄. 카드는 내용 높이. */
 .an-sum { grid-template-columns: minmax(0, 1fr) var(--an-disc-w); grid-template-rows: max-content; align-items: start; }
 .an-story { display: flex; flex-direction: column; gap: var(--space-4); }
-.an-story__h { margin-bottom: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.an-story__h { margin-bottom: var(--space-1); }
 .an-sum__side { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 .an-sum__hint { padding: 0 var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); }
 
@@ -142,7 +142,7 @@
 .an-dghost__line { stroke: var(--line-strong); stroke-width: var(--an-line-w-thin); }
 .an-dghost__label { fill: var(--ink-subtle); font-size: var(--text-xs); }
 .an-dlist { display: flex; flex-direction: column; gap: var(--space-5); }
-.an-dlist__head { margin: 0 0 var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.an-dlist__head { margin: 0 0 var(--space-1); }
 .an-dlist__text { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 .an-dlist__src { color: var(--ink-muted); font-size: var(--text-xs); }
 .an-dlist__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: var(--space-12); padding: var(--space-2) 0; border: 0; border-top: var(--border); background: none; text-align: left; cursor: pointer; }
@@ -155,12 +155,12 @@
 .an-dpic__label { fill: var(--ink); font-size: var(--text-xs); }
 .an-dpic__more { fill: var(--ink-subtle); font-size: var(--text-xs); }
 .an-dpic__name { fill: var(--ink-strong); font-size: var(--text-xs); font-weight: var(--weight-bold); }
-.an-sdots { display: inline-flex; align-items: center; gap: var(--space-2); }
-.an-sdots__set { display: inline-flex; gap: var(--space-1); }
-.an-sdots__n { color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-regular); white-space: nowrap; }
-.an-chances { display: flex; flex-direction: column; gap: var(--space-3); }
-.an-chance { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; padding: var(--space-3) var(--space-4); border: var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
+/* 기회 목록: 카드 안에 카드를 두지 않고 줄 사이 1px 선으로 나눈 행(K11) */
+.an-chances { display: flex; flex-direction: column; border-top: var(--border); }
+.an-chances > li { border-bottom: var(--border); }
+.an-chance { display: flex; flex-direction: column; gap: var(--space-1); width: calc(100% + 2 * var(--space-2)); margin-inline: calc(-1 * var(--space-2)); padding: var(--space-3) var(--space-2); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); text-align: left; cursor: pointer; transition: background var(--dur-fast) var(--ease-out); }
 .an-chance:hover { background: var(--surface-hover); }
+.an-chance:active { background: var(--surface-press); }
 .an-chance__title { font-size: var(--text-md); }
 .an-chance__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
 .an-chance__why { color: var(--ink-muted); font-size: var(--text-sm); }
@@ -169,7 +169,7 @@
 .an-sd { display: flex; flex-direction: column; gap: var(--space-2); }
 .an-sd .an-sub { margin-top: var(--space-4); }
 .an-sd section:first-child .an-sub { margin-top: 0; }
-.an-sd__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.an-sd__count { margin-bottom: var(--space-3); }
 .an-sd__list { display: flex; flex-direction: column; }
 .an-sd__ev { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: var(--space-3); padding: var(--space-3) 0; border-top: var(--border); }
 .an-sd__ev > .ui-dot { margin-top: var(--space-1); }
@@ -196,3 +196,10 @@
 .an-swhen__dot.an-g--other:not(.is-est), .an-g--other > .an-swhen__dot { border: var(--an-line-w-thin) solid var(--c); }
 .an-kw.is-est { color: var(--ink-muted); text-decoration: underline dashed var(--ink-subtle); text-underline-offset: var(--space-1); }
 /* 요약 판 나의 강점 빈칸: 다른 빈칸 그림처럼 점선 윤곽 */
+
+/* 범례(KeyLegend): 공용 Legend 와 같은 16px 기호 칸. 머리 오른쪽에 들어가면 위 여백을 뺀다 */
+.an-keylegend__mark { display: inline-grid; place-items: center; width: var(--space-4); height: var(--space-4); flex: none; }
+.an-keylegend__mark > .an-key { width: var(--an-key-w-sm); }
+.ui-card__action > .an-keylegend { margin: 0; }
+/* 묶음 제목 옆 개수: 같은 크기의 옅은 숫자 */
+.an-dlist__head .num { color: var(--text-faint); font-weight: var(--weight-regular); }

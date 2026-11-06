@@ -92,8 +92,8 @@ export function HallStage({ people, joined, onOpen }: Props) {
           <span className="hall-card__avatar" aria-hidden="true">{h.name.slice(0, 1)}</span>
           <span className="hall-card__name">{h.name}<span>{h.dept} · {h.year}학년</span></span>
         </span>
-        <span className="hall-card__path">{pathLine(h.path)}</span>
         <span className="hall-card__quote">“{h.retro ?? h.reason}”</span>
+        <span className="hall-card__path">{pathLine(h.path)}</span>
         {joinedLabel(joined[h.id]) && <span className="hall-card__when">{joinedLabel(joined[h.id])}</span>}
       </button>
     </li>

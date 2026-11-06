@@ -15,6 +15,7 @@ import { ClusterPanel, type NameAnswer } from './ClusterPanel';
 import { MapGraph, type GraphCamera, type GraphOpen } from './MapGraph';
 import { RecordSummary } from './RecordSummary';
 import { StrengthDrawer } from './StrengthDrawer';
+import { KeyLegend } from './KeyLegend';
 import './map.css';
 
 type Props = { records: RecordItem[]; answers: EdgeAnswers; setAnswers: (next: (prev: EdgeAnswers) => EdgeAnswers) => void };
@@ -94,13 +95,13 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
 /** 그림 아래 읽는 법 한 줄: 점 종류 둘, 선 종류 셋. 확인 전 AI 는 점선 */
 function GraphLegend() {
   return (
-    <ul className="an-legend xg-legend" aria-label="그림 읽는 법">
-      <li><span className="xg-key xg-key--axis" aria-hidden="true" />역량</li>
-      <li><span className="xg-key xg-key--rec" aria-hidden="true" />활동</li>
-      <li><span className="an-key xg-key--line" aria-hidden="true" />공통점으로 이음</li>
-      <li><span className="an-key an-key--est" aria-hidden="true" />AI 추정</li>
-      <li><span className="an-key xg-key--mine" aria-hidden="true" />내가 확인</li>
-    </ul>
+    <KeyLegend label="그림 읽는 법" items={[
+      { label: '역량', key: 'xg-key xg-key--axis' },
+      { label: '활동', key: 'xg-key xg-key--rec' },
+      { label: '공통점으로 이음', key: 'an-key xg-key--line' },
+      { label: 'AI 추정', key: 'an-key an-key--est' },
+      { label: '내가 확인', key: 'an-key xg-key--mine' }
+    ]} />
   );
 }
 

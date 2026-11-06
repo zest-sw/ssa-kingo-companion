@@ -8,7 +8,7 @@ export function FriendDrawer({ friendId, onClose }: { friendId: string | null; o
   const profile = friendId ? FRIEND_PROFILES[friendId] : undefined;
   return (
     <Drawer open={!!friend} onClose={onClose} eyebrow={friend && `${friend.dept} ${friend.year}학년`} title={friend ? `${friend.name} 님` : ''}>
-      <h3 className="fr-sub-title fr-sub-title--first">한 활동</h3>
+      <h3 className="ui-subhead fr-sub-title fr-sub-title--first">한 활동</h3>
       {profile ? (
         <ul className="fr-chips"><li className="fr-path"><span className={`ui-field__dot ui-field__dot--${FIELD_GROUP[profile.activity.field]}`} aria-hidden="true" /><span>{profile.activity.title}</span></li></ul>
       ) : <p className="fr-empty">공개한 활동이 아직 없어요.</p>}

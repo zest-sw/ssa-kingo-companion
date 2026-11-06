@@ -7,7 +7,7 @@
 .fr-stack { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
 .fr-note { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-4); color: var(--ink-muted); font-size: var(--text-sm); }
 .fr-empty { color: var(--ink-muted); font-size: var(--text-sm); }
-.fr-sub-title { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); margin: var(--space-5) 0 var(--space-2); }
+.fr-sub-title { margin: var(--space-5) 0 var(--space-2); }
 .fr-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
 /* 잠금 안내 */
@@ -54,8 +54,11 @@
 .fr-field select, .fr-field input { min-height: var(--control-h); padding: 0 var(--space-3); border: var(--border); border-radius: var(--radius-md); background: var(--surface); width: 100%; }
 .fr-field [aria-invalid='true'] { border-color: var(--accent); }
 .fr-error { color: var(--accent-ink); font-size: var(--text-sm); }
-.fr-posts { display: flex; flex-direction: column; gap: var(--space-2); }
-.fr-post { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border: var(--border); border-radius: var(--radius-md); background: var(--surface); }
+/* 모집 글: 카드 안에 카드를 두지 않고 글 사이 1px 선(K11) */
+.fr-posts { display: flex; flex-direction: column; }
+.fr-post { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) 0; }
+.fr-post + .fr-post { border-top: var(--border); }
+.fr-post:first-child { padding-top: 0; }
 /* 관심 표시한 기회의 글: 띠 없이 머리의 배지로만 알린다 */
 .fr-post__head { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
 .fr-post__deadline { color: var(--ink-muted); font-size: var(--text-sm); }
@@ -63,8 +66,8 @@
 .fr-post__note { overflow-wrap: anywhere; }
 .fr-post__meta { color: var(--ink-muted); font-size: var(--text-sm); }
 .fr-post__actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-2); }
-.fr-applicants { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; }
-.fr-applicant { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-1) var(--space-3); border: var(--border); border-radius: var(--radius-sm); background: var(--surface); min-height: var(--hit-min); }
+.fr-applicants { display: flex; flex-direction: column; width: 100%; border-top: var(--border); }
+.fr-applicant { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-1) 0; border-bottom: var(--border); min-height: var(--hit-min); }
 
 /* 명예의 전당 */
 .fr-consent { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-3); }

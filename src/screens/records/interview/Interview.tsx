@@ -96,7 +96,7 @@ export function Interview({ activity }: { activity: Activity }) {
     const queue = retroQueue(state.activities).filter(a => a.id !== activity.id);
     const first = queue[0];
     return (
-      <div className="os">
+      <div className="os" data-flow>
         {header}
         <div className="os__body iv-body">
           <DoneScene
@@ -112,7 +112,7 @@ export function Interview({ activity }: { activity: Activity }) {
   // 첫 질문에서는 얻는 것부터 말하고(Value First), 그 뒤로는 나가도 괜찮다고 알린다.
   const resumeNote = start ? '쓰던 답에서 이어서 써요.' : step === 0 ? '네 가지만 답하면 면접·서류에 쓸 경험 카드가 생겨요.' : '쓰는 대로 저장돼요. 나갔다 와도 이어서 써요.';
   return (
-    <div className="os">
+    <div className="os" data-flow>
       {header}
       <div className="os__body iv-body">
         {step === 'preview' ? (

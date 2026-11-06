@@ -3,6 +3,7 @@ import { useApp } from '../../../app/AppState';
 import { Button, FieldTag } from '../../../components';
 import { ONB_STEPS, onboardingResult } from '../../../domain/onboarding';
 import { ddayOf } from '../../../domain/recommend';
+import { isNearDeadline } from '../../../domain/recommend-flow/flow';
 import { ddayText } from '../../../domain/text';
 
 /**
@@ -39,13 +40,13 @@ export function OnboardingResult({ onHome }: { onHome: () => void }) {
         <p className="onb__why">{r.count > 0 ? '방금 고른 답으로 골랐어요. 신청은 내가 직접 눌러요' : '설정에서 시간이나 관심 분야를 넓히면 다시 골라 드려요'}</p>
         {r.top && (
           <article className="onb-pick" aria-labelledby="onb-pick-title">
-            <p className="onb-pick__label">가장 추천</p>
+            <p className="ui-subhead onb-pick__label">가장 추천</p>
             <h2 id="onb-pick-title" className="onb-pick__title">{r.top.title}</h2>
             <p className="onb-pick__why">{r.top.reason}</p>
             {program && (
               <p className="onb-pick__meta">
                 <FieldTag field={program.field} />
-                <span className="num">{ddayText(ddayOf(program, state.week))} 마감</span>
+                <span className="ui-dday num" data-near={isNearDeadline(ddayOf(program, state.week)) || undefined}>{ddayText(ddayOf(program, state.week))} 마감</span>
                 <span>{program.durationLabel}</span>
               </p>
             )}
