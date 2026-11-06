@@ -27,8 +27,25 @@ jobs:
           path: dist
           retention-days: 7
       # 레이아웃 검사: 모든 경로 × 크기 × 학생 상태. 한글 대체 글꼴(Noto CJK)을 깔아 글꼴 CDN 이 막혀도 글자 폭이 비슷하게 잡히게 한다.
-      - run: npx playwright install --with-deps chromium
-      - run: sudo apt-get install -y --no-install-recommends fonts-noto-cjk
+      # Playwright 브라우저는 캐시한다. 러너 이미지에 크롬 의존 라이브러리가 이미 있어 apt(--with-deps)를 쓰지 않는다(apt 미러가 느려 10분 넘게 멈춘 적이 있다).
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install chromium
+      # 한글 대체 글꼴(Noto Sans CJK KR)도 apt 대신 내려받아 캐시한다. 글꼴 CDN 이 막혀도 글자 폭이 비슷하게 잡히게 한다.
+      - uses: actions/cache@v4
+        id: cjk
+        with:
+          path: ~/.local/share/fonts/noto-cjk
+          key: noto-cjk-kr-2.004
+      - if: steps.cjk.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.local/share/fonts/noto-cjk
+          for w in Regular Bold; do
+            curl -fsSL --retry 3 -o ~/.local/share/fonts/noto-cjk/NotoSansCJKkr-$w.otf "https://github.com/notofonts/noto-cjk/raw/Sans2.004/Sans/OTF/Korean/NotoSansCJKkr-$w.otf"
+          done
+      - run: fc-cache -f ~/.local/share/fonts >/dev/null && fc-list | grep -c "Noto Sans CJK KR"
       - run: npm run audit:layout -- --no-build
       - if: always()
         uses: actions/upload-artifact@v4
