@@ -40,8 +40,8 @@ const STATES = {
 const STEPS = [
   {
     match: /^recommend\/prepare\/[^/]+$/, steps: {
-      draft: async page => { await clickIf(page, '신청 준비 시작'); await click(page, '초안 확인'); await settle(page); },
-      apply: async page => { await clickIf(page, '신청 준비 시작'); await click(page, '초안 확인'); await settle(page); await click(page, '신청 단계로'); }
+      draft: async page => { await clickIf(page, '신청 준비 시작'); await click(page, '초안 보기'); await settle(page); },
+      apply: async page => { await clickIf(page, '신청 준비 시작'); await click(page, '초안 보기'); await settle(page); await click(page, '신청하러 가기'); }
     }
   }
 ];
