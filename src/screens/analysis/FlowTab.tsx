@@ -4,11 +4,10 @@ import { useApp } from '../../app/AppState';
 import { Button, Card, Drawer, EmptyState, GhostPic, Icon } from '../../components';
 import { nextStep } from '../../domain/nextStep';
 import {
-  buildFlow, clampRange, defaultRange, flowCountNote, flowStory, legendGroups, moveRange, semesterPick, summarizeFlow, topGroups,
+  buildFlow, clampRange, defaultRange, flowStory, legendGroups, moveRange, semesterPick, summarizeFlow, topGroups,
   type FlowRange, type FlowSegment
 } from '../../domain/analysis/flow';
 import { semesterAxis, semesterLabel } from '../../domain/analysis/semester';
-import { flowHeadline } from '../../domain/analysis/visual';
 import { josa } from '../../domain/text';
 import type { RecordItem } from '../../domain/types';
 import { GROUP_LABEL } from '../../domain/vocab';
@@ -59,13 +58,8 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
 
   return (
     <div className="fl">
-      <Card
-        title={flowHeadline(shown)} className="os-card fl-card"
-        action={<>
-          <Button size="sm" onClick={play} aria-pressed={playing}>{playing ? '멈추기' : '처음부터 보기'}</Button>
-          <Button size="sm" variant="ghost" icon="chevron" aria-haspopup="dialog" onClick={() => setSumOpen(true)}>분야 비율 보기</Button>
-        </>}
-      >
+      {/* 결론 한 줄은 페이지 머리가 말한다. 카드 맨 위는 해마다 한 칸 돌아보기와 보기 버튼 */}
+      <Card className="os-card fl-card" aria-label="관심 흐름">
         <div className="fl-intro">
           <ol className="fl-story" aria-label="학기 돌아보기">
             {story.map((s, i) => (
@@ -75,7 +69,10 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
               </Fragment>
             ))}
           </ol>
-          <p className="fl-how">{flowCountNote(shown)}</p>
+          <span className="fl-acts">
+            <Button size="sm" onClick={play} aria-pressed={playing}>{playing ? '멈추기' : '처음부터 보기'}</Button>
+            <Button size="sm" variant="ghost" icon="chevron" aria-haspopup="dialog" onClick={() => setSumOpen(true)}>분야 비율 보기</Button>
+          </span>
         </div>
 
         <FlowPath rows={shown} groups={legendGroups(shown)} tops={tops} upto={playAt} onPick={setPick} />

@@ -6,7 +6,7 @@ import { AXES } from '../vocab';
 import { buildFlow } from './flow';
 import { buildGraph, clusterLinks } from './graph';
 import type { Strength } from './strengths';
-import { discoveryPic, flowBars, flowHeadline, mapHeadline, semesterShort, shortName, strengthGlance } from './visual';
+import { discoveryPic, flowBars, mapHeadline, semesterShort, shortName, strengthGlance } from './visual';
 
 const recs = [
   rec('a', { did: 'listen', field: 'product', semester: '2026-1', title: '아주아주아주 긴 기록 이름' }),
@@ -36,8 +36,6 @@ describe('분석 요약 그림', () => {
     expect(bars[0].segments.filter(s => s.main)).toHaveLength(1);
     expect(bars[1].segments.filter(s => s.main)).toHaveLength(2);
     expect(bars[1].segments.find(s => s.main)?.name).toBe('창업·기획');
-    expect(flowHeadline(rows)).toBe('2026-1학기부터 창업·기획을 이어 하고 있어요');
-    expect(flowHeadline([])).toBe('회고를 쓰면 흐름이 보여요');
   });
   it('발견 도식은 짧은 질문과 근거 기록 이름을 준다', () => {
     const ds = discoveriesOf([rec('a', { did: 'make', title: '하나' }), rec('b', { did: 'make', title: '둘' }), rec('c', { did: 'make', title: '셋' }), rec('d', { did: 'make', title: '넷' })]);

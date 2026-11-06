@@ -108,9 +108,6 @@ export function flowStory(rows: FlowRow[]): FlowStep[] {
   });
 }
 
-/** 어떻게 셌는지 한 줄 */
-export const flowCountNote = (rows: FlowRow[]) => `기록 ${rows.reduce((n, r) => n + r.total, 0)}개를 학기별로 셌어요`;
-
 /** 한 학기의 대표 활동: 가장 많이 한 분야에서 에너지가 올라간 기록, 없으면 회고 한 줄이 있는 기록, 없으면 그 분야 첫 기록 */
 export function semesterPick(row: FlowRow, top: FieldGroup | null, records: RecordItem[]): RecordItem | undefined {
   const seg = row.segments.find(s => s.group === top) ?? row.segments[0];

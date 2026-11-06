@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { useWidth } from '../../components';
 import type { FlowRow } from '../../domain/analysis/flow';
 import { semesterLabel } from '../../domain/analysis/semester';
@@ -8,7 +8,11 @@ import { josa } from '../../domain/text';
 import { GROUP_LABEL } from '../../domain/vocab';
 
 // 그림 치수. CSS 는 style 변수로 같은 값을 받는다.
-const ROW_H = 36;
+/** 분야 한 줄 높이: 남는 높이를 나눠 쓰되 이 사이에서. 너무 크면 점이 흩어져 흐름이 안 읽힌다 */
+const ROW_MIN = 36;
+const ROW_MAX = 88;
+/** 학기 이름 칸 높이(--fl-head, space-8) */
+const HEAD = 32;
 const DOT_R = 5;
 const DOT_GAP = 3;
 const MAX_DOTS = 5;
@@ -28,7 +32,9 @@ type Props = {
  */
 export function FlowPath({ rows, groups, tops, upto, onPick }: Props) {
   const [ref, width] = useWidth<HTMLDivElement>(640);
+  const [box, boxH] = useHeight<HTMLDivElement>();
   const colW = width / Math.max(1, rows.length);
+  const ROW_H = Math.round(Math.min(ROW_MAX, Math.max(ROW_MIN, (boxH - HEAD) / Math.max(1, groups.length))));
   const h = groups.length * ROW_H;
   const cx = (i: number) => (i + 0.5) * colW;
   const cy = (g: FieldGroup) => (groups.indexOf(g) + 0.5) * ROW_H;
@@ -43,10 +49,10 @@ export function FlowPath({ rows, groups, tops, upto, onPick }: Props) {
     return `C${mx},${py} ${mx},${y} ${x},${y}`;
   }).join(' ');
 
-  const style = { '--fl-n': rows.length, '--fl-rows': groups.length, '--fl-row-h': `${ROW_H}px` } as CSSProperties;
+  const style = { '--fl-n': rows.length, '--fl-rows': groups.length, '--fl-row-h': `${ROW_H}px`, '--fl-row-min': `${ROW_MIN}px`, '--fl-row-max': `${ROW_MAX}px` } as CSSProperties;
 
   return (
-    <div className={`fl-map${upto !== null ? ' is-playing' : ''}`} style={style}>
+    <div ref={box} className={`fl-map${upto !== null ? ' is-playing' : ''}`} style={style} data-fill>
       <ul className="fl-groups" aria-hidden="true">
         {groups.map(g => <li key={g} className={`an-g--${g}`}><span className="fl-groups__dot" />{GROUP_LABEL[g]}</li>)}
       </ul>
@@ -87,4 +93,20 @@ export function FlowPath({ rows, groups, tops, upto, onPick }: Props) {
       </div>
     </div>
   );
+}
+
+/** 칸이 받은 높이(그림이 남는 높이를 채우게). 처음엔 0 이라 가장 낮은 줄 높이로 그린다 */
+function useHeight<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [h, setH] = useState(0);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    setH(el.clientHeight);
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(([e]) => setH(Math.round(e.contentRect.height)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, h] as const;
 }
