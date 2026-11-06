@@ -206,6 +206,8 @@
   --enter-shift: 8px;
   /* 흐름 화면의 단계 넘김·끝 장면이 시작하는 투명도: 내용이 처음부터 반쯤 보이고 움직임은 뒤따른다(DESIGN.md Motion) */
   --enter-from: 0.4;
+  /* 기다림 반짝임 한 바퀴(LoadingState). 학생이 만든 변화가 아니라 반복이라 위 값과 따로 둔다 */
+  --dur-loading: 1.4s;
   --duration: var(--dur-fast);
   --ease: var(--ease-out);
   --z-overlay: 50;
