@@ -13,13 +13,13 @@
 .an-rlegend .an-rlegend__own { border: 2px solid var(--navy-900); background: var(--navy-100); }
 .an-rlegend .an-rlegend__est { height: 0; border-top: 1.5px dashed var(--ink-subtle); }
 .an-rlegend .an-rlegend__trace { height: 0; border-top: 1px solid var(--ink-muted); }
-.an-rcount { margin: 0 0 var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
+.an-rcount { margin: 0 0 var(--space-4); }
 .an-rev { display: flex; flex-direction: column; gap: var(--space-3); }
 .an-rev li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: start; }
 .an-rev li > .ui-dot { margin-top: var(--space-1); }
 .an-rev li > span { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-.an-rev__text { font-size: var(--text-md); line-height: var(--leading-tight); }
-.an-rev__meta { color: var(--ink-muted); font-size: var(--text-xs); }
+.an-rev__text { color: var(--ink-strong); font-size: var(--text-md); line-height: var(--leading); }
+.an-rev__meta { color: var(--ink-subtle); font-size: var(--text-xs); }
 .an-rev .is-est .an-rev__text { color: var(--ink-muted); }
 .an-rsub { margin-top: var(--space-4); font-size: var(--text-md); }
 /* 요약 판의 작은 육각형 + 키워드 */

@@ -3,12 +3,13 @@ import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
 import { nextStep } from '../../domain/nextStep';
 import { josa } from '../../domain/text';
-import { Button, Card, ConfirmDot, EmptyState, Radar, SegmentedControl, type RadarVertex } from '../../components';
+import { AiMark, Button, Card, ConfirmDot, EmptyState, Radar, SegmentedControl, type RadarVertex } from '../../components';
 import {
   buildStrengths, chancesFor, defaultRadarAxis, leadStrengths, radarMoments, radarScale, radarSpots, radarSub, strengthHeadline, withAnswers
 } from '../../domain/analysis/strengths';
 import { semesterKey, semesterLabel } from '../../domain/analysis/semester';
 import type { Axis, RecordItem } from '../../domain/types';
+import { EvidenceBar } from './EvidenceBar';
 import { ChanceList } from './StrengthParts';
 import { StrengthDrawer } from './StrengthDrawer';
 import './strengths.css';
@@ -83,7 +84,7 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
     <div className="an-str-cols">
       <Card className="os-card an-rcard" data-fill title="기록에서 드러난 강점" action={moments.length > 1 ? <SegmentedControl label="보는 시점" items={moments.map(m => ({ id: m.id, label: m.label }))} value={moment.id} onChange={setMomentId} /> : undefined}>
         {/* 지금 시점의 해석은 머리 한 줄(이야기)이 말한다. 여기서는 지난 시점이나 확인 전일 때만 덧붙인다 */}
-        {(past || head.estimated) && <p className={`an-shead${!past && head.estimated ? ' is-est' : ''}`}>{!past && head.estimated && <span className="ui-dot ui-dot--estimated" aria-hidden="true" />}{headText}</p>}
+        {(past || head.estimated) && <p className={`an-shead${!past && head.estimated ? ' is-est' : ''}`}>{headText}{!past && head.estimated && <AiMark />}</p>}
         <Radar vertices={vertices} max={scale.max} ticks={scale.ticks} label={label} trace={trace} selected={axis} onSelect={k => setPicked(k as Axis)} radius={low ? 108 : 132} fit />
         <p className="an-rlegend">
           <span><i className="an-rlegend__own" aria-hidden="true" />{past ? `${moment.label} 확인한 근거` : '확인한 근거'}</span>
@@ -91,7 +92,8 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
         </p>
       </Card>
       <Card className="os-card" title={cur.label} action={<Button size="sm" variant="ghost" aria-haspopup="dialog" onClick={() => setOpen(axis)}>근거 모두 보기</Button>}>
-        <p className="an-rcount">{radarSub({ axis, label: cur.label, confirmed: evidence.filter(e => e.confirmed).length, total: evidence.length })}</p>
+        {/* 위계: 근거 문장(본문) > 어느 활동에서 나왔나(옅은 작은 글씨). 수는 맨 위 얇은 막대 한 줄 */}
+        <div className="an-rcount"><EvidenceBar confirmed={evidence.filter(e => e.confirmed).length} total={evidence.length} /></div>
         {sample.length === 0 ? <p className="an-muted">근거가 아직 없어요. 회고를 쓰면 여기에 모여요.</p> : (
           <ul className="an-rev">
             {sample.map(e => (
