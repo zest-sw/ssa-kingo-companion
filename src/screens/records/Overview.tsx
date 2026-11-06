@@ -79,7 +79,7 @@ export function Overview() {
                 action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>}
               />
             ) : (
-              <RecordMap label="기록 지도" rows={drawn} empty={empty} emptyLabel={win.before + win.after > 0 ? '이 학기에 기록이 없는 분야' : undefined} cols={cols} items={mapDots(viewRecords)} selectedId={focus} onSelect={open} />
+              <RecordMap label="기록 지도" rows={drawn} empty={empty} emptyLabel={win.before + win.after > 0 ? '이 기간에 기록이 없는 분야' : undefined} cols={cols} items={mapDots(viewRecords)} selectedId={focus} onSelect={open} />
             )}
           </section>
         )}

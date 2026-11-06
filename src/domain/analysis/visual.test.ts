@@ -36,7 +36,7 @@ describe('분석 요약 그림', () => {
     expect(bars[0].segments.filter(s => s.main)).toHaveLength(1);
     expect(bars[1].segments.filter(s => s.main)).toHaveLength(2);
     expect(bars[1].segments.find(s => s.main)?.name).toBe('창업·기획');
-    expect(flowHeadline(rows)).toBe('26-1부터 창업·기획');
+    expect(flowHeadline(rows)).toBe('2026-1학기부터 창업·기획을 이어 하고 있어요');
     expect(flowHeadline([])).toBe('회고를 쓰면 흐름이 보여요');
   });
   it('발견 도식은 짧은 질문과 근거 기록 이름을 준다', () => {
