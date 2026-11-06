@@ -7,14 +7,14 @@ import { traceLine, type TraceNode } from './trace';
 // 추천 목록 전체의 이유 줄을 한 번에 고른다. 같은 기록·같은 문장을 두 행에 쓰면 이유가 아니라 장식으로 읽힌다(토스 07 Explain Why).
 
 /** 이유가 어디서 왔나. 어떻게 골랐나 모달이 이 목록에 실제로 쓴 것만 보여 준다 */
-export type LineSource = 'record' | 'focus' | 'career' | 'strength' | 'goal' | 'interest' | 'type' | 'field' | 'bridge' | 'time' | 'gain';
+export type LineSource = 'record' | 'focus' | 'career' | 'strength' | 'goal' | 'interest' | 'type' | 'field' | 'bridge' | 'time' | 'gain' | 'kind';
 export type RowLine = { kind: 'why' | 'gain'; text: string; source: LineSource };
 export type LineInput = { p: Program; nodes: TraceNode[] };
 export type LineCtx = { newcomer: boolean; records: RecordItem[] };
 
 export const SOURCE_LABEL: Record<LineSource, string> = {
   record: '내 기록', focus: '확인한 발견', career: '진로 공고', strength: '확인한 강점', goal: '가입 목표', interest: '고른 관심',
-  type: '안 해 본 종류', field: '안 해 본 분야', bridge: '지난주 기록', time: '짧은 시간', gain: '얻는 것'
+  type: '안 해 본 종류', field: '안 해 본 분야', bridge: '지난주 기록', time: '짧은 시간', gain: '얻는 것', kind: '활동 종류'
 };
 const SOURCE_ORDER = Object.keys(SOURCE_LABEL) as LineSource[];
 
@@ -40,12 +40,26 @@ function timeLine(p: Program): string | undefined {
   return `${p.format === 'online' ? '온라인 ' : ''}${d}${josa(d, '이면', '면')} 돼요`;
 }
 
-type Cand = RowLine & { recordId?: string };
-const why = (source: LineSource, text: string, recordId?: string): Cand => ({ kind: 'why', source, text, recordId });
+/** 어떤 종류의 활동인지 한 줄: '온라인 특강이에요' */
+function kindLine(p: Program): string {
+  const l = CATEGORY_LABEL[categoryOf(p)];
+  return `${p.format === 'online' ? '온라인 ' : ''}${l}${josa(l, '이에요', '예요')}`;
+}
 
-/** 한 기회의 이유 후보, 강한 것부터: 기록에 이어진 것 → 목표 → 관심 → 안 해 본 종류 → 안 해 본 분야 → 짧은 시간 → 얻는 것(구체적인 것부터) */
+/**
+ * frame: 낱말 하나만 바꿔 여러 기회에 붙는 틀. 한 목록에 한 번만 쓴다.
+ * 새 학생의 '넓게 둘러보려고 섞은 ○○ 분야예요'는 분야만 다를 뿐 모든 탐색 기회에 같은 이유라, 두 번째부터는 이유가 아니라 장식이다.
+ */
+type Cand = RowLine & { recordId?: string; frame?: string };
+const why = (source: LineSource, text: string, recordId?: string, frame?: string): Cand => ({ kind: 'why', source, text, recordId, frame });
+const frameOf = (n: TraceNode): string | undefined => (n.kind === 'novelty' && n.detail.startsWith('처음 해 보는 ') ? 'newcomer-novelty' : undefined);
+
+/**
+ * 한 기회의 이유 후보, 강한 것부터: 기록에 이어진 것 → 목표 → 관심 → 안 해 본 종류 → 안 해 본 분야 → 짧은 시간 → 얻는 것(구체적인 것부터)
+ * → (새 학생) 활동 종류. 새 학생에게 '안 해 본 종류'는 정보가 없어서, 맨 끝에 어떤 종류의 활동인지만 말한다.
+ */
 function candidates({ p, nodes }: LineInput, ctx: LineCtx, tried: Set<Category>): Cand[] {
-  const from = (s: LineSource) => nodes.filter(n => NODE_SOURCE[n.kind] === s).map(n => why(s, traceLine(n), n.recordId));
+  const from = (s: LineSource) => nodes.filter(n => NODE_SOURCE[n.kind] === s).map(n => why(s, traceLine(n), n.recordId, frameOf(n)));
   const out: Cand[] = RECORD_SOURCES.flatMap(from);
   out.push(...from('goal'), ...from('interest'));
   // 새 학생은 모든 종류가 처음이라 '안 해 본 종류'가 정보가 없다.
@@ -57,25 +71,29 @@ function candidates({ p, nodes }: LineInput, ctx: LineCtx, tried: Set<Category>)
   const t = timeLine(p);
   if (t) out.push(why('time', t));
   out.push(...keyGains(p, 3).map(g => ({ kind: 'gain' as const, source: 'gain' as const, text: g.label })));
+  // 종류는 기회에 대한 사실이라 '왜'가 아니다. 가장 추천 카드는 쓰지 않는다
+  if (ctx.newcomer) out.push({ kind: 'gain', source: 'kind', text: kindLine(p) });
   return out;
 }
 
 /**
  * 가장 추천의 이유는 가장 강한 것 그대로 둔다(기록·목표·관심 같은 '왜'만. 얻는 것은 카드에 따로 있다).
- * 목록 행은 위에서부터, 이미 쓴 문장·이미 쓴 기록을 건너뛰고 그 기회의 다음 이유를 쓴다. 다 썼으면 비운다.
+ * 목록 행은 위에서부터, 이미 쓴 문장·이미 쓴 기록·이미 쓴 틀을 건너뛰고 그 기회의 다음 이유를 쓴다. 다 썼으면 비운다.
  */
 export function pickLines(top: LineInput | undefined, rows: LineInput[], ctx: LineCtx): { top?: RowLine; rows: (RowLine | undefined)[] } {
   const tried = triedCategories(ctx.records);
   const usedText = new Set<string>();
   const usedRecord = new Set<string>();
+  const usedFrame = new Set<string>();
   const take = (c: Cand | undefined): RowLine | undefined => {
     if (!c) return undefined;
     usedText.add(c.text);
     if (c.recordId) usedRecord.add(c.recordId);
+    if (c.frame) usedFrame.add(c.frame);
     return { kind: c.kind, text: c.text, source: c.source };
   };
   const topLine = top ? take(candidates(top, ctx, tried).find(c => c.kind === 'why')) : undefined;
-  const lines = rows.map(r => take(candidates(r, ctx, tried).find(c => !usedText.has(c.text) && !(c.recordId && usedRecord.has(c.recordId)))));
+  const lines = rows.map(r => take(candidates(r, ctx, tried).find(c => !usedText.has(c.text) && !(c.recordId && usedRecord.has(c.recordId)) && !(c.frame && usedFrame.has(c.frame)))));
   return { top: topLine, rows: lines };
 }
 

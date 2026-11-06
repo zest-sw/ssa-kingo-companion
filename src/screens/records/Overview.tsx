@@ -67,7 +67,7 @@ export function Overview() {
             <div className="rm-card__head">
               <h2 id="rm-title" className="rm-card__title">기록 지도</h2>
               <TermNav range={cols.length ? `${cols[0].label} ~ ${cols[cols.length - 1].label}` : ''} before={win.before} after={win.after} onPrev={() => setEnd(stepWindow(win, -1))} onNext={() => setEnd(stepWindow(win, 1))} />
-              <Legend items={LEGEND} />
+              <Legend items={LEGEND} place="head" />
               {switcher}
             </div>
             {state.records.length === 0 ? (

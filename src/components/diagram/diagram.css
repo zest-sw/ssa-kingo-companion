@@ -57,6 +57,8 @@
 .ui-dg-legend { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-3); font-size: var(--text-xs); color: var(--ink-muted); }
 .ui-dg-legend > li { display: inline-flex; align-items: center; gap: var(--space-1); white-space: nowrap; }
 .ui-dg-legend b { color: var(--ink); font-weight: var(--weight-bold); }
+/* 머리 줄 안의 범례(카드 머리 동작 칸, place='head')는 그림과 떨어뜨릴 위 여백이 없다. 화면마다 따로 0 을 쓰지 않는다 */
+.ui-card__action .ui-dg-legend, .ui-dg-legend[data-place='head'] { margin-top: 0; }
 .ui-dg-legend__mark { display: inline-grid; place-items: center; width: var(--space-4); height: var(--space-4); flex: none; }
 .ui-dg-legend__mark::before { content: ''; display: block; }
 .ui-dg-legend__mark.ui-dg-mark--fill::before, .ui-dg-legend__mark.ui-dg-mark--faded::before, .ui-dg-legend__mark.ui-dg-mark--hatch::before { width: var(--space-4); height: var(--space-2); border-radius: var(--radius-xs); }

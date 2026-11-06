@@ -24,7 +24,7 @@
 
 색·글자 단계·간격·반경·그림자·선 모양(점선 두 뜻)·지금 위치 표시·부품 목록·움직임은 저장소 루트 `DESIGN.md` 가 기준이다(v2.9, 2026-11-06). 값의 실체는 `src/styles/tokens.css`. 여기에는 그 파일에 없는 동작만 남긴다.
 
-- **토스트**: 한 번에 하나, 5초 뒤 사라지고 마우스를 올리거나 버튼에 초점이 있으면 멈춘다. 되돌릴 수 있으면 동작 버튼 하나(`toast(msg, { actionLabel: '되돌리기', onAction })`). `aria-live=polite`.
+- **토스트**: 앱 전체에서 아래 가운데 한 자리(화면마다 옮기지 않는다). 한 번에 하나, 5초(동작 버튼이 있으면 7초) 뒤 사라지고 마우스를 올리거나 초점이 토스트 안에 있으면 멈춘다. 되돌릴 수 있으면 동작 버튼 하나(`toast(msg, { actionLabel: '되돌리기', onAction })`). `aria-live=polite`.
 - **칸 안 스크롤 흐림**: `Panel` 몸통이 넘치면 더 있는 쪽 가장자리만 옅게 흐린다(`useScrollFade`, TDS 메뉴 레퍼런스).
 - 검사: `npm run audit:copy`(보이는 글자의 기호·금지어·가운뎃점 사슬, `.qa/copy/report.md`), `npm run audit:design`(avoid-ai-design 스캐너, 출력만).
 

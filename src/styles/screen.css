@@ -8,6 +8,8 @@
   --os-edge: var(--space-4);
   /* 구역 탭 위 머리 높이. 보기 전환(38px)이 들어가도 탭 줄이 화면마다 같은 자리에 오도록 고정한다 */
   --os-head-tabs-h: 44px;
+  /* 흐름 화면(한 가지 일을 끝까지 하는 화면)의 가운데 칸 폭. 질문·초안을 읽기 좋은 길이 */
+  --os-flow-w: 720px;
 }
 @media (max-height: 759px) {
   :root { --os-head-h: 36px; --os-gap: var(--space-3); --os-head-tabs-h: 40px; }
@@ -22,6 +24,8 @@
 .os__body > * { min-width: 0; min-height: 0; }
 /* 목록-상세처럼 칸이 남은 높이를 다 써야 하는 본문 */
 .os__body--fill { align-content: stretch; grid-template-rows: minmax(0, 1fr); }
+/* 흐름 화면(신청 준비·회고 인터뷰·회고 목록): 머리와 본문 카드를 같은 가운데 칸에 맞춘다. 본문 칸(.os__body)은 화면이 안쪽 폭을 정한다 */
+.os[data-flow] > :not(.os__body) { width: 100%; max-width: var(--os-flow-w); align-self: center; }
 
 /* 카드 안에서 머리는 고정하고 그림·목록 칸이 남은 높이를 쓴다 */
 .os-card { display: flex; flex-direction: column; min-height: 0; }

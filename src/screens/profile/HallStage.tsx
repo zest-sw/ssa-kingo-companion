@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FocusEvent, type Keyboar
 import { Button, IconButton } from '../../components';
 import { joinedLabel, pathLine, wrapOffset } from '../../domain/hallStage';
 import type { HallEntry } from '../../data/friends';
+import { HallArt } from './HallArt';
 
 /** 한 장이 지나가는 속도(px/초). 천천히: 카드 한 장(약 260px)이 10초쯤 */
 const SPEED = 26;
@@ -100,7 +101,8 @@ export function HallStage({ people, joined, onOpen }: Props) {
   );
 
   return (
-    <div className="hall-stage" data-fill data-moving={moving || undefined}>
+    <div className="hall-stage" data-moving={moving || undefined}>
+      <HallArt />
       {/* data-allow-marquee: 행렬은 일부러 칸 밖으로 이어져 가로로 잘린다(검사는 세로 잘림만 본다) */}
       <div
         data-allow-marquee

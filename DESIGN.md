@@ -181,7 +181,7 @@ Pretendard Variable 한 가족(`index.html`, 실패하면 시스템 한글 글�
 | 빈 상태 | `EmptyState` (+ `GhostPic`) | 모든 목록·칸. 그림 틀 + 다음 행동 한 줄 + 버튼 하나 |
 | 로딩 / 오류 | `LoadingState` / `ErrorState` | 비동기로 보이는 곳(분석 갱신, 초안 작성). 로딩은 빈 상태와 모양이 다르다 |
 | 서랍 / 모달 | `Drawer` / `Modal` | 상세 / 짧은 확인·넓은 비교. 제목 18/700 |
-| 알림 | `Toast` (`actionLabel: '되돌리기'`) | 결과 한 줄, 되돌릴 수 있으면 버튼 하나, 5초 |
+| 알림 | `Toast` (`actionLabel: '되돌리기'`) | 결과 한 줄, 아래 가운데 한 자리, 되돌릴 수 있으면 버튼 하나, 5초(되돌리기 7초) |
 | 그림 | `diagram/*` (Legend, GanttRows, Timeline, Radar …) | 범례는 `Legend` 하나: 12px `--text-sub`, 기호 16px 칸. 자리는 카드 머리 오른쪽, 머리가 없으면 그림 아래 왼쪽 |
 | 이야기 | `story/*` (StoryHero, NextStep, ProofRow …) | 분석·홈의 정체성 문장, 근거 줄, 다음 한 걸음 |
 

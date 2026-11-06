@@ -34,6 +34,10 @@ describe.each(Object.entries(STATES))('%s 추천 목록', (_, make) => {
     expect(texts.length).toBe(lines.rows.length);
     expect(new Set(texts).size).toBe(texts.length);
   });
+  it("'넓게 둘러보려고 섞은 ○○ 분야예요' 틀은 분야만 바꿔 두 번 나오지 않는다", () => {
+    const all = [lines.top, ...lines.rows].map(l => l?.text ?? '');
+    expect(all.filter(t => t.startsWith('넓게 둘러보려고 섞')).length).toBeLessThanOrEqual(1);
+  });
   it('가장 추천 카드의 이유는 행에 다시 나오지 않는다', () => {
     expect(lines.top).toBeDefined();
     expect(texts).not.toContain(lines.top!.text);
@@ -71,6 +75,24 @@ describe('이유 고르기', () => {
     expect(out.rows[0]).toMatchObject({ source: 'type', text: '아직 안 해 본 교육·캠프예요' });
     expect(out.rows[1]).toMatchObject({ source: 'gain', text: 'c 결과물' });
     expect(out.rows[2]).toBeUndefined();
+  });
+  it('새 학생: 넓게 둘러보기 틀은 한 번만, 다음 탐색 기회는 그 기회만의 점(시간 → 얻는 것 → 활동 종류)', () => {
+    const novelty = (field: string): TraceNode => ({ kind: 'novelty', label: '탐색', detail: `처음 해 보는 ${field}` });
+    const rows = [
+      { p: p('a'), nodes: [novelty('AI·데이터')] },
+      { p: p('b', { hours: 1, durationLabel: '1시간' }), nodes: [novelty('글로벌')] },
+      { p: p('c'), nodes: [novelty('멘토링')] },
+      { p: p('d', { gains: [], category: 'lecture', format: 'online' }), nodes: [novelty('창업·기획')] }
+    ];
+    const out = pickLines(undefined, rows, { newcomer: true, records: [] });
+    expect(out.rows[0]).toMatchObject({ source: 'field', text: '넓게 둘러보려고 섞은 AI·데이터 분야예요' });
+    expect(out.rows[1]).toMatchObject({ source: 'time', text: '1시간이면 돼요' });
+    expect(out.rows[2]).toMatchObject({ source: 'gain', text: 'c 결과물' });
+    expect(out.rows[3]).toMatchObject({ source: 'kind', text: '온라인 특강이에요' });
+  });
+  it('예시 학생에게는 활동 종류 줄을 쓰지 않는다(안 해 본 종류가 그 자리를 맡는다)', () => {
+    const out = pickLines(undefined, [{ p: p('a', { gains: [] }), nodes: [] }], { newcomer: false, records: [rec('r', { kind: '캠프' })] });
+    expect(out.rows[0]).toBeUndefined();
   });
   it('짧은 기회는 시간이 이유가 되고, 해 본 종류는 이유가 되지 않는다', () => {
     const rows = [{ p: p('a', { hours: 1, durationLabel: '1시간', format: 'online' }), nodes: [] }];

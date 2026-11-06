@@ -95,6 +95,3 @@
   .home-inv { padding-left: var(--space-4); }
   .home-door { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
 }
-
-/* 홈에서는 알림을 머리 줄 오른쪽(비어 있는 자리)에 띄운다. 아래 가운데에 두면 할 일 목록을 가린다 */
-body:has(.home-grid) .ui-toast-region { top: var(--main-pad-t); right: var(--main-pad-x); bottom: auto; left: auto; transform: none; }

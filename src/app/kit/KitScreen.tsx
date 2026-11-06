@@ -148,7 +148,7 @@ function KitOverview({ sub }: ScreenProps) {
         <Card padding="md" className="kit-card"><LoadingState message="신청서 초안을 쓰는 중이에요" /></Card>
       </Section>
 
-      <Section title="Drawer · Modal · Toast" usage="toast('뺐어요.', { actionLabel: '되돌리기', onAction })  ·  5초 뒤 사라지고 마우스를 올리면 멈춘다. 한 번에 하나">
+      <Section title="Drawer · Modal · Toast" usage="toast('뺐어요.', { actionLabel: '되돌리기', onAction })  ·  아래 가운데 한 자리. 5초(되돌리기가 있으면 7초) 뒤 사라지고 마우스·초점이 있으면 멈춘다. 한 번에 하나">
         <Button onClick={() => setDrawer(true)}>서랍 열기</Button>
         <Button onClick={() => setModal(true)}>모달 열기</Button>
         <Button onClick={() => toast('일정에 담았어요.')}>토스트</Button>
