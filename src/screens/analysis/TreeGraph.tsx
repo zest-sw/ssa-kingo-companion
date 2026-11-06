@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { useLinkPaths, type LinkSpec } from '../../components';
 import { TREE_COLUMNS, rootTargets, splitTreeRows, type TechTree, type TreeCell, type TreeLink, type TreeRow } from '../../domain/analysis/techtree';
 import { isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
+import { usePictureKeys } from './usePictureKeys';
 
 /**
  * 분야마다 왼쪽 시작점에서 오른쪽으로 뻗는 가지. 심화 수준(입문→중급→심화)은 칸이 아니라 위치로 읽힌다.
@@ -21,9 +22,13 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
   const cross = useMemo(() => new Map<string, TreeLink>(tree.links.filter(l => l.cross).map(l => [`${l.from}>${l.to}`, l])), [tree.links]);
   const shown = (key: string) => { const l = cross.get(key); return !l || (!!active && (l.from === active || l.to === active)); };
   const hasCross = (id: string) => tree.links.some(l => l.cross && (l.from === id || l.to === id));
+  // 경험 지도와 같은 키 규칙: 그림 전체가 Tab 한 번, 방향키로 가까운 활동, [ ] 로 분야 사이, Esc 로 그림 밖
+  const keys = usePictureKeys(wrap, { scroll: true });
+  const hint = useId();
 
   return (
-    <div ref={wrap} className="an-tree">
+    <div ref={wrap} className="an-tree" role="group" aria-label="테크 트리 그림" aria-describedby={hint} onFocus={keys.onFocus} onKeyDown={e => { keys.onKeyDown(e); }}>
+      <p id={hint} className="sr-only">방향키로 가까운 활동, [ 와 ] 로 분야 사이를 옮겨요. Enter 로 열고, Esc 로 그림에서 나가요.</p>
       <svg className="an-tree__lines" aria-hidden="true">
         {paths.filter(p => shown(p.key)).map(p => <path key={p.key} d={p.d} className={p.className} />)}
       </svg>
@@ -44,6 +49,9 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
                   key={c.id}
                   ref={nodeRef(c.id)}
                   type="button"
+                  tabIndex={-1}
+                  data-rove={c.id}
+                  data-rove-group={row.group}
                   className={`an-pill an-pill--${c.kind}${active === c.id && hasCross(c.id) ? ' is-linked' : ''}`}
                   onMouseEnter={() => setHover(c.id)}
                   onMouseLeave={() => setHover(null)}
@@ -59,7 +67,7 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
                 </button>
               ))}
               {row.folds.filter(f => f.col === col).map(f => (
-                <button key="more" ref={nodeRef(foldId(row, col))} type="button" className="an-pill an-pill--more" aria-haspopup="dialog" onClick={() => onFold(row, col)} aria-label={`${row.label} ${name}: 활동 ${f.cells.length}개 더 보기`}>
+                <button key="more" ref={nodeRef(foldId(row, col))} type="button" tabIndex={-1} data-rove={foldId(row, col)} data-rove-group={row.group} className="an-pill an-pill--more" aria-haspopup="dialog" onClick={() => onFold(row, col)} aria-label={`${row.label} ${name}: 활동 ${f.cells.length}개 더 보기`}>
                   +{f.cells.length}
                 </button>
               ))}
