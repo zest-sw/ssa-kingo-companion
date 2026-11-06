@@ -340,7 +340,7 @@ function GraphSearch({ graph, onPick }: { graph: KnowledgeGraph; onPick: (n: Gra
       {open && (
         <div className="xg-find__box" id={`${id}-box`}>
           <input
-            autoFocus className="xg-find__input" placeholder="활동 찾기" aria-label="활동 찾기" role="combobox" aria-expanded={hits.length > 0} aria-controls={`${id}-list`} aria-autocomplete="list"
+            autoFocus name="map-find" autoComplete="off" className="xg-find__input" placeholder="활동 찾기" aria-label="활동 찾기" role="combobox" aria-expanded={hits.length > 0} aria-controls={`${id}-list`} aria-autocomplete="list"
             aria-activedescendant={hits[at] ? `${id}-${at}` : undefined} value={q} onChange={e => { setQ(e.target.value); setAt(0); }} onKeyDown={onKey}
           />
           {q.trim() && (hits.length > 0 ? (

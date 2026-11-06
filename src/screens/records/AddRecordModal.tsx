@@ -31,14 +31,16 @@ export function AddRecordModal({ open, onClose }: { open: boolean; onClose: () =
       open={open}
       onClose={close}
       title="직접 기록 추가"
-      actions={<><Button onClick={close}>취소</Button><Button variant="primary" type="submit" form="rec-add" disabled={!ready}>추가</Button></>}
+      actions={<><Button onClick={close}>취소</Button><Button variant="primary" type="submit" form="rec-add" disabled={!ready} aria-describedby={ready ? undefined : 'rec-add-left'}>추가</Button></>}
+      // 버튼이 꺼진 이유를 버튼 아래 한 줄로(무엇을 채우면 되는지)
+      note={ready ? undefined : <span id="rec-add-left">제목, 한 일, 에너지를 채우면 추가돼요</span>}
     >
       <form id="rec-add" className="rec-form" onSubmit={e => { e.preventDefault(); submit(); }}>
         <label className="rec-form__field">제목
-          <input className="rec-input" value={title} onChange={e => setTitle(e.target.value)} placeholder="예: 학과 스터디" />
+          <input className="rec-input" name="title" autoComplete="off" value={title} onChange={e => setTitle(e.target.value)} placeholder="예: 학과 스터디" />
         </label>
         <label className="rec-form__field">한 일
-          <textarea className="rec-input" rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="한 문장이면 돼요" />
+          <textarea className="rec-input" name="note" rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="한 문장이면 돼요" />
         </label>
         <div className="rec-form__field" role="group" aria-label="분야">
           분야
@@ -49,7 +51,7 @@ export function AddRecordModal({ open, onClose }: { open: boolean; onClose: () =
           <span className="rec-quick">{ENERGY.map(e => <Chip key={e.id} selected={energy === e.id} onClick={() => setEnergy(e.id)}>{e.label}</Chip>)}</span>
         </div>
         <label className="rec-form__field"><span>한마디 <span className="rec-form__opt">(선택)</span></span>
-          <input className="rec-input" value={quote} onChange={e => setQuote(e.target.value)} placeholder={QUOTE_HINTS[inferDid(note)][0]} />
+          <input className="rec-input" name="quote" autoComplete="off" value={quote} onChange={e => setQuote(e.target.value)} placeholder={QUOTE_HINTS[inferDid(note)][0]} />
         </label>
       </form>
     </Modal>

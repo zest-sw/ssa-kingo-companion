@@ -3,7 +3,7 @@ import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, Chip } from '../../components';
 import { FORMAT_OPTIONS, INTEREST_OPTIONS } from '../../data/options';
-import { toggleInterest } from '../../domain/recommend-flow/flow';
+import { MAX_INTERESTS, toggleInterest } from '../../domain/recommend-flow/flow';
 import type { Interest, Profile } from '../../domain/types';
 import { TIME_OPTIONS } from '../../domain/vocab';
 import { Group } from './Row';
@@ -19,6 +19,8 @@ export function ProfileSection() {
   const dirty = !same(draft, state.profile);
   const edit = (patch: (d: Profile) => Partial<Profile>) => { setDraft(d => ({ ...d, ...patch(d) })); setSaved(false); };
   const toggle = (id: Interest) => edit(d => ({ interests: toggleInterest(d.interests, id) }));
+  // 3개를 골랐으면 나머지는 눌러도 안 바뀐다. 말없이 무시하지 않고 화면 읽기에 '못 고름'을 알린다(가입 인터뷰와 같다).
+  const full = draft.interests.filter(x => x !== 'unknown').length >= MAX_INTERESTS;
 
   const save = () => {
     run({ type: 'profile/save', profile: { ...draft, goal: draft.goal.trim() } }, { toast: '저장했어요. 추천을 다시 골랐어요' });
@@ -29,7 +31,10 @@ export function ProfileSection() {
     <Card className="st-card">
       <Group title="관심 분야" sub="추천 후보를 고를 때 가장 먼저 봐요" action={<Badge>최대 3개</Badge>}>
         <div className="st-chips">
-          {INTEREST_OPTIONS.map(o => <Chip key={o.id} selected={draft.interests.includes(o.id)} onClick={() => toggle(o.id)}>{o.label}</Chip>)}
+          {INTEREST_OPTIONS.map(o => {
+            const on = draft.interests.includes(o.id);
+            return <Chip key={o.id} selected={on} aria-disabled={(full && !on && o.id !== 'unknown') || undefined} onClick={() => toggle(o.id)}>{o.label}</Chip>;
+          })}
         </div>
       </Group>
       <Group title="한 주에 쓸 시간" sub="이보다 오래 걸리는 활동은 뒤로 미뤄요">
@@ -45,7 +50,7 @@ export function ProfileSection() {
       <Group title="목표" sub="신청서 초안의 지원 동기에 써요. 비워 둬도 돼요">
         <label className="st-field">
           <span className="sr-only">목표</span>
-          <input className="st-input" value={draft.goal} maxLength={40} placeholder="예: 서비스 기획 직무" onChange={e => { const goal = e.target.value; edit(() => ({ goal })); }} />
+          <input className="st-input" name="goal" autoComplete="off" value={draft.goal} maxLength={40} placeholder="예: 서비스 기획 직무" onChange={e => { const goal = e.target.value; edit(() => ({ goal })); }} />
         </label>
       </Group>
       <div className="st-foot">

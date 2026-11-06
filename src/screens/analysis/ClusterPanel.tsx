@@ -170,7 +170,7 @@ function NameWhy({ cluster, onName }: { cluster: Cluster; onName: Props['onName'
       </p>
       {editing ? (
         <form className="xg-in__rename" onSubmit={e => { e.preventDefault(); if (draft.trim()) onName(cluster.id, { name: draft.trim() }); setEditing(false); }}>
-          <input autoFocus aria-label="묶음 이름" value={draft} maxLength={16} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); setEditing(false); } }} />
+          <input autoFocus name="cluster-name" autoComplete="off" aria-label="묶음 이름" value={draft} maxLength={16} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); setEditing(false); } }} />
           <Button size="sm" variant="primary" type="submit">저장</Button>
         </form>
       ) : isTentative(cluster) && (
