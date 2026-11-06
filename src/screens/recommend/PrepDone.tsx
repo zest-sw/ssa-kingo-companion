@@ -22,8 +22,8 @@ export function PrepDone({ when }: { when: string }) {
           </li>
         ))}
       </ol>
-      <h2 id="rec-done-title" className="rec-done__title">신청 화면을 열었어요. 결과는 일정에 나와요</h2>
-      <p className="rec-done__cal"><Icon name="calendar" size={16} />에이전트가 일정에 넣었어요<b className="num">{when}</b></p>
+      <h2 id="rec-done-title" className="rec-done__title">신청 화면을 열었어요</h2>
+      <p className="rec-done__cal"><Icon name="calendar" size={16} />일정에 넣었어요<b className="num">{when}</b></p>
       <Button variant="primary" onClick={() => navigate('activities/schedule')}>일정에서 보기</Button>
     </Card>
   );

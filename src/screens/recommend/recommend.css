@@ -9,7 +9,7 @@
   --rec-reason-height: 48px;
   --rec-done-w: 520px;
   --rec-done-mark: 40px;
-  --rec-item-due: 88px;
+  --rec-item-due: 112px;
   --rec-item-height: 52px;
   --rec-box-height: var(--hit-min);
   --rec-checkbox: 16px;
@@ -47,7 +47,7 @@
 
 /* 신청 준비 */
 .rec-items { display: flex; flex-direction: column; }
-.rec-item { display: grid; grid-template-columns: minmax(0, 1fr) auto auto var(--rec-item-due); align-items: center; gap: var(--space-3); min-height: var(--rec-item-height); border-top: var(--border); }
+.rec-item { display: grid; grid-template-columns: minmax(0, 1fr) auto var(--rec-item-due); align-items: center; gap: var(--space-3); min-height: var(--rec-item-height); border-top: var(--border); }
 .rec-item:first-child { border-top: 0; }
 .rec-item__box { display: flex; align-items: center; gap: var(--space-3); min-height: var(--rec-box-height); cursor: pointer; }
 .rec-item__box input { flex: none; width: var(--rec-checkbox); height: var(--rec-checkbox); accent-color: var(--primary); }
@@ -55,7 +55,7 @@
 .rec-item__label { font-size: var(--text-md); font-weight: var(--weight-bold); }
 .rec-item__hint { font-size: var(--text-sm); color: var(--ink-muted); }
 .rec-item--done .rec-item__label { color: var(--ink-subtle); text-decoration: line-through; font-weight: var(--weight-medium); }
-.rec-item__due { text-align: right; font-weight: var(--weight-bold); font-size: var(--text-md); }
+.rec-item__due { grid-column: -2 / -1; text-align: right; font-weight: var(--weight-bold); font-size: var(--text-md); }
 .rec-item--done .rec-item__due { color: var(--ink-muted); font-weight: var(--weight-regular); }
 .rec-runlog__head { margin-bottom: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
 .rec-runlog__fail svg { color: var(--accent-ink); }
@@ -123,6 +123,7 @@
 
 /* 신청을 연 뒤: 세 단계 그림 + 갈 곳 하나 */
 .rec-done { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-6); text-align: center; }
+.ui-card.rec-done { padding-block: var(--space-10); }
 .rec-done__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; max-width: var(--rec-done-w); }
 .rec-done__step { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }
 .rec-done__step b { color: var(--ink); font-size: var(--text-md); }
@@ -140,7 +141,6 @@
 .rec-why { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
 .rec-pstep .ui-panel { width: 100%; max-width: var(--rec-step-w); max-height: 100%; margin: 0 auto; align-self: start; }
 .rec-pstep__lead { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); font-size: var(--text-md); }
-.rec-urgent { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-3); border-radius: var(--radius-md); background: var(--orange-100); color: var(--accent-ink); font-weight: var(--weight-bold); }
 .rec-runlog { margin-top: var(--space-3); border-top: var(--border); }
 .rec-runlog__head { display: flex; align-items: center; min-height: var(--hit-min); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); cursor: pointer; }
 .rec-runlog ul { display: flex; flex-direction: column; gap: var(--space-2); padding-bottom: var(--space-2); }
@@ -148,8 +148,7 @@
 .rec-runlog li .num { color: var(--ink-muted); }
 .rec-runlog li svg { color: var(--green-900); flex: none; }
 .rec-runlog__fail svg { color: var(--accent-ink); }
-.rec-draft__eyebrow { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--ink-muted); }
-.rec-draft__title { padding-bottom: var(--space-3); margin-bottom: var(--space-3); border-bottom: var(--border); font-size: var(--text-2xl); font-weight: var(--weight-bold); }
+.rec-draft__title { display: flex; align-items: center; gap: var(--space-2); padding-bottom: var(--space-3); margin-bottom: var(--space-3); border-bottom: var(--border); font-size: var(--text-2xl); font-weight: var(--weight-bold); }
 .rec-draft__body { display: flex; flex-direction: column; gap: var(--space-4); }
 .rec-draft__body section { padding-bottom: var(--space-4); border-bottom: var(--border); }
 .rec-draft__body h3 { margin-bottom: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
