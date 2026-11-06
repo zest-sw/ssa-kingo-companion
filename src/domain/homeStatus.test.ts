@@ -1,37 +1,31 @@
 import { describe, expect, it } from 'vitest';
 import { rec } from './fixtures.test-util';
 import { byJoined, joinedLabel, pathLine, recentJoined, wrapOffset } from './hallStage';
-import { deepestField, inventoryOf, nearestDday, situationOf } from './homeStatus';
+import { inventoryOf, weekTasks } from './homeStatus';
 import type { Activity } from './types';
 
 const act = (id: string, over: Partial<Activity>): Activity => ({ id, title: id, field: 'dev', status: 'preparing', schedule: '', ...over });
 
-describe('상태창', () => {
+describe('홈 상태', () => {
   it('가진 것은 센 개수다: 경험 카드는 STAR 칸을 채운 기록(배운 점만 있으면 아님)', () => {
     const full = { situation: 's', role: 'r', action: 'a', result: 'x' };
     const inv = inventoryOf([rec('a', { card: full, verification: 'school' }), rec('b', { card: { learned: 'l' } }), rec('c')], 2);
-    expect(inv).toMatchObject({ records: 3, cards: 1, school: 1, challenges: 2 });
+    expect(inv).toEqual({ cards: 1, school: 1, challenges: 2 });
   });
 
-  it('가장 깊이 간 분야는 심화 수준이 높은 쪽, 같으면 기록이 많은 쪽', () => {
-    expect(deepestField([rec('a', { field: 'startup', level: 3 }), rec('b', { field: 'dev', level: 2 }), rec('c', { field: 'dev', level: 2 })])).toBe('창업·기획 심화');
-    expect(deepestField([rec('a', { field: 'startup', level: 1 }), rec('b', { field: 'dev', level: 1 }), rec('c', { field: 'dev', level: 1 })])).toBe('개발 입문');
-    expect(deepestField([])).toBeUndefined();
+  it('이번 주 할 일: 신청 마감(6일 안, 가까운 순), 회고, 모임으로 묶고 빈 묶음은 뺀다', () => {
+    const groups = weekTasks([
+      act('far', { due: { label: '신청 마감', dday: 9 } }), act('d5', { due: { label: '신청 마감', dday: 5 } }),
+      act('d0', { due: { label: '사전 설문 마감 18:00', dday: 0 }, programId: 'p0' }), act('gone', { due: { label: '', dday: -1 } }),
+      act('r', { status: 'ended', schedule: '10월 11일 끝남' }), act('on', { status: 'ongoing', schedule: '9월 ~ 12월' })
+    ], 1);
+    expect(groups.map(g => g.kind)).toEqual(['deadline', 'review']);
+    expect(groups[0].tasks.map(t => [t.title, t.when, !!t.urgent])).toEqual([['d0', '오늘 18:00', true], ['d5', 'D-5', false]]);
+    expect(groups[0].tasks[0].target).toEqual({ path: expect.stringContaining('p0') });
+    expect(groups[1].tasks[0]).toMatchObject({ when: '10월 11일 끝남', label: 'r 회고 쓰기', target: { path: 'activities/records/interview/r' } });
   });
 
-  it('지금 상황: 하는 중 · 이번 주(6일 안) 마감 · 회고 대기', () => {
-    const s = situationOf([
-      act('a', { status: 'ongoing' }), act('b', { due: { label: '', dday: 3 } }), act('c', { due: { label: '', dday: 9 } }),
-      act('d', { status: 'ended' }), act('e', { status: 'applied', due: { label: '', dday: 0 } })
-    ]);
-    expect(s).toEqual({ doing: 1, dueThisWeek: 2, reviewWaiting: 1 });
-  });
-
-
-  it('가장 가까운 마감은 지난 것을 뺀다', () => {
-    expect(nearestDday([5, -1, 2])).toBe(2);
-    expect(nearestDday([-3])).toBeUndefined();
-  });
+  it('할 일이 없으면 빈 목록', () => expect(weekTasks([], 1)).toEqual([]));
 });
 
 describe('명예의 전당 장면', () => {
