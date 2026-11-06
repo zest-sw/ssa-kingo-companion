@@ -54,7 +54,7 @@
 .home-today { contain: size; }
 
 /* 내 상태: 누구·칭호 | 작은 육각형 | 가진 것 */
-.home-band { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, var(--home-inv-w)); align-items: center; gap: var(--space-6); padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.home-band { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(max-content, 1fr) minmax(0, var(--home-inv-w)); align-items: center; gap: var(--space-6); padding-top: var(--space-4); padding-bottom: var(--space-4); }
 .home-me { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 .home-me__who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-2); font-size: var(--text-md); font-weight: var(--weight-bold); }
 .home-me__who span { font-size: var(--text-sm); font-weight: var(--weight-regular); color: var(--ink-muted); }
