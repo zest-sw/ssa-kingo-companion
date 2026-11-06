@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../app/AppState';
+import { useDrawerOf } from '../../app/drawerUrl';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, ConfirmDot, Drawer, EmptyState, Icon, useToast } from '../../components';
 import { nextStep } from '../../domain/nextStep';
@@ -77,13 +78,15 @@ export function DiscoveryCards() {
   const [focus, setFocus] = useState<string>();
   // ponytail: '잘 모르겠어요'는 이 화면에 머무는 동안만 기억한다. 저장하면 다음 분석 때 다시 묻는 규칙이 필요해서 미룬다.
   const [skipped, setSkipped] = useState<string[]>([]);
-  const [seeing, setSeeing] = useState<Discovery | null>(null);
-  const [listing, setListing] = useState(false);
+  // 서랍은 주소에 남는다(?drawer=discoveries, ?drawer=discovery:<발견>). 뒤로 가기로 닫힌다.
+  const listDrawer = useDrawerOf('discoveries');
+  const seeDrawer = useDrawerOf('discovery');
   // 방금 맞아요를 누른 발견. 그 장에서만 확인 전이를 한 번 돌린다(n 이 바뀌면 처음부터 다시)
   const [flip, setFlip] = useState<{ key: string; n: number }>();
   const hold = useRef<number>(undefined);
   useEffect(() => () => window.clearTimeout(hold.current), []);
   const list = view.discoveries;
+  const seeing = seeDrawer.id ? list.find(x => x.key === seeDrawer.id) ?? null : null;
   const isOpen = (x: Discovery) => ['none', 'changed'].includes(discStateOf(x));
   const fresh = (x: Discovery) => isOpen(x) && !skipped.includes(x.key);
   const d = list.find(x => x.key === focus) ?? nextToAsk(list, fresh) ?? nextToAsk(list, isOpen) ?? list[0];
@@ -137,7 +140,7 @@ export function DiscoveryCards() {
               ? <p key={flip.n} className="an-dq__q ui-confirm-in">{discoveryPic(d).question}</p>
               : <p className="an-dq__q">{discoveryPic(d).question}</p>}
             {/* 근거 그림 자체가 '근거 보기'다. 셈 한 줄이 그 버튼의 이름이다. */}
-            <button type="button" className="an-dq__see" aria-label={`${discoverySource(d)}. 근거 기록 보기`} onClick={() => setSeeing(d)}>
+            <button type="button" className="an-dq__see" aria-label={`${discoverySource(d)}. 근거 기록 보기`} onClick={() => seeDrawer.open(d.key)}>
               <span className="an-dq__src">{discoverySource(d)}<Icon name="chevron" size={16} /></span>
               <Converge pic={discoveryPic(d)} />
             </button>
@@ -151,10 +154,10 @@ export function DiscoveryCards() {
               {isOpen(d) && <Button variant="ghost" className="an-dq__unsure" onClick={() => unsure(d)}>잘 모르겠어요</Button>}
             </div>
           </div>
-          <Button variant="ghost" icon="chevron" onClick={() => setListing(true)}>발견 {list.length}개 모두 보기</Button>
+          <Button variant="ghost" icon="chevron" onClick={() => listDrawer.open()}>발견 {list.length}개 모두 보기</Button>
         </>
       )}
-      <Drawer open={listing} onClose={() => setListing(false)} eyebrow="내가 맞다고 한 발견만 추천에 써요" title="발견 모두 보기">
+      <Drawer open={listDrawer.id !== null} onClose={listDrawer.close} eyebrow="내가 맞다고 한 발견만 추천에 써요" title="발견 모두 보기">
         <div className="an-dlist">
           {groups.map(g => (
             <section key={g.id} className="an-dlist__group" aria-label={g.label}>
@@ -164,7 +167,7 @@ export function DiscoveryCards() {
                   const s = discStateOf(x);
                   return (
                     <li key={x.key}>
-                      <button type="button" className="an-dlist__row" onClick={() => { setFocus(x.key); setListing(false); }}>
+                      <button type="button" className="an-dlist__row" onClick={() => { setFocus(x.key); listDrawer.close(); }}>
                         <span className="an-dlist__text">
                           <span className="an-dlist__q">{discoveryPic(x).question}</span>
                           <span className="an-dlist__src">{discoverySource(x)}</span>
@@ -179,7 +182,7 @@ export function DiscoveryCards() {
           ))}
         </div>
       </Drawer>
-      <Drawer open={!!seeing} onClose={() => setSeeing(null)} eyebrow={seeing ? discoverySource(seeing) : ''} title={seeing ? discoveryPic(seeing).question : ''}>
+      <Drawer open={!!seeing} onClose={seeDrawer.close} eyebrow={seeing ? discoverySource(seeing) : ''} title={seeing ? discoveryPic(seeing).question : ''}>
         <div className="an-stack">{seeing?.evidence.map(r => <RecordSummary key={r.id} record={r} />)}</div>
       </Drawer>
     </Card>
