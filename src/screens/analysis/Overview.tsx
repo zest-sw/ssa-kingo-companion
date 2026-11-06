@@ -1,12 +1,13 @@
 import { useApp } from '../../app/AppState';
 import { hrefOf, sectionTabs } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Card, ErrorState, FieldTag, GapLine, Icon, LoadingState, NextStep, PageHeader, ProofRow, SectionTabs, StoryHero } from '../../components';
+import { Card, ErrorState, FieldTag, GapLine, Icon, LoadingState, NextStep, PageHeader, SectionTabs, StoryHero } from '../../components';
 import { ddayOf } from '../../domain/recommend';
 import { candidateHref } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import { useTriage } from '../recommend/useTriage';
 import { DiscoveryCards } from './DiscoveryCards';
+import { ProofList } from './ProofList';
 import type { useAnalysis } from './useAnalysis';
 import { setStoryAnswer, useStory } from '../../app/useStory';
 
@@ -35,7 +36,7 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
               <StoryHero identity={story.identity} onAnswer={story.newStudent ? undefined : setStoryAnswer} />
               <section aria-labelledby="an-story-proof-h">
                 <h2 id="an-story-proof-h" className="an-story__h">{story.newStudent ? '기록이 쌓이면 근거가 생길 자리' : '왜 이렇게 읽었나'}</h2>
-                <ProofRow proofs={story.proofs} hrefOf={hrefOf} layout="list" />
+                <ProofList proofs={story.proofs} />
               </section>
               {story.gap && <GapLine gap={story.gap} />}
               {next && program && (

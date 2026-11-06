@@ -13,7 +13,6 @@
   --an-cand-h: var(--space-12);
   --an-disc-min: 380px;
   --an-side-w: 320px;
-  --an-bar-h: 28px;
   --an-sem-w-sm: 48px;
   /* 근거 점(ui-dot 14px) 하나가 차지하는 폭 */
   --an-sdot-step: calc(14px + var(--space-1));
@@ -111,15 +110,14 @@
 .an-sum__side { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 .an-sum__hint { padding: 0 var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); }
 
-/* 경험 지도 그림 */
-
-/* 관심 흐름 그림 */
-.an-fp { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; }
-.an-fp__row { display: flex; align-items: center; gap: var(--space-3); }
-.an-fp__sem { flex: none; width: var(--an-sem-w-sm); color: var(--ink-muted); font-size: var(--text-xs); }
-.an-fp__bar { flex: 1; display: flex; gap: var(--an-gap-thin); height: var(--an-bar-h); border-radius: var(--radius-sm); overflow: hidden; }
-.an-fp__seg { display: flex; align-items: center; min-width: var(--an-dot-sm); padding: 0 var(--space-2); background: var(--fill); color: var(--on); font-size: var(--text-xs); font-weight: var(--weight-bold); overflow: hidden; }
-.an-fp__name { white-space: nowrap; }
+/* 근거 막대: 확인(진한 막대) + AI 추정(점선 칸). 길이는 전체 수, 높이는 얇은 막대(--bar-h) */
+.an-ebar { display: flex; align-items: center; gap: var(--space-2); min-width: 0; width: 100%; }
+.an-ebar__track { display: flex; gap: var(--an-gap-thin); flex: 0 1 var(--w); min-width: var(--space-4); height: var(--bar-h); }
+.an-ebar__yes, .an-ebar__est { flex-basis: 0; min-width: var(--an-gap-thin); border-radius: var(--radius-xs); box-sizing: border-box; }
+.an-ebar__yes { background: var(--navy-900); }
+.an-ebar__est { border: 1px dashed var(--ink-subtle); background: transparent; }
+.an-ebar__n { flex: none; color: var(--ink-muted); font-size: var(--text-xs); white-space: nowrap; }
+.an-ebar__n b { color: var(--ink); font-weight: var(--weight-bold); }
 
 /* 확인할 발견: 한 장씩. 질문 + 근거 기록이 하나의 발견으로 모이는 도식 + 답 */
 .an-disc-card { min-height: 0; }
