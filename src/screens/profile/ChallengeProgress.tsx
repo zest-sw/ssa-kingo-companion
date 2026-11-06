@@ -2,7 +2,7 @@ import { useChallenges } from '../../app/challenges';
 import { challengeTrack, nextChallenges } from '../../domain/challenges/summary';
 
 /**
- * 프로필의 도전 과제 진행 그림: 달성한 칸(채움) + 다음 칸 하나(회색 점선), 아래에 다음 과제 이름과 열리는 때.
+ * 프로필의 도전 과제 진행 그림: 달성한 칸(옅은 초록 칸) + 다음 칸 하나(옅은 실선 틀), 아래에 다음 과제 이름과 열리는 때.
  * 높은 화면에서는 그다음 과제 둘을 옅게 더 보인다(남는 높이를 빈 카드 대신 다음 걸음으로). 점수·레벨·희귀도는 없다. 비공개여도 보인다.
  */
 export function ChallengeProgress() {

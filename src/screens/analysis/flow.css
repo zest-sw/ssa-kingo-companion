@@ -4,7 +4,7 @@
   --fl-head: var(--space-8);
   --fl-dot: var(--an-dot-sm);
   --fl-path-w: 2.5px;
-  --fl-step-ms: 240ms;
+  --fl-step-ms: var(--dur-base);
   --fl-want-h: 2000px;
   display: flex; flex-direction: column; min-height: 0;
 }

@@ -18,10 +18,8 @@
 .iv-panel .ui-panel__foot > .ui-btn--ghost { order: -2; }
 
 /* 질문: 화면의 주인공. 넘길 때 빠르게 시작해 부드럽게 멈추며 들어온다(내용은 처음부터 보인다) */
-.iv-q { display: flex; flex-direction: column; gap: var(--space-3); animation: iv-in var(--dur-base) var(--ease-out); }
-.iv-q[data-dir='back'] { animation-name: iv-in-back; }
-@keyframes iv-in { from { transform: translateX(var(--enter-shift)); opacity: 0.4; } }
-@keyframes iv-in-back { from { transform: translateX(calc(-1 * var(--enter-shift))); opacity: 0.4; } }
+.iv-q { display: flex; flex-direction: column; gap: var(--space-3); animation: ui-step-in var(--dur-base) var(--ease-out); }
+.iv-q[data-dir='back'] { animation-name: ui-step-in-back; }
 .iv-q__ask { font-size: var(--fs-page); font-weight: var(--weight-heavy); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .iv-q__ask:focus-visible { box-shadow: none; outline: none; }
 .iv-q__hint { color: var(--ink-muted); font-size: var(--text-md); margin-top: calc(-1 * var(--space-1)); }
@@ -57,8 +55,7 @@
 
 /* 끝 장면: 방금 만든 카드가 주인공. 다음 걸음은 하나(+ 기다리는 회고가 있으면 하나 더) */
 .iv-done { display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-6) 0; }
-.iv-done__card { animation: iv-rise var(--dur-base) var(--ease-out); }
-@keyframes iv-rise { from { transform: translateY(var(--enter-shift)) scale(0.98); opacity: 0.4; } }
+.iv-done__card { animation: ui-rise var(--dur-base) var(--ease-out); }
 .iv-done__changes { display: flex; flex-direction: column; gap: var(--space-2); }
 .iv-done__changes li { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-md); }
 .iv-done__bullet { flex: none; width: var(--iv-bullet); height: var(--iv-bullet); margin: 0 calc((var(--space-3) - var(--iv-bullet)) / 2); border-radius: var(--radius-full); background: var(--ink-subtle); }

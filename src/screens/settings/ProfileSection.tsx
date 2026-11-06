@@ -23,7 +23,7 @@ export function ProfileSection() {
   const full = draft.interests.filter(x => x !== 'unknown').length >= MAX_INTERESTS;
 
   const save = () => {
-    run({ type: 'profile/save', profile: { ...draft, goal: draft.goal.trim() } }, { toast: '저장했어요. 추천을 다시 골랐어요' });
+    run({ type: 'profile/save', profile: { ...draft, goal: draft.goal.trim() } }, { toast: '저장했어요. 추천을 다시 골랐어요.' });
     setSaved(true);
   };
 

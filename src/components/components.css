@@ -150,7 +150,8 @@
 
 .ui-loading { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) 0; }
 .ui-loading__msg { font-size: var(--text-sm); color: var(--ink-muted); }
-.ui-loading__line { height: 10px; border-radius: var(--radius-xs); background: linear-gradient(90deg, var(--grey-100), var(--bg-sunken), var(--grey-100)); background-size: 200% 100%; animation: ui-shimmer 1.4s linear infinite; }
+/* 막대 높이·색은 화면 뼈대(app.css .app-skel__bar)와 같다. 기다림이 길어지는 곳만 반짝인다 */
+.ui-loading__line { height: var(--space-3); border-radius: var(--radius-xs); background: linear-gradient(90deg, var(--grey-100), var(--bg-sunken), var(--grey-100)); background-size: 200% 100%; animation: ui-shimmer var(--dur-loading) linear infinite; }
 .ui-loading__line:nth-child(3n) { width: 60%; }
 .ui-loading__line:nth-child(3n + 1) { width: 85%; }
 @keyframes ui-shimmer { to { background-position: -200% 0; } }
@@ -221,7 +222,7 @@
 @keyframes ui-slide-out { to { transform: translateX(var(--enter-shift)); opacity: 0; } }
 .ui-scrim[data-state='closing'] .ui-drawer { animation: ui-slide-out var(--dur-base) var(--ease-out) forwards; }
 .ui-drawer__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-4) var(--space-4) var(--space-6); border-bottom: var(--border); }
-.ui-drawer__eyebrow { font-size: var(--text-xs); color: var(--ink-muted); }
+.ui-drawer__eyebrow { font-size: var(--text-sm); color: var(--ink-muted); }
 .ui-drawer__title { font-size: var(--fs-lead); font-weight: var(--weight-heavy); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .ui-drawer__body { flex: 1; overflow-y: auto; padding: var(--space-5) var(--space-6) var(--space-6); }
 .ui-drawer__foot { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-6); border-top: var(--border); }
@@ -342,6 +343,12 @@ button.ui-stepper__step:hover { background: var(--surface-hover); color: var(--i
 /* 바뀐 숫자 한 번 강조(Flash): 초록 글자에서 원래 글자로 돌아온다. 면은 칠하지 않는다 */
 @keyframes ui-flash { from { color: var(--primary); } }
 .ui-flash[data-changed] { animation: ui-flash var(--dur-flash) var(--ease-out); }
+
+/* 흐름 화면(가입 인터뷰·회고 인터뷰·신청 준비)은 한 모양으로 움직인다.
+   단계 넘김: 다음은 오른쪽에서, 이전은 왼쪽에서 --enter-shift 만큼 들어온다. 끝 장면: 아래에서 --enter-shift 만큼 올라온다(튀거나 커지지 않는다). */
+@keyframes ui-step-in { from { transform: translateX(var(--enter-shift)); opacity: var(--enter-from); } }
+@keyframes ui-step-in-back { from { transform: translateX(calc(-1 * var(--enter-shift))); opacity: var(--enter-from); } }
+@keyframes ui-rise { from { transform: translateY(var(--enter-shift)); opacity: var(--enter-from); } }
 
 /* 확인(맞아요): AI 추정의 옅은 점선이 실선으로. 선 모양은 중간에 바뀌고 색은 이어진다. 끝값은 요소 자기 밑줄 */
 @keyframes ui-confirm-in { from { text-decoration-line: underline; text-decoration-style: dashed; text-decoration-color: var(--text-faint); } }

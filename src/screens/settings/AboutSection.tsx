@@ -24,7 +24,7 @@ export function AboutSection() {
   const toExample = () => {
     setAskMode(false);
     run({ type: 'data/mode', demo: true });
-    toast('예시 학생으로 바꿨어요. 3년 치 활동과 기록이 있어요');
+    toast('예시 학생으로 바꿨어요. 3년 치 활동과 기록이 있어요.');
   };
   return (
     <div className="st-stack">

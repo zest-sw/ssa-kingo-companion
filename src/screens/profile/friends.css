@@ -33,7 +33,7 @@
 
 /* 프로필 */
 .fr-avatar { display: grid; place-items: center; width: var(--space-10); height: var(--space-10); border-radius: var(--radius-full); background: var(--grey-100); color: var(--ink); font-weight: var(--weight-bold); flex: none; }
-.fr-avatar--lg { width: var(--fr-avatar-lg); height: var(--fr-avatar-lg); font-size: var(--text-xl); }
+.fr-avatar--lg { width: var(--fr-avatar-lg); height: var(--fr-avatar-lg); font-size: var(--text-xl); font-weight: var(--weight-heavy); }
 .fr-me { display: flex; align-items: center; gap: var(--space-4); }
 .fr-me__name { font-size: var(--text-xl); font-weight: var(--weight-heavy); }
 .fr-me__sub { color: var(--ink-muted); }

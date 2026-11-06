@@ -36,11 +36,11 @@ export function VisibilitySection() {
   const visibleIds = new Set(publicActivities(state.activities, { ...v, profilePublic: true }).map(a => a.id));
 
   const publish = () => {
-    run({ type: 'visibility/set', patch: { profilePublic: true } }, { toast: '프로필을 공개했어요. 친구에게만 보여요' });
+    run({ type: 'visibility/set', patch: { profilePublic: true } }, { toast: '프로필을 공개했어요. 친구에게만 보여요.' });
     setAsking(false);
   };
   // 되돌리기를 달지 않는다: 다시 공개하려면 동의 창을 거쳐야 한다. 명예의 전당 동의도 reducer 에서 함께 거둔다.
-  const withdraw = () => run({ type: 'visibility/set', patch: { profilePublic: false } }, { toast: '비공개로 돌렸어요. 이제 나만 봐요' });
+  const withdraw = () => run({ type: 'visibility/set', patch: { profilePublic: false } }, { toast: '비공개로 돌렸어요. 이제 나만 봐요.' });
   const set = (patch: Partial<typeof v>) => run({ type: 'visibility/set', patch });
 
   return (

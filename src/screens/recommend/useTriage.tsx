@@ -30,7 +30,7 @@ export function useTriage(afterChoose?: () => void, opts: { quick?: boolean } = 
   };
   const postpone = (p: Program, days: number) => {
     setPostponing(undefined);
-    run({ type: 'candidate/choose', programId: p.id, choice: 'later', until: laterUntilDay(state.week, days) }, { toast: '나중에 보기로 옮겼어요', undoable: true });
+    run({ type: 'candidate/choose', programId: p.id, choice: 'later', until: laterUntilDay(state.week, days) }, { toast: '나중에 보기에 넣었어요.', undoable: true });
     afterChoose?.();
   };
   const onLater = (p: Program) => {
