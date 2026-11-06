@@ -45,11 +45,11 @@ export function TodoStep({ items, week, enabled, draftReady, urgentLine, left, l
 export function DraftStep({ draft, team, revised, revising, onRetry }: { draft: DraftState; team: boolean; revised: boolean; revising: boolean; onRetry: () => void }) {
   return (
     <div className="rec-draft" aria-live="polite">
-      <h2 className="rec-draft__title">
-        에이전트가 쓴 신청서 초안
+      <div className="rec-draft__title">
+        <h2>에이전트가 쓴 신청서 초안</h2>
         {revised && draft.status === 'ready' && draft.prev !== draft.draft.motivation && <Badge tone="green">고친 초안</Badge>}
-        {draft.status === 'writing' && draft.draft && <span className="rec-draft__busy" role="status">초안을 고치는 중이에요</span>}
-      </h2>
+        {draft.status === 'writing' && draft.draft && <p className="rec-draft__busy" role="status">초안을 고치는 중이에요</p>}
+      </div>
       {/* 고치는 동안에는 앞 초안을 옅게 둔 채 기다린다(뼈대로 바꾸지 않아 자리가 움직이지 않는다) */}
       {draft.status === 'writing' && !draft.draft && <LoadingState message={revising ? '초안을 고치는 중이에요' : '초안 쓰는 중이에요'} lines={4} />}
       {draft.status === 'error' && <ErrorState message="초안을 쓰지 못했어요. 다시 시도하면 처음부터 다시 써요." onRetry={onRetry} />}
