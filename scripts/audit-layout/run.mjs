@@ -107,7 +107,8 @@ async function makeState(browser, base, key) {
   return storage;
 }
 
-const slug = (path, step) => path.replace(/\//g, '_') + (step ? `@${step}` : '');
+// 파일 이름에 못 쓰는 글자(/ ? = &)는 _ 로 바꾼다. 'recommend?open=p-x' → 'recommend_open_p-x'
+const slug = (path, step) => path.replace(/[/?=&]/g, '_') + (step ? `@${step}` : '');
 
 async function runJob(browser, base, job) {
   const ctx = await browser.newContext({ viewport: { width: job.size.w, height: job.size.h }, reducedMotion: 'reduce' });
