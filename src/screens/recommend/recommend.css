@@ -222,8 +222,6 @@
 .rec-top__main { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 .rec-top__label { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--primary); }
 .rec-top__title { font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
-.rec-top__open { padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
-.rec-top__open:hover { text-decoration: underline; text-underline-offset: var(--space-1); }
 .rec-top__why { font-size: var(--text-md); color: var(--ink-muted); }
 .rec-top__gains { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); margin-top: var(--space-1); font-size: var(--text-md); }
 .rec-top__gains li { display: inline-flex; align-items: center; gap: var(--space-2); }
