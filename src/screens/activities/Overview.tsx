@@ -2,13 +2,11 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate, sectionTabs } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Button, Card, Legend, PageHeader, SectionTabs, SegmentBar, type LegendItem } from '../../components';
+import { Button, Card, Legend, PageHeader, SectionTabs, type LegendItem } from '../../components';
 import { CURRENT_TERM } from '../../data/records';
 import { semesterTally } from '../../domain/recommend-flow/summary';
-import type { BoardColumn } from '../../domain/types';
-import { setBoardFocus } from './boardFocus';
 import { RetroCard } from './RetroCard';
-import { statusBars } from './visual';
+import { statusBars, type StatusBar } from './visual';
 import { WeekPic } from './WeekPic';
 import { retroQueue, weekOf, weekTitle } from './week';
 
@@ -16,6 +14,17 @@ const LEGEND: LegendItem[] = [
   { label: '마감', mark: 'diamond', tone: 'ink' }, { label: '하는 중', mark: 'hatch', tone: 'ink' },
   { label: '모이는 날', mark: 'dot', tone: 'ink' }, { label: '오늘', mark: 'today' }
 ];
+
+/** 할 일 한 줄: 얇은 막대 하나를 개수 비율로 나누고 아래에 이름과 수를 적는다. 누르는 곳은 없다(일정은 구역 탭이 맡는다). */
+function StatusLine({ bars }: { bars: StatusBar[] }) {
+  const shown = bars.filter(b => b.count > 0);
+  return (
+    <div className="act-line">
+      <div className="act-line__bar" aria-hidden="true">{shown.map(b => <span key={b.id} data-id={b.id} style={{ flexGrow: b.count }} />)}</div>
+      <ul className="act-line__keys">{bars.map(b => <li key={b.id} data-id={b.id}>{b.label} <b className="num">{b.count}</b></li>)}</ul>
+    </div>
+  );
+}
 
 /**
  * 내 활동 › 한눈에. 주인공은 '이번 주' 그림 하나(왼쪽, 남은 높이를 채운다). 오른쪽은 조연: 할 일 한 줄 막대, 회고 대기.
@@ -48,8 +57,6 @@ export function Overview() {
     );
   }
 
-  const openColumn = (id: string) => { setBoardFocus(id as BoardColumn); navigate('activities/schedule/board'); };
-
   return (
     <div className="os">
       <PageHeader title="내 활동" tabs={tabs} />
@@ -58,11 +65,7 @@ export function Overview() {
         <div className="act-side">
           {!empty && (
             <Card className="os-card act-status" title="할 일">
-              <SegmentBar
-                label="상태별 활동 수" inline
-                segments={statusBars(state.activities).map(b => ({ id: b.id, label: b.label, value: b.count, tone: b.id }))}
-                onSelect={openColumn} empty="아직 활동이 없어요"
-              />
+              <StatusLine bars={statusBars(state.activities)} />
               {tally && <p className="act-status__tally">{tally}</p>}
             </Card>
           )}

@@ -5,9 +5,9 @@ import { latestRecord, recordHeadline, scheduleHeadline } from './summary';
 const act = (over: object) => ({ ...SEED_ACTIVITIES[0], ...over });
 
 describe('일정 문장', () => {
-  it('머리 한 줄', () => expect(scheduleHeadline(SEED_ACTIVITIES, '2026-10-13')).toBe('이번 달 마감 4개, 진행 중 3개, 결과 대기 1개'));
+  it('머리 한 줄', () => expect(scheduleHeadline(SEED_ACTIVITIES, '2026-10-13')).toBe('이번 달 마감 4개, 하는 중 3개, 결과 대기 1개'));
   it('방금 신청해 결과만 기다리면 그 수와 다음 일을 말한다', () => expect(scheduleHeadline([act({ status: 'applied', due: undefined })], '2026-10-13')).toBe('결과 대기 1개예요. 활동이 끝나면 회고를 물어볼게요'));
-  it('다음 달로 넘어간 마감은 이번 달이 아니다', () => expect(scheduleHeadline([act({ due: { label: '마감', dday: 25 } })], '2026-10-13')).toBe('이번 달 마감도, 진행 중인 활동도 없어요'));
+  it('다음 달로 넘어간 마감은 이번 달이 아니다', () => expect(scheduleHeadline([act({ due: { label: '마감', dday: 25 } })], '2026-10-13')).toBe('이번 달 마감도, 하는 활동도 없어요'));
 });
 
 describe('기록 머리 한 줄', () => {

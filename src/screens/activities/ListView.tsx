@@ -1,11 +1,11 @@
 import { Badge, Button, Card, EmptyState, FieldTag } from '../../components';
 import { navigate } from '../../app/router';
 import type { Activity } from '../../domain/types';
-import { StatusBadge, goInterview } from './ActivityCard';
+import { StatusBadge } from './ActivityCard';
 import { dueView } from './helpers';
 import { listGroups } from './sort';
 
-const COLS = 6;
+const COLS = 5;
 
 /** 마감(◆)과 활동 날짜를 칸으로 나눠, 타임라인과 같은 구분을 목록에서도 지킨다. */
 function DueCell({ due }: { due: Activity['due'] }) {
@@ -26,7 +26,7 @@ export function ListView({ activities, onOpen }: { activities: Activity[]; onOpe
         <thead>
           <tr>
             <th scope="col">활동</th><th scope="col">분야</th><th scope="col">상태</th>
-            <th scope="col"><span aria-hidden="true">◆ </span>마감</th><th scope="col">활동 날짜</th><th scope="col"><span className="sr-only">행동</span></th>
+            <th scope="col"><span aria-hidden="true">◆ </span>마감</th><th scope="col">활동 날짜</th>
           </tr>
         </thead>
         {listGroups(activities).filter(g => g.items.length > 0).map(g => (
@@ -39,7 +39,6 @@ export function ListView({ activities, onOpen }: { activities: Activity[]; onOpe
                 <td><StatusBadge status={a.status} /></td>
                 <td className="act-table__meta"><DueCell due={a.due} /></td>
                 <td className="act-table__meta">{a.schedule}</td>
-                <td className="act-table__act">{a.status === 'ended' && <Button size="sm" onClick={() => goInterview(a.id)}>회고 쓰기</Button>}</td>
               </tr>
             ))}
           </tbody>

@@ -12,7 +12,7 @@ const isTodo = (a: Activity) => a.status === 'preparing' || a.status === 'applie
 export const ongoingTitles = (activities: Activity[]) => activities.filter(a => a.status === 'ongoing').map(a => a.title);
 
 /**
- * 일정 화면 머리 한 줄: '이번 달 마감 2개, 진행 중 2개'. 이번 달 = 오늘이 속한 달.
+ * 일정 화면 머리 한 줄: '이번 달 마감 2개, 하는 중 2개'. 이번 달 = 오늘이 속한 달.
  * 신청을 마치고 결과를 기다리는 활동(마감이 없어진 신청함)도 센다. 방금 신청한 학생에게 '아무것도 없어요'라고 하지 않게.
  */
 export function scheduleHeadline(activities: Activity[], today: string = PROTOTYPE_TODAY): string {
@@ -21,10 +21,10 @@ export function scheduleHeadline(activities: Activity[], today: string = PROTOTY
   const going = ongoingTitles(activities).length;
   const waiting = activities.filter(a => a.status === 'applied' && !a.due).length;
   const wait = waiting ? `결과 대기 ${waiting}개` : '';
-  if (!due && !going) return wait ? `${wait}예요. 활동이 끝나면 회고를 물어볼게요` : '이번 달 마감도, 진행 중인 활동도 없어요';
-  if (!due) return [`이번 달 마감은 없고, 진행 중 ${going}개`, wait].filter(Boolean).join(', ') + (wait ? '' : '예요');
-  if (!going) return [`이번 달 마감 ${due}개`, wait || '진행 중인 활동은 없어요'].join(', ');
-  return [`이번 달 마감 ${due}개, 진행 중 ${going}개`, wait].filter(Boolean).join(', ');
+  if (!due && !going) return wait ? `${wait}예요. 활동이 끝나면 회고를 물어볼게요` : '이번 달 마감도, 하는 활동도 없어요';
+  if (!due) return [`이번 달 마감은 없고, 하는 중 ${going}개`, wait].filter(Boolean).join(', ') + (wait ? '' : '예요');
+  if (!going) return [`이번 달 마감 ${due}개`, wait || '하는 활동은 없어요'].join(', ');
+  return [`이번 달 마감 ${due}개, 하는 중 ${going}개`, wait].filter(Boolean).join(', ');
 }
 
 /** 가장 최근 기록. 학기 → 월 순, 같으면 나중에 추가한 쪽. */
