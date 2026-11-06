@@ -139,6 +139,8 @@
 .rec-pstep .ui-panel__foot { justify-content: flex-end; }
 .rec-foot__note { margin-right: auto; font-size: var(--text-sm); color: var(--ink-muted); }
 /* 단계가 바뀌면 내용이 먼저 보이게 짧게 떠오른다(빠르게 시작해 부드럽게 멈춤). 움직임 줄이기면 바로 바뀐다 */
+/* 단계가 바뀌면 초점을 받는 자리(제목처럼 링은 그리지 않는다) */
+.rec-pstep__scene:focus-visible { box-shadow: none; outline: none; }
 .rec-pstep__scene { animation: rec-rise var(--dur-base) var(--ease-out) both; }
 @keyframes rec-rise { from { opacity: 0; transform: translateY(var(--enter-shift)); } }
 /* 맨 위 한 줄: 에이전트가 한 일 요약. 펼치면 확인 결과와 한 일 */
