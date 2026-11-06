@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import { useZoomPan, ZoomIcon, ZoomPanBar } from '../../components';
+import { useZoomPan, ZoomIcon, ZoomPanBar } from '../../components/zoom';
 import { RELATION_LABEL, clusterLinks, focusSet, hubTags, isTentative, type GraphEdge, type GraphFocus, type GraphNode, type KnowledgeGraph, type RecordNode } from '../../domain/analysis/graph';
 import { GRAPH_METRICS as M, hullExit, keywordLine, nameSize, textWidth, placeEdgeLabels, placeHubTags, radiusOf, trimSegment, type GraphLayout, type Pt } from '../../domain/analysis/graphLayout';
 import {

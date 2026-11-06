@@ -1,4 +1,4 @@
-// 다이어그램 부품. 화면은 src/components/index.ts 를 거쳐 가져온다.
+// 다이어그램 부품. 화면은 src/components/index.ts 를 거쳐 가져온다(확대·이동만 src/components/zoom.ts).
 import './diagram.css';
 
 export { DotGrid, type DotItem, type GridAxisItem } from './DotGrid';
@@ -16,4 +16,4 @@ export { linkPath, useLinkPaths, type LinkPath, type LinkSpec } from './useLinkP
 export { TermNav } from './TermNav';
 export { Radar, type RadarVertex } from './Radar';
 export { useWidth } from './useWidth';
-export { useZoomPan, type ZoomPanOptions } from './ZoomPan'; export { ZoomIcon, ZoomPanBar } from './ZoomPanBar';
+// 확대·이동(ZoomPan)은 첫 덩어리를 무겁게 해서 여기 없다. ../zoom.ts 에서 가져온다.
