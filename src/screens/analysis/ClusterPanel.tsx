@@ -2,7 +2,7 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { useState } from 'react';
-import { Button, ConfirmDot, EmptyState, FieldTag } from '../../components';
+import { AiMark, Button, ConfirmDot, EmptyState, FieldTag } from '../../components';
 import { clusterGroups, clusterInsight, isTentative, type Cluster, type ClusterInsight, type GraphFocus, type KnowledgeGraph, type RecordNode } from '../../domain/analysis/graph';
 import { nodeBrief } from '../../domain/analysis/graphView';
 import { semesterLabel } from '../../domain/analysis/semester';
@@ -10,6 +10,7 @@ import { ddayOf } from '../../domain/recommend';
 import { ddayText, josa } from '../../domain/text';
 import { GROUP_LABEL } from '../../domain/vocab';
 import type { GraphOpen } from './MapGraph';
+import { EvidenceBar } from './EvidenceBar';
 import { RecordSummary } from './RecordSummary';
 
 export type NameAnswer = { ok?: boolean; name?: string };
@@ -21,13 +22,12 @@ type Props = {
   onHow: () => void;
 };
 
-/** 근거 점을 한 줄에 그리는 상한. 넘으면 '+n' */
-const DOTS = 6;
 /** 고른 노드 분석에 보이는 근거 줄 상한(덩어리 안 항목 5개) */
 const ITEMS = 5;
 
 /**
- * 경험 지도 옆 칸 '그래프 분석'. 묶음 목록(이름 출처 표시)과, 아무것도 고르지 않았을 때 중심 활동 · 연결고리 · 이어질 수 있는 활동 · 아직 이어지지 않은 활동.
+ * 경험 지도 옆 칸 '지도에서 찾은 것'. 묶음 목록과, 아무것도 고르지 않았을 때 가장 많이 이어진 활동, 두 묶음을 잇는 활동, 이어 갈 기회, 아직 따로 있는 활동.
+ * 배워야 하는 말(규칙 수, 중심성, 연결고리)은 쓰지 않는다. 만든 방법의 숫자는 '어떻게 만들었나' 모달에만 둔다.
  * 묶음을 누르면 그 묶음으로 확대하고 그 아래에 분석이 펼쳐진다. 활동·역량을 골랐으면 맨 위에 그 노드의 분석을 둔다.
  * 중심성 같은 값은 숫자로 내지 않고 '가장 많이 이어진' 같은 말로만 쓴다.
  */
@@ -53,7 +53,7 @@ export function ClusterPanel({ graph, selected, onSelect, onOpen, onName, onHow 
               <button type="button" className="xg-cl" aria-pressed={on} aria-expanded={on} onClick={() => onSelect(on ? null : { kind: 'cluster', id: c.id }, !on)}>
                 <span className="xg-cl__mark" aria-hidden="true">{clusterGroups(graph, c.id).slice(0, 3).map(g => <i key={g} className={`an-g--${g}`} />)}</span>
                 <span className="xg-cl__name">{c.name}</span>
-                {isTentative(c) ? <span className="xg-src xg-src--ai">AI 제안</span> : c.source === 'llm' ? <span className="xg-src">내가 정함</span> : null}
+                {isTentative(c) ? <AiMark /> : c.source === 'llm' ? <span className="xg-src">내가 정함</span> : null}
                 <span className="xg-cl__n">활동 <b className="num">{c.recordIds.length}</b>개</span>
               </button>
               {insight && <Insight insight={insight} graph={graph} onName={onName} />}
@@ -90,7 +90,7 @@ function NodeInsight({ graph, focus, onSelect, onOpen }: NodeProps) {
               <button type="button" className="xg-node__item" onClick={() => onSelect(record ? { kind: 'axis', id: it.id } : { kind: 'node', id: it.id }, true)}>
                 <ConfirmDot state={it.confirmed ? 'confirmed' : 'estimated'} />
                 <span className="xg-node__label">{it.label}</span>
-                <span className="xg-node__state">{it.confirmed ? '확인' : 'AI 추정'}</span>
+                {it.confirmed ? <span className="xg-node__state">확인</span> : <AiMark />}
               </button>
             </li>
           ))}
@@ -117,19 +117,12 @@ function Insight({ insight, graph, onName }: { insight: ClusterInsight; graph: K
       <h4 className="xg-in__h">근거가 된 역량</h4>
       {axes.length === 0 ? <p className="an-muted">근거를 모두 뺐어요. 회고를 더 쓰면 다시 모여요.</p> : (
         <ul className="xg-in__axes">
-          {axes.slice(0, 3).map(a => {
-            const dots = [...Array(a.confirmed).fill('confirmed'), ...Array(a.estimated).fill('estimated')] as ('confirmed' | 'estimated')[];
-            return (
-              <li key={a.axis}>
-                <span className="xg-in__axis">{a.label}</span>
-                <span className="xg-in__dots" role="img" aria-label={`확인 ${a.confirmed}개, AI 추정 ${a.estimated}개`}>
-                  {dots.slice(0, DOTS).map((d, i) => <span key={i} className={`ui-dot ui-dot--${d}`} />)}
-                  {dots.length > DOTS && <span className="xg-in__more">+{dots.length - DOTS}</span>}
-                </span>
-                <span className="xg-in__count">확인 {a.confirmed} · AI 추정 {a.estimated}</span>
-              </li>
-            );
-          })}
+          {axes.slice(0, 3).map(a => (
+            <li key={a.axis}>
+              <span className="xg-in__axis">{a.label}</span>
+              <EvidenceBar confirmed={a.confirmed} total={a.confirmed + a.estimated} max={Math.max(...axes.slice(0, 3).map(x => x.confirmed + x.estimated))} />
+            </li>
+          ))}
         </ul>
       )}
       {quotes.length > 0 && (
@@ -172,7 +165,7 @@ function NameWhy({ cluster, onName }: { cluster: Cluster; onName: Props['onName'
   return (
     <>
       <p className="xg-in__name">
-        <span className="xg-src xg-src--ai">{isTentative(cluster) ? 'AI 제안' : '내가 정함'}</span>
+        {isTentative(cluster) ? <AiMark /> : <span className="xg-src">내가 정함</span>}
         <span>{cluster.summary ?? '맞는 키워드가 없어 AI가 지었어요'}</span>
       </p>
       {editing ? (
@@ -190,12 +183,15 @@ function NameWhy({ cluster, onName }: { cluster: Cluster; onName: Props['onName'
   );
 }
 
-/** 'A과 B를 나눠요' 를 받침에 맞춰 */
-const shareText = (cluster: string, keywords: string[], axes: number) =>
-  keywords.length ? `${cluster} 묶음과 ‘${keywords.join('·')}’ 키워드가 겹쳐요` : `${cluster} 묶음과 역량 ${axes}개가 겹쳐요`;
+/** 기회가 왜 이 묶음과 이어지나: 같은 말을 다루거나, 같은 역량을 쓴다. 받침에 맞춰 */
+const shareText = (cluster: string, keywords: string[], axes: number) => {
+  if (!keywords.length) return `${cluster} 묶음과 같은 역량 ${axes}개를 써요`;
+  const kw = keywords.slice(0, 2).join('·');
+  return `${cluster} 묶음처럼 ‘${kw}’${josa(keywords[Math.min(1, keywords.length - 1)], '을', '를')} 다뤄요`;
+};
 
 
-/** 아무것도 고르지 않았을 때: 중심 활동, 연결고리, 이어질 수 있는 활동, 아직 이어지지 않은 활동. 한 줄씩 */
+/** 아무것도 고르지 않았을 때: 가장 많이 이어진 활동, 두 묶음을 잇는 활동, 이어 갈 기회, 아직 따로 있는 활동. 한 줄씩 */
 function KeyRows({ graph, onSelect }: { graph: KnowledgeGraph; onSelect: Props['onSelect'] }) {
   const { center, bridge, guesses, loose } = graph.analysis;
   const name = (id: string) => graph.clusters.find(c => c.id === id)?.name ?? '';

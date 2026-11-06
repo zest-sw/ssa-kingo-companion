@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
-import { Badge, Button, Card, Drawer, EmptyState, GhostPic, Modal } from '../../components';
-import { buildGraph, graphHeadline, withClusterNames, type ClusterNameAnswers, type GraphEdge, type GraphFocus, type KnowledgeGraph } from '../../domain/analysis/graph';
+import { AiMark, Badge, Button, Card, Drawer, EmptyState, GhostPic, Modal } from '../../components';
+import { buildGraph, withClusterNames, type ClusterNameAnswers, type GraphEdge, type GraphFocus, type KnowledgeGraph } from '../../domain/analysis/graph';
 import { answerEdge, clearRejected, type EdgeAnswers } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
 import { josaRo } from '../../domain/text';
@@ -68,10 +68,12 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
 
   return (
     <>
-      <Card className="os-card xg-card" title={graphHeadline(graph)} action={<GraphLegend />}>
+      {/* 결론 한 줄은 페이지 머리가 말한다. 카드는 그림만 */}
+      <Card className="os-card xg-card" aria-label="경험 지도">
         <div className="xg-body">
           <div className="xg-main">
             <MapGraph graph={graph} selected={shown} camera={camera} onSelect={select} onOpen={open} />
+            <GraphLegend />
             {rejected > 0 && (
               <p className="xg-note">
                 아니라고 한 이어짐 <b className="num">{rejected}</b>개는 숨겼어요.{' '}
@@ -89,10 +91,10 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
   );
 }
 
-/** 노드 종류 둘, 선 종류 셋. 확인 전 AI 는 점선 */
+/** 그림 아래 읽는 법 한 줄: 점 종류 둘, 선 종류 셋. 확인 전 AI 는 점선 */
 function GraphLegend() {
   return (
-    <ul className="an-legend an-legend--inline xg-legend" aria-label="그림 읽는 법">
+    <ul className="an-legend xg-legend" aria-label="그림 읽는 법">
       <li><span className="xg-key xg-key--axis" aria-hidden="true" />역량</li>
       <li><span className="xg-key xg-key--rec" aria-hidden="true" />활동</li>
       <li><span className="an-key xg-key--line" aria-hidden="true" />공통점으로 이음</li>
@@ -102,7 +104,7 @@ function GraphLegend() {
   );
 }
 
-const ORIGIN_LABEL = { rule: '공통점', llm: 'AI 추정', student: '내 확인' } as const;
+const ORIGIN_LABEL = { rule: '공통점', student: '내 확인' } as const;
 
 type DrawerProps = { edge?: GraphEdge; byId: Record<string, RecordItem>; answers: EdgeAnswers; onClose: () => void; answer: (id: string, a: 'yes' | 'no') => void };
 
@@ -117,11 +119,11 @@ function EdgeDrawer({ edge, byId, answers, onClose, answer }: DrawerProps) {
           <p className="an-edgewhy">{a.semester === b.semester ? `둘 다 ${semesterLabel(a.semester)}` : `${semesterLabel(a.semester)}에서 ${semesterLabel(b.semester)}${josaRo(semesterLabel(b.semester))}`}</p>
           <ul className="an-edgewhy-list" aria-label="이어진 이유">
             {(edge.reasons ?? []).map((r, i) => (
-              <li key={i}><span className={`xg-src${r.origin === 'llm' ? ' xg-src--ai' : ''}`}>{ORIGIN_LABEL[r.origin]}</span><span>{r.text}</span></li>
+              <li key={i}>{r.origin === 'llm' ? <AiMark /> : <span className="xg-src">{ORIGIN_LABEL[r.origin]}</span>}<span>{r.text}</span></li>
             ))}
           </ul>
           <p className="an-edgestate">
-            {edge.confirmed ? <Badge tone="green" icon="check">확인했어요</Badge> : edge.origin === 'llm' ? <Badge tone="dashed">AI 추정 · 확인 전</Badge> : <Badge>공통점으로 이음</Badge>}
+            {edge.confirmed ? <Badge tone="green" icon="check">확인했어요</Badge> : edge.origin === 'llm' ? <span className="xg-state">확인 전<AiMark /></span> : <Badge>공통점으로 이음</Badge>}
           </p>
           <p className="an-edgeq">두 활동이 이어진 게 맞아요?</p>
           <span className="an-answer">
@@ -145,7 +147,7 @@ function HowModal({ open, graph, onClose }: { open: boolean; graph: KnowledgeGra
       <div className="xg-howto">
         <section>
           <h3>1. 활동 잇기</h3>
-          <p className="xg-howto__n"><span>공통점 <b className="num">{n.rule}</b></span><span>AI <b className="num">{n.llm}</b></span><span>내 확인 <b className="num">{n.student}</b></span></p>
+          <p className="xg-howto__n"><span>공통점으로 <b className="num">{n.rule}</b>개</span><span>AI가 <b className="num">{n.llm}</b>개</span><span>내가 확인한 것 <b className="num">{n.student}</b>개</span></p>
           <ul><li>같은 분야·확인한 역량·다음 학기 줄기·같은 시리즈·함께 나온 말이 있으면 공통점으로 이어요.</li><li>회고 문장끼리 뜻이 닿으면 AI가 잇고, 확인 전엔 점선이에요.</li></ul>
         </section>
         <section>

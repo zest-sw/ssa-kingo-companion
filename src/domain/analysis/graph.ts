@@ -28,8 +28,6 @@ export type Cluster = { id: string; name: string; recordIds: string[]; source: N
 /** 학생이 AI 제안 이름에 한 답: 맞아요(ok) 또는 바꾼 이름 */
 export type ClusterNameAnswers = Record<string, { ok?: boolean; name?: string }>;
 
-/** 묶음 이름표 글자. 확인 전 AI 제안 이름은 'AI 제안: ' 을 붙인다(확인 전 AI 는 점선과 같은 뜻) */
-export const clusterLabel = (c: Cluster) => (c.source === 'llm' && !c.confirmed ? `AI 제안: ${c.name}` : c.name);
 /** AI 제안 이름은 사전 이름이 아니라서 학생이 확인해야 확정된다. 바꾼 이름은 학생이 정한 것이므로 확인으로 본다 */
 export const isTentative = (c: Cluster) => c.source === 'llm' && !c.confirmed;
 
