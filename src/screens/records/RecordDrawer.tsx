@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Button, Drawer } from '../../components';
 import { useApp } from '../../app/AppState';
 import { editedRecord, evidenceOf, usesRecord } from '../../domain/interview/record';
@@ -26,6 +26,13 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
   const { state, run } = useApp();
   const confirmed = r.confirmedAxes ?? [];
   const [editing, setEditing] = useState(false);
+  // 고치기 ↔ 폼은 누른 버튼이 사라지는 전환이라, 폼을 닫으면 '고치기'로 초점을 돌려준다(첫 그림 제외).
+  const actions = useRef<HTMLDivElement>(null);
+  const wasEditing = useRef(false);
+  useEffect(() => {
+    if (!editing && wasEditing.current) actions.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    wasEditing.current = editing;
+  }, [editing]);
   const card = cardOf(r);
   const meta = `${semesterLabel(r.semester)} · ${GROUP_LABEL[FIELD_GROUP[r.field]]}`;
   // 이 기록으로 확인한 발견이 있으면, 고쳤을 때 그 확인이 풀린다고 미리 알린다.
@@ -55,7 +62,7 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
         useForRecommend={r.useForRecommend}
         onUseForRecommend={useForRecommend => run({ type: 'record/setFlags', id: r.id, flags: { useForRecommend } }, { toast: useForRecommend ? '이 기록을 추천에 다시 써요.' : '이 기록은 추천과 발견에서 뺐어요.' })}
       />
-      <div className="rec-drawer__actions">
+      <div ref={actions} className="rec-drawer__actions">
         <Button icon="pencil" onClick={() => setEditing(true)}>고치기</Button>
         <Button variant="ghost" onClick={() => onDelete(r)}>삭제</Button>
       </div>
@@ -67,20 +74,29 @@ function EditForm({ r, card, warn, onCancel, onSave }: { r: RecordItem; card: Re
   const [title, setTitle] = useState(r.title);
   const [draft, setDraft] = useState<RecordCard>(card);
   const set = (s: CardStep, v: string) => setDraft({ ...draft, [s]: v });
-  const submit = () => onSave(editedRecord(r, title, draft));
+  const [error, setError] = useState(false);
+  const errId = useId();
+  const titleField = useRef<HTMLInputElement>(null);
+  // 제목이 비면 버튼을 끄는 대신 칸 옆에 이유를 쓰고 그 칸으로 보낸다.
+  const submit = () => {
+    if (!title.trim()) { setError(true); titleField.current?.focus(); return; }
+    onSave(editedRecord(r, title, draft));
+  };
   return (
     <form className="rec-form" onSubmit={e => { e.preventDefault(); submit(); }}>
       {warn && <p className="rec-form__warn">이 기록으로 확인한 발견이 있어요. 고치면 그 확인이 풀리고 다시 물어봐요.</p>}
       <label className="rec-form__field">제목
-        <input className="rec-input" value={title} onChange={e => setTitle(e.target.value)} />
+        {/* 고치기를 누르면 폼이 그 자리를 대신하므로 첫 칸으로 바로 간다 */}
+        <input ref={titleField} className="rec-input" name="title" autoComplete="off" autoFocus value={title} aria-invalid={error || undefined} aria-describedby={error ? errId : undefined} onChange={e => { setTitle(e.target.value); if (e.target.value.trim()) setError(false); }} />
+        {error && <span id={errId} className="rec-form__error" role="alert">제목을 써 주세요</span>}
       </label>
       {CARD_STEPS.map(s => (
         <label key={s} className="rec-form__field">{STEP_LABEL[s]}
-          <textarea className="rec-input" rows={2} value={draft[s] ?? ''} onChange={e => set(s, e.target.value)} />
+          <textarea className="rec-input" name={s} rows={2} value={draft[s] ?? ''} onChange={e => set(s, e.target.value)} />
         </label>
       ))}
       <div className="rec-drawer__actions">
-        <Button variant="primary" type="submit" disabled={!title.trim()}>저장</Button>
+        <Button variant="primary" type="submit">저장</Button>
         <Button variant="ghost" onClick={onCancel}>취소</Button>
       </div>
     </form>

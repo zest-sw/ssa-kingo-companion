@@ -43,12 +43,13 @@ export function PreviewStep(p: Props) {
       footer={
         <>
           <Button variant="ghost" disabled={p.saving} onClick={p.onPrev}>이전 질문</Button>
-          <Button variant="primary" className="iv-next" disabled={p.saving || !p.canSave || !p.energy} aria-busy={p.saving || undefined} aria-describedby={`${hid}-hint`} onClick={p.onSave}>
+          {/* 저장 중에는 disabled 대신 aria-disabled: 버튼이 꺼지면 초점이 body로 떨어진다. 두 번 누름은 save() 가 막는다 */}
+          <Button variant="primary" className="iv-next" disabled={!p.canSave || !p.energy} aria-disabled={p.saving || undefined} aria-busy={p.saving || undefined} aria-describedby={`${hid}-hint`} onClick={p.onSave}>
             {p.saving ? '저장하는 중' : '경험 카드 저장'}
           </Button>
         </>
       }
-      note={<span id={`${hid}-hint`}>{p.note ?? hint}</span>}
+      note={<span id={`${hid}-hint`} role="status">{p.note ?? hint}</span>}
     >
       <ProgressBar value={QUESTION_COUNT} max={QUESTION_COUNT} label="질문 순서" />
       <div className="iv-q" data-dir="fwd">
