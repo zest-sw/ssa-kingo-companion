@@ -74,5 +74,6 @@ img, svg { display: block; }
 .readable { max-width: var(--readable); }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  /* 반복 횟수도 1로: 무한 반복(로딩 반짝임)이 0.01ms 마다 돌면 오히려 깜빡인다 */
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
