@@ -122,7 +122,7 @@ export type HallEntry = {
 /** 명예의 전당 예시. 순위·점수 없이 선정 이유와 거쳐 온 활동만 둔다 */
 export const HALL: HallEntry[] = [
   {
-    id: 'hall-a', name: '지윤', dept: '통계학과', year: 4, group: 'ai', reason: '교내 해커톤 대상, 데이터 분석 멘토 2학기', start: '처음 시작 · 2학년 1학기',
+    id: 'hall-a', name: '지윤', dept: '통계학과', year: 4, group: 'ai', reason: '교내 해커톤 대상, 데이터 분석 멘토 2학기', start: '2학년 1학기에 시작',
     path: [
       { title: 'AI 특강', field: 'ai', when: '2-1' }, { title: '데이터 분석 스터디', field: 'data', when: '2-2' }, { title: '데이터 대회', field: 'data', when: '3-1' },
       { title: '교내 해커톤 대상', field: 'dev', when: '3-2', level: 3 }, { title: '데이터 분석 멘토', field: 'mentor', when: '4-1' }
@@ -130,7 +130,7 @@ export const HALL: HallEntry[] = [
     retro: '막힐 때마다 팀원에게 설명하다 보니 길이 보였다'
   },
   {
-    id: 'hall-d', name: '시우', dept: '소프트웨어학과', year: 4, group: 'plan', reason: '개발에서 서비스 기획으로, 교내 서비스 개선안 채택', start: '처음 시작 · 1학년 2학기',
+    id: 'hall-d', name: '시우', dept: '소프트웨어학과', year: 4, group: 'plan', reason: '개발에서 서비스 기획으로, 교내 서비스 개선안 채택', start: '1학년 2학기에 시작',
     path: [
       { title: '앱 개발 동아리', field: 'dev', when: '1-2' }, { title: '사용자 인터뷰 워크숍', field: 'research', when: '2-2' }, { title: '서비스 기획 부트캠프', field: 'product', when: '3 여름' },
       { title: '교내 서비스 개선안 채택', field: 'product', when: '4-1', level: 3 }
@@ -138,14 +138,14 @@ export const HALL: HallEntry[] = [
     retro: '코드를 짜던 습관이 화면 흐름을 그릴 때 도움이 됐다'
   },
   {
-    id: 'hall-b', name: '도현', dept: '경영학과', year: 3, group: 'plan', reason: '창업 경진대회 수상', start: '처음 시작 · 1학년 2학기',
+    id: 'hall-b', name: '도현', dept: '경영학과', year: 3, group: 'plan', reason: '창업 경진대회 수상', start: '1학년 2학기에 시작',
     path: [
       { title: '창업 특강', field: 'startup', when: '1-2' }, { title: '창업 동아리', field: 'startup', when: '2-1' }, { title: '창업 캠프', field: 'startup', when: '2 여름' }, { title: '창업 경진대회 수상', field: 'startup', when: '3-1' }
     ],
     retro: '고객 인터뷰 20번이 아이디어를 바꿨다'
   },
   {
-    id: 'hall-c', name: '하은', dept: '교육학과', year: 4, group: 'mentor', reason: '멘티에서 멘토, 운영진까지 3년', start: '처음 시작 · 1학년 1학기',
+    id: 'hall-c', name: '하은', dept: '교육학과', year: 4, group: 'mentor', reason: '멘티에서 멘토, 운영진까지 3년', start: '1학년 1학기에 시작',
     path: [
       { title: '학습 멘토링 · 멘티', field: 'mentor', when: '1-1' }, { title: '학습 멘토링 · 멘토', field: 'mentor', when: '2-1' }, { title: '글로벌 버디', field: 'global', when: '3-1' }, { title: '멘토링 운영진', field: 'mentor', when: '4-1' }
     ]

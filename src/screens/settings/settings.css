@@ -5,13 +5,17 @@
 
 .st-nav { align-self: start; }
 .st-nav ul { display: flex; flex-direction: column; gap: 1px; }
+/* 지금 항목은 사이드바처럼 면 대신 왼쪽 막대 + 굵은 글자 */
 .st-nav__link {
-  display: flex; align-items: center; gap: var(--space-2); min-height: var(--nav-item-h); padding: 0 var(--space-2);
+  position: relative; display: flex; align-items: center; gap: var(--space-2); min-height: var(--nav-item-h); padding: 0 var(--space-2) 0 var(--space-3);
   border-radius: var(--radius-sm); color: var(--ink-muted); text-decoration: none; font-weight: var(--weight-medium);
   transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
 }
 .st-nav__link:hover { background: var(--surface-hover); color: var(--ink); }
-.st-nav__link[aria-current='page'] { background: var(--grey-100); color: var(--ink); font-weight: var(--weight-bold); }
+.st-nav__link::before { content: ''; position: absolute; left: 0; top: var(--space-2); bottom: var(--space-2); width: var(--nav-mark); border-radius: var(--nav-mark); background: transparent; }
+.st-nav__link[aria-current='page'] { color: var(--ink); font-weight: var(--weight-bold); }
+.st-nav__link[aria-current='page']::before { background: var(--ink-strong); }
+.st-nav__link[aria-current='page'] svg { color: var(--primary); }
 .st-nav__link:focus-visible { border-radius: var(--radius-sm); }
 
 .st-body { --os-cover: var(--bg); min-width: 0; max-width: var(--st-body-max); }
@@ -54,7 +58,7 @@
 .st-input:focus-visible { border-color: var(--focus); border-radius: var(--radius-sm); }
 
 .st-foot { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); padding: var(--space-3) var(--space-5); border-top: var(--border); background: var(--surface-alt); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
-.st-foot__note { flex: 1; min-width: 0; font-size: var(--text-sm); color: var(--ink-muted); }
+.st-foot__note { flex: 1; min-width: 0; text-align: right; font-size: var(--text-sm); color: var(--ink-muted); }
 
 /* 공개 범위 */
 .st-status { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: var(--border); }

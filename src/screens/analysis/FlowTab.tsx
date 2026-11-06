@@ -63,7 +63,7 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
         title={flowHeadline(shown)} className="os-card fl-card"
         action={<>
           <Button size="sm" onClick={play} aria-pressed={playing}>{playing ? '멈추기' : '처음부터 보기'}</Button>
-          <Button size="sm" variant="ghost" icon="chevron" aria-haspopup="dialog" onClick={() => setSumOpen(true)}>고른 구간 비율</Button>
+          <Button size="sm" variant="ghost" icon="chevron" aria-haspopup="dialog" onClick={() => setSumOpen(true)}>분야 비율 보기</Button>
         </>}
       >
         <div className="fl-intro">
@@ -89,9 +89,9 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
         <RangePicker axis={axis} from={from} to={to} onMove={(which, v) => { setPlayAt(null); setRange(moveRange([from, to], which, v, last)); }} />
       </Card>
 
-      <Drawer open={sumOpen} onClose={() => setSumOpen(false)} eyebrow="고른 구간" title={`${semesterLabel(axis[from])}${from !== to ? ' ~ ' + semesterLabel(axis[to]) : ''}`}>
+      <Drawer open={sumOpen} onClose={() => setSumOpen(false)} eyebrow="분야 비율" title={`${semesterLabel(axis[from])}${from !== to ? ' ~ ' + semesterLabel(axis[to]) : ''}`}>
         {summary.total === 0
-          ? <p className="an-muted">이 구간에는 기록이 없어요. 손잡이를 옮겨 다른 학기를 골라 보세요.</p>
+          ? <p className="an-muted">이 학기들에는 기록이 없어요. 손잡이를 옮겨 다른 학기를 골라 보세요.</p>
           : <><Ratio segments={summary.segments} /><p className="an-muted">기록 <b className="num">{summary.total}</b>개를 모았어요.</p></>}
       </Drawer>
 

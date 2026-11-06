@@ -29,7 +29,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
   return (
     <Card
       className="os-card"
-      title="활동 지도"
+      title="분야마다 입문에서 심화까지"
       action={<SegmentedControl<View> label="보기 방식" value={mode} onChange={setMode} items={[{ id: 'graph', label: '그림으로 보기' }, { id: 'list', label: '지금 신청할 수 있는 것만' }]} />}
     >
       {mode === 'graph' ? (
@@ -39,11 +39,11 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
             <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} onFold={(row, col) => setStage({ row, col })} />
           </div>
           <ul className="an-legend" aria-label="그림 표시">
-            <li><span className="an-key an-key--done" aria-hidden="true" />한 활동(분야색)</li>
+            <li><span className="an-key an-key--done" aria-hidden="true" />한 활동</li>
             <li><span className="an-key an-key--ongoing" aria-hidden="true" />하는 중</li>
             <li><span className="an-key an-key--skipped" aria-hidden="true" />건너뛴 단계</li>
             <li><span className="an-key an-key--candidate" aria-hidden="true" />할 수 있는 활동</li>
-            <li><span className="an-key an-key--cross" aria-hidden="true" />노드를 누르면 다른 분야로 이어진 경로</li>
+            <li><span className="an-key an-key--cross" aria-hidden="true" />누르면 다른 분야로 이어진 길</li>
           </ul>
         </>
       ) : (
@@ -79,7 +79,7 @@ const KIND_LABEL = { done: '한 활동', ongoing: '하는 중', skipped: '건너
 function StageDrawer({ stage, onClose, onPick }: { stage: { row: TreeRow; col: number } | null; onClose: () => void; onPick: (c: TreeCell) => void }) {
   const cells = stage ? [...stage.row.cells.filter(c => c.col === stage.col), ...(stage.row.folds.find(f => f.col === stage.col)?.cells ?? [])] : [];
   return (
-    <Drawer open={!!stage} onClose={onClose} eyebrow={stage ? `노드 ${cells.length}개` : undefined} title={stage ? `${stage.row.label}의 ${TREE_COLUMNS[stage.col]}` : ''}>
+    <Drawer open={!!stage} onClose={onClose} eyebrow={stage ? `활동 ${cells.length}개` : undefined} title={stage ? `${stage.row.label}의 ${TREE_COLUMNS[stage.col]}` : ''}>
       <ul className="an-cands">
         {cells.map(c => <li key={c.id}><OpenRow cell={c} sub={KIND_LABEL[c.kind]} onPick={onPick} /></li>)}
       </ul>

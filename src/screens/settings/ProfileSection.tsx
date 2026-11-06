@@ -21,7 +21,7 @@ export function ProfileSection() {
   const toggle = (id: Interest) => edit(d => ({ interests: toggleInterest(d.interests, id) }));
 
   const save = () => {
-    run({ type: 'profile/save', profile: { ...draft, goal: draft.goal.trim() } }, { toast: '저장했어요. 바뀐 조건으로 추천을 다시 골랐어요.' });
+    run({ type: 'profile/save', profile: { ...draft, goal: draft.goal.trim() } }, { toast: '저장했어요. 추천을 다시 골랐어요' });
     setSaved(true);
   };
 
@@ -49,9 +49,10 @@ export function ProfileSection() {
         </label>
       </Group>
       <div className="st-foot">
-        <p className="st-foot__note" aria-live="polite">{dirty ? '바꾼 내용이 아직 저장되지 않았어요' : saved ? '저장했어요. 추천에 반영됐어요' : '지금 추천은 이 조건으로 골랐어요'}</p>
         {saved && !dirty && <Button variant="ghost" icon="compass" onClick={() => navigate('recommend')}>추천 보기</Button>}
         {dirty && <Button variant="ghost" onClick={() => setDraft(state.profile)}>되돌리기</Button>}
+        {/* 꺼진 버튼은 이유를 바로 옆에 둔다 */}
+        <p className="st-foot__note" aria-live="polite">{dirty ? '저장하면 추천을 다시 골라요' : '바꾼 것이 없어요'}</p>
         <Button variant="primary" disabled={!dirty} onClick={save}>저장하고 다시 고르기</Button>
       </div>
     </Card>

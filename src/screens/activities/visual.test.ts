@@ -19,7 +19,7 @@ describe('내 활동 요약 그림', () => {
     const far = weekOf([act({ due: { label: '마감', dday: 9 } })], '2026-10-13');
     expect(far.dues).toEqual([]);
     expect(far.farther).toBe(1);
-    expect(weekHeadline(far)).toBe('이번 주 마감 없음');
+    expect(weekHeadline(far)).toBe('이번 주 마감은 없어요');
   });
   it('회고 대기는 끝난 활동 수', () => expect(retroCount(SEED_ACTIVITIES)).toBe(3));
   it('축소 간트는 진행 중부터 3줄이고 비율은 0~1', () => {
@@ -32,7 +32,7 @@ describe('내 활동 요약 그림', () => {
   });
   it('일정 키워드', () => {
     expect(scheduleKeyword(SEED_ACTIVITIES)).toBe('진행 중 3 · 신청 준비·대기 5');
-    expect(scheduleKeyword([])).toBe('지금 하는 활동 없음');
+    expect(scheduleKeyword([])).toBe('지금 하는 활동이 없어요');
   });
   it('기록 격자는 학기 열 × 분야 행이고 개수를 센다', () => {
     const g = recordGrid(SEED_RECORDS);

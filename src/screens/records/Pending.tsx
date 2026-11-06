@@ -16,7 +16,7 @@ export function Pending() {
       activityId: a.id, title: a.title, field: a.field, programId: a.programId, kind: facts.kind, verification: facts.verified ? 'school' : 'self',
       date: CURRENT_TERM.date, semester: CURRENT_TERM.semester, card: facts.situation ? { situation: facts.situation } : {}
     });
-    run({ type: 'record/add', record, activityId: a.id }, { toast: '기록만 남겼어요. 기록에서 언제든 채울 수 있어요.', undoable: true });
+    run({ type: 'record/add', record, activityId: a.id }, { toast: '기록만 남겼어요. 회고는 나중에 써도 돼요.', undoable: true });
   };
   const drafts = Object.keys(state.drafts);
   const list = state.activities.filter(a => a.status === 'ended');

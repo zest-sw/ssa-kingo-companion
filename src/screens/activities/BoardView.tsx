@@ -26,7 +26,7 @@ function ColumnList({ id, list, onOpen }: { id: BoardColumn; list: Activity[]; o
       </ul>
       {settled.length > 0 && (
         <Button size="sm" variant="ghost" icon={more ? 'down' : 'chevron'} aria-expanded={more} onClick={() => setMore(m => !m)}>
-          {more ? '정리된 활동 접기' : `기록함·안 됨 ${settled.length}개 더 보기`}
+          {more ? '정리된 활동 접기' : `정리된 활동 ${settled.length}개 더 보기`}
         </Button>
       )}
     </>

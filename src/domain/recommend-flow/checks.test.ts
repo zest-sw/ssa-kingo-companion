@@ -10,7 +10,7 @@ describe('agentChecks: 에이전트가 확인한 것과 확인에 쓴 정보', (
     const rows = agentChecks(prog('p', { target: '전 학년', when: '10.20(화)' }), [], 1);
     expect(rows.map(r => [r.id, r.state])).toEqual([['target', 'ok'], ['schedule', 'ok']]);
     expect(rows[0].basis).toBe('모집 대상 전 학년');
-    expect(rows[1].basis).toBe('이번 주 내 일정이 없어요 · 여유');
+    expect(rows[1].basis).toBe('이번 주 내 일정이 없어요');
   });
   it('신청 대상이 아니거나 일정이 겹치면 warn', () => {
     const rows = agentChecks(prog('p', { eligible: false, when: '10.14(수) 18:30' }), [act({ schedule: '10.14(수) 18:30' })], 1);

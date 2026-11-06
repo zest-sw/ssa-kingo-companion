@@ -47,7 +47,7 @@ export function OppModal({ programId, actions, onClose }: { programId: string; a
   const closed = dday < 0;
   const chosen = state.choices[p.id];
   const useRecord = (id: string, on: boolean) =>
-    run({ type: 'record/setFlags', id, flags: { useForRecommend: on } }, { toast: on ? '이 기록을 다시 추천에 써요.' : '이 기록은 추천에 쓰지 않아요. 추천을 다시 골랐어요.', undoable: true });
+    run({ type: 'record/setFlags', id, flags: { useForRecommend: on } }, { toast: on ? '이 기록을 추천에 다시 써요.' : '이 기록은 추천에 쓰지 않아요. 추천을 다시 골랐어요.', undoable: true });
 
   return (
     <Modal
@@ -69,7 +69,7 @@ export function OppModal({ programId, actions, onClose }: { programId: string; a
           <a className="rec-link rec-modal__src" href={APPLY_URL} target="_blank" rel="noopener noreferrer">모집글 원문<Icon name="external" size={14} /><span className="sr-only">(새 탭)</span></a>
         </>
       }
-      note={<><Icon name="lock" size={14} />{p.eligible ? '신청은 내가 누를 때만 나가요' : '신청 대상이 아니라 신청 준비를 할 수 없어요'}</>}
+      note={<><Icon name="lock" size={14} />{p.eligible ? '신청은 내가 누를 때만 나가요' : '신청 대상이 아니라서 신청 준비가 꺼져 있어요'}</>}
     >
       <div className="rec-modal">
         <div className="rec-modal__col">
@@ -99,7 +99,7 @@ export function OppModal({ programId, actions, onClose }: { programId: string; a
         </div>
         <div className="rec-modal__col">
           <section className="rec-agentcheck" aria-labelledby="rec-agentcheck-h">
-            <h3 id="rec-agentcheck-h" className="rec-agentcheck__h"><Icon name="sparkle" size={14} />에이전트가 확인했어요</h3>
+            <h3 id="rec-agentcheck-h" className="rec-agentcheck__h">에이전트가 확인했어요</h3>
             <ul>
               {checks.map(c => (
                 <li key={c.id} className="rec-agentcheck__row" data-state={c.state}>
@@ -117,7 +117,7 @@ export function OppModal({ programId, actions, onClose }: { programId: string; a
               <ReasonTrace nodes={nodes} title={p.title} />
               {recordReasons.length > 0 && (
                 <details className="rec-runlog">
-                  <summary className="rec-runlog__head"><Icon name="chevron" size={14} />근거 기록 {recordReasons.length}개 · 추천에 쓸지 고르기</summary>
+                  <summary className="rec-runlog__head"><Icon name="chevron" size={14} />추천에 쓴 기록 {recordReasons.length}개</summary>
                   <ul className="rec-drawer__list">
                     {recordReasons.map(r => (
                       <li key={r.kind} className="rec-drawer__item">

@@ -75,16 +75,16 @@ export function Overview() {
                 <b className="act-retro__n num" aria-label={`회고 대기 ${retros.length}개`}>{retros.length}</b>
                 <ul className="act-retro__list">
                   {retros.slice(0, RETRO_SHOWN).map(a => (
-                    <li key={a.id}><button type="button" className="act-retro__item" onClick={() => navigate(`activities/records/interview/${a.id}`)}><span className="act-retro__name">{a.title}</span><span className="act-retro__label">회고 쓰기<Icon name="chevron" size={14} /></span></button></li>
+                    <li key={a.id}><button type="button" className="act-retro__item" aria-label={`${a.title} 회고 쓰기`} onClick={() => navigate(`activities/records/interview/${a.id}`)}><span className="act-retro__name">{a.title}</span><span className="act-retro__label" aria-hidden="true"><Icon name="chevron" size={14} /></span></button></li>
                   ))}
-                  {retros.length > RETRO_SHOWN && <li><button type="button" className="act-retro__item act-retro__more" onClick={() => navigate('activities/records/interview')}>외 {retros.length - RETRO_SHOWN}개</button></li>}
+                  {retros.length > RETRO_SHOWN && <li><button type="button" className="act-retro__item act-retro__more" onClick={() => navigate('activities/records/interview')}>{retros.length - RETRO_SHOWN}개 더 보기</button></li>}
                 </ul>
               </div>
             ) : <p className="act-retro__none">끝난 활동이 생기면 여기서 회고를 시작해요.</p>}
           </Card>
           <Card className="os-card act-month" title={monthTitle} aria-label="이번 달 일정" action={<Legend items={LEGEND} />}>
             <GanttRows label="이번 달 활동" range={month} today={PROTOTYPE_TODAY} rows={clipped.rows} onSelect={id => openEntity({ kind: 'activity', id })} empty="이번 달에 걸친 활동이 없어요. 추천에서 이번 달 활동을 골라 보세요." />
-            {clipped.hidden > 0 && <p className="act-now__far">나머지 {clipped.hidden}개는 일정에서 볼 수 있어요</p>}
+            {clipped.hidden > 0 && <p className="act-now__far">{clipped.hidden}개 더 있어요</p>}
           </Card>
         </div>
       </div>

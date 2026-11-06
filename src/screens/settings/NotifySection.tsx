@@ -23,7 +23,7 @@ export function NotifySection() {
         </Group>
         <Group title="받을 시각">
           <ul className="st-rows">
-            <Row title="하루 한 번 이 시각에" sub={anyOn ? '활동 전날 알림도 이 시각에 와요' : '켜 둔 알림이 없어요. 위에서 하나를 켜 보세요'}>
+            <Row title="하루 한 번 이 시각에" sub={anyOn ? '활동 전날 알림도 이 시각에 와요' : '켜 둔 알림이 없어요. 받을 알림을 하나 켜 보세요'}>
               <SegmentedControl label="받을 시각" items={NOTIFY_HOURS} value={`${n.hour}`} onChange={id => run({ type: 'notify/set', patch: { hour: Number(id) as NotifyHour } })} />
             </Row>
           </ul>

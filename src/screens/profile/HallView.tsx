@@ -24,10 +24,10 @@ export function HallView() {
   const people = useMemo(() => byJoined(HALL, HALL_JOINED), []);
 
   const join = () => {
-    run({ type: 'visibility/set', patch: { hallOfFameConsent: true } }, { toast: '명예의 전당에 올라가요. 설정에서 언제든 내릴 수 있어요.' });
+    run({ type: 'visibility/set', patch: { hallOfFameConsent: true } }, { toast: '명예의 전당에 올라갔어요. 언제든 내릴 수 있어요' });
     setAsking(false);
   };
-  const leave = () => run({ type: 'visibility/set', patch: { hallOfFameConsent: false } }, { toast: '명예의 전당에서 내렸어요.' });
+  const leave = () => run({ type: 'visibility/set', patch: { hallOfFameConsent: false } }, { toast: '명예의 전당에서 내렸어요' });
 
   return (
     <div className="hall-scene" data-enter={cssEnter || undefined}>
@@ -52,11 +52,11 @@ export function HallView() {
 
       <Modal
         open={asking}
-        title="명예의 전당에 올라갈까요?"
+        title="명예의 전당에 올라가요"
         onClose={() => setAsking(false)}
-        actions={<><Button onClick={() => setAsking(false)}>그만둘게요</Button><Button variant="primary" onClick={join}>올라갈게요</Button></>}
+        actions={<><Button onClick={() => setAsking(false)}>취소</Button><Button variant="primary" onClick={join}>올라가기</Button></>}
       >
-        <p>프로필 공개와 따로 받는 동의예요. 공개한 활동 경로와 고른 회고가 다른 학생에게 전시돼요. 순위와 점수는 없고, 언제든 내릴 수 있어요.</p>
+        <p>프로필 공개와 따로 받는 동의예요. 공개한 활동 경로와 고른 회고가 다른 학생에게 보여요. 순위와 점수는 없고, 언제든 내릴 수 있어요.</p>
       </Modal>
     </div>
   );

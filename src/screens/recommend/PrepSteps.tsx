@@ -52,7 +52,7 @@ export function DraftStep({ draft, team, revised, revising, onRetry }: { draft: 
         <div className="rec-draft__body">
           <section><h3>지원 동기</h3><p>{draft.draft.motivation}</p></section>
           <section>
-            <h3>관련 경험 · 기록 보관함에서 가져옴</h3>
+            <h3>경험 · 내 기록에서 가져왔어요</h3>
             {draft.draft.related.length === 0
               ? <p className="rec-muted">가져올 기록이 아직 없어요. 회고를 쓰면 여기에 들어가요.</p>
               : <ul className="rec-draft__chips">{draft.draft.related.map(r => <li key={r.id}><Badge tone="navy">{r.title}</Badge></li>)}</ul>}

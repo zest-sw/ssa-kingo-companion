@@ -22,13 +22,13 @@ describe('분석 요약 그림', () => {
     expect(semesterShort('2026-여름')).toBe('26 여름');
   });
   it('경험 지도 머리말은 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량', () => {
-    // 예시 학생: 가장 큰 묶음 이름 → 그 묶음의 첫 요약 선 역량 · 그 선의 근거 수
+    // 예시 학생: 가장 큰 묶음 이름, 그 묶음의 첫 요약 선 역량, 그 선의 근거 수
     const g = buildGraph(SEED_RECORDS, {});
     const top = clusterLinks(g, 1, 1).find(l => l.cluster === g.clusters[0].id)!;
     const label = AXES.find(a => a.id === top.axis)!.label;
-    expect(mapHeadline(SEED_RECORDS)).toBe(`${g.clusters[0].name} → ${label} · 근거 ${top.count}${top.confirmed ? '' : ' · 확인 전'}`);
+    expect(mapHeadline(SEED_RECORDS)).toBe(`${g.clusters[0].name} 활동에서 ${label} 근거가 ${top.count}개 나왔어요${top.confirmed ? '' : ' · 확인 전'}`);
     expect(mapHeadline([])).toBe('회고를 쓰면 활동 묶음이 생겨요');
-    expect(mapHeadline([rec('x', { field: 'research', did: 'listen', axes: ['communication'] })])).toBe('사용자 리서치 → 소통 · 근거 1 · 확인 전');
+    expect(mapHeadline([rec('x', { field: 'research', did: 'listen', axes: ['communication'] })])).toBe('사용자 리서치 활동에서 소통 근거가 1개 나왔어요 · 확인 전');
   });
   it('관심 흐름은 큰 조각에 이름을 붙이고 머리말은 몇 학기째인지 말한다', () => {
     const rows = buildFlow(recs, ['2026-1', '2026-2']);
@@ -36,7 +36,7 @@ describe('분석 요약 그림', () => {
     expect(bars[0].segments.filter(s => s.main)).toHaveLength(1);
     expect(bars[1].segments.filter(s => s.main)).toHaveLength(2);
     expect(bars[1].segments.find(s => s.main)?.name).toBe('창업·기획');
-    expect(flowHeadline(rows)).toBe('26-1부터 창업·기획');
+    expect(flowHeadline(rows)).toBe('2026-1학기부터 창업·기획을 이어 하고 있어요');
     expect(flowHeadline([])).toBe('회고를 쓰면 흐름이 보여요');
   });
   it('발견 도식은 짧은 질문과 근거 기록 이름을 준다', () => {

@@ -21,8 +21,8 @@ export const QUOTE_HINTS: Record<Did, string[]> = {
   present: ['설명하면서 생각이 정리됐다', '질문에 바로 답하기 어려웠다', '다음엔 더 짧게 말하고 싶다']
 };
 export const DISLIKES: { id: DislikeKind; label: string; effect: string; toast: string }[] = [
-  { id: 'time', label: '시간이 안 맞아요', effect: '이 활동을 빼고 다시 골라요', toast: '이 활동을 빼고 다시 골랐어요.' },
-  { id: 'field', label: '관심 없는 분야예요', effect: '이 분야는 덜 추천해요', toast: '이 분야는 덜 추천할게요. 다시 골랐어요.' },
-  { id: 'done', label: '이미 해 본 활동이에요', effect: '목록에서 빼요', toast: '해 본 활동으로 빼고 다시 골랐어요.' },
-  { id: 'hard', label: '너무 어려워 보여요', effect: '입문 활동부터 추천해요', toast: '입문 활동 위주로 다시 골랐어요.' }
+  { id: 'time', label: '시간이 안 맞아요', effect: '이 활동을 빼고 다시 골라요', toast: '관심 없음으로 뺐어요. 추천을 다시 골랐어요.' },
+  { id: 'field', label: '관심 없는 분야예요', effect: '이 분야는 덜 추천해요', toast: '관심 없음으로 뺐어요. 이 분야는 덜 추천해요.' },
+  { id: 'done', label: '이미 해 본 활동이에요', effect: '목록에서 빼요', toast: '관심 없음으로 뺐어요. 해 본 활동은 다시 추천하지 않아요.' },
+  { id: 'hard', label: '너무 어려워 보여요', effect: '입문 활동부터 추천해요', toast: '관심 없음으로 뺐어요. 입문 활동부터 추천해요.' }
 ];

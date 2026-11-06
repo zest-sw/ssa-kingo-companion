@@ -213,7 +213,7 @@ export function buildStory(input: StoryInput): Story {
     proofs.push({
       kind: 'flow', title: '관심 흐름', route: ROUTE.flow, pic: { kind: 'flow', steps: steps.map(s => ({ year: year(s), group: s.group })) },
       line: steps.length > 1 ? `${GROUP_LABEL[first.group]}에서 ${ro(GROUP_LABEL[last.group])} 모였어요` : `${ro(GROUP_LABEL[first.group])} 시작했어요`,
-      value: steps.length > 1 ? `${year(first)}→${year(last)}` : first.years
+      value: steps.length > 1 ? `${Number(year(last)) - Number(year(first)) + 1}년 동안` : first.years
     });
   }
   if (depth) {

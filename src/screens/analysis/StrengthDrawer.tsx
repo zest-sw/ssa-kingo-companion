@@ -34,7 +34,7 @@ export function StrengthDrawer({ strength, records, programs, onClose }: Props) 
                     <ConfirmDot state={e.confirmed ? 'confirmed' : 'estimated'} />
                     <span className="an-sd__body">
                       <span className="an-sd__text">{e.text}</span>
-                      <span className="an-sd__meta">{e.title} · {semesterLabel(e.semester)} · {GROUP_LABEL[e.group]}</span>
+                      <span className="an-sd__meta">{e.title} · {semesterLabel(e.semester)}</span>
                       {!e.confirmed && (
                         <span className="an-sd__ask" role="group" aria-label={`${e.title}이 ${s.label} 근거가 맞나요?`}>
                           <Button size="sm" onClick={() => answer(e.recordId, true)}>맞아요</Button>
@@ -56,9 +56,9 @@ export function StrengthDrawer({ strength, records, programs, onClose }: Props) 
             </section>
           )}
           <section aria-labelledby="an-sd-use">
-            <h3 id="an-sd-use" className="an-sub">쓸 수 있는 곳</h3>
+            <h3 id="an-sd-use" className="an-sub">쓸 곳</h3>
             <ChanceList axis={s.axis} label={s.label} chances={chancesFor(s.axis, programs, 2)} />
-            <h4 className="an-sd__h4">신청서에 쓸 수 있는 문장</h4>
+            <h4 className="an-sd__h4">신청서에 쓸 문장</h4>
             {sentences.length > 0
               ? <ul className="an-sd__quotes">{sentences.map(t => <li key={t}>{t}</li>)}</ul>
               : <p className="an-muted">근거를 '맞아요'로 확인하면 여기 모여요.</p>}

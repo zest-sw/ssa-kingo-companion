@@ -4,7 +4,8 @@ import { discoveryQuestion } from './discovery';
 import type { FlowRow, FlowSegment } from './flow';
 import { buildGraph, graphHeadline } from './graph';
 import type { EdgeAnswers } from './map';
-import { semesterKey } from './semester';
+import { semesterKey, semesterLabel } from './semester';
+import { josa } from '../text';
 import { leadStrengths, type Strength } from './strengths';
 import type { TechTree } from './techtree';
 
@@ -27,7 +28,7 @@ function topBy<T>(list: T[], n: (t: T) => number): T | undefined {
 // 테크 트리 머리말은 난이도 규칙과 함께 techtree.ts 에 있다. 요약 화면은 여기서 가져간다.
 export { treeHeadline, treeValue } from './techtree';
 
-/** 경험 지도 머리말: 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량. '사용자 리서치 → 소통 · 근거 4' */
+/** 경험 지도 머리말: 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량. '사용자 리서치 활동에서 소통 근거가 4개 나왔어요' */
 export const mapHeadline = (records: RecordItem[], answers: EdgeAnswers = {}): string =>
   records.length === 0 ? '회고를 쓰면 활동 묶음이 생겨요' : graphHeadline(buildGraph(records, answers));
 
@@ -42,7 +43,7 @@ export function flowBars(rows: FlowRow[]): FlowBar[] {
   });
 }
 
-/** 관심 흐름 머리말: '26-1부터 창업·기획'. 마지막 학기의 가장 큰 분야가 몇 학기째인지로 '부터'/'에는'을 가른다. */
+/** 관심 흐름 머리말: '2026-1학기부터 창업·기획을 이어 하고 있어요'. 마지막 학기의 가장 큰 분야가 몇 학기째인지로 '부터'/'에는'을 가른다. */
 export function flowHeadline(rows: FlowRow[]): string {
   const seen = rows.filter(r => r.total > 0);
   if (seen.length === 0) return '회고를 쓰면 흐름이 보여요';
@@ -51,7 +52,7 @@ export function flowHeadline(rows: FlowRow[]): string {
   const group = topOf(last);
   let from = seen.length - 1;
   while (from > 0 && topOf(seen[from - 1]) === group) from--;
-  return from < seen.length - 1 ? `${semesterShort(seen[from].semester)}부터 ${GROUP_LABEL[group]}` : `${semesterShort(last.semester)}에는 ${GROUP_LABEL[group]}`;
+  return from < seen.length - 1 ? `${semesterLabel(seen[from].semester)}부터 ${GROUP_LABEL[group]}${josa(GROUP_LABEL[group], '을', '를')} 이어 하고 있어요` : `${semesterLabel(last.semester)}에는 ${GROUP_LABEL[group]}${josa(GROUP_LABEL[group], '을', '를')} 가장 많이 했어요`;
 }
 
 export type DiscoveryPic = { question: string; evidence: { id: string; label: string; full: string }[]; more: number; target: string };

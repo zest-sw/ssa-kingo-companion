@@ -28,7 +28,7 @@ export function Gate({ opens }: { opens: Opens }) {
         <div className="fr-gate__head">
           <span className="fr-gate__icon"><Icon name="lock" size={20} /></span>
           <h2 className="fr-gate__title">공개하면 열려요</h2>
-          <p className="fr-gate__sub">지금은 내 기록을 나만 봐요. 공개하면 아래를 쓸 수 있고, 언제든 거둘 수 있어요.</p>
+          <p className="fr-gate__sub">지금은 나만 봐요. 공개해도 언제든 비공개로 돌릴 수 있어요.</p>
         </div>
         <ul className="fr-gate__list">
           {opens.map(o => (
@@ -38,7 +38,7 @@ export function Gate({ opens }: { opens: Opens }) {
             </li>
           ))}
         </ul>
-        <Button variant="primary" onClick={() => navigate('settings/visibility')}>공개 범위 설정</Button>
+        <Button variant="primary" onClick={() => navigate('settings/visibility')}>공개 범위 정하기</Button>
       </Card>
       <Preview opens={opens} />
     </div>

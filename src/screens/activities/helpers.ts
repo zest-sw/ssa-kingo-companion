@@ -32,9 +32,9 @@ export function nextLine(a: Activity): string {
       return left > 0 ? `신청 준비가 ${left}개 남았어요` : '신청 준비를 이어서 해요';
     }
     case 'applied': return '결과를 기다리는 중이에요';
-    case 'ongoing': return '진행 중이에요. 끝나면 회고를 쓸 수 있어요';
+    case 'ongoing': return '진행 중이에요. 끝나면 회고를 써요';
     case 'ended': return '끝났어요. 회고를 쓰면 기록으로 남아요';
     case 'recorded': return '회고가 기록으로 남았어요';
-    case 'declined': return '이번엔 안 됐어요. 다음 모집에서 다시 볼 수 있어요';
+    case 'declined': return '이번엔 안 됐어요. 다음 모집이 열리면 알려 줄게요';
   }
 }

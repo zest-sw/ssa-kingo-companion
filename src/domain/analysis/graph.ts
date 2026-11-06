@@ -211,14 +211,14 @@ export function clusterLinks(g: KnowledgeGraph, perCluster = 3, min = 2): Cluste
   });
 }
 
-/** 요약 카드 머리말: 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량. '사용자 리서치 → 소통 · 근거 4'. 확인한 근거가 없으면 '확인 전'을 붙인다. */
+/** 경험 지도 머리말(결론 한 문장): 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량. '사용자 리서치 활동에서 소통 근거가 4개 나왔어요'. 확인한 근거가 없으면 '확인 전'을 붙인다. */
 export function graphHeadline(g: KnowledgeGraph): string {
   const top = g.clusters[0];
   if (!top) return '회고를 쓰면 활동 묶음이 생겨요';
   const link = clusterLinks(g, 1, 1).find(l => l.cluster === top.id);
-  if (!link) return `${top.name} · 활동 ${top.recordIds.length}개`;
+  if (!link) return `${top.name} 활동 ${top.recordIds.length}개가 모였어요`;
   const label = AXES.find(a => a.id === link.axis)!.label;
-  return `${top.name} → ${label} · 근거 ${link.count}${link.confirmed ? '' : ' · 확인 전'}`;
+  return `${top.name} 활동에서 ${label} 근거가 ${link.count}개 나왔어요${link.confirmed ? '' : ' · 확인 전'}`;
 }
 
 /** 강조한 선이 역량마다 몇 개 닿았나. 관계 이름을 선마다 붙이지 않고 허브 옆에 '근거 n' 으로 한 번만 쓴다. */

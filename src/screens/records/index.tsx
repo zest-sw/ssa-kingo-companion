@@ -29,8 +29,8 @@ function Gate({ id }: { id: string }) {
 
   // 기록으로 돌아가는 길은 빵부스러기가 맡는다. 여기 버튼은 다른 곳으로만 보낸다.
   const message = !activity ? '찾을 수 없는 활동이에요. 회고를 기다리는 활동에서 골라 주세요.'
-    : activity.status === 'recorded' ? '이 활동은 이미 기록했어요. 위의 기록에서 볼 수 있어요.'
-    : '아직 끝나지 않은 활동이에요. 끝나면 회고를 쓸 수 있어요.';
+    : activity.status === 'recorded' ? '이 활동은 이미 기록했어요.'
+    : '아직 끝나지 않은 활동이에요. 끝나면 회고를 써요.';
   const action = !activity ? <Button variant="primary" onClick={() => navigate('activities/records/interview')}>회고 목록 보기</Button>
     : activity.status === 'recorded' ? undefined
     : <Button variant="primary" onClick={() => navigate('activities/schedule')}>일정 보기</Button>;

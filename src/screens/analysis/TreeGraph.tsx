@@ -59,7 +59,7 @@ export function TreeGraph({ tree, onOpen, onCandidate, onFold }: {
                 </button>
               ))}
               {row.folds.filter(f => f.col === col).map(f => (
-                <button key="more" ref={nodeRef(foldId(row, col))} type="button" className="an-pill an-pill--more" aria-haspopup="dialog" onClick={() => onFold(row, col)} aria-label={`${row.label} ${name}: 노드 ${f.cells.length}개 더 보기`}>
+                <button key="more" ref={nodeRef(foldId(row, col))} type="button" className="an-pill an-pill--more" aria-haspopup="dialog" onClick={() => onFold(row, col)} aria-label={`${row.label} ${name}: 활동 ${f.cells.length}개 더 보기`}>
                   +{f.cells.length}
                 </button>
               ))}

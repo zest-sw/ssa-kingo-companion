@@ -32,18 +32,18 @@ export function Plaza() {
 
   const doors: Door[] = [
     {
-      kind: 'board', path: 'recommend', name: '퀘스트 게시판', sub: '활동 탐색',
+      kind: 'board', path: 'recommend', name: '퀘스트 게시판', sub: '나에게 맞춘 추천 활동',
       facts: <>새 퀘스트 <b className="num">{view.newCount}</b>{near !== undefined && <> · 가까운 마감 <b className="num">{ddayText(near)}</b></>}</>,
       // 추천 퀘스트 = 이야기의 다음 한 걸음(나의 분석·추천과 같은 후보)
-      line: next ? next.title : '관심 분야를 고르면 퀘스트가 붙어요'
+      line: next ? next.title : '관심 분야를 고르면 퀘스트가 생겨요'
     },
     {
-      kind: 'hall', path: 'profile/hall', name: '명예의 전당', sub: '먼저 걸어온 길',
-      facts: <>걸어온 길 <b className="num">{HALL.length}</b></>,
+      kind: 'hall', path: 'profile/hall', name: '명예의 전당', sub: '먼저 간 사람들의 길',
+      facts: <><b className="num">{HALL.length}</b>명의 이야기</>,
       line: (
         <span className="home-door__faces" aria-label={`최근 오른 사람 ${recent.map(h => h.name).join(', ')}`}>
           {recent.map(h => <span key={h.id} className="home-door__face" aria-hidden="true">{h.name.slice(0, 1)}</span>)}
-          <span className="home-door__faces-label" aria-hidden="true">최근</span>
+          <span className="home-door__faces-label" aria-hidden="true">최근 오른 사람</span>
         </span>
       ),
       onClick: e => enterHall(e, 'profile/hall')
@@ -51,7 +51,7 @@ export function Plaza() {
     {
       kind: 'square', path: 'profile/recruit', name: '광장 게시판', sub: '친구 · 팀원 모집',
       facts: <>모집 글 <b className="num">{posts}</b> · 친구 요청 <b className="num">{incoming.length}</b></>,
-      line: open ? '함께할 사람을 찾아보세요' : '프로필을 공개하면 열려요'
+      line: open ? '함께할 사람을 찾아봐요' : '프로필을 공개하면 열려요'
     }
   ];
 

@@ -31,7 +31,7 @@ export function EvidenceDots({ strength }: { strength: Strength }) {
 export function ChanceList({ axis, label, chances }: { axis: Axis; label: string; chances: StrengthChance[] }) {
   const { state } = useApp();
   if (chances.length === 0) {
-    return <EmptyState icon="compass" message={`지금 후보 중에는 ${label}${josa(label, '을', '를')} 쓰는 기회가 없어요. 추천에서 다른 기회를 볼 수 있어요.`} action={<Button size="sm" onClick={() => navigate('recommend')}>추천 보기</Button>} />;
+    return <EmptyState icon="compass" message={`지금 후보 중에는 ${label}${josa(label, '을', '를')} 쓰는 기회가 없어요.`} action={<Button size="sm" onClick={() => navigate('recommend')}>추천 보기</Button>} />;
   }
   return (
     <ul className="an-chances" aria-label={`${label} 쓸 수 있는 기회`}>

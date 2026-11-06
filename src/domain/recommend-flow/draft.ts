@@ -40,7 +40,7 @@ export function writeDraft(p: Program, records: RecordItem[], goal: string, revi
   const detail = !ev ? '' : ev === first ? ` 그때 ${evText}` : ` ${ev.title}에서는 ${evText}`;
   const aim = goal ? ` ${goal}${josa(goal, '을', '를')} 목표로 하고 있어` : '';
   // 기록이 없는 학생(새 학생)에게 '경험을 이어 간다'고 쓰지 않는다. 기록에 없는 말은 지어내지 않는다.
-  const close = `‘${p.title}’${josa(p.title, '을', '를')} 통해 ${field} ${first ? '경험을 이어 가고' : '첫 경험을 쌓고'} 싶어 지원합니다.`;
+  const close = `‘${p.title}’에서 ${field} ${first ? '경험을 이어 가고' : '첫 경험을 쌓고'} 싶어 지원합니다.`;
   const notes = revisions.map(r => r.note?.trim()).filter((n): n is string => !!n).map(n => (/[.!?]$/.test(n) ? n : `${n}.`));
   const tail = notes.length ? ` ${notes.join(' ')}` : '';
   const body = last === 'shorter'

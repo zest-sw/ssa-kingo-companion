@@ -11,7 +11,7 @@ export const CARD_STEPS: readonly CardStep[] = ['situation', 'role', 'action', '
 
 /** 위쪽 단계 칩. 마지막 '지나간 건 체크'는 카드 전체를 학생이 훑는 단계다 */
 export const STEP_LABEL: Record<Step, string> = {
-  situation: '상황', role: '역할', action: '한 일', result: '결과', learned: '배운 점', next: '다음에 해 볼 것', review: '지나간 건 체크'
+  situation: '상황', role: '역할', action: '한 일', result: '결과', learned: '배운 점', next: '다음 계획', review: '마지막 확인'
 };
 export const STEP_ORDER: readonly Step[] = [...CARD_STEPS, 'review'];
 

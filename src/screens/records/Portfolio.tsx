@@ -49,7 +49,7 @@ export function Portfolio() {
       ) : (
         <div className="pf__empty">
           {/* 기록으로 돌아가는 길은 빵부스러기가 맡는다(진입점 하나) */}
-          <EmptyState pic={<GhostPic kind="rows" labels={['', '']} />} message={`위의 기록 › 보관함에서 ${BUNDLE_MIN}~${BUNDLE_MAX}개를 고르면 경험 카드가 여기 모여요.`} />
+          <EmptyState pic={<GhostPic kind="rows" labels={['', '']} />} message={`기록의 보관함에서 ${BUNDLE_MIN}~${BUNDLE_MAX}개를 고르면 면접·서류에 낼 경험 카드 묶음이 생겨요.`} />
         </div>
       )}
     </div>

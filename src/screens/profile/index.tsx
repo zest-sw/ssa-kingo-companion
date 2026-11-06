@@ -22,16 +22,16 @@ const TITLE: Record<Sub, string> = { friends: '친구', recruit: '팀원 모집'
 
 const OPENS: Record<Sub, { icon: IconName; title: string; sub: string }[]> = {
   friends: [
-    { icon: 'friends', title: '친구 찾기', sub: '비슷한 학생과 서로 수락해서 친구 맺기' },
-    { icon: 'flag', title: '이 활동을 해 본 친구·선배', sub: '내 활동을 먼저 해 본 사람 보기' }
+    { icon: 'friends', title: '친구 찾기', sub: '비슷한 학생과 서로 수락하면 친구가 돼요' },
+    { icon: 'flag', title: '이 활동을 해 본 친구·선배', sub: '내 활동을 먼저 해 본 사람의 길' }
   ],
   recruit: [
-    { icon: 'flag', title: '모집 글 올리기', sub: '대회·해커톤·공모전에 함께할 팀원 구하기' },
-    { icon: 'friends', title: '관심 있는 학생에게 먼저', sub: '같은 기회에 관심을 표시한 공개 학생에게 먼저 보여요' }
+    { icon: 'flag', title: '모집 글 올리기', sub: '대회, 해커톤, 공모전에 함께할 팀원 구하기' },
+    { icon: 'friends', title: '관심 있는 학생에게 먼저', sub: '같은 기회에 관심을 표시한 학생이 먼저 봐요' }
   ],
   hall: [
-    { icon: 'trophy', title: '활동 경로 보기', sub: '먼저 걸어온 학생의 거쳐 온 활동' },
-    { icon: 'doc', title: '올라가는 건 따로 동의', sub: '공개한 학생 중 한 번 더 동의한 학생만 올라가요' }
+    { icon: 'trophy', title: '활동 경로 보기', sub: '먼저 걸어간 학생이 거쳐 온 활동' },
+    { icon: 'doc', title: '올라가려면 한 번 더 동의', sub: '공개한 학생 중 따로 동의한 학생만 올라가요' }
   ]
 };
 

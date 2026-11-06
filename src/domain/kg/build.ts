@@ -111,7 +111,7 @@ export function buildKg(records: RecordItem[], { answers = {}, llm = NO_LLM }: B
   for (const r of sorted) {
     for (const a of liveAxes(r)) {
       const yes = !!r.confirmedAxes?.includes(a);
-      edges.push({ id: `${r.id}>${a}`, type: 'evidence', from: r.id, to: axisId(a), weight: 1, origin: yes ? 'student' : 'llm', confidence: yes ? 1 : 0.6, reason: yes ? '내가 확인한 근거' : 'AI 가 추정한 근거' });
+      edges.push({ id: `${r.id}>${a}`, type: 'evidence', from: r.id, to: axisId(a), weight: 1, origin: yes ? 'student' : 'llm', confidence: yes ? 1 : 0.6, reason: yes ? '내가 확인한 근거' : 'AI가 추정한 근거' });
     }
     edges.push({ id: `${r.id}>fd`, type: 'inField', from: r.id, to: fieldId(FIELD_GROUP[r.field]), weight: 1, origin: 'rule', confidence: 1, reason: '분야' });
   }

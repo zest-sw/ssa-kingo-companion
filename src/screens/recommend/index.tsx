@@ -35,7 +35,7 @@ export default function RecommendScreen({ sub }: ScreenProps) {
         programs={view.later}
         laterUntil={state.laterUntil}
         onClose={() => setLaterOpen(false)}
-        onBack={p => { run({ type: 'candidate/clear', programId: p.id }, { toast: '추천 목록으로 돌려놨어요.' }); }}
+        onBack={p => { run({ type: 'candidate/clear', programId: p.id }, { toast: '추천에 다시 넣었어요.' }); }}
         onPrepare={p => { setLaterOpen(false); actions.onPrepare(p); }}
       />
     </>

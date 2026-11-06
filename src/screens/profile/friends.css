@@ -42,7 +42,7 @@
 .fr-people--requests { margin-bottom: var(--space-2); }
 .fr-person { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; }
 .fr-person__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.fr-person__name { font-weight: var(--weight-bold); }
+.fr-person__name { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); font-weight: var(--weight-bold); }
 .fr-person__sub { color: var(--ink-muted); font-size: var(--text-sm); overflow-wrap: anywhere; }
 .fr-doneby { padding: var(--space-2) 0; }
 
@@ -83,28 +83,9 @@
 .fr-quote__label { font-size: var(--text-sm); color: var(--ink-muted); }
 .fr-field select, .fr-field input { border-color: var(--line-strong); }
 
-/* 프로필 요약: 왼쪽 나·도전 과제, 오른쪽 소셜 요약 카드 */
-.pf-cols { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
-.pf-left { display: grid; grid-template-rows: auto auto; align-content: start; gap: var(--os-gap); min-height: 0; }
-.pf-right { display: grid; grid-template-rows: auto; align-content: start; gap: var(--os-gap); min-height: 0; }
-.pf-right > .pf-locked { grid-row: 1; }
-.pf-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
-.pf-locked__list { display: flex; flex-direction: column; margin: var(--space-3) 0 var(--space-4); }
-.pf-locked__item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; color: var(--ink-muted); }
-.pf-locked__item + .pf-locked__item { border-top: var(--border); }
-.pf-locked__name { flex: 1; color: var(--ink); font-weight: var(--weight-bold); }
-
-/* 프로필: 도전 과제 진행 */
-.pf-sentence { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); overflow-wrap: anywhere; }
-.pf-next { display: flex; flex-direction: column; gap: var(--space-6); margin-top: var(--space-6); }
-.pf-next__item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; gap: var(--space-4); }
-.pf-next__name { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: var(--weight-medium); overflow-wrap: anywhere; }
-.pf-next__name .ui-icon { color: var(--ink-muted); flex: none; }
 .fr-sub-title--first { margin-top: 0; }
 .fr-headline { margin-bottom: var(--space-4); font-size: var(--text-lg); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
 
-
-/* 소셜 요약 카드 셋: 아바타 줄 / 모집 글 수 막대 / 전당 경로 */
 
 /* 프로필 하위 화면(친구·팀원 모집·명예의 전당): 머리 한 줄 → 칸들이 남은 높이를 채운다 */
 .pf-sub { grid-template-rows: auto minmax(0, 1fr); }

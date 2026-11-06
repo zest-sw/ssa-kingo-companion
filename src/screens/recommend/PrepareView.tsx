@@ -121,7 +121,7 @@ export function PrepareView({ programId }: { programId: string }) {
     return <div className="os">{header}<div className="os__body os__body--fill"><PrepDone when={activity?.schedule || p.when} /></div></div>;
   }
 
-  const quit = <Button onClick={giveUp}>안 할래</Button>;
+  const quit = <Button onClick={giveUp}>그만두기</Button>;
   let footer;
   let note: React.ReactNode;
   if (step === 'todo') {
@@ -138,7 +138,7 @@ export function PrepareView({ programId }: { programId: string }) {
     ) : (
       <>
         <Button variant="primary" disabled={!draftReady} onClick={toApply}>신청 단계로</Button>
-        <Button disabled={!draftReady} aria-expanded={revising} onClick={() => setRevising(true)}>고쳐 줘</Button>
+        <Button disabled={!draftReady} aria-expanded={revising} onClick={() => setRevising(true)}>초안 고치기</Button>
       </>
     );
     note = revising ? undefined : '고치면 초안을 바로 다시 써요';
@@ -147,7 +147,7 @@ export function PrepareView({ programId }: { programId: string }) {
     footer = (
       <>
         <Button variant="primary" disabled={!!reason} aria-describedby="prep-reason" onClick={submit}>이대로 신청</Button>
-        <Button disabled={!draftReady} onClick={() => { setStep('draft'); setRevising(true); }}>고쳐 줘</Button>
+        <Button disabled={!draftReady} onClick={() => { setStep('draft'); setRevising(true); }}>초안 고치기</Button>
         {quit}
       </>
     );
@@ -162,7 +162,7 @@ export function PrepareView({ programId }: { programId: string }) {
           {step === 'todo' && (
             <TodoStep
               items={items} week={state.week} enabled={!!activity} draftReady={draftReady} left={left} log={log}
-              urgentLine={urgent && urgent.dday !== undefined ? `가장 급한 것 · ${dateLabel(urgent.dday, state.week)}까지 ${urgent.label}` : undefined}
+              urgentLine={urgent && urgent.dday !== undefined ? `${dateLabel(urgent.dday, state.week)}까지 ${urgent.label}` : undefined}
               onToggle={change} onOpened={opened}
             />
           )}

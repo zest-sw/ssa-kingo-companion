@@ -38,7 +38,7 @@ describe('나의 강점', () => {
   it('머리말은 확인한 근거로만 단정한다', () => {
     const rows = buildStrengths(recs);
     expect(leadStrengths(rows)).toMatchObject({ confirmed: true, rows: [{ label: '문제해결' }, { label: '소통' }] });
-    expect(strengthHeadline(rows)).toEqual({ text: '문제해결 · 소통이 가장 확실히 드러나요 · 확인 각 1개', estimated: false });
+    expect(strengthHeadline(rows)).toEqual({ text: '문제해결·소통이 가장 확실히 드러나요 · 확인 각 1개', estimated: false });
     const one = buildStrengths([...recs, rec('e', { axes: ['problem'], confirmedAxes: ['problem'] })]);
     expect(strengthHeadline(one).text).toBe('문제해결이 가장 확실히 드러나요 · 확인 2개');
     expect(strengthKeyword(one)).toEqual({ text: '문제해결: 확인 2개', estimated: false });
@@ -47,7 +47,7 @@ describe('나의 강점', () => {
   it('확인한 강점이 없으면 AI 후보임을 밝힌다', () => {
     const guessed = buildStrengths(recs.map(r => ({ ...r, confirmedAxes: [] })));
     expect(leadStrengths(guessed).confirmed).toBe(false);
-    expect(strengthHeadline(guessed)).toEqual({ text: 'AI 가 본 강점 후보: 문제해결 · 소통 · 근거를 확인해 주세요', estimated: true });
+    expect(strengthHeadline(guessed)).toEqual({ text: 'AI가 본 강점 후보는 문제해결·소통이에요. 근거를 확인해 주세요', estimated: true });
     expect(strengthKeyword(guessed)).toEqual({ text: '강점 후보: 문제해결 · 확인 전', estimated: true });
   });
   it('대표 근거는 줄끼리 겹치지 않게 고른다', () => {
@@ -86,8 +86,8 @@ describe('나의 강점', () => {
 describe('fewLine', () => {
   const row = (label: string, n: number) => ({ axis: 'self' as const, label, confirmed: 0, evidence: Array.from({ length: n }, (_, i) => ({ recordId: `r${i}`, title: '', semester: '2026-1', group: 'plan' as const, text: '', confirmed: false })) });
   it('근거가 있는 것은 그다음 강점, 없는 것은 아직 없다고 나눠 말한다', () => {
-    expect(fewLine([row('창의성', 8), row('자기주도', 0)])).toBe('그다음 강점: 창의성. 아직 근거가 없어요: 자기주도');
-    expect(fewLine([row('자기주도', 0)])).toBe('아직 근거가 없어요: 자기주도');
+    expect(fewLine([row('창의성', 8), row('자기주도', 0)])).toBe('그다음 강점은 창의성이에요. 자기주도는 아직 근거가 없어요');
+    expect(fewLine([row('자기주도', 0)])).toBe('자기주도는 아직 근거가 없어요');
   });
 });
 

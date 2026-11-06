@@ -74,14 +74,14 @@ export function Interview({ activity }: { activity: Activity }) {
   const pause = () => {
     const rest = drain().map(text => ({ id: nextId.current++, from: 'agent' as const, text }));
     run({ type: 'draft/save', activityId: activity.id, draft: { messages: [...messages, ...rest], interview: iv, energy, visibility, useForRecommend, confirmed } });
-    toast('초안을 저장했어요. 다시 열면 이어서 쓸 수 있어요.');
+    toast('초안을 저장했어요. 다시 열면 이어서 써요.');
     navigate('activities/records/interview');
   };
 
   const stepper = <Stepper label="회고 단계" steps={STAGES} current={stage} onStep={id => { if (phase !== 'saving') setStage(id); }} />;
   const did = inferDid(`${iv.card.role ?? ''} ${iv.card.action ?? ''}`);
   const evidence = evidenceOf(DID_AXES[did], iv.card.action);
-  const meta = `${CURRENT_TERM.month} · ${GROUP_LABEL[FIELD_GROUP[activity.field]]} · ${facts.kind}`;
+  const meta = `${CURRENT_TERM.month} · ${GROUP_LABEL[FIELD_GROUP[activity.field]]}`;
 
   // 학생이 확인 버튼을 누른 뒤에만 기록이 생긴다. 기록이 생기면 활동은 '기록됨'이 된다.
   const missing = missingSteps(iv.card);
@@ -116,8 +116,8 @@ export function Interview({ activity }: { activity: Activity }) {
             <span className="rec-done__icon"><Icon name="check" size={28} /></span>
             <h2 ref={doneTitle} tabIndex={-1} className="rec-done__title">기록 카드를 만들었어요</h2>
             <ul className="rec-done__list">
-              <li><Icon name="doc" size={18} />‘{activity.title}’ 기록 카드가 기록에 생겼어요.</li>
-              <li><Icon name="sparkle" size={18} />{summary.newDiscoveries.length ? `새 발견 후보가 ${summary.newDiscoveries.length}개 생겼어요. 나의 분석에서 맞는지 확인해 주세요.` : '발견은 그대로예요. 같은 일을 한 기록이 더 쌓이면 새로 생겨요.'}</li>
+              <li><Icon name="doc" size={18} />‘{activity.title}’ 기록이 생겼어요.</li>
+              <li><Icon name="leaf" size={18} />{summary.newDiscoveries.length ? `새 발견 후보가 ${summary.newDiscoveries.length}개 생겼어요. 나의 분석에서 맞는지 확인해 주세요.` : '발견은 그대로예요. 같은 일을 한 기록이 더 쌓이면 새로 생겨요.'}</li>
               <li><Icon name="compass" size={18} />{summary.usedForRecommend ? '다음 추천에 이 기록을 반영해요.' : '추천에 쓰지 않기로 해서 다음 추천은 그대로예요.'}</li>
             </ul>
             {/* 기록으로 돌아가는 길은 빵부스러기 하나다. 회고 → 분석 → 다음 추천으로 이어지게 갈 곳을 늘 하나 이상 둔다. */}

@@ -205,7 +205,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
     const from = nodeById.get(e.from) as RecordNode | undefined;
     const to = nodeById.get(e.to) as RecordNode | undefined;
     return (
-      <g key={e.id} className={`${cls} xg-edge--press`} data-zp-id={`follow|${e.id}`} aria-label={`${from?.label}와 ${to?.label} 이어짐, ${e.confirmed ? '내가 확인' : e.origin === 'llm' ? 'AI 가 이음' : '규칙으로 이음'}. 왜 이어졌는지 보기`}
+      <g key={e.id} className={`${cls} xg-edge--press`} data-zp-id={`follow|${e.id}`} aria-label={`${from?.label}와 ${to?.label} 이어짐, ${e.confirmed ? '내가 확인' : e.origin === 'llm' ? 'AI 추정' : '공통점으로 이음'}. 왜 이어졌는지 보기`}
         {...edgeHover} {...keys(ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); onOpen({ kind: 'follow', id: e.id }); } })}>
         {hit}
         {line}
@@ -260,7 +260,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
             const on = selCluster === c.id;
             const label = clusterLabel(c), kw = keywordLine(c.keywords);
             const pillW = textWidth(label, M.nameCharW) + 12;
-            const why = kw ? `, 사전 키워드 ${kw} 이 맞음` : isTentative(c) ? ', AI 가 제안한 이름, 확인 전' : '';
+            const why = kw ? `, 키워드 ${kw}` : isTentative(c) ? ', AI가 제안한 이름, 확인 전' : '';
             return (
               <g key={c.id} className={`xg-name${isTentative(c) ? ' xg-name--ai' : ''}${on ? ' is-picked' : ''}${hot && !on && selCluster ? ' is-dim' : ''}`} data-zp-id={`cluster|${c.id}`} aria-label={`${c.name} 묶음, 활동 ${c.recordIds.length}개${why}. 이 묶음으로 확대해서 분석 보기`} aria-pressed={on}
                 {...keys(e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect({ kind: 'cluster', id: c.id }); goCluster(c.id); } })}>
@@ -345,7 +345,7 @@ function GraphSearch({ graph, onPick }: { graph: KnowledgeGraph; onPick: (n: Gra
             aria-activedescendant={hits[at] ? `${id}-${at}` : undefined} value={q} onChange={e => { setQ(e.target.value); setAt(0); }} onKeyDown={onKey}
           />
           {q.trim() && (hits.length > 0 ? (
-            <ul className="xg-find__list" role="listbox" id={`${id}-list`} aria-label="찾은 노드">
+            <ul className="xg-find__list" role="listbox" id={`${id}-list`} aria-label="찾은 활동">
               {hits.map((n, i) => (
                 <li key={n.id} id={`${id}-${i}`} role="option" aria-selected={i === at} className={i === at ? 'is-on' : undefined} onPointerDown={e => e.preventDefault()} onClick={() => choose(n)}>
                   <span>{n.label}</span><span className="xg-find__kind">{n.kind === 'axis' ? '역량' : '활동'}</span>

@@ -8,8 +8,8 @@ import type { Settings } from '../../domain/types';
 import { Group, Row } from './Row';
 
 const FLAGS: { key: keyof Settings; title: string; sub: string; on: string; off: string }[] = [
-  { key: 'discover', title: '회고를 발견과 추천에 쓰기', sub: '내가 쓴 회고예요. 끄면 발견을 만들지 않고 추천 이유에도 안 써요', on: '회고를 다시 발견과 추천에 써요.', off: '회고를 발견과 추천에 쓰지 않아요.' },
-  { key: 'career', title: '채용 공고 요건과 연결', sub: '공개 공고예요. 관심 직무 요건과 내 기록을 이어서 보여 줘요', on: '채용 공고 연결을 켰어요.', off: '채용 공고 연결을 껐어요.' }
+  { key: 'discover', title: '회고를 발견과 추천에 쓰기', sub: '끄면 회고로 발견을 만들지 않고, 추천 이유에도 쓰지 않아요', on: '회고를 다시 발견과 추천에 써요.', off: '회고를 발견과 추천에 쓰지 않아요.' },
+  { key: 'career', title: '채용 공고 요건과 연결', sub: '공개된 공고의 직무 요건과 내 기록을 이어서 보여 줘요', on: '채용 공고 연결을 켰어요.', off: '채용 공고 연결을 껐어요.' }
 ];
 
 /** 데이터·개인정보. 데이터마다 '어디서 왔고 무엇에 쓰는지'를 한 줄로, 학교 데이터는 동의 안내를 거쳐서, 내보내기·지우기까지. */
@@ -33,16 +33,16 @@ export function DataSection() {
       <Card className="st-card">
         <Group title="내가 알려 준 것" sub="추천에는 학생이 확인한 것만 써요">
           <ul className="st-rows">
-            <Row title="관심 분야·시간·목표" sub="가입 인터뷰에서 받았어요. 후보 모으기와 시간 거르기에 써요" />
+            <Row title="관심 분야·시간·목표" sub="가입 인터뷰에서 받았어요. 추천 후보를 고를 때 써요" />
             {FLAGS.map(f => (
               <Row key={f.key} title={f.title} sub={f.sub}>
                 <Switch hideLabel label={f.title} checked={state.settings[f.key]} onChange={next => run({ type: 'settings/toggle', key: f.key }, { toast: next ? f.on : f.off, undoable: true })} />
               </Row>
             ))}
-            <Row title="기록마다 추천에 쓰기" sub="활동 기록이에요. 기록 카드마다 따로 고를 수 있어요">
+            <Row title="기록마다 추천에 쓰기" sub="기록 카드마다 따로 켜고 꺼요">
               <Button size="sm" variant="ghost" icon="chevron" onClick={() => navigate('activities/records')}>기록</Button>
             </Row>
-            <Row title="발견과 역량 근거" sub="분석 결과예요. 공개 범위와 상관없이 다른 사람에게 안 보여요">
+            <Row title="발견과 역량 근거" sub="공개해도 다른 사람에게 보이지 않아요">
               <Badge tone="dashed" icon="lock">항상 나만</Badge>
             </Row>
           </ul>
@@ -86,11 +86,11 @@ export function DataSection() {
       </Modal>
       <Modal
         open={erase}
-        title="내 데이터를 지울까요?"
+        title="이 브라우저의 내 데이터를 지워요"
         onClose={() => setErase(false)}
-        actions={<><Button onClick={() => setErase(false)}>취소</Button><Button variant="primary" onClick={wipe}>지울게요</Button></>}
+        actions={<><Button onClick={() => setErase(false)}>취소</Button><Button variant="primary" onClick={wipe}>지우기</Button></>}
       >
-        프로필, 활동, 기록, 설정이 이 브라우저에서 지워져요. 필요하면 먼저 내려받아 두세요.
+        프로필, 활동, 기록, 설정이 모두 지워져요. 남겨 두려면 먼저 내려받아 주세요.
       </Modal>
     </div>
   );

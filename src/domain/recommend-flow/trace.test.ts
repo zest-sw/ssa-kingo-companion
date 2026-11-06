@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { prog } from '../fixtures.test-util';
 import type { Reason, RecordItem } from '../types';
-import { deadlineRatio, goalGroups, newcomerOf, traceNodes } from './trace';
+import { deadlineRatio, goalGroups, newcomerOf, traceLine, traceNodes } from './trace';
 
 const p = prog('p1', { field: 'research', did: [] });
 const rec = { id: 'r1', title: '사용성 테스트', date: '2학기 · 10월' } as RecordItem;
@@ -71,5 +71,17 @@ describe('traceNodes: 기록이 없는 새 학생', () => {
   it('goalGroups: 목표 글의 낱말로 분야를 어림한다', () => {
     expect(goalGroups('데이터 분석 직무')).toEqual(['ai']);
     expect(goalGroups('대학원 진학')).toEqual([]);
+  });
+});
+
+describe('traceLine', () => {
+  it('기호·가운뎃점 없이 학생 말 한 문장으로 쓴다', () => {
+    expect(traceLine({ kind: 'energy', label: '내 기록', detail: '사용성 테스트' })).toBe('내 기록 ‘사용성 테스트’와 이어져요');
+    expect(traceLine({ kind: 'strength', label: '강점', detail: '문제해결 · 소통' })).toBe('확인한 강점 문제해결·소통을 써요');
+    expect(traceLine({ kind: 'novelty', label: '탐색', detail: 'AI·데이터' })).toBe('아직 안 해 본 AI·데이터 분야예요');
+    expect(traceLine({ kind: 'novelty', label: '탐색', detail: '처음 해 보는 AI·데이터' })).toBe('넓게 둘러보려고 섞은 AI·데이터 분야예요');
+    expect(traceLine({ kind: 'novelty', label: '탐색', detail: '처음 해 보는 기타' })).toBe('넓게 둘러보려고 섞었어요');
+    const all = (['energy', 'focus', 'career', 'strength', 'goal', 'interest', 'bridge', 'novelty'] as const).map(kind => traceLine({ kind, label: '', detail: '문장' }));
+    expect(all.some(t => /✧|→| · /.test(t))).toBe(false);
   });
 });
