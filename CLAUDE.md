@@ -21,6 +21,12 @@ npm run audit:layout   # 레이아웃 검사: 모든 경로 × 크기 × 학생 
 세 명령이 통과하지 않으면 끝난 게 아니다. 돌려 보고 출력을 확인한 뒤에 끝났다고 말한다.
 UI·CSS·화면을 건드렸으면 `.claude/skills/kingo-ui-review` 스킬 절차(frontend-design 판단 → 레이아웃 불변식 → 검사 → 스크린샷 자기 비평 → 보고)를 따른다.
 
+화면이나 문구를 건드렸으면 아래 스킬로도 점검한다. 조사 근거는 `docs/research/toss-level-ux-2026-11-06.md`.
+- `kingo-toss-ux`: 토스 제품 원칙 10가지 점검표. 화면마다 주인공 하나, 주 행동 하나, 문구만 읽고 3초 이해, 배워야 하는 개념 없음, 빈·희소·밀집·오류 상태.
+- `kingo-ux-writing`: 화면 문구(제목, 버튼, 빈 상태, 안내, 오류, 토스트). AI 티 목록과 용어집.
+- `avoid-ai-design`: AI가 만든 듯한 모양 점검. `node .claude/skills/avoid-ai-design/scripts/detect.mjs src`. 우리 기준(4px, Pretendard, 얇은 선, SKKU 색)과 다르면 우리 기준을 따른다.
+- `web-interface-guidelines`: 키보드, 포커스, 폼, 상태 설계, 레이아웃 이동, 주소 상태.
+
 ## 화면은 눈으로 확인한다
 
 UI를 만들거나 고쳤으면 실제 렌더를 직접 본다. 방법은 `docs/orchestration/orca.md` 3절. `npm run audit:layout` 이 찍은 `.qa/layout/<상태>/<크기>/<경로>.png` 를 열어 봐도 된다.
