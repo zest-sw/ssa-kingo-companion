@@ -18,6 +18,10 @@ const VIEWS: Partial<Record<EntityKind, EntityView>> = {};
 export function registerEntityView(kind: EntityKind, view: EntityView) {
   VIEWS[kind] = view;
 }
+/** 등록된 서랍. 화면 덩어리를 나중에 받을 때(lazyScreens) 받은 뒤의 진짜 서랍을 꺼낸다. */
+export function entityViewOf(kind: EntityKind): EntityView | undefined {
+  return VIEWS[kind];
+}
 
 /**
  * 상세('자세히')로 여는 법. 요약 → 상세 뎁스의 공용 진입 규칙(docs/design/web-desktop.md 7절).

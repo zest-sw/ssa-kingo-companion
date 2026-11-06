@@ -105,3 +105,17 @@
 @keyframes app-enter { from { opacity: 0; } }
 .app-main[data-entering] > .os > :not(.ui-page-head):not(.ui-stabs),
 .app-main[data-entering] > :not(.os) { animation: app-enter var(--dur-fast) var(--ease-out) backwards; }
+
+/* 화면 덩어리를 받는 동안의 뼈대(ScreenFallback). .os 틀을 그대로 써서 화면이 와도 머리·탭·본문 자리가 같다.
+   처음 300ms 는 투명(빨리 오면 안 보인다). 색 면 없이 옅은 회색 막대와 1px 선 카드만. 카드는 실제 화면처럼 화면 높이로 늘리지 않는다. */
+.app-skel { visibility: hidden; }
+.app-skel[data-shown] { visibility: visible; }
+.app-skel__bar { display: block; height: var(--space-3); width: 70%; border-radius: var(--radius-xs); background: var(--grey-100); }
+.app-skel__bar--short { width: 40%; }
+.app-skel__bar--title { width: calc(var(--space-12) * 3); height: var(--space-6); }
+.app-skel__tabs { align-items: center; min-height: var(--stabs-h); }
+.app-skel__bar--tab { width: var(--space-12); }
+/* 추천 보기 탭 줄(recommend.css .rec-tabs): 버튼 높이 + 아래 1px 선, 그 아래 본문 간격 */
+.app-skel__tabs--view { flex: none; min-height: calc(var(--control-h) + 1px); margin-bottom: var(--os-gap); }
+.app-skel__body { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.app-skel__card { display: flex; flex-direction: column; gap: var(--space-3); min-height: calc(var(--space-12) * 6); background: var(--surface); border: var(--border); border-radius: var(--radius-lg); padding: var(--card-pad); }
