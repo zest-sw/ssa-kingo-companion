@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Identity } from '../../domain/insight/story';
 import { Button } from '../Button';
 import { AiMark } from '../AiMark';
@@ -19,15 +19,25 @@ export function StoryHero({ identity, onAnswer, as: H = 'h2' }: Props) {
   const [choosing, setChoosing] = useState(false);
   const confirmed = identity.status === 'confirmed';
   const canAnswer = !!onAnswer && (identity.alternatives.length > 0 || confirmed);
-  const pick = (text: string) => { onAnswer?.(text); setChoosing(false); };
+  const box = useRef<HTMLDivElement>(null);
+  const focusText = () => box.current?.querySelector<HTMLElement>('.ui-story-hero__text')?.focus({ preventScroll: true });
+  // '맞아요'는 고르기를 열지 않고 바로 사라지므로 그린 뒤 문장 제목으로 초점을 직접 옮긴다.
+  const pick = (text: string) => { onAnswer?.(text); setChoosing(false); requestAnimationFrame(focusText); };
+  const moved = useRef(false);
+  // 누른 버튼이 사라지는 자리라 초점을 옮긴다: 고르기를 열면 첫 문장으로, 닫으면 문장 제목으로. 첫 그림에서는 옮기지 않는다.
+  useEffect(() => {
+    if (!moved.current) { moved.current = true; return; }
+    if (choosing) box.current?.querySelector<HTMLElement>('.ui-story-hero__alt')?.focus({ preventScroll: true });
+    else focusText();
+  }, [choosing]);
 
   return (
-    <div className="ui-story-hero">
+    <div ref={box} className="ui-story-hero">
       <p className="ui-story-hero__basis">
         <span>{identity.basis} {confirmed ? '내가 고른 문장이에요' : '세운 가설이에요'}</span>
         {!confirmed && <AiMark />}
       </p>
-      <H className={`ui-story-hero__text${confirmed ? ' is-confirmed' : ''}`}>
+      <H tabIndex={-1} className={`ui-story-hero__text${confirmed ? ' is-confirmed' : ''}`}>
         {confirmed ? <span>{identity.text}</span> : <AiMark variant="line">{identity.text}</AiMark>}
       </H>
       {canAnswer && !choosing && (

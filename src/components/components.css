@@ -244,6 +244,9 @@
 .ui-modal--wide .ui-modal__actions { margin: 0; padding: var(--space-3) var(--space-6) 0; border-top: var(--border); }
 .ui-modal--wide .ui-modal__actions > * { flex: 0 0 auto; }
 .ui-modal--wide .ui-modal__note { padding: 0 var(--space-6) var(--space-3); }
+/* 안에서 스크롤되는 몸통: 끝에 닿아도 뒤 페이지로 넘기지 않고, 초점 링은 안쪽에 그려 가장자리에서 잘리지 않게 */
+.ui-drawer__body, .ui-modal--wide .ui-modal__body { overscroll-behavior: contain; }
+.ui-drawer__body :focus-visible, .ui-modal--wide .ui-modal__body :focus-visible { box-shadow: var(--focus-ring-inset); }
 
 /* Toast */
 .ui-toast-region { position: fixed; left: 50%; bottom: var(--space-6); transform: translateX(-50%); z-index: var(--z-toast); }

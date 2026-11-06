@@ -32,7 +32,9 @@ export function useOverlay(open: boolean, box: RefObject<HTMLElement | null>, on
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = overflow;
+      // 연 버튼이 사라졌으면(그만두기·지우기로 그 줄이 빠짐) 화면 제목으로. body 로 떨어지면 키보드 자리를 잃는다.
       if (previous && document.contains(previous)) previous.focus();
+      else document.querySelector<HTMLElement>('[data-page-title]')?.focus({ preventScroll: true });
     };
   }, [open, box]);
 }
