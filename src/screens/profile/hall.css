@@ -5,21 +5,23 @@
   --hall-enter: 640ms;
 }
 
-/* 본문 칸 전체를 장면이 쓴다 */
-.os__body:has(> .hall-scene) { align-content: stretch; grid-template-rows: minmax(0, 1fr); }
+/* 장면은 내용 높이 한 덩어리로 본문 가운데에 둔다. 칸 높이까지 늘리면 아치 위아래가 빈 벽으로 남는다 */
+.os__body:has(> .hall-scene) { align-content: center; grid-template-rows: minmax(0, max-content); }
 .hall-scene { position: relative; display: flex; flex-direction: column; gap: var(--space-4); min-height: 0; padding: var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; view-transition-name: hall-door; }
 .hall-scene[data-enter] { animation: hall-enter var(--hall-enter) cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes hall-enter { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
 
-/* 기둥·아치: 아주 옅게 */
-.hall-art { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: var(--line); stroke-width: 1; pointer-events: none; }
+/* 기둥·아치: 아주 옅게. 무대 뒤에만 깔고, 장면 양옆·아래 끝까지 닿게 장면 여백만큼 넓힌다 */
+.hall-art { position: absolute; top: 0; left: calc(-1 * var(--space-5)); width: calc(100% + 2 * var(--space-5)); height: calc(100% + var(--space-5)); fill: none; stroke: var(--line); stroke-width: 1; pointer-events: none; }
 .hall-art path { vector-effect: non-scaling-stroke; }
 
 .hall-scene__top { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-4); }
 .hall-scene__note { font-size: var(--text-sm); color: var(--ink-muted); }
 
-/* 무대: 가운데에 카드 행렬. 카드가 장면의 덩어리라 무대 높이의 절반쯤을 쓴다(빈 아치만 보이지 않게) */
-.hall-stage { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: var(--space-4); }
+/* 무대: 카드 행렬과 버튼. 위 여백은 아치 꼭대기가 카드 위로 보일 만큼, 아래 여백은 바닥 줄 자리만큼 */
+.hall-stage { position: relative; min-height: 0; display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-12) 0 var(--space-8); }
+/* 그림(절대 위치) 위에 카드·버튼이 오게 */
+.hall-stage > :not(.hall-art) { position: relative; }
 .hall-stage__viewport { overflow: hidden; padding: var(--space-2) 0; margin: 0 calc(-1 * var(--space-5)); }
 .hall-stage__track { display: flex; width: max-content; will-change: transform; }
 .hall-stage__set { display: flex; gap: var(--space-4); padding-right: var(--space-4); }

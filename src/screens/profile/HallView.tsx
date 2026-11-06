@@ -4,7 +4,6 @@ import { Button, Drawer, Modal } from '../../components';
 import { HALL, type HallEntry } from '../../data/friends';
 import { HALL_JOINED } from '../../data/hall';
 import { byJoined, joinedLabel } from '../../domain/hallStage';
-import { HallArt } from './HallArt';
 import { HallStage } from './HallStage';
 import { PathTree } from './PathTree';
 import './hall.css';
@@ -31,7 +30,6 @@ export function HallView() {
 
   return (
     <div className="hall-scene" data-enter={cssEnter || undefined}>
-      <HallArt />
       <div className="hall-scene__top">
         <p className="hall-scene__note">공개하고 전당에 오르기로 동의한 학생만 있어요. 순위 없이 오른 날짜순이에요.</p>
         {consent ? <Button size="sm" onClick={leave}>내 자리 내리기</Button> : <Button size="sm" variant="primary" onClick={() => setAsking(true)}>나도 올라가기</Button>}
