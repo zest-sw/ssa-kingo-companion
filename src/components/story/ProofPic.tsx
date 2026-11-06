@@ -15,8 +15,8 @@ export function ProofPic({ pic }: { pic: Pic }) {
     const dashed = Math.min(pic.total - pic.confirmed, MAX_DOTS - solid);
     return (
       <span className="ui-pp ui-pp--dots" role="img" aria-label={`확인 근거 ${pic.confirmed}개, AI 추정 ${pic.total - pic.confirmed}개`}>
-        {Array.from({ length: solid }, (_, i) => <i key={`s${i}`} className="ui-pp__dot" />)}
-        {Array.from({ length: dashed }, (_, i) => <i key={`d${i}`} className="ui-pp__dot is-est" />)}
+        {/* 자리마다 같은 점을 두고 모양만 바꾼다. 맞아요로 확인하면 그 점이 점선에서 채운 점으로 바뀐다 */}
+        {Array.from({ length: solid + dashed }, (_, i) => <i key={i} className={i < solid ? 'ui-pp__dot' : 'ui-pp__dot is-est'} />)}
       </span>
     );
   }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Identity } from '../../domain/insight/story';
 import { Button } from '../Button';
+import { useChangeCount } from '../Flash';
 import { AiMark } from '../AiMark';
 
 type Props = {
@@ -30,6 +31,8 @@ export function StoryHero({ identity, onAnswer, as: H = 'h2' }: Props) {
     if (choosing) box.current?.querySelector<HTMLElement>('.ui-story-hero__alt')?.focus({ preventScroll: true });
     else focusText();
   }, [choosing]);
+  // 확인한 순간에만 점선이 실선으로 바뀌는 전이(처음부터 확인이면 가만히)
+  const flips = useChangeCount(`${confirmed}:${identity.text}`);
 
   return (
     <div ref={box} className="ui-story-hero">
@@ -38,7 +41,7 @@ export function StoryHero({ identity, onAnswer, as: H = 'h2' }: Props) {
         {!confirmed && <AiMark />}
       </p>
       <H tabIndex={-1} className={`ui-story-hero__text${confirmed ? ' is-confirmed' : ''}`}>
-        {confirmed ? <span>{identity.text}</span> : <AiMark variant="line">{identity.text}</AiMark>}
+        {confirmed ? <span key={flips} className={flips > 0 ? 'ui-confirm-in' : undefined}>{identity.text}</span> : <AiMark variant="line">{identity.text}</AiMark>}
       </H>
       {canAnswer && !choosing && (
         <div className="ui-story-hero__act">

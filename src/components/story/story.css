@@ -64,7 +64,7 @@ a.ui-proof:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 /* 작은 그림 */
 .ui-pp { display: inline-flex; align-items: center; min-height: var(--story-pic-h); }
 .ui-pp--dots { gap: var(--story-dot-gap); }
-.ui-pp__dot { display: block; box-sizing: border-box; width: var(--story-dot); height: var(--story-dot); border-radius: var(--radius-full); background: var(--g, var(--green-900)); }
+.ui-pp__dot { display: block; box-sizing: border-box; width: var(--story-dot); height: var(--story-dot); border-radius: var(--radius-full); background: var(--g, var(--green-900)); transition: background-color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
 .ui-pp__dot.is-est { background: transparent; border: 1px dashed var(--ink-subtle); }
 .ui-pp--flow { gap: var(--space-1); }
 .ui-pp__step { display: inline-flex; align-items: center; gap: var(--space-1); }
