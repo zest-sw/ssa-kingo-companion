@@ -1,5 +1,6 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useApp } from '../../app/AppState';
+import { useDrawerOf } from '../../app/drawerUrl';
 import { openEntity } from '../../app/entity';
 import { navigate, useQuery, withQuery } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState, FieldTag, SegmentedControl } from '../../components';
@@ -24,9 +25,13 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
   // 보기 방식은 주소 뒤 ?view=list 에 남는다(새로고침·공유가 같은 보기를 연다). 탭 전환이라 기록은 쌓지 않는다.
   const mode: View = useQuery().get('view') === 'list' ? 'list' : 'graph';
   const setMode = (v: View) => navigate(withQuery('analysis/techtree', { view: v === 'list' ? 'list' : undefined }), { replace: true });
-  const [open, setOpen] = useState<TreeCell | null>(null);
-  const [stage, setStage] = useState<{ row: TreeRow; col: number } | null>(null);
   const tree = useTechTree(records);
+  // 노드 서랍(?drawer=cell:<노드 id>)과 '+n' 묶음 서랍(?drawer=stage:<분야>.<단계>)은 주소에 남는다. 뒤로 가기로 닫힌다.
+  const cellDrawer = useDrawerOf('cell');
+  const stageDrawer = useDrawerOf('stage');
+  const open = cellDrawer.id ? findCell(tree, cellDrawer.id) : null;
+  const stage = stageDrawer.id ? findStage(tree, stageDrawer.id) : null;
+  const setOpen = (c: TreeCell) => cellDrawer.open(c.id);
   const filled = tree.rows.some(r => !r.unknown);
   // 후보 노드는 어디서 눌러도 같은 기회 서랍이 열린다. 서랍의 '자세히 보기'가 추천 화면으로 간다.
   const toRecommend = (c: TreeCell) => (c.programId ? openEntity({ kind: 'opportunity', id: c.programId }) : navigate('recommend'));
@@ -42,17 +47,26 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
         <>
           <div className="os-scroll">
             {!filled && <p className="an-note an-note--top">아직 한 활동이 없어요. 점선 활동을 눌러 신청을 준비하거나, 끝난 활동의 회고를 써 보세요.</p>}
-            <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} onFold={(row, col) => setStage({ row, col })} />
+            <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} onFold={(row, col) => stageDrawer.open(stageKey(row, col))} />
           </div>
         </>
       ) : (
         <div className="os-scroll"><CandidateList cells={tree.candidates} onPick={toRecommend} /></div>
       )}
-      <CellDrawer cell={open} tree={tree} records={records} onClose={() => setOpen(null)} onPick={c => { setOpen(null); toRecommend(c); }} />
-      <StageDrawer stage={stage} onClose={() => setStage(null)} onPick={c => { setStage(null); if (c.kind === 'candidate') toRecommend(c); else setOpen(c); }} />
+      <CellDrawer cell={open} tree={tree} records={records} onClose={cellDrawer.close} onPick={toRecommend} />
+      {/* 서랍 안에서 고르면 그 서랍 자리를 바꿔 쓴다(닫으면 그림으로) */}
+      <StageDrawer stage={stage} onClose={stageDrawer.close} onPick={c => (c.kind === 'candidate' ? toRecommend(c) : setOpen(c))} />
     </Card>
   );
 }
+
+const stageKey = (row: TreeRow, col: number) => `${row.group}.${col}`;
+const findStage = (tree: TechTree, key: string) => {
+  const [group, col] = key.split('.');
+  const row = tree.rows.find(r => r.group === group);
+  return row && row.folds.some(f => f.col === Number(col)) ? { row, col: Number(col) } : null;
+};
+const findCell = (tree: TechTree, id: string) => tree.rows.flatMap(r => [...r.cells, ...r.folds.flatMap(f => f.cells)]).find(c => c.id === id) ?? null;
 
 function CandidateList({ cells, onPick }: { cells: TreeCell[]; onPick: (c: TreeCell) => void }) {
   if (!cells.length) {

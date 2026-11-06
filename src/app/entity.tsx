@@ -1,9 +1,10 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, type ComponentType, type ReactNode } from 'react';
 import { Button, Drawer, EmptyState, FieldTag } from '../components';
 import { PROGRAM_BY_ID } from '../data/catalog';
 import { useApp } from './AppState';
 import { entitySummary, ENTITY_LABEL, type EntityKind, type EntityRef } from './entitySummary';
-import { navigate, useRoute } from './router';
+import { closeDrawer, openDrawer, useDrawer } from './drawerUrl';
+import { navigate } from './router';
 
 export type { EntityKind, EntityRef } from './entitySummary';
 
@@ -31,7 +32,7 @@ const EntityContext = createContext<Ctx | null>(null);
 let openOutside: ((ref: EntityRef, mode?: OpenMode) => void) | undefined;
 
 /**
- * 기회·활동·기록의 상세를 연다. 어디서 불러도 같은 서랍 하나가 열린다.
+ * 기회·활동·기록의 상세를 연다. 어디서 불러도 같은 서랍 하나가 열리고, 주소 뒤 ?drawer=<종류>:<id> 에 남는다(drawerUrl).
  * openEntity(ref, { as: 'page' }) 는 서랍 대신 상세 경로로 바로 간다(못 찾으면 서랍이 '찾지 못했어요'를 보여 준다).
  */
 export function openEntity(ref: EntityRef, mode?: OpenMode) {
@@ -44,26 +45,26 @@ export function useEntity(): Ctx {
   return v;
 }
 
-// ponytail: 열린 서랍은 주소에 남기지 않는다(새로고침하면 닫힘). 서랍을 링크로 공유할 일이 생기면 ?open=kind:id 로 옮긴다.
 export function EntityProvider({ children }: { children: ReactNode }) {
-  const [current, setCurrent] = useState<EntityRef | null>(null);
+  // 연 서랍은 주소(?drawer=record:e4)가 안다. 뒤로 가기로 닫히고, 다른 화면으로 가면 그 주소에 서랍이 없어 닫힌다.
+  const shown = useDrawer();
+  const kind = shown && isEntityKind(shown.kind) ? shown.kind : null;
+  const id = shown?.id ?? '';
+  const current = useMemo<EntityRef | null>(() => (kind ? { kind, id } : null), [kind, id]);
   const { state } = useApp();
   const open = useCallback((ref: EntityRef, mode?: OpenMode) => {
     const href = mode?.as === 'page' ? entitySummary(ref, { programs: PROGRAM_BY_ID, activities: state.activities, records: state.records })?.href : undefined;
     if (href) navigate(href);
-    else setCurrent(ref);
+    else openDrawer(ref);
   }, [state.activities, state.records]);
-  const close = useCallback(() => setCurrent(null), []);
-  const route = useRoute();
+  const close = closeDrawer;
 
   useEffect(() => {
     openOutside = open;
     return () => { if (openOutside === open) openOutside = undefined; };
   }, [open]);
-  // 다른 화면으로 가면 닫는다(서랍 안 링크로 옮겨 갈 때 포함).
-  useEffect(() => { setCurrent(null); }, [route.name, route.sub]);
 
-  const value = useMemo(() => ({ current, open, close }), [current, open, close]);
+  const value = useMemo(() => ({ current, open, close }), [current, open]);
   const View = current ? VIEWS[current.kind] : undefined;
   return (
     <EntityContext.Provider value={value}>
@@ -72,6 +73,8 @@ export function EntityProvider({ children }: { children: ReactNode }) {
     </EntityContext.Provider>
   );
 }
+
+const isEntityKind = (k: string): k is EntityKind => k in ENTITY_LABEL;
 
 /** 기본 서랍: 요약 사실 몇 줄과 상세(L2)로 가는 버튼 하나 */
 export function EntityDrawer({ target, onClose }: { target: EntityRef; onClose: () => void }) {
