@@ -99,3 +99,9 @@
 .app-entity__facts { display: flex; flex-direction: column; border-top: var(--border); }
 .app-entity__facts > div { display: grid; grid-template-columns: calc(var(--space-12) * 1.5) minmax(0, 1fr); gap: var(--space-3); padding: var(--space-2) 0; border-bottom: var(--border); font-size: var(--text-sm); }
 .app-entity__facts dt { color: var(--ink-muted); }
+
+/* 화면 전환: 머리·구역 탭은 그대로 두고 그 아래 본문만 옅게 나타난다. 투명도만(이동·크기 없음, 레이아웃 이동 0).
+   backwards 라 끝난 뒤에는 아무 값도 남기지 않는다(쌓임 맥락이 남지 않게). 움직임 줄이기면 --dur-fast 0 이라 즉시. */
+@keyframes app-enter { from { opacity: 0; } }
+.app-main[data-entering] > .os > :not(.ui-page-head):not(.ui-stabs),
+.app-main[data-entering] > :not(.os) { animation: app-enter var(--dur-fast) var(--ease-out) backwards; }
