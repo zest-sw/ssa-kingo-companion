@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Badge, Button, FieldTag, ProgressBar, type BadgeTone } from '../../components';
+import { Badge, FieldTag, ProgressBar, type BadgeTone } from '../../components';
 import { navigate } from '../../app/router';
 import type { Activity, ActivityStatus } from '../../domain/types';
 import { STATUS_LABEL } from '../../domain/vocab';
@@ -30,7 +30,6 @@ export function ActivityCard({ a, onOpen }: { a: Activity; onOpen: (id: string) 
       </h3>
       <p className="act-card__meta"><ActivityMeta a={a} /></p>
       {a.prep && <ProgressBar value={a.prep.done} max={a.prep.total} label={`${a.title} 준비`} />}
-      {a.status === 'ended' && <div className="act-card__cta"><Button size="sm" onClick={() => goInterview(a.id)}>회고 쓰기</Button></div>}
     </article>
   );
 }

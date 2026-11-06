@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Card, Chip, ErrorState, Icon, LoadingState, PageHeader, Panel, Stepper, useToast } from '../../components';
+import { AiMark, Button, Card, Chip, ErrorState, Icon, LoadingState, PageHeader, Panel, Stepper, useToast } from '../../components';
 import { navigate, parentLink } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { factsOf } from '../../data/activities';
@@ -114,10 +114,10 @@ export function Interview({ activity }: { activity: Activity }) {
         <div className="os__body os__body--fill rec-donebody">
           <Card className="rec-done">
             <span className="rec-done__icon"><Icon name="check" size={28} /></span>
-            <h2 ref={doneTitle} tabIndex={-1} className="rec-done__title">기록 카드를 만들었어요</h2>
+            <h2 ref={doneTitle} tabIndex={-1} className="rec-done__title">경험 카드를 만들었어요</h2>
             <ul className="rec-done__list">
               <li><Icon name="doc" size={18} />‘{activity.title}’ 기록이 생겼어요.</li>
-              <li><Icon name="leaf" size={18} />{summary.newDiscoveries.length ? `새 발견 후보가 ${summary.newDiscoveries.length}개 생겼어요. 나의 분석에서 맞는지 확인해 주세요.` : '발견은 그대로예요. 같은 일을 한 기록이 더 쌓이면 새로 생겨요.'}</li>
+              <li><Icon name="leaf" size={18} />{summary.newDiscoveries.length ? <span>새 발견 후보가 {summary.newDiscoveries.length}개 생겼어요<AiMark />. 나의 분석에서 맞는지 확인해 주세요.</span> : '발견은 그대로예요. 같은 일을 한 기록이 더 쌓이면 새로 생겨요.'}</li>
               <li><Icon name="compass" size={18} />{summary.usedForRecommend ? '다음 추천에 이 기록을 반영해요.' : '추천에 쓰지 않기로 해서 다음 추천은 그대로예요.'}</li>
             </ul>
             {/* 기록으로 돌아가는 길은 빵부스러기 하나다. 회고 → 분석 → 다음 추천으로 이어지게 갈 곳을 늘 하나 이상 둔다. */}
@@ -164,7 +164,7 @@ export function Interview({ activity }: { activity: Activity }) {
             footer={<Button variant="primary" disabled={phase === 'saving' || !energy || missing.length > 0} aria-describedby="rec-save-hint" onClick={save}>확인했어요, 저장할게요</Button>}
             note={<span id="rec-save-hint">{phase === 'saving' ? '저장하는 중이에요' : '저장하면 기록 보관함에 쌓여요.'}</span>}
           >
-            {phase === 'saving' && <LoadingState message="기록 카드를 만들고 있어요" lines={2} />}
+            {phase === 'saving' && <LoadingState message="경험 카드를 만들고 있어요" lines={2} />}
             {phase === 'error' && <ErrorState message="기록을 저장하지 못했어요. 쓴 내용은 그대로예요." onRetry={save} />}
             {phase !== 'saving' && (
               <div className="rec-confirm__body">
@@ -173,7 +173,7 @@ export function Interview({ activity }: { activity: Activity }) {
               </div>
             )}
           </Panel>
-          <aside className="rec-side" data-fill aria-label="기록 카드 미리보기">{cardView}</aside>
+          <aside className="rec-side" data-fill aria-label="경험 카드 미리보기">{cardView}</aside>
         </div>
       </div>
     );
@@ -226,7 +226,7 @@ export function Interview({ activity }: { activity: Activity }) {
             )}
           </section>
 
-          <aside className="rec-side" data-fill aria-label="기록 카드 미리보기">
+          <aside className="rec-side" data-fill aria-label="경험 카드 미리보기">
             {cardView}
           </aside>
         </div>

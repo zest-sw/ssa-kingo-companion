@@ -11,19 +11,22 @@ import { ListView } from './ListView';
 import { scheduleHeadline } from './summary';
 import { clipRows, monthRange, SEMESTER, timelineOf } from './timeline';
 
+/** 일정표 첫 화면(이번 달)에 그릴 줄 수. 넘치면 'n개 더' 한 줄과 학기 전체 보기로 */
+const MONTH_ROWS = 12;
 type View = 'timeline' | 'board' | 'list';
-const VIEWS: { id: View; label: string }[] = [{ id: 'timeline', label: '타임라인' }, { id: 'board', label: '보드' }, { id: 'list', label: '목록' }];
+const VIEWS: { id: View; label: string }[] = [{ id: 'timeline', label: '일정표' }, { id: 'board', label: '보드' }, { id: 'list', label: '목록' }];
 type Sel = { view: View; focus?: string; full?: boolean };
 const isSel = (v: unknown): v is Sel => typeof v === 'object' && v !== null && VIEWS.some(x => x.id === (v as Sel).view);
 
 const LEGEND: LegendItem[] = [
-  { label: '준비·대기', mark: 'hatch', tone: 'ink' }, { label: '진행', mark: 'fill', tone: 'ink' }, { label: '끝', mark: 'faded', tone: 'ink' },
-  { label: '신청 마감', mark: 'diamond', tone: 'ink' }, { label: '결과 발표', mark: 'circle', tone: 'ink' }, { label: '오늘', mark: 'today' }
+  { label: '준비·대기', mark: 'hatch', tone: 'ink' }, { label: '하는 중', mark: 'fill', tone: 'ink' }, { label: '끝', mark: 'faded', tone: 'ink' },
+  { label: '마감', mark: 'diamond', tone: 'ink' }, { label: '결과 발표', mark: 'circle', tone: 'ink' }, { label: '오늘', mark: 'today' }
 ];
 
 /**
- * 내 활동 › 일정: 같은 활동을 타임라인·보드·목록으로 바꿔 본다. 보기 전환은 머리의 세그먼트 한 곳에만 둔다.
- * 타임라인의 첫 화면은 이번 달만(최대 5줄). 학기 전체는 카드 머리의 '학기 전체 보기'로 한 단계 더 들어간다. 막대를 누르면 활동 서랍.
+ * 내 활동 › 일정: 같은 활동을 일정표·보드·목록으로 바꿔 본다. 페이지 머리 아래 탭 줄은 구역 탭 하나뿐이고,
+ * 보기 전환은 카드 머리 오른쪽 한 곳에 둔다. 카드 제목은 이번 달을 한 문장으로 말한다.
+ * 일정표의 첫 화면은 이번 달만(최대 5줄). 학기 전체는 '학기 전체 보기'로 한 단계 더 들어간다. 막대를 누르면 활동 서랍.
  */
 /** sub: 보기 방식(board, list). 옛 #/activities/board·list 링크가 이 경로로 열린다. */
 export function Schedule({ sub }: { sub?: string }) {
@@ -34,32 +37,41 @@ export function Schedule({ sub }: { sub?: string }) {
     if (v) setSel(s => ({ ...s, view: v.id }));
   }, [sub, setSel]);
   const open = (id: string) => { setSel(s => ({ ...s, focus: id })); openEntity({ kind: 'activity', id }); };
+  const tabs = <SectionTabs {...sectionTabs('activities', 'activities/schedule')} />;
 
-  let body;
   if (state.activities.length === 0) {
-    // 첫 사용: 빈 상태 = 그림 틀(학기 달 축) + 한 줄 + 버튼 하나. 버튼을 카드 머리에 두지 않는다.
-    body = (
-      <Card className="act-overview" title="이번 학기">
-        <EmptyState
-          pic={<GhostPic kind="timeline" labels={['9월', '10월', '11월', '12월']} />}
-          message="신청 준비를 누르면 여기에 막대가 생겨요"
-          action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>}
-        />
-      </Card>
+    // 첫 사용: 빈 상태 = 그림 틀(학기 달 축) + 한 줄 + 버튼 하나. 보기 전환은 활동이 생기면 나온다.
+    return (
+      <div className="os">
+        <PageHeader title="일정" tabs={tabs} />
+        <div className="os__body">
+          <Card className="act-overview" title="이번 학기">
+            <EmptyState
+              pic={<GhostPic kind="timeline" labels={['9월', '10월', '11월', '12월']} />}
+              message="신청 준비를 누르면 여기에 막대가 생겨요"
+              action={<Button variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>}
+            />
+          </Card>
+        </div>
+      </div>
     );
-  } else if (sel.view === 'board') {
+  }
+
+  const switcher = <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={v => setSel(s => ({ ...s, view: v }))} items={VIEWS} />;
+  let body;
+  let extra = null;
+  if (sel.view === 'board') {
     body = <div className="os-scroll"><BoardView activities={state.activities} onOpen={open} /></div>;
   } else if (sel.view === 'list') {
     body = <ListView activities={state.activities} onOpen={open} />;
   } else {
     const { rows: all, undated } = timelineOf(state.activities);
     const month = monthRange();
-    const clipped = clipRows(all, month);
+    const clipped = clipRows(all, month, MONTH_ROWS);
     const rows = sel.full ? all : clipped.rows;
-    const toggle = <Button size="sm" onClick={() => setSel(s => ({ ...s, full: !s.full }))}>{sel.full ? '이번 달만 보기' : '학기 전체 보기'}</Button>;
+    extra = <><Legend items={LEGEND} /><Button size="sm" variant="ghost" onClick={() => setSel(s => ({ ...s, full: !s.full }))}>{sel.full ? '이번 달만 보기' : '학기 전체 보기'}</Button></>;
     body = (
-      <Card className="act-overview os-card" title={sel.full ? '이번 학기' : '이번 달'} action={<><Legend items={LEGEND} />{toggle}</>}>
-        <div className="os-scroll">
+      <div className="os-scroll">
         <GanttRows label={sel.full ? '이번 학기 활동' : '이번 달 활동'} range={sel.full ? SEMESTER : month} today={PROTOTYPE_TODAY} rows={rows} selectedId={sel.focus} onSelect={open} empty={sel.full ? '날짜가 있는 활동이 아직 없어요. 활동 날짜가 정해지면 막대로 보여요.' : '이번 달에 걸친 활동이 없어요. 학기 전체 보기로 다른 달을 살펴봐요.'} />
         {!sel.full && clipped.hidden > 0 && <p className="act-more">이번 달 활동이 {clipped.hidden}개 더 있어요</p>}
         {sel.full && undated.length > 0 && (
@@ -77,16 +89,18 @@ export function Schedule({ sub }: { sub?: string }) {
             </ul>
           </div>
         )}
-        </div>
-      </Card>
+      </div>
     );
   }
 
   return (
     <div className="os">
-      <PageHeader title="일정" tabs={<SectionTabs {...sectionTabs('activities', 'activities/schedule')} />} actions={state.activities.length > 0 && <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={v => setSel(s => ({ ...s, view: v }))} items={VIEWS} />} />
-      {state.activities.length > 0 && <p className="act-headline">{scheduleHeadline(state.activities)}</p>}
-      <div className="os__body">{body}</div>
+      <PageHeader title="일정" tabs={tabs} />
+      <div className="os__body os__body--fill">
+        <Card className="os-card act-schedule" data-view={sel.view} title={scheduleHeadline(state.activities)} lead action={<>{extra}{switcher}</>} data-fill>
+          {body}
+        </Card>
+      </div>
     </div>
   );
 }
