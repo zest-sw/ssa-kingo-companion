@@ -1,52 +1,60 @@
 import { openEntity } from '../../app/entity';
-import { hrefOf, navigate } from '../../app/router';
-import { Card, EmptyState, FieldTag } from '../../components';
-import { ddayOf } from '../../domain/recommend';
-import { candidateHref } from '../../domain/recommend-flow/flow';
-import { MAX_TODAY_TASKS, timelineOrder, type TodayTask } from '../../domain/recommend-flow/summary';
-import { ddayText } from '../../domain/text';
-import type { Scored } from '../../domain/types';
+import { hrefOf } from '../../app/router';
+import { Icon, Panel } from '../../components';
+import type { WeekGroup, WeekTask, WeekTaskKind } from '../../domain/homeStatus';
+
+/** 묶음 머리가 할 일 이름을 한 번만 말한다. 줄에는 활동 이름과 때만 */
+const GROUP_NAME: Record<WeekTaskKind, string> = { deadline: '신청 마감', review: '회고 쓰기', meet: '모임' };
+const GHOST: { kind: WeekTaskKind; line: string }[] = [
+  { kind: 'deadline', line: '신청을 준비하면 마감이 생겨요' },
+  { kind: 'review', line: '활동을 마치면 회고할 일이 생겨요' }
+];
 
 /**
- * 오늘의 퀘스트(오늘·내일 할 일): 가까운 날·이른 시각 순의 세로 타임라인. 3개까지 그리고 나머지는 개수만.
- * 챙길 일이 없는 새 학생에게는 첫 추천 하나를 첫 퀘스트로 보인다.
+ * 오늘의 퀘스트(둘째 층, 할 일): 이번 주 할 일을 종류별로. 줄 전체가 그 일(신청 준비, 회고 쓰기, 활동 보기)로 간다.
+ * 카드 높이는 옆 열에 맞추고, 다 못 보이면 이 목록만 안에서 스크롤한다(홈에서 안에서 스크롤하는 칸은 이것 하나).
  */
-export function TodayList({ tasks, first, week }: { tasks: TodayTask[]; first?: Scored; week: number }) {
-  const go = (t: TodayTask) => ('path' in t.target ? navigate(t.target.path) : openEntity(t.target));
-  // 고르기는 급한 순(todayTasks 순서), 그리기는 시간순.
-  const shown = timelineOrder(tasks.slice(0, MAX_TODAY_TASKS));
-  const more = tasks.length - shown.length;
+export function TodayList({ groups }: { groups: WeekGroup[] }) {
+  const count = groups.reduce((n, g) => n + g.tasks.length, 0);
+
   return (
-    <Card title="오늘의 퀘스트" className="home-today">
-      {tasks.length === 0 && first ? (
-        <div className="home-first">
-          <p className="home-first__lead">첫 퀘스트로 이 활동을 추천해요</p>
-          <a className="home-first__row" href={hrefOf(candidateHref(first.p.id))}>
-            <span className="home-first__title">{first.p.title}</span>
-            <FieldTag field={first.p.field} />
-            <span className="home-first__dday num">{ddayText(ddayOf(first.p, week))}</span>
-          </a>
-        </div>
-      ) : tasks.length === 0 ? (
-        <EmptyState icon="check" message="오늘 챙길 일은 없어요. 퀘스트 게시판에서 다음 활동을 골라 보세요." />
-      ) : (
-        <ol className="home-rail">
-          {shown.map(t => (
-            <li key={t.id} className="home-rail__item">
-              <span className="home-rail__when num" data-urgent={t.urgent || t.kind === 'review' || undefined}>
-                <b>{t.day === 0 ? '오늘' : '내일'}</b>
-                {t.at && <span>{t.at}</span>}
-              </span>
-              <span className="home-rail__dot" data-kind={t.kind} aria-hidden="true" />
-              <button type="button" className="home-rail__task" aria-label={t.text} onClick={() => go(t)}>
-                <span className="home-rail__title">{t.title}</span>
-                <span className="home-rail__what" data-kind={t.kind}>{t.what}</span>
-              </button>
-            </li>
+    <Panel title="오늘의 퀘스트" className="home-today" bodyClassName="home-today__body" action={count > 0 ? <span className="home-today__n num">이번 주 {count}개</span> : undefined} data-fill>
+      {count === 0 ? (
+        <>
+          <p className="home-today__none">이번 주 마감은 없어요</p>
+          {/* 아직 없는 묶음은 이름과 생기는 때만 옅게: 이 칸이 무엇이 될지 보인다 */}
+          {GHOST.map(g => (
+            <section key={g.kind} className="home-q" data-ghost aria-label={`${GROUP_NAME[g.kind]}: ${g.line}`}>
+              <h3 className="home-q__h" aria-hidden="true">{GROUP_NAME[g.kind]}</h3>
+              <p className="home-q__ghost" aria-hidden="true">{g.line}</p>
+            </section>
           ))}
-        </ol>
+        </>
+      ) : (
+        <>
+          {groups.map(g => (
+            <section key={g.kind} className="home-q" aria-labelledby={`home-q-${g.kind}`}>
+              <h3 id={`home-q-${g.kind}`} className="home-q__h" data-kind={g.kind}>{GROUP_NAME[g.kind]}<span className="num">{g.tasks.length}</span></h3>
+              <ul>
+                {g.tasks.map(t => <li key={t.id}><TaskRow t={t} /></li>)}
+              </ul>
+            </section>
+          ))}
+        </>
       )}
-      {more > 0 && <p className="home-more">{more}개 더 있어요</p>}
-    </Card>
+    </Panel>
   );
+}
+
+function TaskRow({ t }: { t: WeekTask }) {
+  const body = (
+    <>
+      <span className="home-q__title">{t.title}</span>
+      <span className="home-q__when num" data-urgent={t.urgent || undefined}>{t.when}</span>
+      <Icon name="chevron" size={14} />
+    </>
+  );
+  if ('path' in t.target) return <a className="home-q__row" href={hrefOf(t.target.path)} aria-label={t.label}>{body}</a>;
+  const target = t.target;
+  return <button type="button" className="home-q__row" aria-label={t.label} onClick={() => openEntity(target)}>{body}</button>;
 }

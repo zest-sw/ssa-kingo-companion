@@ -4,7 +4,8 @@ import type { ScreenProps } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
 import { PageHeader } from '../../components';
 import { EXAMPLE_PROFILE } from '../../data/seed';
-import { todayTasks } from '../../domain/recommend-flow/summary';
+import { weekTasks } from '../../domain/homeStatus';
+import { NextCard } from './NextCard';
 import { Onboarding } from './Onboarding';
 import { Plaza } from './Plaza';
 import { StatusCard } from './StatusCard';
@@ -12,14 +13,14 @@ import { TodayList } from './TodayList';
 import './home.css';
 
 /**
- * 홈 = 상태창 + 광장. 덩어리 셋: 왼쪽 상태창(내가 가진 것과 지금 상황), 오른쪽 위 광장(들어가는 곳 셋), 오른쪽 아래 오늘의 퀘스트.
- * 곧 있어요 타임라인과 묻기 칸은 일정·추천에 있어 홈에서 뺐다.
+ * 홈은 층 셋 + 광장. 위: 내 상태(낮은 띠). 아래 왼쪽: 제안(다음 한 걸음)과 광장. 아래 오른쪽: 할 일(오늘의 퀘스트).
+ * 역할이 다른 것을 한 카드에 섞지 않는다(토스뱅크 「방해하지 않고, 눈에 띌 수 있을까」). 두 열의 아래 끝은 같다.
  */
 export default function HomeScreen(_props: ScreenProps) {
-  const { state, view, run } = useApp();
+  const { state, run } = useApp();
   // 선택할 값은 없고, 아래 흐름 화면에서 돌아왔을 때 스크롤만 되살린다.
   useOverviewState('home', null);
-  const tasks = useMemo(() => todayTasks(state.activities, state.week), [state.activities, state.week]);
+  const groups = useMemo(() => weekTasks(state.activities, state.week), [state.activities, state.week]);
 
   if (!state.onboarded) {
     return (
@@ -37,10 +38,13 @@ export default function HomeScreen(_props: ScreenProps) {
   return (
     <div className="os">
       <PageHeader title="홈" />
-      <div className="os__body home-grid">
+      <div className="os__body home-grid" data-new={state.records.length === 0 || undefined}>
         <StatusCard />
-        <Plaza />
-        <TodayList tasks={tasks} first={state.activities.length === 0 ? view.primary ?? undefined : undefined} week={state.week} />
+        <div className="home-side">
+          <NextCard />
+          <Plaza />
+        </div>
+        <TodayList groups={groups} />
       </div>
     </div>
   );
