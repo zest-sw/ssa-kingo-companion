@@ -60,7 +60,12 @@ const MOVED: Record<string, string> = {
 };
 const MOVED_KEYS = Object.keys(MOVED).sort((a, b) => b.length - a.length);
 
-const clean = (hash: string) => hash.replace(/^#?\/?/, '').replace(/\/+$/, '');
+/** 주소 뒤 '?…' 는 화면 안 상태(탭·칩·연 모달)다. 경로를 가를 때는 떼고 본다. */
+const splitQuery = (hash: string): [string, string] => {
+  const i = hash.indexOf('?');
+  return i < 0 ? [hash, ''] : [hash.slice(0, i), hash.slice(i + 1)];
+};
+const clean = (hash: string) => splitQuery(hash)[0].replace(/^#?\/?/, '').replace(/\/+$/, '');
 
 /** 옮긴 경로면 새 경로('settings/visibility'), 아니면 undefined */
 export function movedPath(hash: string): string | undefined {
@@ -157,7 +162,7 @@ export function sectionTabs(section: SectionId, current: string): { label: strin
 
 /** '#/analysis/techtree/x' → { name: 'analysis', sub: 'techtree/x' }. 모르는 경로는 홈, 옮긴 경로는 새 자리. */
 export function parseHash(hash: string): Route {
-  const [head, ...rest] = (movedPath(hash) ?? hash.replace(/^#\/?/, '')).split('/');
+  const [head, ...rest] = (movedPath(hash) ?? splitQuery(hash)[0].replace(/^#\/?/, '')).split('/');
   const name = (SCREENS as readonly string[]).includes(head) || OTHER_ROUTES.includes(head) ? (head as RouteName) : 'home';
   const sub = name === head && rest.length ? rest.filter(Boolean).join('/') || undefined : undefined;
   return { name, sub };
@@ -172,6 +177,17 @@ export function navigate(path: string, opts: { replace?: boolean } = {}) {
   } else if (location.hash !== hash) {
     location.hash = hash;
   }
+}
+
+/** 주소의 화면 안 상태. queryOf('#/recommend?tab=all') → URLSearchParams { tab: 'all' } */
+export const queryOf = (hash: string) => new URLSearchParams(splitQuery(hash)[1]);
+
+/** 경로에 화면 안 상태를 붙인다. 빈 값은 뺀다. withQuery('recommend', { tab: 'all', open: undefined }) → 'recommend?tab=all' */
+export function withQuery(path: string, params: Record<string, string | undefined>): string {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v) q.set(k, v);
+  const s = q.toString();
+  return s ? `${path}?${s}` : path;
 }
 
 /** 화면 안에서 링크로 쓸 href */
@@ -198,6 +214,11 @@ const subscribe = (cb: () => void) => {
   return () => window.removeEventListener('hashchange', cb);
 };
 const getHash = () => location.hash;
+
+/** 지금 주소의 화면 안 상태. 주소가 바뀌면 다시 그린다. */
+export function useQuery(): URLSearchParams {
+  return queryOf(useSyncExternalStore(subscribe, getHash, () => ''));
+}
 
 export function useRoute(): Route {
   const hash = useSyncExternalStore(subscribe, getHash, () => '');
