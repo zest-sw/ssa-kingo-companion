@@ -46,7 +46,7 @@ export function RecruitView({ posts, onPost }: Props) {
       setPending(false);
       setNote('');
       setOpp('');
-      toast('모집 글을 올렸어요. 관심 있는 학생이 먼저 봐요');
+      toast('모집 글을 올렸어요. 관심 있는 학생이 먼저 봐요.');
     }, 500);
   };
 
@@ -119,7 +119,7 @@ export function RecruitView({ posts, onPost }: Props) {
                         <Chip selected={marked} onClick={() => setInterest(list => toggled(list, o.id))}>이 기회에 관심 있어요</Chip>
                         {applied.includes(p.id)
                           ? <Badge tone="neutral">답을 기다려요</Badge>
-                          : <Button size="sm" onClick={() => { setApplied(a => [...a, p.id]); toast(`${p.author}님에게 지원했어요. 수락은 ${p.author}님이 정해요`); }}>지원하기</Button>}
+                          : <Button size="sm" onClick={() => { setApplied(a => [...a, p.id]); toast(`${p.author}님에게 지원했어요. 수락은 ${p.author}님이 정해요.`); }}>지원하기</Button>}
                       </>
                     )}
                   </div>

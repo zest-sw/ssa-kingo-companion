@@ -23,10 +23,10 @@ export function HallView() {
   const people = useMemo(() => byJoined(HALL, HALL_JOINED), []);
 
   const join = () => {
-    run({ type: 'visibility/set', patch: { hallOfFameConsent: true } }, { toast: '명예의 전당에 올라갔어요. 언제든 내릴 수 있어요' });
+    run({ type: 'visibility/set', patch: { hallOfFameConsent: true } }, { toast: '명예의 전당에 올라갔어요. 언제든 내릴 수 있어요.' });
     setAsking(false);
   };
-  const leave = () => run({ type: 'visibility/set', patch: { hallOfFameConsent: false } }, { toast: '명예의 전당에서 내렸어요' });
+  const leave = () => run({ type: 'visibility/set', patch: { hallOfFameConsent: false } }, { toast: '명예의 전당에서 내렸어요.' });
 
   return (
     <div className="hall-scene" data-enter={cssEnter || undefined}>
