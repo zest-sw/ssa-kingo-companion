@@ -3,7 +3,7 @@ import { Button, Card, EmptyState, PageHeader } from '../../components';
 import { navigate, parentLink } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import './RecordEntity';
-import { Interview } from './Interview';
+import { Interview } from './interview/Interview';
 import { Overview } from './Overview';
 import { Pending } from './Pending';
 import { Portfolio } from './Portfolio';
