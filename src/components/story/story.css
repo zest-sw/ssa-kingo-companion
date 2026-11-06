@@ -26,10 +26,9 @@
 /* ── 정체성 한 문장 ── */
 .ui-story-hero { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 .ui-story-hero__basis { display: flex; align-items: center; gap: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); }
-.ui-story-hero__basis svg { flex: none; color: var(--green-900); }
 .ui-story-hero__text { margin: 0; font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); color: var(--ink-strong); }
-/* 확인 전 = AI 가설: 옅은 점선 밑줄. 확인 후 = 실선 */
-.ui-story-hero__text > span:first-child { text-decoration: underline dashed var(--ink-subtle) var(--story-underline); text-underline-offset: var(--story-underline-gap); }
+/* 확인 전 = AI 가설: 옅은 점선 밑줄(AiMark line). 확인 후 = 실선 */
+.ui-story-hero__text .ui-ai-line { text-decoration-thickness: var(--story-underline); text-underline-offset: var(--story-underline-gap); }
 .ui-story-hero__text.is-confirmed > span:first-child { text-decoration: underline solid var(--green-900) var(--story-underline); }
 .ui-story-hero__act { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .ui-story-hero__alts { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; padding: 0; border: 0; min-width: 0; }
@@ -90,7 +89,6 @@ a.ui-proof:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 .ui-story-next__title { align-self: flex-start; display: inline-flex; align-items: center; min-height: var(--hit-min); color: var(--ink-strong); font-size: var(--text-xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); text-decoration: none; }
 .ui-story-next__title:hover { text-decoration: underline; text-underline-offset: var(--space-1); }
 .ui-story-next__why { display: flex; align-items: center; gap: var(--space-1); color: var(--ink); font-size: var(--text-md); }
-.ui-story-next__why svg { flex: none; color: var(--green-900); }
 .ui-story-next__meta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
 .ui-story-next__note { color: var(--ink-muted); font-size: var(--text-sm); }
 .ui-story-next__row > .ui-btn { flex: none; }

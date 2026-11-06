@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Identity } from '../../domain/insight/story';
 import { Button } from '../Button';
-import { Icon } from '../Icon';
+import { AiMark } from '../AiMark';
 
 type Props = {
   identity: Identity;
@@ -24,12 +24,11 @@ export function StoryHero({ identity, onAnswer, as: H = 'h2' }: Props) {
   return (
     <div className="ui-story-hero">
       <p className="ui-story-hero__basis">
-        <Icon name="sparkle" size={14} />
         <span>{identity.basis} {confirmed ? '내가 고른 문장이에요' : '세운 가설이에요'}</span>
+        {!confirmed && <AiMark />}
       </p>
       <H className={`ui-story-hero__text${confirmed ? ' is-confirmed' : ''}`}>
-        <span>{identity.text}</span>
-        {!confirmed && <span className="sr-only"> (AI 추정, 확인 전)</span>}
+        {confirmed ? <span>{identity.text}</span> : <AiMark variant="line">{identity.text}</AiMark>}
       </H>
       {canAnswer && !choosing && (
         <div className="ui-story-hero__act">

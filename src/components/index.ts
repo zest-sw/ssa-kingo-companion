@@ -1,6 +1,7 @@
 // 공용 컴포넌트. 화면은 여기서만 가져온다. 쓰는 법은 #/_kit 에서 본다.
 import './components.css';
 
+export { AiMark } from './AiMark';
 export { Badge, CountBadge, type BadgeTone } from './Badge';
 export { Button, IconButton } from './Button';
 export { Card } from './Card';
@@ -21,6 +22,6 @@ export { EmptyState, ErrorState, LoadingState } from './States';
 export { Stepper, type StepItem } from './Stepper';
 export { Switch } from './Switch';
 export { SegmentedControl, TabPanel, Tabs, type TabItem } from './Tabs';
-export { Toast, ToastProvider, useToast } from './Toast';
+export { Toast, TOAST_MS, ToastProvider, useToast } from './Toast';
 export * from './diagram';
 export * from './story';
