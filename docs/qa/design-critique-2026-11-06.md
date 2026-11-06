@@ -128,8 +128,8 @@
 - 작은 묶음 제목 12곳을 `.ui-subhead` 로 교체(P2-7).
 - 다른 워커 스코프라 손대지 않음:
   - 신청 준비(`recommend/Prep*`): 완료·신청 단계·초안 제목 18/600(`rec-done__title`, `rec-apply__title`, `rec-draft__title`), 완료 아이콘 18px. 글 속 링크 `.rec-link` 는 모양만 `.ui-link` 와 같게 맞췄다.
-  - 회고 인터뷰(`records/Interview*`): 완료 제목 18/600(`records.css .rec-done__title`), 기록 카드 제목 `.rec-card__title` 18/600, 아이콘 18·28px, 고른 분야 표시 초록 2px 띠(`.rec-field[data-current]`), 경고 상자 점선(`.rec-form__warn`).
-  - 가입 인터뷰(`home/Onboarding*`): 선택지 hover `--surface-alt`(`.home-onb__option`), 아이콘 18px.
+  - 회고 인터뷰(v2.8 로 `records/interview/**` 에 새로 들어옴, rebase 뒤 다시 봄): 기록 카드 제목 `.rec-card__title` 18/600, 고른 칸 표시 초록 2px 띠(`.rec-field[data-current]`, 기준은 `--text`), 경고 상자 점선(`.rec-form__warn`). 끝 장면 '확인 전' 꼬리표(`.iv-done__tag`)는 뜻은 맞지만 공용 `AiMark` 를 따로 그린 것이다.
+  - 가입 인터뷰(v2.8 로 `home/onboarding/**` 에 새로 들어옴): 선택지 hover `--surface-alt`(`onboarding.css .onb-field:hover, .onb-option:hover`, 죽은 hover).
   - 사이드바·app.css: 이상 없음(지금 위치 2px `--text` 막대가 기준이다).
 
 ## 6. 전/후 (1440×900, 같은 화면 다시 찍음)
