@@ -29,7 +29,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
   return (
     <Card
       className="os-card"
-      title="활동 지도"
+      title="분야마다 입문에서 심화까지"
       action={<SegmentedControl<View> label="보기 방식" value={mode} onChange={setMode} items={[{ id: 'graph', label: '그림으로 보기' }, { id: 'list', label: '지금 신청할 수 있는 것만' }]} />}
     >
       {mode === 'graph' ? (

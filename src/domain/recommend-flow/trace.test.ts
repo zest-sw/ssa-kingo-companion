@@ -78,8 +78,9 @@ describe('traceLine', () => {
   it('기호·가운뎃점 없이 학생 말 한 문장으로 쓴다', () => {
     expect(traceLine({ kind: 'energy', label: '내 기록', detail: '사용성 테스트' })).toBe('내 기록 ‘사용성 테스트’와 이어져요');
     expect(traceLine({ kind: 'strength', label: '강점', detail: '문제해결 · 소통' })).toBe('확인한 강점 문제해결·소통을 써요');
-    expect(traceLine({ kind: 'novelty', label: '탐색', detail: '처음 해 보는 AI·데이터' })).toBe('아직 안 해 본 AI·데이터 분야예요');
-    expect(traceLine({ kind: 'novelty', label: '탐색', detail: '처음 해 보는 기타' })).toBe('아직 안 해 본 종류예요');
+    expect(traceLine({ kind: 'novelty', label: '탐색', detail: 'AI·데이터' })).toBe('아직 안 해 본 AI·데이터 분야예요');
+    expect(traceLine({ kind: 'novelty', label: '탐색', detail: '처음 해 보는 AI·데이터' })).toBe('넓게 둘러보려고 섞은 AI·데이터 분야예요');
+    expect(traceLine({ kind: 'novelty', label: '탐색', detail: '처음 해 보는 기타' })).toBe('넓게 둘러보려고 섞었어요');
     const all = (['energy', 'focus', 'career', 'strength', 'goal', 'interest', 'bridge', 'novelty'] as const).map(kind => traceLine({ kind, label: '', detail: '문장' }));
     expect(all.some(t => /✧|→| · /.test(t))).toBe(false);
   });

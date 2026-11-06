@@ -87,7 +87,7 @@ describe('fewLine', () => {
   const row = (label: string, n: number) => ({ axis: 'self' as const, label, confirmed: 0, evidence: Array.from({ length: n }, (_, i) => ({ recordId: `r${i}`, title: '', semester: '2026-1', group: 'plan' as const, text: '', confirmed: false })) });
   it('근거가 있는 것은 그다음 강점, 없는 것은 아직 없다고 나눠 말한다', () => {
     expect(fewLine([row('창의성', 8), row('자기주도', 0)])).toBe('그다음 강점은 창의성이에요. 자기주도는 아직 근거가 없어요');
-    expect(fewLine([row('자기주도', 0)])).toBe('아직 근거가 없어요: 자기주도');
+    expect(fewLine([row('자기주도', 0)])).toBe('자기주도는 아직 근거가 없어요');
   });
 });
 

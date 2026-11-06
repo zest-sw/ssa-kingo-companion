@@ -100,8 +100,11 @@ export function traceLine(n: TraceNode): string {
     case 'interest-miss': return d;
     case 'bridge': return `지난주와 다른 분야를 섞었어요`;
     case 'novelty': {
+      // 새 학생(기록 0)은 모든 분야가 처음이라 '안 해 본'이 정보가 없다. 넓게 둘러보려고 섞었다는 이유를 말한다.
+      const newcomer = d.startsWith('처음 해 보는 ');
       const field = d.replace(/^처음 해 보는 /, '');
-      return field === '기타' ? '아직 안 해 본 종류예요' : `아직 안 해 본 ${field} 분야예요`;
+      if (field === '기타') return newcomer ? '넓게 둘러보려고 섞었어요' : '아직 안 해 본 종류예요';
+      return newcomer ? `넓게 둘러보려고 섞은 ${field} 분야예요` : `아직 안 해 본 ${field} 분야예요`;
     }
   }
 }

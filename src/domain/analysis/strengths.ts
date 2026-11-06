@@ -149,7 +149,7 @@ export function answerAxis(r: RecordItem, axis: Axis, yes: boolean): Pick<Record
 export function fewLine(few: Strength[]): string {
   const next = few.filter(f => f.evidence.length > 0).map(f => f.label);
   const none = few.filter(f => f.evidence.length === 0).map(f => f.label);
-  return [next.length ? `그다음 강점은 ${next.join('·')}${josa(next[next.length - 1] ?? '', '이에요', '예요')}` : '', none.length ? `${none.join('·')}${josa(none[none.length - 1] ?? '', '은', '는')} 아직 근거가 없어요` : ''].filter(Boolean).join(' ');
+  return [next.length ? `그다음 강점은 ${next.join('·')}${josa(next[next.length - 1] ?? '', '이에요', '예요')}` : '', none.length ? `${none.join('·')}${josa(none[none.length - 1] ?? '', '은', '는')} 아직 근거가 없어요` : ''].filter(Boolean).join('. ');
 }
 
 // ── 육각형 레이더: 축 6개 = 역량 6개, 값 = 근거 기록 수(점수 아님) ──
