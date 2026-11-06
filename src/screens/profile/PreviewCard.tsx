@@ -43,7 +43,7 @@ function FriendCard({ card, sub, interests, ghost }: { card: CardData; sub?: str
                 ))}
                 {card.moreRecords > 0 && <li className="pf-friend__more num">{card.moreRecords}장 더</li>}
               </ul>
-            ) : <span className="pf-friend__empty">고른 회고가 없어요. 회고를 쓰고 공개 범위에서 고르면 보여요</span>}
+            ) : <span className="pf-friend__empty">고른 경험 카드가 없어요. 회고를 쓰고 공개 범위에서 고르면 보여요</span>}
           </dd>
         </div>
       </dl>

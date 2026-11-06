@@ -7,7 +7,7 @@ import type { WeekGroup, WeekTask, WeekTaskKind } from '../../domain/homeStatus'
 const GROUP_NAME: Record<WeekTaskKind, string> = { deadline: '신청 마감', review: '회고 쓰기', meet: '모임' };
 const GHOST: { kind: WeekTaskKind; line: string }[] = [
   { kind: 'deadline', line: '신청을 준비하면 마감이 생겨요' },
-  { kind: 'review', line: '활동을 마치면 회고할 일이 생겨요' }
+  { kind: 'review', line: '활동을 마치면 생겨요. 지난 활동은 기록 탭에서 직접 남겨요' }
 ];
 
 /**
@@ -21,7 +21,8 @@ export function TodayList({ groups }: { groups: WeekGroup[] }) {
     <Panel title="오늘의 퀘스트" className="home-today" bodyClassName="home-today__body" action={count > 0 ? <span className="home-today__n num">이번 주 {count}개</span> : undefined} data-fill>
       {count === 0 ? (
         <>
-          <p className="home-today__none">이번 주 마감은 없어요</p>
+          {/* '마감은 없어요'라고 하면 바로 옆 추천 카드의 'D-3 마감'과 부딪힌다. 이 칸은 내가 챙길 일만 센다 */}
+          <p className="home-today__none">이번 주 챙길 일은 아직 없어요</p>
           {/* 아직 없는 묶음은 이름과 생기는 때만 옅게: 이 칸이 무엇이 될지 보인다 */}
           {GHOST.map(g => (
             <section key={g.kind} className="home-q" data-ghost aria-label={`${GROUP_NAME[g.kind]}: ${g.line}`}>

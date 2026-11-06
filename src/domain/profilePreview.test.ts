@@ -22,7 +22,7 @@ describe('친구에게 보이는 프로필 미리보기', () => {
     expect(p.status).toBe('친구에게만 보여요');
     expect(p.card.activityCount).toBe(1);
     expect(p.card.records).toEqual([{ id: 'r1', title: '첫 기록', field: 'research' }]);
-    expect(p.card.hidden).toEqual(['뺀 활동 1개', '민감한 활동 1개', '고르지 않은 회고 2개', '발견과 역량 근거']);
+    expect(p.card.hidden).toEqual(['뺀 활동 1개', '민감한 활동 1개', '고르지 않은 경험 카드 2장', '발견과 역량 근거']);
   });
   it('회고는 limit 장까지 그리고 나머지는 수로 센다', () => {
     const recs = ['a', 'b', 'c', 'd'].map(id => rec(id));

@@ -37,7 +37,7 @@ export function profilePreview(activities: Activity[], records: RecordItem[], v:
   const hidden = [
     hiddenActs > 0 && `뺀 활동 ${hiddenActs}개`,
     sensitive > 0 && `민감한 활동 ${sensitive}개`,
-    hiddenRecs > 0 && `고르지 않은 회고 ${hiddenRecs}개`,
+    hiddenRecs > 0 && `고르지 않은 경험 카드 ${hiddenRecs}장`,
     '발견과 역량 근거'
   ].filter((x): x is string => typeof x === 'string');
   return {

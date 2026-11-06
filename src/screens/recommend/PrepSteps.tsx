@@ -68,7 +68,8 @@ export function DraftStep({ draft, team, revised, revising, onRetry }: { draft: 
             </p>
           </section>
           <section>
-            <h3 className="ui-subhead">경험 · 내 기록에서 가져왔어요</h3>
+            {/* 가져온 것이 없을 때 '가져왔어요'는 거짓말이 된다 */}
+            <h3 className="ui-subhead">{draft.draft.related.length ? '경험 · 내 기록에서 가져왔어요' : '경험'}</h3>
             {draft.draft.related.length === 0
               ? <p className="rec-muted">가져올 기록이 아직 없어요. 활동을 마치고 회고를 쓰면 여기에 들어가요.</p>
               : <ul className="rec-draft__chips">{draft.draft.related.map(r => <li key={r.id}><Badge tone="navy">{r.title}</Badge></li>)}</ul>}

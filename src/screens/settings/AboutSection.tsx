@@ -25,16 +25,7 @@ export function AboutSection() {
   return (
     <div className="st-stack">
       <Card className="st-card">
-        <Group title="이 프로토타입은">
-          <ul className="st-about">
-            {ABOUT_LINES.map(line => <li key={line}>{line}</li>)}
-          </ul>
-        </Group>
-        <Group title="이 서비스가 지키는 것">
-          <ul className="st-about">
-            {PRINCIPLE_LINES.map(line => <li key={line}>{line}</li>)}
-          </ul>
-        </Group>
+        {/* 이 화면에서 누를 것은 이 두 줄뿐이라 맨 위에 둔다. 아래 설명이 길어 낮은 화면(1280×640)에서는 칸 밖으로 밀렸다 */}
         <Group title="이 브라우저에 남긴 것">
           <ul className="st-rows">
             <Row title="예시 학생으로 보기" sub={state.demo ? '지금 예시 학생으로 보고 있어요. 누르면 처음 예시로 돌아가요' : '소프트웨어학과 3학년 예시 학생의 3년 치 기록으로 바꿔요'}>
@@ -43,6 +34,16 @@ export function AboutSection() {
             <Row title="처음부터 다시(새 학생)" sub="프로필, 고른 것, 초안, 설정을 지우고 가입 인터뷰부터 다시 해요">
               <Button onClick={() => setAsk(true)}>처음부터 다시</Button>
             </Row>
+          </ul>
+        </Group>
+        <Group title="이 프로토타입은">
+          <ul className="st-about">
+            {ABOUT_LINES.map(line => <li key={line}>{line}</li>)}
+          </ul>
+        </Group>
+        <Group title="이 서비스가 지키는 것">
+          <ul className="st-about">
+            {PRINCIPLE_LINES.map(line => <li key={line}>{line}</li>)}
           </ul>
         </Group>
       </Card>

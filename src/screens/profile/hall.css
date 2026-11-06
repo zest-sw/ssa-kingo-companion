@@ -5,8 +5,8 @@
   --hall-enter: 640ms;
 }
 
-/* 장면은 내용 높이 한 덩어리로 본문 가운데에 둔다. 칸 높이까지 늘리면 아치 위아래가 빈 벽으로 남는다 */
-.os__body:has(> .hall-scene) { align-content: center; grid-template-rows: minmax(0, max-content); }
+/* 장면은 내용 높이 한 덩어리로 머리 바로 아래부터 둔다(다른 화면과 같은 자리). 칸 높이까지 늘리면 아치 위아래가 빈 벽으로 남고, 가운데에 두면 제목 아래가 빈다 */
+.os__body:has(> .hall-scene) { align-content: start; grid-template-rows: minmax(0, max-content); }
 .hall-scene { position: relative; display: flex; flex-direction: column; gap: var(--space-4); min-height: 0; padding: var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; view-transition-name: hall-door; }
 .hall-scene[data-enter] { animation: hall-enter var(--hall-enter) cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes hall-enter { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
