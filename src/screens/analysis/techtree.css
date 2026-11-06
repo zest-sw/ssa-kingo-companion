@@ -82,7 +82,6 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 /* 낮은 화면(1280×640 등)에서는 분야 사이 여백을 줄여 트리가 한 화면에 들어오게 한다 */
 @media (max-height: 760px) {
   .an-tree .an-pill--ongoing { margin-block: var(--an-ring); }
-  .os-scroll + .an-legend { margin-top: var(--space-1); }
   .an-tree .an-pill { padding-block: calc(var(--space-1) / 2); }
 }
 
@@ -109,5 +108,3 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 /* 카드 머리에 보기 방식만 남아서 오른쪽에 붙인다 */
 .tt-card .ui-card__action { margin-left: auto; }
 /* 그림 아래 읽는 법 한 줄 */
-.tt-read { gap: var(--space-1) var(--space-2); }
-.tt-read > span { display: inline-flex; align-items: center; gap: var(--space-1); }

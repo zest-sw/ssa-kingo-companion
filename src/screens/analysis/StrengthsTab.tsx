@@ -12,6 +12,7 @@ import type { Axis, RecordItem } from '../../domain/types';
 import { EvidenceBar } from './EvidenceBar';
 import { ChanceList } from './StrengthParts';
 import { StrengthDrawer } from './StrengthDrawer';
+import { KeyLegend } from './KeyLegend';
 import './strengths.css';
 
 /** 낮은 노트북(세로 760px 이하)에서는 레이더와 옆 칸을 한 단계 줄인다. */
@@ -78,17 +79,18 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
   const chances = chancesFor(axis, programs, 2);
   const headText = past ? `${moment.label}까지 확인한 근거 ${spots.reduce((n, x) => n + x.confirmed, 0)}개` : head.text;
   const label = `${moment.label} 기준 역량별 근거 기록 수`;
+  const legend = (
+    <KeyLegend items={past
+      ? [{ label: `${moment.label} 확인한 근거`, key: 'an-key an-skey--own' }, { label: '지금 확인한 근거(윤곽)', key: 'an-key an-skey--trace' }]
+      : [{ label: '확인한 근거', key: 'an-key an-skey--own' }, { label: 'AI 추정까지 전체', key: 'an-key an-key--est' }]} />
+  );
 
   return (
     <div className="an-str-cols">
-      <Card className="os-card an-rcard" data-fill title="기록에서 드러난 강점" action={moments.length > 1 ? <SegmentedControl label="보는 시점" items={moments.map(m => ({ id: m.id, label: m.label }))} value={moment.id} onChange={setMomentId} /> : undefined}>
+      <Card className="os-card an-rcard" data-fill title="기록에서 드러난 강점" action={<>{legend}{moments.length > 1 && <SegmentedControl label="보는 시점" items={moments.map(m => ({ id: m.id, label: m.label }))} value={moment.id} onChange={setMomentId} />}</>}>
         {/* 지금 시점의 해석은 머리 한 줄(이야기)이 말한다. 여기서는 지난 시점이나 확인 전일 때만 덧붙인다 */}
         {(past || head.estimated) && <p className={`an-shead${!past && head.estimated ? ' is-est' : ''}`}>{headText}{!past && head.estimated && <AiMark />}</p>}
         <Radar vertices={vertices} max={scale.max} ticks={scale.ticks} label={label} trace={trace} selected={axis} onSelect={k => setPicked(k as Axis)} radius={low ? 108 : 132} fit />
-        <p className="an-rlegend">
-          <span><i className="an-rlegend__own" aria-hidden="true" />{past ? `${moment.label} 확인한 근거` : '확인한 근거'}</span>
-          {past ? <span><i className="an-rlegend__trace" aria-hidden="true" />지금 확인한 근거(윤곽)</span> : <span><i className="an-rlegend__est" aria-hidden="true" />AI 추정까지 전체</span>}
-        </p>
       </Card>
       {/* 오른쪽 칸은 레이더 카드와 아래 끝을 맞춘다. 늘어난 높이는 근거 목록(칸 안 스크롤)이 쓰고, 기회는 그 아래 */}
       <Card className="os-card an-rside" title={cur.label} action={<Button size="sm" variant="ghost" aria-haspopup="dialog" onClick={() => setOpen(axis)}>근거 자세히</Button>}>

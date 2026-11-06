@@ -138,10 +138,9 @@
 .xg .xg-name.is-dim { opacity: 0.5; }
 .xg-name:focus-visible .xg-name__bg { stroke: var(--focus); stroke-width: 3; }
 
-/* 범례: 그림 아래 한 줄 */
-.xg-legend { margin-top: var(--space-2); }
+/* 범례: 카드 머리가 없어 그림 아래 왼쪽 한 줄(KeyLegend) */
 .xg-state { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); }
-.xg-legend .xg-key { display: inline-block; flex: none; border-radius: var(--radius-full); }
+.xg-key { display: inline-block; flex: none; border-radius: var(--radius-full); }
 .xg-key--axis { width: var(--space-4); height: var(--space-4); background: var(--navy-100); box-shadow: inset 0 0 0 1px var(--line); }
 .xg-key--rec { width: var(--space-2); height: var(--space-2); background: var(--ink-muted); }
 

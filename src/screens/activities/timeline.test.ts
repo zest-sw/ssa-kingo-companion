@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_ACTIVITIES } from '../../data/seed';
 import { PROTOTYPE_TODAY } from '../../domain/today';
-import { addDays, clipRows, columnCounts, monthRange, parseSchedule, timelineOf } from './timeline';
+import { addDays, clipRows, columnCounts, ganttLegend, monthRange, parseSchedule, timelineOf } from './timeline';
 
 describe('parseSchedule', () => {
   it('날짜 범위', () => expect(parseSchedule('9월 4일 ~ 12월 10일 · 매주 목')).toEqual({ start: '2026-09-04', end: '2026-12-10' }));
@@ -78,4 +78,17 @@ describe('clipRows', () => {
     expect(hidden).toBeGreaterThan(0);
   });
   it('limit 이하면 그대로', () => expect(clipRows([], oct)).toEqual({ rows: [], hidden: 0 }));
+});
+
+describe('ganttLegend', () => {
+  const range = { start: '2026-10-01', end: '2026-10-31' };
+  const row = (o: Partial<import('../../components').GanttRow>) => ({ id: 'a', label: 'a', start: '2026-10-05', end: '2026-10-20', state: 'active' as const, ...o });
+  it('보이는 기호만', () => {
+    expect(ganttLegend([row({})], range).map(k => k.label)).toEqual(['하는 중']);
+  });
+  it('범위 밖 마감·발표와 범위 밖 막대는 뺀다', () => {
+    const rows = [row({ state: 'prep', deadline: '2026-11-03', result: '2026-10-25' }), row({ id: 'b', state: 'done', start: '2026-09-01', end: '2026-09-10' })];
+    expect(ganttLegend(rows, range).map(k => k.label)).toEqual(['준비·대기', '결과 발표']);
+  });
+  it('줄이 없으면 범례도 없다', () => expect(ganttLegend([], range)).toEqual([]));
 });

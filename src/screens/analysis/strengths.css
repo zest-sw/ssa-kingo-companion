@@ -11,12 +11,9 @@
 .an-shead { margin: 0 0 var(--space-2); color: var(--ink-strong); font-size: var(--text-2xl); font-weight: var(--weight-heavy); line-height: var(--leading-tight); }
 /* 확인한 근거가 없을 때의 머리 문장: AI 추정이라 점선 점과 옅은 글자로 */
 .an-shead.is-est { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-lg); font-weight: var(--weight-bold); }
-.an-rlegend { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-1) var(--space-4); margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-xs); }
-.an-rlegend span { display: inline-flex; align-items: center; gap: var(--space-1); }
-.an-rlegend i { display: inline-block; width: var(--space-5); height: var(--space-3); box-sizing: border-box; }
-.an-rlegend .an-rlegend__own { border: 2px solid var(--navy-900); background: var(--navy-100); }
-.an-rlegend .an-rlegend__est { height: 0; border-top: 1.5px dashed var(--ink-subtle); }
-.an-rlegend .an-rlegend__trace { height: 0; border-top: 1px solid var(--ink-muted); }
+/* 육각형 범례 기호: 그림 속 확인 면(테두리 + 옅은 면)과 지난 시점의 윤곽선 */
+.an-skey--own { box-sizing: border-box; border: 2px solid var(--navy-900); background: var(--navy-100); }
+.an-skey--trace { height: 0; border-top: 1px solid var(--ink-muted); border-radius: 0; }
 .an-rcount { margin: 0 0 var(--space-4); }
 .an-rev { display: flex; flex-direction: column; gap: var(--space-3); }
 .an-rev li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: start; }

@@ -1,4 +1,4 @@
-import type { DateRange, GanttRow, GanttState } from '../../components';
+import type { DateRange, GanttRow, GanttState, LegendItem } from '../../components';
 import { COLUMN_OF } from '../../domain/activities';
 import type { Activity, ActivityStatus } from '../../domain/types';
 import { PROTOTYPE_TODAY, TODAY_YEAR } from '../../domain/today';
@@ -114,4 +114,22 @@ export function clipRows(rows: GanttRow[], range: DateRange, limit = 5): Clipped
   const order = [...dated.slice(0, cap), ...active, ...dated.slice(cap), ...idx.filter(x => !dated.includes(x) && !active.includes(x))];
   const keep = new Set(order.slice(0, limit).map(x => x.i));
   return { rows: hit.filter((_, i) => keep.has(i)), hidden: hit.length - limit };
+}
+
+const GANTT_KEYS: { label: string; mark: LegendItem['mark']; tone?: LegendItem['tone']; shown: (rows: GanttRow[], inside: (d?: string) => boolean) => boolean }[] = [
+  { label: '준비·대기', mark: 'hatch', tone: 'ink', shown: rows => rows.some(r => r.state === 'prep') },
+  { label: '하는 중', mark: 'fill', tone: 'ink', shown: rows => rows.some(r => r.state === 'active') },
+  { label: '끝', mark: 'faded', tone: 'ink', shown: rows => rows.some(r => r.state === 'done') },
+  { label: '마감', mark: 'diamond', tone: 'ink', shown: (rows, inside) => rows.some(r => inside(r.deadline)) },
+  { label: '결과 발표', mark: 'circle', tone: 'ink', shown: (rows, inside) => rows.some(r => inside(r.result)) }
+];
+
+/**
+ * 일정표 범례: 지금 그린 범위에 실제로 보이는 기호만. 기호를 다 늘어놓으면 읽을 것이 늘어난다.
+ * 오늘 선은 그림에 '오늘' 글자가 붙어 있어 범례에 넣지 않는다.
+ */
+export function ganttLegend(rows: GanttRow[], range: DateRange): LegendItem[] {
+  const inside = (d?: string) => !!d && d >= range.start && d <= range.end;
+  const seen = rows.filter(r => r.end >= range.start && r.start <= range.end);
+  return GANTT_KEYS.filter(k => k.shown(seen, inside)).map(({ label, mark, tone }) => ({ label, mark, tone }));
 }

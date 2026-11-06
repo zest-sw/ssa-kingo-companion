@@ -10,12 +10,14 @@ import { isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import type { RecordItem } from '../../domain/types';
 import { STATUS_LABEL } from '../../domain/vocab';
+import { KeyLegend } from './KeyLegend';
 import { RecordSummary } from './RecordSummary';
 import { TreeGraph } from './TreeGraph';
 import { useTechTree } from './useTechTree';
 import './techtree.css';
 
 type View = 'graph' | 'list';
+const TREE_KEYS = [{ label: '한 활동', key: 'an-key an-key--done' }, { label: '지금 신청할 수 있는 활동', key: 'an-key an-key--candidate' }];
 
 export default function TechTreeTab({ records }: { records: RecordItem[] }) {
   const [mode, setMode] = useState<View>('graph');
@@ -27,11 +29,11 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
   const toRecommend = (c: TreeCell) => (c.programId ? openEntity({ kind: 'opportunity', id: c.programId }) : navigate('recommend'));
 
   return (
-    // 결론 한 줄은 페이지 머리가 말하고, 읽는 법은 그림 아래 한 줄로 둔다. 카드 머리에는 보기 방식만.
+    // 결론 한 줄은 페이지 머리가 말한다. 카드 머리 오른쪽에 범례(그림일 때)와 보기 방식. 깊이는 위 눈금(입문·중급·심화)이 말한다.
     <Card
       className="os-card tt-card"
       aria-label="테크 트리"
-      action={<SegmentedControl<View> label="보기 방식" value={mode} onChange={setMode} items={[{ id: 'graph', label: '그림으로 보기' }, { id: 'list', label: '지금 신청할 수 있는 것만' }]} />}
+      action={<>{mode === 'graph' && <KeyLegend items={TREE_KEYS} />}<SegmentedControl<View> label="보기 방식" value={mode} onChange={setMode} items={[{ id: 'graph', label: '그림으로 보기' }, { id: 'list', label: '지금 신청할 수 있는 것만' }]} /></>}
     >
       {mode === 'graph' ? (
         <>
@@ -39,12 +41,6 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
             {!filled && <p className="an-note an-note--top">아직 한 활동이 없어요. 점선 활동을 눌러 신청을 준비하거나, 끝난 활동의 회고를 써 보세요.</p>}
             <TreeGraph tree={tree} onOpen={setOpen} onCandidate={toRecommend} onFold={(row, col) => setStage({ row, col })} />
           </div>
-          <p className="an-legend tt-read">
-            오른쪽으로 갈수록 깊은 활동이에요.
-            <span><span className="an-key an-key--done" aria-hidden="true" />실선은 한 활동,</span>
-            <span><span className="an-key an-key--candidate" aria-hidden="true" />점선은 지금 신청할 수 있는 활동이에요.</span>
-            활동을 누르면 자세히 보여요.
-          </p>
         </>
       ) : (
         <div className="os-scroll"><CandidateList cells={tree.candidates} onPick={toRecommend} /></div>

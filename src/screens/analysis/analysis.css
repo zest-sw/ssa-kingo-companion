@@ -196,3 +196,8 @@
 .an-swhen__dot.an-g--other:not(.is-est), .an-g--other > .an-swhen__dot { border: var(--an-line-w-thin) solid var(--c); }
 .an-kw.is-est { color: var(--ink-muted); text-decoration: underline dashed var(--ink-subtle); text-underline-offset: var(--space-1); }
 /* 요약 판 나의 강점 빈칸: 다른 빈칸 그림처럼 점선 윤곽 */
+
+/* 범례(KeyLegend): 공용 Legend 와 같은 16px 기호 칸. 머리 오른쪽에 들어가면 위 여백을 뺀다 */
+.an-keylegend__mark { display: inline-grid; place-items: center; width: var(--space-4); height: var(--space-4); flex: none; }
+.an-keylegend__mark > .an-key { width: var(--an-key-w-sm); }
+.ui-card__action > .an-keylegend { margin: 0; }

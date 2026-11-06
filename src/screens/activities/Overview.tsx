@@ -12,7 +12,7 @@ import { retroQueue, weekOf, weekTitle } from './week';
 
 const LEGEND: LegendItem[] = [
   { label: '마감', mark: 'diamond', tone: 'ink' }, { label: '하는 중', mark: 'hatch', tone: 'ink' },
-  { label: '모이는 날', mark: 'dot', tone: 'ink' }, { label: '오늘', mark: 'today' }
+  { label: '모이는 날', mark: 'dot', tone: 'ink' }
 ];
 
 /** 할 일 한 줄: 얇은 막대 하나를 개수 비율로 나누고 아래에 이름과 수를 적는다. 누르는 곳은 없다(일정은 구역 탭이 맡는다). */
