@@ -307,7 +307,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
         {brief && (
           <div className="xg-tip__in">
             <b>{brief.name}</b>
-            <span>{brief.kind === 'record' ? `활동 · ${brief.where} 묶음` : '역량'}</span>
+            <span>{brief.kind === 'record' ? `${brief.where} 묶음의 활동` : '역량'}</span>
             <span>확인 근거 <b className="num">{brief.confirmed}</b> · 추정 <b className="num">{brief.estimated}</b></span>
             <span>{brief.kind === 'record' ? '이어진 활동' : '근거 활동'} <b className="num">{brief.linked}</b>개</span>
           </div>
