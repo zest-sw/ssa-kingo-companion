@@ -60,6 +60,10 @@
 .app-gear:hover { background: var(--nav-hover-bg); color: var(--text); }
 .app-gear[aria-current='page'] { background: var(--nav-current-bg); color: var(--text); box-shadow: inset var(--nav-mark) 0 0 var(--text); }
 
+/* 가입 인터뷰 중 집중 모드: 길 찾기를 한 단계 더 물러나게. 누를 수 없음은 inert 가 맡는다 */
+.app-side nav, .app-side__foot { transition: opacity var(--dur-base) var(--ease-out); }
+.app-side[data-focus] nav, .app-side[data-focus] .app-side__foot { opacity: var(--dg-faded); }
+
 /* 본문 칸. 화면 틀(.os)이 남은 높이를 채우고, 넘칠 때만(창 높이가 --app-min-h 아래이거나 긴 화면) 여기가 스크롤한다. */
 .app-main {
   position: relative; min-width: 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column;
