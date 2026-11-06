@@ -253,6 +253,8 @@
   background: var(--ink-strong); color: var(--ink-inverse); font-size: var(--text-sm); box-shadow: var(--shadow-overlay);
   animation: ui-pop var(--dur-base) var(--ease-out);
 }
+/* 동작 버튼이 없으면 버튼이 받던 오른쪽 여백을 글자가 받는다 */
+.ui-toast:not(:has(.ui-toast__btn)) { padding-right: var(--space-4); }
 .ui-toast > span { flex: 1; padding: var(--space-2) 0; }
 .ui-toast__btn { min-height: var(--hit-min); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--lime-100); font-weight: var(--weight-bold); white-space: nowrap; }
 .ui-toast__btn:hover { background: var(--on-dark-hover); }
