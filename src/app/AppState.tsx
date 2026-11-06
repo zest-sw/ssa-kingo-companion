@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react';
-import { useToast } from '../components';
+import { TOAST_ACTION_MS, TOAST_MS, useToast } from '../components';
 import { buildCandidates, type CandidateView } from '../domain/candidates';
 import { discState } from '../domain/discoveries';
 import { effectiveChoices } from '../domain/recommend-flow/flow';
@@ -22,9 +22,14 @@ export type AppContextValue = {
   discStateOf: (d: Discovery) => DiscState;
   /** 상태를 바꾸는 유일한 길. 여러 액션을 배열로 넘기면 되돌리기가 한 번에 되돌린다. */
   run: (action: Action | Action[], opts?: RunOptions) => void;
+  /** 결과 토스트가 떠 있으면 그 뒤에 띄운다(도전 과제 달성처럼 행동 결과에 딸려 오는 알림). 결과를 먼저 말한다 */
+  toastAfter: (message: string) => void;
   /** 예시 상태와 저장한 프로필을 모두 처음으로 */
   resetAll: () => void;
 };
+
+/** 앞 토스트가 닫히고 다음 토스트가 뜨기까지 쉬는 틈. 같은 순간에 뜨면 닫히는 쪽이 새 것을 지운다 */
+const NEXT_TOAST_GAP_MS = 400;
 
 const AppContext = createContext<AppContextValue | null>(null);
 
@@ -33,6 +38,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const toast = useToast();
   const latest = useRef(state);
   latest.current = state;
+  // 결과 토스트가 사라질 때까지 뒤 알림을 기다리게 한다. 토스트는 한 자리뿐이라 새 것이 옛 것을 덮는다.
+  // ponytail: 화면이 useToast 로 직접 띄운 토스트와 마우스를 올려 멈춘 시간은 모른다. 토스트에 줄 세우기가 생기면 그쪽으로 옮긴다.
+  const busyUntil = useRef(0);
+  const queue = useRef<string[]>([]);
+  const timer = useRef<number | undefined>(undefined);
+  const schedule = useCallback(() => {
+    window.clearTimeout(timer.current);
+    if (!queue.current.length) return;
+    timer.current = window.setTimeout(() => {
+      const next = queue.current.shift();
+      if (next) { toast(next); busyUntil.current = Date.now() + TOAST_MS; }
+      schedule();
+    }, Math.max(0, busyUntil.current + NEXT_TOAST_GAP_MS - Date.now()));
+  }, [toast]);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  const toastAfter = useCallback((message: string) => { queue.current.push(message); schedule(); }, [schedule]);
 
   useEffect(() => { saveState(state); }, [
     state.demo, state.records, state.profile, state.onboarded, state.visibility, state.settings, state.notify, state.choices, state.laterUntil, state.dislikedFields, state.preferEasier,
@@ -45,8 +66,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     // 같은 이벤트 안에서 run 을 또 불러도 방금 바뀐 상태를 기준으로 삼는다.
     latest.current = after;
     list.forEach(dispatch);
-    if (opts.toast) toast(opts.toast, opts.undoable ? { onUndo: () => dispatch(undo) } : undefined);
-  }, [toast]);
+    if (opts.toast) {
+      toast(opts.toast, opts.undoable ? { onUndo: () => dispatch(undo) } : undefined);
+      busyUntil.current = Date.now() + (opts.undoable ? TOAST_ACTION_MS : TOAST_MS);
+      schedule();
+    }
+  }, [toast, schedule]);
 
   const resetAll = useCallback(() => { clearSaved(); dispatch({ type: 'reset' }); }, []);
 
@@ -58,7 +83,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const discStateOf = useCallback((d: Discovery) => discState(d, state.confirm), [state.confirm]);
 
-  const value = useMemo(() => ({ state, view, discStateOf, run, resetAll }), [state, view, discStateOf, run, resetAll]);
+  const value = useMemo(() => ({ state, view, discStateOf, run, toastAfter, resetAll }), [state, view, discStateOf, run, toastAfter, resetAll]);
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 

@@ -3,8 +3,8 @@ import { hrefOf } from '../../app/router';
 import { Icon, Panel } from '../../components';
 import type { WeekGroup, WeekTask, WeekTaskKind } from '../../domain/homeStatus';
 
-/** 묶음 머리가 할 일 이름을 한 번만 말한다. 줄에는 활동 이름과 때만 */
-const GROUP_NAME: Record<WeekTaskKind, string> = { deadline: '신청 마감', review: '회고 쓰기', meet: '모임' };
+/** 묶음 머리가 할 일 이름을 한 번만 말한다. 줄에는 활동 이름과 때만(마감 줄은 무엇의 마감인지도: 신청서만 마감이 있는 게 아니다) */
+const GROUP_NAME: Record<WeekTaskKind, string> = { deadline: '마감', review: '회고 쓰기', meet: '모임' };
 const GHOST: { kind: WeekTaskKind; line: string }[] = [
   { kind: 'deadline', line: '신청을 준비하면 마감이 생겨요' },
   { kind: 'review', line: '활동을 마치면 생겨요. 지난 활동은 기록 탭에서 직접 남겨요' }
@@ -51,7 +51,7 @@ function TaskRow({ t }: { t: WeekTask }) {
   const body = (
     <>
       <span className="home-q__title">{t.title}</span>
-      <span className="home-q__when num" data-urgent={t.urgent || undefined}>{t.when}</span>
+      <span className="home-q__when num" data-urgent={t.urgent || undefined}>{t.what && <span className="home-q__what">{t.what}</span>}{t.when}</span>
       <Icon name="chevron" size={14} />
     </>
   );

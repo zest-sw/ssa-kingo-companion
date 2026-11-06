@@ -83,6 +83,8 @@
 .home-q__title { min-width: 0; font-weight: var(--weight-bold); line-height: var(--leading-tight); }
 .home-q__when { color: var(--ink-muted); font-size: var(--text-sm); }
 .home-q__when[data-urgent] { color: var(--accent-ink); font-weight: var(--weight-bold); }
+/* 무엇의 마감인지('사전 설문'): 때보다 옅게, 급해도 색을 입히지 않는다 */
+.home-q__what { margin-right: var(--space-1); color: var(--text-sub); font-weight: var(--weight-regular); }
 
 /* 높은 화면: 문 그림을 위에 두어 문을 조금 키운다(할 일 목록이 옆에서 더 보인다) */
 @media (min-height: 760px) {

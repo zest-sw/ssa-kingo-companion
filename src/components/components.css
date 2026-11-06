@@ -67,8 +67,9 @@
 }
 .ui-chip:hover:not(:disabled) { background: var(--surface-hover); }
 .ui-chip:active:not(:disabled) { background: var(--surface-press); }
-.ui-chip[aria-pressed='true']:active:not(:disabled) { background: color-mix(in srgb, var(--primary) var(--tint), var(--surface)); }
-.ui-chip[aria-pressed='true'] { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: var(--weight-bold); }
+/* 켜짐/꺼짐은 테두리 진하기 + 글자 굵기 + 체크로만 가른다. 바탕은 둘 다 흰색 */
+.ui-chip[aria-pressed='false'] { border-color: var(--line); color: var(--text-sub); }
+.ui-chip[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); font-weight: var(--weight-bold); }
 .ui-chip:disabled { color: var(--ink-subtle); background: var(--grey-100); border-color: var(--line); }
 .ui-chip:focus-visible { border-radius: var(--radius-sm); }
 

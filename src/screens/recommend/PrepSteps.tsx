@@ -9,7 +9,7 @@ import { markChanged } from '../../domain/recommend-flow/prepare';
 export type DraftState = { status: 'writing'; draft?: Draft } | { status: 'ready'; draft: Draft; at: string; prev?: string } | { status: 'error' };
 
 /** 준비 ① 준비할 것: 주인공은 내가 할 체크 목록. 에이전트가 한 일은 목록에 섞지 않고 맨 위 한 줄로 접어 둔다. */
-export function TodoStep({ items, week, enabled, draftReady, urgentLine, left, log, summary, onToggle, onOpened }: {
+export function TodoStep({ items, week, enabled, urgentLine, left, log, summary, onToggle, onOpened }: {
   items: PrepItem[]; week: number; enabled: boolean; draftReady: boolean; urgentLine?: string; left: number; log: LogEntry[];
   summary: { text: string; warn?: string }; onToggle: (id: string) => void; onOpened: (id: string) => void;
 }) {
@@ -20,22 +20,39 @@ export function TodoStep({ items, week, enabled, draftReady, urgentLine, left, l
       {/* 하나만 남았으면 아래 줄과 같은 말이라 개수만 */}
       <p className="rec-pstep__lead"><b>{left > 1 && urgentLine ? urgentLine : left > 0 ? `남은 준비 ${left}개` : '준비를 모두 끝냈어요'}</b>{left > 1 && <span className="rec-muted">남은 준비 {left}개</span>}</p>
       <ul className="rec-items">
-        {items.filter(i => i.by === 'me').map(i => (
+        {items.filter(i => i.by === 'me').map(i => {
+          const text = (
+            <span className="rec-item__text">
+              <span className="rec-item__label">{i.label}</span>
+              {!i.done && i.hint && <span className="rec-item__hint">{i.hint}</span>}
+            </span>
+          );
+          // 초안 확인은 다음 단계에서 읽으면 끝나고, 밖에서 할 일은 연 뒤에 체크한다.
+          // 지금 누를 수 없는 것은 체크 칸 대신 상태 아이콘으로 둔다(누를 수 있는 것과 모양이 달라야 한다)
+          const tickable = enabled && canCheck(i) && i.id !== 'draft';
+          return (
           <li key={i.id} className={`rec-item${i.done ? ' rec-item--done' : ''}`}>
-            <label className="rec-item__box">
-              <input type="checkbox" checked={i.done} disabled={!canCheck(i) || !enabled || (i.id === 'draft' && !draftReady)} onChange={() => onToggle(i.id)} />
-              <span className="rec-item__text">
-                <span className="rec-item__label">{i.label}</span>
-                {!i.done && i.hint && <span className="rec-item__hint">{i.hint}</span>}
+            {tickable ? (
+              <label className="rec-item__box">
+                <input type="checkbox" checked={i.done} onChange={() => onToggle(i.id)} />
+                {text}
+              </label>
+            ) : (
+              <span className="rec-item__box rec-item__box--static">
+                <span className="rec-item__state" data-done={i.done || undefined}>
+                  <Icon name={i.done ? 'check' : i.id === 'draft' ? 'doc' : i.outside ? 'external' : 'clock'} size={16} />
+                </span>
+                {text}
               </span>
-            </label>
+            )}
             {!i.done && i.link && <a className="rec-link rec-item__link" href={hrefOf(i.link.path)}>{i.link.label}<Icon name="chevron" size={14} /></a>}
             {!i.done && i.outside && enabled && (i.opened
               ? <Button size="sm" variant="primary" icon="check" onClick={() => onToggle(i.id)}>했어요</Button>
               : <a className="rec-link rec-item__link" href={OUTSIDE_URL[i.id]} target="_blank" rel="noopener noreferrer" onClick={() => onOpened(i.id)}>{i.outside}<Icon name="external" size={14} /><span className="sr-only">(새 탭)</span></a>)}
             <span className="rec-item__due num">{i.done ? '완료' : i.dday !== undefined ? `${dateLabel(i.dday, week)}까지` : ''}</span>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </>
   );

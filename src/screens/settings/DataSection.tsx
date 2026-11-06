@@ -6,6 +6,7 @@ import { SCHOOL_DATA } from '../../data/settings';
 import { exportText } from '../../domain/exportData';
 import type { Settings } from '../../domain/types';
 import { Group, Row } from './Row';
+import { useStartOver } from './useStartOver';
 
 const FLAGS: { key: keyof Settings; title: string; sub: string; on: string; off: string }[] = [
   { key: 'discover', title: '회고를 발견과 추천에 쓰기', sub: '끄면 회고로 발견을 만들지 않고, 추천 이유에도 쓰지 않아요', on: '회고를 다시 발견과 추천에 써요.', off: '회고를 발견과 추천에 쓰지 않아요.' },
@@ -14,7 +15,8 @@ const FLAGS: { key: keyof Settings; title: string; sub: string; on: string; off:
 
 /** 데이터·개인정보. 데이터마다 '어디서 왔고 무엇에 쓰는지'를 한 줄로, 학교 데이터는 동의 안내를 거쳐서, 내보내기·지우기까지. */
 export function DataSection() {
-  const { state, run, resetAll } = useApp();
+  const { state, run } = useApp();
+  const startOver = useStartOver();
   const toast = useToast();
   const [school, setSchool] = useState<(typeof SCHOOL_DATA)[number] | null>(null);
   const [erase, setErase] = useState(false);
@@ -26,7 +28,7 @@ export function DataSection() {
     URL.revokeObjectURL(url);
     toast('내 데이터를 파일로 내려받았어요.');
   };
-  const wipe = () => { resetAll(); setErase(false); navigate('home'); toast('이 브라우저의 내 데이터를 지웠어요. 가입 인터뷰부터 다시 해요.'); };
+  const wipe = () => { setErase(false); startOver('이 브라우저의 내 데이터를 지웠어요. 가입 인터뷰부터 다시 해요.'); };
 
   return (
     <div className="st-stack">

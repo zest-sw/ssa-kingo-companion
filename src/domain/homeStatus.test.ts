@@ -21,6 +21,8 @@ describe('홈 상태', () => {
     ], 1);
     expect(groups.map(g => g.kind)).toEqual(['deadline', 'review']);
     expect(groups[0].tasks.map(t => [t.title, t.when, !!t.urgent])).toEqual([['d0', '오늘 18:00', true], ['d5', 'D-5', false]]);
+    // 무엇의 마감인지는 활동마다 다르다
+    expect(groups[0].tasks.map(t => t.what)).toEqual(['사전 설문', '신청']);
     expect(groups[0].tasks[0].target).toEqual({ path: expect.stringContaining('p0') });
     expect(groups[1].tasks[0]).toMatchObject({ when: '10월 11일 끝남', label: 'r 회고 쓰기', target: { path: 'activities/records/interview/r' } });
   });

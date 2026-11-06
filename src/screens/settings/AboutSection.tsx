@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { useApp } from '../../app/AppState';
-import { navigate } from '../../app/router';
 import { Button, Card, Modal, useToast } from '../../components';
 import { ABOUT_LINES, PRINCIPLE_LINES } from '../../data/settings';
 import { Group, Row } from './Row';
+import { useStartOver } from './useStartOver';
 
-/** 프로토타입 정보. 데이터가 예시임을 밝히는 단 한 곳이고, 예시 학생으로 보기와 처음부터 다시(새 학생)도 여기 있다. */
+/**
+ * 프로토타입 정보. 데이터가 예시임을 밝히는 단 한 곳이고, 예시 학생으로 보기와 처음부터 다시(새 학생)도 여기 있다.
+ * 처음부터 다시는 둘러보던 사람이 새 학생 흐름을 다시 보는 길이고, 지우는 일은 데이터·개인정보 '내 데이터 지우기'와 같은 함수(useStartOver)다.
+ */
 export function AboutSection() {
-  const { state, run, resetAll } = useApp();
+  const { state, run } = useApp();
+  const startOver = useStartOver();
   const toast = useToast();
   const [ask, setAsk] = useState(false);
   const [askMode, setAskMode] = useState(false);
-  const reset = () => { resetAll(); setAsk(false); navigate('home'); toast('처음부터 다시 시작해요'); };
+  const reset = () => { setAsk(false); startOver('새 학생으로 처음부터 시작해요'); };
   // 지금 상태를 예시로 덮기 전에 한 번 묻는다. 무엇이 사라지는지 말한다.
   const mine = state.demo ? 0 : state.activities.length + state.records.length;
   const overwrite = state.demo
@@ -53,7 +57,7 @@ export function AboutSection() {
         onClose={() => setAsk(false)}
         actions={<><Button onClick={() => setAsk(false)}>취소</Button><Button variant="primary" onClick={reset}>다시 시작</Button></>}
       >
-        이 브라우저에 남긴 프로필, 고른 것, 초안, 설정이 지워져요.
+        지금 보던 상태를 지우고 새 학생으로 가입 인터뷰부터 다시 봐요. 프로필, 고른 것, 초안, 설정이 지워져요.
       </Modal>
       <Modal
         open={askMode}

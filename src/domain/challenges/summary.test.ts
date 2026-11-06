@@ -8,7 +8,7 @@ const defs = [
   { id: 'c', rule: 'firstPlaces', hidden: false, name: '처음 가 보는 곳' },
   { id: 'd', rule: 'retry', hidden: true, name: '다시 도전' }
 ] as const;
-const rec = (field: string) => ({ id: field, field, source: 'user' });
+const rec = (field: string) => ({ id: field, field, source: 'agent' });
 const run = (records: unknown[]) => evaluate([...defs], { records: records as never, activities: [], programs: {} });
 
 describe('다음 도전 과제', () => {
