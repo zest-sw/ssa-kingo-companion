@@ -65,6 +65,19 @@
 .iv-done__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .iv-done__more { margin-top: calc(-1 * var(--space-2)); font-size: var(--text-sm); color: var(--ink-muted); }
 
+/* 낮은 화면(1280×640): 미리보기가 패널 안에 다 들어오게 간격을 한 단계 줄이고,
+   공개 범위와 '추천에 쓰기'를 두 칸으로 나란히 둔다(저장 전에 둘 다 보여야 한다). 칸 줄은 32px 를 지킨다. */
+@media (max-height: 759px) {
+  .iv-panel .ui-panel__body { gap: var(--space-3); }
+  .iv-q { gap: var(--space-2); }
+  .iv-sheet { gap: var(--space-2); padding: var(--space-3) var(--space-4); }
+  .iv-row { padding: 0; }
+  .iv-panel .rec-card__foot { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-6); row-gap: var(--space-1); align-items: center; }
+  .iv-panel .rec-card__foot > .rec-setting:first-child, .iv-panel .rec-card__foot > .rec-setting:first-child + .rec-setting__hint { grid-column: 1; }
+  .iv-panel .rec-card__foot > .rec-setting:not(:first-child) { grid-column: 2; grid-row: 1; }
+  .iv-panel .rec-card__foot > .rec-setting__hint--left { grid-column: 2; grid-row: 2; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .iv-q, .iv-done__card { animation: none; }
 }
