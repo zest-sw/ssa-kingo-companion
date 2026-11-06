@@ -8,11 +8,15 @@ import { traceLine, type TraceNode } from './trace';
 const SPECIFIC_ORDER: GainKind[] = ['money', 'job', 'mentor', 'output', 'people', 'cert', 'skill'];
 const hasNumber = (g: Gain) => /\d/.test(g.label);
 
-/** 얻는 것 중 가장 구체적인 하나. keyGain(포트폴리오 피드백) → '1:1 피드백 15분' */
-export function keyGain(p: Program): Gain | undefined {
+/** 얻는 것을 구체적인 것부터 n개. 종류가 겹치지 않게 고른다(가장 추천 카드는 둘). */
+export function keyGains(p: Program, n: number): Gain[] {
   const rank = (g: Gain) => (hasNumber(g) ? 0 : SPECIFIC_ORDER.length) + SPECIFIC_ORDER.indexOf(g.kind);
-  return [...gainsOf(p)].sort((a, b) => rank(a) - rank(b))[0];
+  const sorted = [...gainsOf(p)].sort((a, b) => rank(a) - rank(b));
+  return sorted.filter((g, i) => sorted.findIndex(x => x.kind === g.kind) === i).slice(0, n);
 }
+
+/** 얻는 것 중 가장 구체적인 하나. keyGain(포트폴리오 피드백) → '1:1 피드백 15분' */
+export const keyGain = (p: Program): Gain | undefined => keyGains(p, 1)[0];
 
 /** 내 기록·발견·진로·강점에 이어진 이유. 이게 있으면 이유가 얻는 것보다 그 학생에게 뜻있다. */
 const RECORD_KINDS: TraceNode['kind'][] = ['energy', 'focus', 'career', 'strength'];
