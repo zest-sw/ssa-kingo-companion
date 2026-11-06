@@ -122,7 +122,7 @@
 /* 확인할 발견: 한 장씩. 질문 + 근거 기록이 하나의 발견으로 모이는 도식 + 답 */
 .an-disc-card { min-height: 0; }
 .an-disc-card__count { color: var(--ink-muted); font-size: var(--text-sm); }
-.an-dq { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; padding: var(--space-3) var(--space-4); border: 1px dashed var(--line-strong); border-radius: var(--radius-md); background: var(--surface); }
+.an-dq { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; padding: var(--space-3) var(--space-4); border: 1px dashed var(--line-strong); border-radius: var(--radius-md); background: var(--surface); transition: background-color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
 .an-dq--yes, .an-dq--no { border-style: solid; border-color: var(--line); background: var(--surface-alt); }
 .an-dq--changed { border-style: solid; border-color: var(--orange-500); }
 .an-dq__q { margin: 0; font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); }

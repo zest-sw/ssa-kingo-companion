@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, ConfirmDot, Drawer, EmptyState, Icon, useToast } from '../../components';
@@ -7,6 +7,10 @@ import { discoverySource, discoveryUse, groupDiscoveries, nextToAsk, usedCount }
 import { discoveryPic, type DiscoveryPic } from '../../domain/analysis/visual';
 import type { DiscState, Discovery } from '../../domain/types';
 import { RecordSummary } from './RecordSummary';
+
+/** 맞아요 뒤 다음 장으로 넘어가기 전에 머무는 시간. 점선이 실선으로 바뀌는 전이(--dur-base)를 보고 넘어간다 */
+const CONFIRM_HOLD_MS = 480;
+const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const ROW_H = 22;
 const PAD = 8;
@@ -75,6 +79,10 @@ export function DiscoveryCards() {
   const [skipped, setSkipped] = useState<string[]>([]);
   const [seeing, setSeeing] = useState<Discovery | null>(null);
   const [listing, setListing] = useState(false);
+  // 방금 맞아요를 누른 발견. 그 장에서만 확인 전이를 한 번 돌린다(n 이 바뀌면 처음부터 다시)
+  const [flip, setFlip] = useState<{ key: string; n: number }>();
+  const hold = useRef<number>(undefined);
+  useEffect(() => () => window.clearTimeout(hold.current), []);
   const list = view.discoveries;
   const isOpen = (x: Discovery) => ['none', 'changed'].includes(discStateOf(x));
   const fresh = (x: Discovery) => isOpen(x) && !skipped.includes(x.key);
@@ -95,7 +103,14 @@ export function DiscoveryCards() {
     run({ type: 'discovery/confirm', discovery: target, status }, {
       toast: cancel ? '확인을 거뒀어요.' : status === 'yes' ? '맞다고 했어요. 추천에 반영할게요.' : '아니라고 했어요. 추천에 쓰지 않아요.'
     });
-    if (!cancel) moveOn(target, false);
+    window.clearTimeout(hold.current);
+    if (cancel) return;
+    if (status === 'yes' && !reducedMotion()) {
+      // 첫 장은 focus 없이 '다음 확인할 것'으로 고른 장이라, 확인하면 바로 다른 장으로 바뀐다. 머무는 동안 이 장을 붙잡는다
+      setFocus(target.key);
+      setFlip(f => ({ key: target.key, n: (f?.n ?? 0) + 1 }));
+      hold.current = window.setTimeout(() => moveOn(target, false), CONFIRM_HOLD_MS);
+    } else moveOn(target, false);
   };
 
   const unsure = (target: Discovery) => {
@@ -118,7 +133,9 @@ export function DiscoveryCards() {
       ) : (
         <>
           <div className={`an-dq an-dq--${st}`}>
-            <p className="an-dq__q">{discoveryPic(d).question}</p>
+            {flip?.key === d.key && st === 'yes'
+              ? <p key={flip.n} className="an-dq__q ui-confirm-in">{discoveryPic(d).question}</p>
+              : <p className="an-dq__q">{discoveryPic(d).question}</p>}
             {/* 근거 그림 자체가 '근거 보기'다. 셈 한 줄이 그 버튼의 이름이다. */}
             <button type="button" className="an-dq__see" aria-label={`${discoverySource(d)}. 근거 기록 보기`} onClick={() => setSeeing(d)}>
               <span className="an-dq__src">{discoverySource(d)}<Icon name="chevron" size={16} /></span>
