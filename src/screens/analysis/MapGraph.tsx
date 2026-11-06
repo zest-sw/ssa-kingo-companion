@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useZoomPan, ZoomIcon, ZoomPanBar } from '../../components';
 import { RELATION_LABEL, clusterLinks, focusSet, hubTags, isTentative, type GraphEdge, type GraphFocus, type GraphNode, type KnowledgeGraph, type RecordNode } from '../../domain/analysis/graph';
-import { GRAPH_METRICS as M, hullExit, keywordLine, layoutGraph, nameSize, textWidth, placeEdgeLabels, placeHubTags, radiusOf, trimSegment, type GraphLayout, type Pt } from '../../domain/analysis/graphLayout';
+import { GRAPH_METRICS as M, hullExit, keywordLine, nameSize, textWidth, placeEdgeLabels, placeHubTags, radiusOf, trimSegment, type GraphLayout, type Pt } from '../../domain/analysis/graphLayout';
 import {
   centerOn, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, nodeBrief, nodeInv, pinLayout, scaleBoxes, textInv, toScreen, zoomDetail, ZOOM, type View
 } from '../../domain/analysis/graphView';
 import { memoRecent } from '../../domain/memo';
+import { fitLayout } from './mapFit';
 import { usePictureKeys } from './usePictureKeys';
 
 /** 두 번 누르거나 Enter: 활동은 기록 서랍, 역량은 근거 서랍, 이어짐 선은 맞는지 답하기 */
@@ -25,7 +26,7 @@ const FIT_PAD = 12;
 const CLUSTER_MAX_K = 1.6;
 const NO_PINS: Record<string, Pt> = {};
 // 그래프 배치는 같은 그래프·같은 크기면 다시 하지 않는다(탭을 오가거나 다시 열 때).
-const layoutOf = memoRecent(layoutGraph);
+const layoutOf = memoRecent((g: KnowledgeGraph, w: number, h: number) => fitLayout(g, w, h, FIT_PAD));
 
 /** 칸의 폭·높이를 따라간다. 그래프 배치가 칸 크기에 맞춰 다시 계산된다. */
 function useBox(fallback = { w: 720, h: 480 }) {
@@ -273,7 +274,6 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
           </g>
           {graph.clusters.map((c, ci) => {
             const p = layout.names[c.id];
-            const b = layout.boxes[`name:${c.id}`];
             const on = selCluster === c.id;
             const kw = keywordLine(c.keywords);
             const size = nameSize(ci === 0);
@@ -283,7 +283,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
               <g key={c.id} className={`xg-name${ci === 0 ? ' xg-name--hero' : ''}${isTentative(c) ? ' xg-name--ai' : ''}${on ? ' is-picked' : ''}${hot && !on && selCluster ? ' is-dim' : ''}`} data-zp-id={`cluster|${c.id}`} data-rove={`cluster|${c.id}`} data-rove-group={c.id} data-rove-head="" data-rove-start={ci === 0 ? '' : undefined} aria-label={`${c.name} 묶음, 활동 ${c.recordIds.length}개${why}. 이 묶음으로 확대해서 분석 보기`} aria-pressed={on}
                 {...keys(e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect({ kind: 'cluster', id: c.id }); goCluster(c.id); } })}>
                 <title>{kw ? `키워드 ${kw}` : isTentative(c) ? 'AI가 제안한 이름이에요. 옆 칸에서 확인해 주세요' : c.name}</title>
-                <rect x={p.x - pillW / 2} y={b.y} width={pillW} height={size.h} rx={size.h / 2} className="xg-name__bg" />
+                <rect x={p.x - pillW / 2} y={p.y - size.h / 2} width={pillW} height={size.h} rx={size.h / 2} className="xg-name__bg" />
                 <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className="xg-name__text">{c.name}</text>
               </g>
             );
