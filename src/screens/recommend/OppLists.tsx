@@ -103,7 +103,10 @@ export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen
           <ul className="rec-rows" {...keys}>
             {rows.map(({ key, item: p, presence }) => {
               const g = keyGain(p);
-              return <OppRow key={key} presence={presence} p={p} week={state.week} prefix={recommendedIds.has(p.id) ? '추천' : undefined} line={g && { kind: 'gain', text: g.label, source: 'gain' }} onOpen={onOpen} />;
+              // 관심 없음으로 뺀 것은 전체 기회에서 그 상태를 앞에 단다(되돌리러 온 학생이 찾게)
+              const choice = state.choices[p.id];
+              const prefix = choice === 'dismissed' ? '관심 없음' : recommendedIds.has(p.id) ? '추천' : undefined;
+              return <OppRow key={key} presence={presence} p={p} week={state.week} prefix={prefix} line={g && { kind: 'gain', text: g.label, source: 'gain' }} onOpen={onOpen} />;
             })}
           </ul>
         </div>

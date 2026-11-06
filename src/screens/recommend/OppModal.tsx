@@ -56,7 +56,10 @@ export function OppModal({ open = true, programId, actions, onClose }: { open?: 
         <>
           <Button variant="primary" disabled={closed || !p.eligible || chosen === 'preparing'} onClick={() => actions.onPrepare(p)}>{chosen === 'preparing' ? '신청 준비 중' : '신청 준비'}</Button>
           <Button onClick={() => actions.onLater(p)}>나중에 보기</Button>
-          <Button onClick={() => actions.onDismiss(p)}>관심 없음</Button>
+          {/* 토스트를 놓친 뒤에도 되돌릴 길: 뺀 활동은 전체 기회에서 열면 '추천에 다시 넣기'가 그 자리에 온다 */}
+          {chosen === 'dismissed'
+            ? <Button onClick={() => { run({ type: 'candidate/clear', programId: p.id }, { toast: '추천에 다시 넣었어요.' }); onClose(); }}>추천에 다시 넣기</Button>
+            : <Button onClick={() => actions.onDismiss(p)}>관심 없음</Button>}
           <a className="ui-link rec-modal__src" href={APPLY_URL} target="_blank" rel="noopener noreferrer">모집글 원문<Icon name="external" size={14} /><span className="sr-only">(새 탭)</span></a>
         </>
       }
