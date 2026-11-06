@@ -1,10 +1,36 @@
 import { josa } from './text';
-import type { Catalog, Did, Direction, Field, Funnel, Interest, LastDone, Mode, Profile, Program, Reason, ReasonKind, RecordItem, Scored } from './types';
-import { DID_LABEL, FIELD_GROUP, fieldName, inInterests } from './vocab';
+import type { Catalog, Category, Did, Direction, Field, FieldGroup, Funnel, Interest, LastDone, Mode, Profile, Program, Reason, ReasonKind, RecordItem, Scored } from './types';
+import { DID_LABEL, FIELD_GROUP, fieldName, GROUP_LABEL, inInterests } from './vocab';
 
 // 추천 규칙. v0.7 rank 를 그대로 옮겼다. 점수는 정렬에만 쓰고 화면에 내지 않는다.
 
 export const ddayOf = (p: Program, week: number) => p.ddayW1 - 7 * (week - 1);
+/** 관심 이름과 화면의 분류 이름이 같은 것. '멘토링'을 고른 학생에게 '멘토링' 분류 기회는 분야 묶음이 달라도 고른 관심이다. */
+const INTEREST_CATEGORY: Partial<Record<FieldGroup, Category[]>> = { mentor: ['mentoring'], global: ['global'] };
+
+/** 이 기회가 맞는 고른 관심(분야 묶음이 같거나 분류 이름이 같으면). 없으면 undefined */
+export function matchedInterest(p: Program, interests: readonly Interest[]): FieldGroup | undefined {
+  const g = FIELD_GROUP[p.field];
+  if (interests.includes(g)) return g;
+  return interests.find((i): i is FieldGroup => i !== 'unknown' && !!p.category && !!INTEREST_CATEGORY[i]?.includes(p.category));
+}
+
+/**
+ * 고른 관심을 먼저 존중한다(토스 05 Context Based). 고른 관심마다 가장 높은 기회 하나씩을 맨 앞으로 모은다.
+ * 그래서 고른 분야에 열린 기회가 있으면 가장 추천은 그 분야에서 나오고, 여럿 골랐으면 앞쪽에 분야마다 하나씩 들어간다.
+ * 목록을 몇 개로 자르더라도 고른 분야가 빠지지 않는다. 앞에 모은 것끼리, 나머지끼리는 원래 순서를 지킨다.
+ */
+export function respectInterests(scored: Scored[], interests: readonly Interest[]): Scored[] {
+  const front: Scored[] = [];
+  for (const i of interests) {
+    if (i === 'unknown') continue;
+    const best = scored.find(s => !front.includes(s) && matchedInterest(s.p, [i]) === i);
+    if (best) front.push(best);
+  }
+  const head = scored.filter(s => front.includes(s));
+  return [...head, ...scored.filter(s => !front.includes(s))];
+}
+
 export const directionsOf = (profile: Profile, directions: Direction[]) => directions.filter(d => inInterests(profile.interests, d.field));
 
 export type RankCtx = {
@@ -30,7 +56,8 @@ export type RankCtx = {
 
 /**
  * 거르기(이번 주 모집, 마감, 신청 대상, 시간·방식, 이미 했거나 뺀 것) 뒤 가점·감점으로 정렬한다.
- * 가점: 에너지 오른 일 +2, 확인한 발견 +2(좁혀 가는 중), 진로 요건 +1(빈 요건 +1.5), 안 해 본 분야 +1(관심 모름 +2), 관심 분야 +3, 마감 3일 안 +0.3.
+ * 고른 관심마다 가장 높은 하나는 맨 앞으로 모은다(respectInterests).
+ * 가점: 에너지 오른 일 +2, 확인한 발견 +2(좁혀 가는 중), 진로 요건 +1(빈 요건 +1.5), 안 해 본 분야 +1(관심 모름 +2), 관심 분야 +3(분류 이름이 같아도), 마감 3일 안 +0.3.
  * 감점: 지친 일 -1.5, 관심 없는 분야 -4, 입문 선호인데 2단계 이상 -2, 지난번과 같은 분야 -2.
  */
 export function rank(ctx: RankCtx): { scored: Scored[]; funnel: Funnel } {
@@ -74,7 +101,12 @@ export function rank(ctx: RankCtx): { scored: Scored[]; funnel: Funnel } {
       }
     }
     if (ctx.mode === 'explore' && !tried.has(FIELD_GROUP[p.field])) { score += unknown ? 2 : 1; reasons.push({ kind: 'novelty', text: `아직 해 보지 않은 ‘${fieldName(p.field)}’ 분야예요. 넓게 탐색하는 중이라 섞었어요.` }); }
-    if (inInterests(ctx.profile.interests, p.field)) { score += 3; reasons.push({ kind: 'interest', text: `처음에 고른 관심 ‘${fieldName(p.field)}’${josa(fieldName(p.field), '과', '와')} 맞아요.` }); }
+    const picked = matchedInterest(p, ctx.profile.interests);
+    if (picked) {
+      const name = picked === FIELD_GROUP[p.field] ? fieldName(p.field) : GROUP_LABEL[picked];
+      score += 3;
+      reasons.push({ kind: 'interest', text: `처음에 고른 관심 ‘${name}’${josa(name, '과', '와')} 맞아요.` });
+    }
     if (ctx.dislikedFields.includes(p.field)) score -= 4;
     if (ctx.preferEasier && p.level > 1) score -= 2;
     if (ctx.last && p.field === ctx.last.field) score -= 2;
@@ -83,7 +115,7 @@ export function rank(ctx: RankCtx): { scored: Scored[]; funnel: Funnel } {
     return { p, score, reasons };
   });
   scored.sort((a, b) => b.score - a.score);
-  return { scored, funnel: { pool: pool.length, open: open.length, eligible: eligible.length, fit: fit.length, fresh: fresh.length } };
+  return { scored: respectInterests(scored, ctx.profile.interests), funnel: { pool: pool.length, open: open.length, eligible: eligible.length, fit: fit.length, fresh: fresh.length } };
 }
 
 const MAIN_ORDER: ReasonKind[] = ['energy', 'focus', 'career', 'novelty', 'interest'];
