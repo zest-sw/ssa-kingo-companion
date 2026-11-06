@@ -121,6 +121,15 @@ export function laterChoices(dday: number): LaterChoice[] {
   return ok.filter((c, i) => ok.findIndex(x => x.days === c.days) === i).sort((a, b) => a.days - b.days);
 }
 
+/**
+ * 목록에서 바로 미룰 때 다시 볼 날: 다음 주, 그 전에 마감이면 고를 수 있는 가장 늦은 날. 미룰 수 없으면 undefined.
+ * 다시 볼 날은 나중에 보기 서랍에서 보인다.
+ */
+export function defaultLater(dday: number): LaterChoice | undefined {
+  const ok = laterChoices(dday);
+  return ok.find(c => c.days === 7) ?? ok[ok.length - 1];
+}
+
 /** 1주차 첫날부터 센 날 번호. 나중에 보기의 '다시 볼 날'을 이 값으로 저장한다. */
 export const laterUntilDay = (week: number, days: number) => 7 * (week - 1) + days;
 export const laterDateLabel = (untilDay: number) => dateLabel(untilDay, 1);
