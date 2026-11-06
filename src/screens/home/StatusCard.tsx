@@ -4,7 +4,7 @@ import { useChallenges } from '../../app/challenges';
 import { hrefOf } from '../../app/router';
 import { interestLine } from '../../app/student';
 import { setStoryAnswer, useStory } from '../../app/useStory';
-import { AiMark, Button, Card, Icon, Radar, type IconName, type RadarVertex } from '../../components';
+import { AiMark, Button, Card, Flash, Icon, Radar, useChangeCount, type IconName, type RadarVertex } from '../../components';
 import { buildStrengths, radarScale, radarSpots } from '../../domain/analysis/strengths';
 import { inventoryOf } from '../../domain/homeStatus';
 
@@ -48,6 +48,8 @@ export function StatusCard() {
   const nothing = items.every(i => i.n === 0);
   const estimated = identity.status === 'estimate';
   const canAnswer = !newStudent && estimated && identity.alternatives.length > 0;
+  // 맞아요를 누른 순간에만 점선이 걷히는 전이
+  const flips = useChangeCount(`${estimated}:${identity.text}`);
 
   return (
     <Card className="home-band" aria-label="내 상태">
@@ -55,7 +57,7 @@ export function StatusCard() {
         <p className="home-me__who">{who.name}<span>{who.sub}</span></p>
         <p className="home-me__title" tabIndex={-1}>
           <span className="sr-only">칭호: </span>
-          {estimated ? <AiMark variant="line">{identity.text}</AiMark> : identity.text}
+          {estimated ? <AiMark variant="line">{identity.text}</AiMark> : <span key={flips} className={flips > 0 ? 'ui-confirm-in' : undefined}>{identity.text}</span>}
         </p>
         {canAnswer && (
           <div className="home-me__ask">
@@ -87,7 +89,7 @@ export function StatusCard() {
               <li key={i.label}>
                 <Icon name={i.icon} size={16} />
                 <span>{i.label}</span>
-                <b className="num">{i.n}</b>
+                <Flash as="b" value={i.n} className="num" />
               </li>
             ))}
           </ul>

@@ -1,4 +1,5 @@
 import type { Proof } from '../../domain/insight/story';
+import { Flash } from '../Flash';
 import { Icon } from '../Icon';
 import { ProofPic } from './ProofPic';
 
@@ -40,7 +41,7 @@ export function ProofRow({ proofs, hrefOf, layout = 'row' }: Props) {
             <span className="ui-proof__pic"><ProofPic pic={p.pic} /></span>
             <span className="ui-proof__text">
               <span className="ui-proof__line">{p.line}</span>
-              <span className="ui-proof__value num">{p.value}</span>
+              <Flash value={p.value} className="ui-proof__value num" />
             </span>
           </a>
         </li>

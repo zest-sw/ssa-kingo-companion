@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
 import { useApp } from '../../app/AppState';
-import { Chip, SegmentedControl } from '../../components';
+import { Chip, SegmentedControl, useListPresence } from '../../components';
 import { weekLoad } from '../../domain/recommend-flow/load';
 import { CATEGORY_LABEL, categoryCounts, categoryOf, inCategory, SORT_LABEL, sortOpen, type CategoryFilter, type OpenSort } from '../../domain/recommend-flow/opportunities';
 import type { RowLine } from '../../domain/recommend-flow/reasons';
@@ -8,7 +8,8 @@ import { keyGain } from '../../domain/recommend-flow/row';
 import type { Program, Scored } from '../../domain/types';
 import { OppRow } from './OppRow';
 
-const ROW = 'button.rec-row';
+// 접히며 빠지는 행(inert)은 건너뛴다.
+const ROW = 'li:not([inert]) > button.rec-row';
 
 /**
  * 행 목록의 키보드: 위아래 화살표로 행 사이를 옮기고(Home·End 는 처음·끝), Enter 는 버튼이라 그대로 모달을 연다.
@@ -48,16 +49,18 @@ export function RecommendList({ list, lines, onOpen, label, modalOpen }: {
 }) {
   const { state } = useApp();
   const keys = useRowKeys(list.map(s => s.p.id).join(), modalOpen);
+  // 이유는 목록 단위로 정해져 자리로 짝지어진다. 접히며 빠지는 행이 끼어도 제 이유를 들고 가게 먼저 묶는다.
+  const rows = useListPresence(list.map((s, i) => ({ s, line: lines[i] })), x => x.s.p.id);
   return (
     <section className="rec-list" data-fill aria-labelledby="rec-list-h">
       <div className="rec-list__scroll os-scroll">
         <h2 id="rec-list-h" className="ui-subhead rec-list__head">{label}</h2>
         <ul className="rec-rows" {...keys}>
-          {list.map((s, i) => (
+          {rows.map(({ key, item: { s, line }, presence }) => (
             <OppRow
-              key={s.p.id} p={s.p} week={state.week} onOpen={onOpen} prefix={CATEGORY_LABEL[categoryOf(s.p)]}
+              key={key} presence={presence} p={s.p} week={state.week} onOpen={onOpen} prefix={CATEGORY_LABEL[categoryOf(s.p)]}
               tight={weekLoad(s.p, state.activities, state.week).tight}
-              line={lines[i]}
+              line={line}
             />
           ))}
         </ul>
@@ -81,6 +84,7 @@ export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen
   const shown = useMemo(() => sortOpen(open.filter(p => inCategory(p, current)), state.week, sort), [open, current, sort, state.week]);
   const label = counts.find(c => c.id === current)?.label ?? '전체';
   const keys = useRowKeys(shown.map(p => p.id).join(), modalOpen);
+  const rows = useListPresence(shown, p => p.id);
   return (
     <>
       <div className="rec-tools">
@@ -97,9 +101,9 @@ export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen
         <div className="rec-list__scroll os-scroll">
           <h2 id="rec-all-h" className="ui-subhead rec-list__head">{label} {shown.length}개</h2>
           <ul className="rec-rows" {...keys}>
-            {shown.map(p => {
+            {rows.map(({ key, item: p, presence }) => {
               const g = keyGain(p);
-              return <OppRow key={p.id} p={p} week={state.week} prefix={recommendedIds.has(p.id) ? '추천' : undefined} line={g && { kind: 'gain', text: g.label, source: 'gain' }} onOpen={onOpen} />;
+              return <OppRow key={key} presence={presence} p={p} week={state.week} prefix={recommendedIds.has(p.id) ? '추천' : undefined} line={g && { kind: 'gain', text: g.label, source: 'gain' }} onOpen={onOpen} />;
             })}
           </ul>
         </div>

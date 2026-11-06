@@ -194,6 +194,11 @@
   --dur-fast: 150ms;
   --dur-base: 220ms;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* 버튼 눌림: 아주 작게, 아주 빠르게. 카드·행에는 쓰지 않는다 */
+  --dur-press: 80ms;
+  --press-scale: 0.98;
+  /* 바뀐 숫자 한 번 강조: 눈이 따라올 만큼만 머문다 */
+  --dur-flash: calc(var(--dur-base) * 3);
   /* 열고 닫을 때 이동 거리 */
   --enter-shift: 8px;
   --duration: var(--dur-fast);
@@ -203,7 +208,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { --dur-fast: 0ms; --dur-base: 0ms; --enter-shift: 0px; }
+  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-press: 0ms; --enter-shift: 0px; }
 }
 
 /* 높이별 밀도 한 단계(노트북 배율: 1280×640, 1366×650, 1536×730). 머리·카드 여백·큰 글자·메뉴 줄을 한 단계 줄인다.

@@ -7,8 +7,10 @@
   min-height: var(--control-h); padding: 0 var(--space-4);
   border: 1px solid transparent; border-radius: var(--radius-sm);
   font-size: var(--text-md); font-weight: var(--weight-bold); line-height: 1; white-space: nowrap;
-  transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease), color var(--duration) var(--ease);
+  transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease), color var(--duration) var(--ease), transform var(--dur-press) var(--ease-out);
 }
+/* 눌림: 배경 한 단계(아래 변형별) + 아주 작은 축소. 버튼에만 둔다(카드·행은 크기를 바꾸지 않는다) */
+.ui-btn:active:not(:disabled), .ui-icon-btn:active:not(:disabled) { transform: scale(var(--press-scale)); }
 .ui-btn--sm { min-height: var(--hit-min); padding: 0 var(--space-3); font-size: var(--text-sm); }
 .ui-btn--block { display: flex; width: 100%; }
 .ui-btn--primary { background: var(--primary); color: var(--ink-inverse); }
@@ -27,7 +29,7 @@
 .ui-icon-btn {
   display: inline-grid; place-items: center; width: var(--hit-min); height: var(--hit-min); flex: none;
   border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-muted);
-  transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
+  transition: background var(--duration) var(--ease), color var(--duration) var(--ease), transform var(--dur-press) var(--ease-out);
 }
 .ui-icon-btn:hover:not(:disabled) { background: var(--surface-hover); color: var(--ink); }
 
@@ -103,7 +105,7 @@
 .ui-field__dot--other { background: transparent; border: 1.5px solid var(--grey-500); }
 
 /* ConfirmDot */
-.ui-dot { display: inline-block; width: 14px; height: 14px; border-radius: var(--radius-full); flex: none; vertical-align: middle; }
+.ui-dot { display: inline-block; width: 14px; height: 14px; border-radius: var(--radius-full); flex: none; vertical-align: middle; transition: background-color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
 .ui-dot--confirmed { background: var(--green-900); }
 .ui-dot--estimated { border: 1.5px dashed var(--ink-subtle); background: transparent; }
 .ui-legend { display: inline-flex; gap: var(--space-1) var(--space-4); font-size: var(--text-xs); color: var(--ink-muted); }
@@ -334,3 +336,20 @@ button.ui-stepper__step:hover { background: var(--surface-hover); color: var(--i
 .ui-fade[data-fade='top'] { mask-image: linear-gradient(to bottom, transparent, black var(--fade-h)); }
 .ui-fade[data-fade='bottom'] { mask-image: linear-gradient(to top, transparent, black var(--fade-h)); }
 .ui-fade[data-fade='top bottom'] { mask-image: linear-gradient(to bottom, transparent, black var(--fade-h), black calc(100% - var(--fade-h)), transparent); }
+
+/* ── 결과 피드백: 무슨 일이 일어났는지 알려 주는 움직임. 사용자가 만든 변화에만, 움직임 줄이기면 즉시 ── */
+/* 바뀐 숫자 한 번 강조(Flash): 초록 글자에서 원래 글자로 돌아온다. 면은 칠하지 않는다 */
+@keyframes ui-flash { from { color: var(--primary); } }
+.ui-flash[data-changed] { animation: ui-flash var(--dur-flash) var(--ease-out); }
+
+/* 확인(맞아요): AI 추정의 옅은 점선이 실선으로. 선 모양은 중간에 바뀌고 색은 이어진다. 끝값은 요소 자기 밑줄 */
+@keyframes ui-confirm-in { from { text-decoration-line: underline; text-decoration-style: dashed; text-decoration-color: var(--text-faint); } }
+.ui-confirm-in { animation: ui-confirm-in var(--dur-base) var(--ease-out); }
+
+/* 목록에서 빠지는 행은 높이가 접히며 사라지고, 되돌리면 같은 자리로 펼쳐진다(useListPresence + useCollapseRow).
+   높이는 잰 값(--ui-collapse-h)에서 0 으로. 움직이는 동안만 넘친 내용을 자른다 */
+@keyframes ui-collapse-in { from { height: 0; opacity: 0; } to { height: var(--ui-collapse-h); opacity: 1; } }
+@keyframes ui-collapse-out { from { height: var(--ui-collapse-h); opacity: 1; } to { height: 0; opacity: 0; border-color: transparent; } }
+.ui-collapse[data-presence] { overflow: hidden; box-sizing: border-box; }
+.ui-collapse[data-presence='enter'] { animation: ui-collapse-in var(--dur-base) var(--ease-out) backwards; }
+.ui-collapse[data-presence='leave'] { animation: ui-collapse-out var(--dur-base) var(--ease-out) forwards; pointer-events: none; }
