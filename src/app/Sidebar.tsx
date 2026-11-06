@@ -11,10 +11,12 @@ export function Sidebar({ route }: { route: Route }) {
   const { state, view } = useApp();
   const me = studentCard(state.demo, state.profile);
   const at = navMatch(route);
+  // 가입 인터뷰 중(홈 자리)에는 집중 모드: 메뉴·학생 카드·설정을 옅게 하고 누를 수 없게(inert). 출구는 화면 안 '예시로 둘러보기' 하나.
+  const focus = route.name === 'home' && !state.onboarded;
   // 구역 요약 자체면 'page', 그 아래 하위·흐름 화면이면 'location'
   const mark = (on: boolean) => (on ? (at.exact && !at.child ? 'page' : 'location') : undefined);
   return (
-    <aside className="app-side">
+    <aside className="app-side" data-focus={focus || undefined}>
       <a className="app-brand" href={hrefOf('home')}>
         <svg className="app-brand__mark" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M12 14.5C7.5 14.5 3.5 11 3.5 4.5c3 .3 5.8 1.4 8.5 3.6 2.7-2.2 5.5-3.3 8.5-3.6 0 6.5-4 10-8.5 10z" fill="currentColor" />
@@ -22,7 +24,7 @@ export function Sidebar({ route }: { route: Route }) {
         </svg>
         <span className="app-brand__name">킹고 컴패니언</span>
       </a>
-      <nav aria-label="주 메뉴">
+      <nav aria-label="주 메뉴" inert={focus}>
         <ul className="app-nav">
           {NAV.map(item => (
             <li key={item.id}>
@@ -35,7 +37,7 @@ export function Sidebar({ route }: { route: Route }) {
           ))}
         </ul>
       </nav>
-      <div className="app-side__foot">
+      <div className="app-side__foot" inert={focus}>
         <a className="app-student" href={hrefOf('profile')} aria-label={PROFILE.label} title={PROFILE.label} aria-current={inProfile(route) ? (route.sub ? 'location' : 'page') : undefined}>
           <span className="app-student__avatar" aria-hidden="true">나</span>
           <span className="app-student__text">

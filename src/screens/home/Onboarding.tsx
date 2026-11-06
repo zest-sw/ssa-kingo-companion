@@ -1,123 +1,83 @@
-import { useEffect, useRef, useState } from 'react';
-import { Button, Card, Chip, Icon, LoadingState } from '../../components';
-import { GOAL_SUGGESTIONS, ONBOARDING_WORK } from '../../data/home';
-import { FORMAT_OPTIONS, INTEREST_OPTIONS } from '../../data/options';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { Button } from '../../components';
 import { EMPTY_PROFILE } from '../../data/seed';
-import type { Interest, Profile } from '../../domain/types';
-import { MAX_INTERESTS, toggleInterest } from '../../domain/recommend-flow/flow';
-import { TIME_OPTIONS } from '../../domain/vocab';
+import { canAdvance, ONB_STEPS, stepDirection } from '../../domain/onboarding';
+import { MAX_INTERESTS } from '../../domain/recommend-flow/flow';
+import type { Profile } from '../../domain/types';
+import { QUESTIONS } from './onboarding/copy';
+import { GoalStep } from './onboarding/GoalStep';
+import { InterestStep } from './onboarding/InterestStep';
+import { PlanStep } from './onboarding/PlanStep';
+import './onboarding/onboarding.css';
 
-const STEPS = 3;
+const STEPS = ONB_STEPS.length;
 
-/** 첫 실행에서 홈 자리에 그리는 가입 인터뷰: 관심 분야, 가능한 시간·방식, 목표. */
+/**
+ * 첫 실행에서 홈 자리에 그리는 가입 인터뷰. 한 화면 한 질문(관심 분야 → 시간·방식 → 목표).
+ * 위: 얇은 진행 막대 3칸 + 출구 하나(예시로 둘러보기). 가운데: 질문과 왜 묻는지 한 줄. 아래: 주 버튼, 세 화면 모두 같은 자리.
+ * 마지막 버튼을 누르면 기다림 없이 바로 저장한다(onDone). 끝 장면은 부모(HomeScreen)가 그린다.
+ */
 export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void; onExample: () => void }) {
   const [step, setStep] = useState(0);
+  const [dir, setDir] = useState<'next' | 'back' | undefined>();
   const [draft, setDraft] = useState<Profile>(EMPTY_PROFILE);
-  const [working, setWorking] = useState(false);
   const head = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
 
-  // 단계가 바뀌면 질문으로 포커스를 옮겨 키보드 흐름이 끊기지 않게 한다.
+  // 단계가 바뀌면 질문으로 포커스를 옮겨 키보드 흐름이 끊기지 않게 한다(첫 화면은 앱 틀이 옮긴다).
   useEffect(() => {
     if (first.current) { first.current = false; return; }
     head.current?.focus({ preventScroll: true });
-  }, [step, working]);
+  }, [step]);
 
-  useEffect(() => {
-    if (!working) return;
-    const t = window.setTimeout(() => onDone(draft), 1500);
-    return () => window.clearTimeout(t);
-  }, [working]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const toggle = (id: Interest) => setDraft(d => ({ ...d, interests: toggleInterest(d.interests, id) }));
-
-  const finish = () => {
-    const reduce = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) onDone(draft); else setWorking(true);
+  const canNext = canAdvance(step, draft);
+  const go = (to: number) => { setDir(stepDirection(step, to)); setStep(to); };
+  const next = () => {
+    if (!canNext) return;
+    if (step < STEPS - 1) go(step + 1); else onDone({ ...draft, goal: draft.goal.trim() });
   };
 
-  if (working) {
-    return (
-      <Card className="home-onb" aria-labelledby="onb-q">
-        <h1 id="onb-q" ref={head} tabIndex={-1} className="home-onb__q" data-page-title>이번 주 활동을 고르는 중이에요</h1>
-        <LoadingState message="잠시만 기다려 주세요" lines={2} />
-        <ul className="home-onb__work">
-          {ONBOARDING_WORK.map(t => <li key={t}><Icon name="check" size={18} />{t}</li>)}
-        </ul>
-        <Button variant="ghost" size="sm" onClick={() => onDone(draft)}>바로 보기</Button>
-      </Card>
-    );
-  }
+  // Enter 로 다음. 버튼 위에서는 버튼 자신의 동작(고르기)을 지키고, 한글 조합 중인 Enter 는 넘기지 않는다.
+  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Enter' || e.nativeEvent.isComposing || e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
+    if ((e.target as HTMLElement).closest('button, a')) return;
+    e.preventDefault();
+    next();
+  };
 
-  const canNext = step === 0 ? draft.interests.length > 0 : true;
+  const { q, why } = QUESTIONS[step];
+  const set = (patch: Partial<Profile>) => setDraft(d => ({ ...d, ...patch }));
   return (
-    <Card className="home-onb" aria-labelledby="onb-q">
-      <div className="home-onb__top">
-        <p className="home-onb__intro">찾고 비교하는 일은 제가 할게요. 세 가지만 알려 주세요.</p>
-        <span className="home-onb__count num" aria-label={`${STEPS}단계 중 ${step + 1}단계`}>{step + 1} / {STEPS}</span>
+    <div className="onb" onKeyDown={onKey}>
+      <div className="onb__bar">
+        <div className="onb__progress" role="progressbar" aria-label="가입 인터뷰" aria-valuemin={1} aria-valuemax={STEPS} aria-valuenow={step + 1} aria-valuetext={`${STEPS}단계 중 ${step + 1}단계`}>
+          {ONB_STEPS.map((s, i) => <span key={s} className="onb__seg" data-on={i <= step || undefined} />)}
+        </div>
+        <Button variant="ghost" size="sm" onClick={onExample}>예시로 둘러보기</Button>
       </div>
 
-      {step === 0 && (
-        <section aria-labelledby="onb-q">
-          <h1 id="onb-q" ref={head} tabIndex={-1} className="home-onb__q" data-page-title>요즘 관심 가는 걸 골라 주세요</h1>
-          <p className="home-onb__sub">{draft.interests.includes('unknown') ? '괜찮아요. 안 해 본 분야부터 보여 드릴게요' : `최대 ${MAX_INTERESTS}개 · 몰라도 괜찮아요`}</p>
-          <div className="home-onb__chips" role="group" aria-labelledby="onb-q">
-            {INTEREST_OPTIONS.map(o => <Chip key={o.id} selected={draft.interests.includes(o.id)} onClick={() => toggle(o.id)}>{o.label}</Chip>)}
-          </div>
-        </section>
-      )}
+      <section key={step} className="onb__stage" data-dir={dir} aria-labelledby="onb-q">
+        {step === 0 && <p className="onb__lead">찾고 비교하는 일은 제가 할게요. 세 가지만 알려 주세요</p>}
+        <h1 id="onb-q" ref={head} tabIndex={-1} className="onb__q" data-page-title>{q}</h1>
+        <p className="onb__why">{why}</p>
+        <div className="onb__body">
+          {step === 0 && <InterestStep value={draft.interests} onChange={interests => set({ interests })} labelledBy="onb-q" />}
+          {step === 1 && <PlanStep time={draft.time} format={draft.format} onTime={time => set({ time })} onFormat={format => set({ format })} />}
+          {step === 2 && <GoalStep value={draft.goal} onChange={goal => set({ goal })} />}
+        </div>
+      </section>
 
-      {step === 1 && (
-        <section aria-labelledby="onb-q">
-          <h1 id="onb-q" ref={head} tabIndex={-1} className="home-onb__q" data-page-title>한 주에 쓸 수 있는 시간과 방식은요?</h1>
-          <p className="home-onb__sub">이보다 긴 활동은 추천에서 빼 둘게요</p>
-          <div className="home-onb__group">
-            <p className="home-onb__label" id="onb-time">시간</p>
-            <div className="home-onb__options" role="group" aria-labelledby="onb-time">
-              {TIME_OPTIONS.map(o => (
-                <button key={o.value} type="button" className="home-onb__option" aria-pressed={draft.time === o.value} onClick={() => setDraft(d => ({ ...d, time: o.value }))}>
-                  <b>{o.label}</b><span>{o.sub}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="home-onb__group">
-            <p className="home-onb__label" id="onb-format">방식</p>
-            <div className="home-onb__options" role="group" aria-labelledby="onb-format">
-              {FORMAT_OPTIONS.map(o => (
-                <button key={o.value} type="button" className="home-onb__option" aria-pressed={draft.format === o.value} onClick={() => setDraft(d => ({ ...d, format: o.value }))}>
-                  <b>{o.label}</b><span>{o.sub}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {step === 2 && (
-        <section aria-labelledby="onb-q">
-          <h1 id="onb-q" ref={head} tabIndex={-1} className="home-onb__q" data-page-title>이루고 싶은 목표가 있나요?</h1>
-          <p className="home-onb__sub">비워 둬도 돼요. 설정에서 언제든 고칠 수 있어요</p>
-          <label className="home-onb__field">
-            <span className="sr-only">목표</span>
-            <input className="home-onb__input" value={draft.goal} maxLength={40} placeholder="예: 서비스 기획 직무" onChange={e => { const goal = e.target.value; setDraft(d => ({ ...d, goal })); }} />
-          </label>
-          <div className="home-onb__chips" role="group" aria-label="목표 예시">
-            {GOAL_SUGGESTIONS.map(g => <Chip key={g} selected={draft.goal === g} onClick={() => setDraft(d => ({ ...d, goal: d.goal === g ? '' : g }))}>{g}</Chip>)}
-          </div>
-        </section>
-      )}
-
-      <div className="home-onb__actions">
-        <Button variant="ghost" onClick={onExample}>예시로 둘러보기</Button>
-        <span className="home-onb__spacer" />
-        {step > 0 && <Button onClick={() => setStep(step - 1)}>이전</Button>}
-        {step < STEPS - 1
-          ? <Button variant="primary" disabled={!canNext} onClick={() => setStep(step + 1)}>다음</Button>
-          : <Button variant="primary" onClick={finish}>이번 주 활동 보기</Button>}
+      <div className="onb__actions">
+        <p className="onb__hint" role="status">
+          {step === 0 && !canNext ? '하나 이상 고르면 다음으로 갈 수 있어요'
+            : step === 0 && draft.interests.length >= MAX_INTERESTS ? `${MAX_INTERESTS}개까지 골랐어요. 바꾸려면 하나를 빼 주세요`
+            : step === STEPS - 1 ? '학교 데이터는 동의한 것만 써요' : ''}
+        </p>
+        {step > 0 && <Button onClick={() => go(step - 1)}>이전</Button>}
+        <Button variant="primary" disabled={!canNext} onClick={next} aria-keyshortcuts="Enter">
+          {step < STEPS - 1 ? '다음' : '이번 주 활동 보기'}
+        </Button>
       </div>
-      {step === STEPS - 1 && <p className="home-onb__hint">학교 데이터는 동의한 것만 써요. 지금은 이 세 가지로만 골라요</p>}
-      {step === 0 && !canNext && <p className="home-onb__hint" role="status">하나 이상 고르면 다음으로 갈 수 있어요</p>}
-    </Card>
+    </div>
   );
 }
