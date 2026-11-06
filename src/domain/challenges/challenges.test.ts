@@ -32,6 +32,10 @@ describe('도전 과제 달성 계산', () => {
   it('학생이 쓴 회고가 생기면 첫 회고가 달성된다', () => {
     expect(by(run([rec('a', { source: 'agent' })]), 'first').achieved).toBe(true);
   });
+  it('직접 입력한 기록은 첫 회고가 아니다', () => {
+    expect(by(run([rec('m', { source: 'manual' })]), 'first').achieved).toBe(false);
+    expect(by(run([rec('m', { source: 'manual' }), rec('a', { source: 'agent' })]), 'first').achieved).toBe(true);
+  });
   it('분야 묶음이 서로 다른 기록 수만큼 세 갈래 길이 찬다', () => {
     const two = run([rec('a', { field: 'research' }), rec('b', { field: 'product' }), rec('c', { field: 'club' })]);
     expect(by(two, 'paths').progress).toEqual({ value: 2, max: 3 });

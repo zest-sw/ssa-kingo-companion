@@ -14,9 +14,11 @@ const capped = (n: number, max: number): Progress => ({ value: Math.min(n, max),
 const written = (r: RecordItem) => r.source !== 'seed';
 const joined = (a: Activity) => a.status === 'ended' || a.status === 'recorded';
 const roleText = (r: RecordItem) => r.card?.role ?? '';
+// 회고는 인터뷰로 만든 경험 카드다. 직접 입력한 기록은 회고를 쓴 것이 아니다.
+const retro = (r: RecordItem) => r.source === 'agent';
 
 const RULES: Record<RuleId, (c: ChallengeContext) => Progress> = {
-  firstRetro: c => flag(c.records.length > 0),
+  firstRetro: c => flag(c.records.some(retro)),
   threePaths: c => capped(new Set(c.records.map(r => FIELD_GROUP[r.field])).size, 3),
   // ponytail: 처음 이용하는 학교 기관인지 알 수 없어 끝낸 활동 수로 센다. 기관 정보가 붙으면 고친다.
   firstPlaces: c => capped(c.activities.filter(joined).length, 3),
