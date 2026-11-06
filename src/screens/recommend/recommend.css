@@ -7,8 +7,7 @@
   --rec-flow-label: 150px;
   --rec-flow-count: 40px;
   --rec-reason-height: 48px;
-  --rec-done-w: 520px;
-  --rec-done-mark: 40px;
+  --rec-done-mark: 48px;
   --rec-item-due: 112px;
   --rec-item-height: 52px;
   --rec-box-height: var(--hit-min);
@@ -63,7 +62,6 @@
 .rec-draft__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
 /* 추천 한 화면 */
-.rec-note { margin: calc(-1 * var(--space-2)) 0 var(--space-3); }
 .rec-filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
 .rec-drops { display: flex; flex-direction: column; }
 .rec-drops__hint { margin-top: var(--space-4); }
@@ -121,19 +119,6 @@
 .rec-revise__input { flex: 1; min-width: 0; min-height: var(--control-h); padding: 0 var(--space-3); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-md); background: var(--surface); font-size: var(--text-md); }
 .rec-revise__input:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
-/* 신청을 연 뒤: 세 단계 그림 + 갈 곳 하나 */
-.rec-done { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-6); text-align: center; }
-.ui-card.rec-done { padding-block: var(--space-10); }
-.rec-done__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; max-width: var(--rec-done-w); }
-.rec-done__step { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }
-.rec-done__step b { color: var(--ink); font-size: var(--text-md); }
-.rec-done__step + .rec-done__step::before { content: ''; position: absolute; top: calc(var(--rec-done-mark) / 2); right: 50%; left: -50%; border-top: 2px solid var(--line-strong); }
-.rec-done__step[data-done] + .rec-done__step[data-done]::before { border-color: var(--green-900); }
-.rec-done__mark { position: relative; z-index: 1; display: grid; place-items: center; width: var(--rec-done-mark); height: var(--rec-done-mark); margin-bottom: var(--space-1); border-radius: var(--radius-full); border: 2px solid var(--line-strong); background: var(--surface); color: var(--ink-subtle); }
-.rec-done__step[data-done] .rec-done__mark { border-color: var(--green-900); background: var(--green-900); color: var(--ink-inverse); }
-.rec-done__title { font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
-
-
 /* v1.4 단계 나누기: 고르기 카드 · 자세히 · 신청 준비 단계 */
 .rec-detail__title { margin-bottom: var(--space-4); font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
 .rec-facts { display: grid; gap: var(--space-3); }
@@ -158,7 +143,36 @@
 .rec-apply__rows li { display: flex; align-items: center; gap: var(--space-3); min-height: var(--hit-min); padding: 0 var(--space-3); border: var(--border); border-radius: var(--radius-md); font-size: var(--text-md); }
 .rec-apply__mark { display: inline-grid; place-items: center; flex: none; width: var(--space-6); height: var(--space-6); border-radius: var(--radius-full); background: var(--orange-100); color: var(--accent-ink); }
 .rec-apply__rows li[data-ok] .rec-apply__mark { background: var(--green-900); color: var(--ink-inverse); }
-.ui-panel__foot > .rec-revise { flex: 1; }
+.ui-panel__foot > .rec-revise { flex: 1 1 100%; }
+
+/* v2.8 신청 준비: 주 버튼은 늘 오른쪽 끝, 왼쪽에 한 줄 안내 */
+.rec-pstep .ui-panel__foot { justify-content: flex-end; }
+.rec-foot__note { margin-right: auto; font-size: var(--text-sm); color: var(--ink-muted); }
+/* 단계가 바뀌면 내용이 먼저 보이게 짧게 떠오른다(빠르게 시작해 부드럽게 멈춤). 움직임 줄이기면 바로 바뀐다 */
+.rec-pstep__scene { animation: rec-rise var(--dur-base) var(--ease-out) both; }
+@keyframes rec-rise { from { opacity: 0; transform: translateY(var(--enter-shift)); } }
+/* 맨 위 한 줄: 에이전트가 한 일 요약. 펼치면 확인 결과와 한 일 */
+.rec-runlog--top { margin: 0 0 var(--space-3); border-top: 0; border-bottom: var(--border); }
+.rec-runlog__head { flex-wrap: wrap; text-align: left; }
+.rec-runlog__warn { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--accent-ink); }
+.rec-runlog__warn svg { flex: none; }
+.rec-apply__line { display: flex; align-items: flex-start; gap: var(--space-1); margin-top: var(--space-2); font-size: var(--text-md); color: var(--ink-muted); }
+.rec-apply__line svg { flex: none; margin-top: var(--space-1); }
+/* 고친 초안: 바뀐 문장만 옅은 바탕으로 잠깐 짚고 사라진다. 움직임 줄이기면 강조 없이 바로 새 글 */
+.rec-draft__text { line-height: var(--leading); }
+.rec-draft__changed { border-radius: var(--radius-sm); animation: rec-changed calc(var(--dur-base) * 8) var(--ease-out) both; }
+@keyframes rec-changed { from, 30% { background: var(--primary-soft); } to { background: transparent; } }
+
+/* 신청했어요 뒤 완료 장면: 표시 하나, 제목, 두 줄(일정·다음 걸음), 갈 곳 하나 */
+.rec-pstep .rec-pdone { width: 100%; max-width: var(--rec-step-w); margin: 0 auto; align-self: start; display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding-block: var(--space-10); text-align: center; animation: rec-rise var(--dur-base) var(--ease-out) both; }
+.rec-pdone__mark { display: grid; place-items: center; width: var(--rec-done-mark); height: var(--rec-done-mark); border: 2px solid var(--green-900); border-radius: var(--radius-full); color: var(--green-900); animation: rec-pop var(--dur-base) var(--ease-out) both; }
+@keyframes rec-pop { from { transform: scale(0.8); } 70% { transform: scale(1.04); } }
+.rec-pdone__title { font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
+.rec-pdone__title:focus-visible { box-shadow: none; }
+.rec-pdone__rows { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-2); }
+.rec-pdone__rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-2); font-size: var(--text-md); color: var(--ink-muted); }
+.rec-pdone__rows b { color: var(--ink); }
+.rec-pdone__rows svg { flex: none; color: var(--navy-900); }
 
 /* 내용이 짧은 패널은 늘이지 않는다: 높이는 내용에 맞추고 행동 막대는 내용 바로 아래. 넘치면 패널 안에서만 스크롤 */
 
@@ -179,18 +193,11 @@
 .rec-drawer__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; }
 .rec-drawer__item--off > p:first-of-type { color: var(--ink-muted); }
 .rec-drawer__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); }
-/* 신청 뒤: 에이전트가 일정에 넣은 활동 일시 한 줄 */
-.rec-done__cal { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border: var(--border); border-radius: var(--radius-md); font-size: var(--text-md); color: var(--ink-muted); }
-.rec-done__cal b { color: var(--ink); }
-.rec-done__cal svg { color: var(--navy-900); }
-/* 막대 오른쪽 안내: 자물쇠와 글이 떨어지지 않게 */
-.rec-note { display: inline-flex; align-items: center; gap: var(--space-1); }
-.rec-note svg { flex: none; }
 /* 실행 기록 접기: 열림·닫힘을 화살표로 */
 .rec-runlog__head { gap: var(--space-1); list-style: none; }
 .rec-runlog__head::-webkit-details-marker { display: none; }
-.rec-runlog__head svg { transform: rotate(90deg); }
-.rec-runlog[open] .rec-runlog__head svg { transform: rotate(-90deg); }
+.rec-runlog__head > svg { flex: none; transform: rotate(90deg); transition: transform var(--dur-base) var(--ease-out); }
+.rec-runlog[open] .rec-runlog__head > svg { transform: rotate(-90deg); }
 
 /* v2.3 추천: 탭 두 개(추천 활동 · 전체 기회) + 목록 한 칸. 행을 누르면 가운데 모달 */
 :root { --rec-dday-w: 56px; --rec-gain-label: 120px; }

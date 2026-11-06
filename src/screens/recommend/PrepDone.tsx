@@ -1,30 +1,24 @@
+import { useEffect, useRef } from 'react';
 import { navigate } from '../../app/router';
 import { Button, Card, Icon } from '../../components';
 
 /**
- * 신청을 연 뒤의 완료 상태: 준비 → 신청 화면 열기 → 결과 세 단계 그림과 '일정에서 보기' 하나.
- * 결과는 학교 사이트에서 나오고 일정 화면에 결과 대기로 보인다. 에이전트가 일정에 넣은 활동 일시를 한 줄로 확인시킨다.
+ * 학생이 '신청했어요'를 누른 뒤의 완료 장면. 끝이 아니라 다음 경험의 시작점이다:
+ * 일정에 넣었다는 것과 활동 날짜, 끝나면 회고를 묻겠다는 다음 걸음 한 줄, 갈 곳은 '내 활동에서 보기' 하나.
  */
 export function PrepDone({ when }: { when: string }) {
-  const steps = [
-    { label: '준비 끝', sub: '체크리스트·초안', done: true },
-    { label: '신청 화면 열기', sub: '내가 눌렀어요', done: true },
-    { label: '결과', sub: '기다리는 중', done: false }
-  ];
+  const title = useRef<HTMLHeadingElement>(null);
+  // 버튼이 사라진 자리에서 초점을 잃지 않게 완료 제목으로 옮긴다(화면 읽기 프로그램도 결과를 읽는다).
+  useEffect(() => { title.current?.focus(); }, []);
   return (
-    <Card className="rec-done" aria-labelledby="rec-done-title">
-      <ol className="rec-done__steps" aria-label="신청 단계">
-        {steps.map(s => (
-          <li key={s.label} className="rec-done__step" data-done={s.done || undefined}>
-            <span className="rec-done__mark" aria-hidden="true">{s.done ? <Icon name="check" size={18} /> : <Icon name="clock" size={18} />}</span>
-            <b>{s.label}</b>
-            <span>{s.sub}</span>
-          </li>
-        ))}
-      </ol>
-      <h2 id="rec-done-title" className="rec-done__title">신청 화면을 열었어요</h2>
-      <p className="rec-done__cal"><Icon name="calendar" size={16} />일정에 넣었어요<b className="num">{when}</b></p>
-      <Button variant="primary" onClick={() => navigate('activities/schedule')}>일정에서 보기</Button>
+    <Card className="rec-pdone" aria-labelledby="rec-pdone-title">
+      <span className="rec-pdone__mark" aria-hidden="true"><Icon name="check" size={24} /></span>
+      <h2 id="rec-pdone-title" ref={title} tabIndex={-1} className="rec-pdone__title">신청했어요</h2>
+      <ul className="rec-pdone__rows">
+        <li><Icon name="calendar" size={16} /><span>일정에 넣었어요</span><b className="num">{when}</b></li>
+        <li><Icon name="doc" size={16} /><span>활동이 끝나면 회고를 물어볼게요</span></li>
+      </ul>
+      <Button variant="primary" onClick={() => navigate('activities')}>내 활동에서 보기</Button>
     </Card>
   );
 }
