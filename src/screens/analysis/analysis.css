@@ -200,6 +200,5 @@
 /* 범례(KeyLegend): 공용 Legend 와 같은 16px 기호 칸. 머리 오른쪽에 들어가면 위 여백을 뺀다 */
 .an-keylegend__mark { display: inline-grid; place-items: center; width: var(--space-4); height: var(--space-4); flex: none; }
 .an-keylegend__mark > .an-key { width: var(--an-key-w-sm); }
-.ui-card__action > .an-keylegend { margin: 0; }
 /* 묶음 제목 옆 개수: 같은 크기의 옅은 숫자 */
 .an-dlist__head .num { color: var(--text-faint); font-weight: var(--weight-regular); }

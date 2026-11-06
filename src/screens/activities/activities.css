@@ -24,7 +24,6 @@
 
 /* 개요(L1) */
 .act-overview + .act-overview { margin-top: var(--space-4); }
-.act-overview .ui-dg-legend { margin: 0; }
 .act-undated { display: grid; grid-template-columns: var(--dg-label-w) minmax(0, 1fr); align-items: center; min-height: var(--dg-row-h); border-top: var(--border); }
 .act-undated__label { padding-right: var(--space-3); font-size: var(--text-sm); color: var(--ink-muted); }
 .act-undated__list { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 var(--space-3); }
@@ -87,7 +86,6 @@
 .act-side { display: flex; flex-direction: column; gap: var(--os-gap); min-height: 0; }
 .act-side > .act-retro { flex: 1; }
 .act-week .ui-card__action { gap: var(--space-2); }
-.act-week .ui-dg-legend { margin: 0; }
 .act-week__later { margin: var(--space-3) 0 0; color: var(--ink-muted); font-size: var(--text-sm); }
 
 /* 이번 주 그림. 요일 칸 선은 그림 아래 끝까지, 오늘은 칸 가운데 1px 주황 선 */
@@ -144,7 +142,6 @@
 
 /* 일정 카드: 머리 오른쪽에 범례 · 학기 전체 · 보기 전환. 막대는 큰 면 대신 얇은 외곽선: 하는 중 = 분야색 옅은 틴트 + 1px 선, 준비·대기 = 1px 선만 */
 .act-schedule .ui-card__action { flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2) var(--space-3); }
-.act-schedule .ui-dg-legend { margin: 0; }
 .act-schedule .ui-dg-mark--fill::before { background: color-mix(in srgb, var(--dg-c) var(--tint), var(--surface)); box-shadow: inset 0 0 0 var(--rule) var(--dg-c); }
 .act-schedule .ui-dg-mark--hatch::before { background: var(--surface); box-shadow: inset 0 0 0 var(--rule) var(--dg-c); }
 .act-schedule > .os-scroll { min-height: 0; }

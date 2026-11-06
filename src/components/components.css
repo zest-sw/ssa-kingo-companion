@@ -108,9 +108,9 @@
 .ui-dot { display: inline-block; width: 14px; height: 14px; border-radius: var(--radius-full); flex: none; vertical-align: middle; transition: background-color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); }
 .ui-dot--confirmed { background: var(--green-900); }
 .ui-dot--estimated { border: 1.5px dashed var(--ink-subtle); background: transparent; }
-.ui-legend { display: inline-flex; gap: var(--space-1) var(--space-4); font-size: var(--text-xs); color: var(--ink-muted); }
-.ui-legend > span { display: inline-flex; align-items: center; gap: var(--space-1); }
-.ui-legend .ui-dot { width: 10px; height: 10px; }
+/* 확인 범례: 틀은 공용 범례(ui-dg-legend), 점은 16px 칸 안에서 그림 속 근거 점보다 한 단계 작게 */
+.ui-confirm-legend { flex-wrap: nowrap; }
+.ui-confirm-legend .ui-dot { width: 10px; height: 10px; }
 
 /* ProgressBar */
 .ui-progress { display: flex; align-items: center; gap: var(--space-3); width: 100%; }
