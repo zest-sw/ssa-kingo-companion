@@ -37,7 +37,8 @@
 .fr-me { display: flex; align-items: center; gap: var(--space-4); }
 .fr-me__name { font-size: var(--text-xl); font-weight: var(--weight-heavy); }
 .fr-me__sub { color: var(--ink-muted); }
-.fr-path { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); border: var(--border); border-radius: var(--radius-sm); background: var(--surface); font-weight: var(--weight-medium); min-height: var(--hit-min); }
+/* 누르지 않는 이름(경험 카드, 친구가 한 활동): 상자 없이 분야 점 + 글자. 상자 모양은 누르는 것에만 쓴다(DESIGN.md Components) */
+.fr-path { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: var(--weight-medium); }
 .fr-people { display: flex; flex-direction: column; }
 .fr-people--requests { margin-bottom: var(--space-2); }
 .fr-person { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; }

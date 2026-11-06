@@ -201,6 +201,9 @@ Pretendard Variable 한 가족(`index.html`, 실패하면 시스템 한글 글�
 | 그림 | `diagram/*` (Legend, GanttRows, Timeline, Radar …) | 범례는 `Legend` 하나: 12px `--text-sub`, 기호 16px 칸. 자리는 카드 머리 오른쪽, 머리가 없으면 그림 아래 왼쪽 |
 | 이야기 | `story/*` (StoryHero, NextStep, ProofRow …) | 분석·홈의 정체성 문장, 근거 줄, 다음 한 걸음 |
 
+### 누르는 것만 상자
+- 1px 선 + 4px 반경 상자(`Button`, `Chip`)는 누르는 것에만 쓴다. 누르지 않는 이름 목록(프로필 경험 카드, 친구가 한 활동)은 상자 없이 분야 점이나 옅은 아이콘 + 글자로 둔다(v3.7).
+
 ### 목록 행
 - 높이 32px 이상(두 줄 행은 내용대로), 안쪽 여백 8~12px.
 - hover `--surface-hover`, 눌림 `--surface-press`, 150ms. 포커스는 칸 안 스크롤이면 안쪽 링.
