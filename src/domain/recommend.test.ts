@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { catalog, prog, profile, rec } from './fixtures.test-util';
-import { diffLabel, mainReason, pickAlternatives, rank, type RankCtx } from './recommend';
+import { diffLabel, mainReason, matchedInterest, pickAlternatives, rank, respectInterests, type RankCtx } from './recommend';
 import type { Program, Scored } from './types';
 
 const ctx = (programs: Program[], over: Partial<RankCtx> = {}): RankCtx => ({
@@ -149,5 +149,51 @@ describe('diffLabel', () => {
     expect(diffLabel(prog('a', { level: 2 }), base, new Set(), [])).toBe('한 단계 도전');
     expect(diffLabel(prog('a'), base, new Set(), ['plan'])).toBe('관심 분야 · 창업·기획');
     expect(diffLabel(prog('a', { when: '10.28' }), base, new Set(), [])).toBe('다른 일정 · 10.28');
+  });
+});
+
+describe('rank · 고른 관심을 먼저 존중한다', () => {
+  it('분류 이름이 관심과 같으면(멘토링 분류 ↔ 멘토링 관심) 분야 묶음이 달라도 고른 관심이다', () => {
+    expect(matchedInterest(prog('m', { field: 'career', category: 'mentoring' }), ['mentor'])).toBe('mentor');
+    expect(matchedInterest(prog('c', { field: 'club' }), ['mentor'])).toBe('mentor');
+    expect(matchedInterest(prog('x', { field: 'research', category: 'edu' }), ['mentor'])).toBeUndefined();
+    expect(matchedInterest(prog('x', { field: 'career', category: 'mentoring' }), ['unknown'])).toBeUndefined();
+  });
+
+  it('멘토링만 고른 새 학생: 멘토링 분야 모집이 시간에 안 맞아도 멘토링 분류 기회가 가장 추천이다', () => {
+    const r = rank(ctx([
+      prog('plan-soon', { field: 'research', category: 'edu', ddayW1: 2 }),
+      prog('vol-long', { field: 'mentor', category: 'volunteer', hours: 6 }),
+      prog('mentoring', { field: 'career', category: 'mentoring', ddayW1: 9 })
+    ], { profile: profile({ interests: ['mentor'], time: 3 }) }));
+    expect(ids(r)[0]).toBe('mentoring');
+    expect(r.scored[0].reasons.find(x => x.kind === 'interest')?.text).toBe('처음에 고른 관심 ‘멘토링’과 맞아요.');
+  });
+
+  it('점수가 더 높은 다른 분야가 있어도 고른 분야의 가장 높은 하나가 맨 앞이다', () => {
+    const recs = [rec('r', { field: 'dev', energy: 'up', did: 'make' })];
+    const r = rank(ctx([
+      prog('dev-hot', { field: 'dev', did: ['make'], ddayW1: 1 }),
+      prog('ai-pick', { field: 'ai' })
+    ], { profile: profile({ interests: ['ai'] }), records: recs, mode: 'focus', focusDids: ['make'] }));
+    expect(ids(r)).toEqual(['ai-pick', 'dev-hot']);
+  });
+
+  it('여럿 고르면 목록 앞쪽에 고른 분야마다 하나씩, 잘라도 빠지지 않는다', () => {
+    const programs = [
+      ...Array.from({ length: 12 }, (_, i) => prog(`ai-${i}`, { field: 'ai', ddayW1: 2 })),
+      prog('global-1', { field: 'global', ddayW1: 20 }),
+      prog('dev-1', { field: 'dev', ddayW1: 20 })
+    ];
+    const r = rank(ctx(programs, { profile: profile({ interests: ['ai', 'global', 'dev'] }) }));
+    const top3 = ids(r).slice(0, 3);
+    expect(top3).toContain('global-1');
+    expect(top3).toContain('dev-1');
+    expect(top3.some(id => id.startsWith('ai-'))).toBe(true);
+  });
+
+  it('고른 분야에 열린 기회가 없으면 순서를 그대로 둔다', () => {
+    const scored = rank(ctx([prog('a', { field: 'dev', ddayW1: 1 }), prog('b', { field: 'ai' })], { profile: profile({ interests: ['global'] }) })).scored;
+    expect(respectInterests(scored, ['global'])).toEqual(scored);
   });
 });

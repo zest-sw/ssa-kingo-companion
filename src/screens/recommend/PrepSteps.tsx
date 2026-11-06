@@ -8,14 +8,15 @@ import { canCheck, dateLabel, type PrepItem } from '../../domain/recommend-flow/
 export type RunLine = { time: string; text: string; ok: boolean };
 export type DraftState = { status: 'writing' } | { status: 'ready'; draft: Draft; at: string } | { status: 'error' };
 
-/** 준비 ① 준비할 것: 체크리스트 한 가지만. 실행 기록은 접어 둔다. */
+/** 준비 ① 준비할 것: 체크리스트 한 가지만. 누가 했는지는 꼬리표 대신 보조 줄로, 실행 기록은 접어 둔다. */
 export function TodoStep({ items, week, enabled, draftReady, urgentLine, left, log, onToggle, onOpened }: {
   items: PrepItem[]; week: number; enabled: boolean; draftReady: boolean; urgentLine?: string; left: number; log: RunLine[];
   onToggle: (id: string) => void; onOpened: (id: string) => void;
 }) {
   return (
     <>
-      <p className="rec-pstep__lead"><b>{left > 0 ? `${left}개 남음` : '모두 끝났어요'}</b>{urgentLine && <span className="rec-urgent"><Icon name="bell" size={16} />{urgentLine}</span>}</p>
+      {/* 머리 한 줄이 주인공: 가장 급한 할 일. 남은 개수는 옆에 옅게 */}
+      <p className="rec-pstep__lead"><b>{left > 0 && urgentLine ? urgentLine : left > 0 ? '남은 준비를 끝내 주세요' : '준비를 모두 끝냈어요'}</b>{left > 0 && <span className="rec-muted">남은 준비 {left}개</span>}</p>
       <ul className="rec-items">
         {items.map(i => (
           <li key={i.id} className={`rec-item${i.done ? ' rec-item--done' : ''}`}>
@@ -23,15 +24,14 @@ export function TodoStep({ items, week, enabled, draftReady, urgentLine, left, l
               <input type="checkbox" checked={i.done} disabled={!canCheck(i) || !enabled || (i.id === 'draft' && !draftReady)} onChange={() => onToggle(i.id)} />
               <span className="rec-item__text">
                 <span className="rec-item__label">{i.label}</span>
-                {!i.done && i.hint && <span className="rec-item__hint">{i.hint}</span>}
+                {i.by === 'agent' ? <span className="rec-item__hint">에이전트가 했어요</span> : !i.done && i.hint && <span className="rec-item__hint">{i.hint}</span>}
               </span>
             </label>
             {!i.done && i.link && <a className="rec-link rec-item__link" href={hrefOf(i.link.path)}>{i.link.label}<Icon name="chevron" size={14} /></a>}
             {!i.done && i.outside && enabled && (i.opened
               ? <Button size="sm" variant="primary" icon="check" onClick={() => onToggle(i.id)}>했어요</Button>
               : <a className="rec-link rec-item__link" href={OUTSIDE_URL[i.id]} target="_blank" rel="noopener noreferrer" onClick={() => onOpened(i.id)}>{i.outside}<Icon name="external" size={14} /><span className="sr-only">(새 탭)</span></a>)}
-            <Badge tone={i.by === 'agent' ? 'navy' : 'neutral'}>{i.by === 'agent' ? '에이전트' : '나'}</Badge>
-            <span className="rec-item__due num">{i.done ? '완료' : i.dday !== undefined ? dateLabel(i.dday, week) : ''}</span>
+            <span className="rec-item__due num">{i.by === 'agent' ? '' : i.done ? '완료' : i.dday !== undefined ? `${dateLabel(i.dday, week)}까지` : ''}</span>
           </li>
         ))}
       </ul>
@@ -44,8 +44,7 @@ export function TodoStep({ items, week, enabled, draftReady, urgentLine, left, l
 export function DraftStep({ draft, team, revised, revising, onRetry }: { draft: DraftState; team: boolean; revised: boolean; revising: boolean; onRetry: () => void }) {
   return (
     <div className="rec-draft" aria-live="polite">
-      <p className="rec-draft__eyebrow"><Icon name="doc" size={16} />에이전트가 쓴 신청서 초안{revised && <Badge tone="green">고친 초안</Badge>}</p>
-      <h2 className="rec-draft__title">지원서</h2>
+      <h2 className="rec-draft__title">에이전트가 쓴 신청서 초안{revised && <Badge tone="green">고친 초안</Badge>}</h2>
       {draft.status === 'writing' && <LoadingState message={revising ? '초안을 고치는 중이에요' : '초안 쓰는 중이에요'} lines={4} />}
       {draft.status === 'error' && <ErrorState message="초안을 쓰지 못했어요." onRetry={onRetry} />}
       {draft.status === 'ready' && (

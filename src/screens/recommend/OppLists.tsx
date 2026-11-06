@@ -1,58 +1,79 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
 import { useApp } from '../../app/AppState';
 import { Chip, SegmentedControl } from '../../components';
 import { weekLoad } from '../../domain/recommend-flow/load';
-import { categoryCounts, inCategory, SORT_LABEL, sortOpen, type CategoryFilter, type OpenSort } from '../../domain/recommend-flow/opportunities';
-import { traceLine, traceNodes } from '../../domain/recommend-flow/trace';
+import { CATEGORY_LABEL, categoryCounts, categoryOf, inCategory, SORT_LABEL, sortOpen, type CategoryFilter, type OpenSort } from '../../domain/recommend-flow/opportunities';
+import { keyGain, rowLine } from '../../domain/recommend-flow/row';
+import { traceNodes } from '../../domain/recommend-flow/trace';
 import type { Program, Scored } from '../../domain/types';
 import { OppRow } from './OppRow';
 import { useBasis } from './useBasis';
 
+const ROW = 'button.rec-row';
+
 /**
- * 추천 활동 탭: 서비스가 고른 활동만. '가장 추천' 하나를 맨 위 따로 두고(행 왼쪽 표시) 나머지는 대안으로 묶는다.
- * 이 칸만 안에서 스크롤한다.
+ * 행 목록의 키보드: 위아래 화살표로 행 사이를 옮기고(Home·End 는 처음·끝), Enter 는 버튼이라 그대로 모달을 연다.
+ * 연 행이 목록에서 빠지면(관심 없음·나중에 보기) 같은 자리의 다음 행으로 초점을 옮긴다. 초점이 갈 곳을 잃지 않게.
  */
-export function RecommendList({ list, primaryId, onOpen, label }: { list: Scored[]; primaryId?: string; onOpen: (p: Program) => void; label: string }) {
+function useRowKeys(ids: string, modalOpen: boolean) {
+  const list = useRef<HTMLUListElement>(null);
+  const last = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    const rows = list.current ? [...list.current.querySelectorAll<HTMLElement>(ROW)] : [];
+    // 닫히는 모달 안에 초점이 남아 있거나(움직임 동안) 이미 몸통으로 빠졌으면 잃은 것이다.
+    const a = document.activeElement;
+    const lost = !a || a === document.body || !!a.closest('.ui-scrim');
+    if (!modalOpen && lost && last.current !== undefined && rows.length) rows[Math.min(last.current, rows.length - 1)].focus();
+  }, [ids, modalOpen]);
+  const onKeyDown = (e: KeyboardEvent<HTMLUListElement>) => {
+    const rows = [...e.currentTarget.querySelectorAll<HTMLElement>(ROW)];
+    const i = rows.indexOf(document.activeElement as HTMLElement);
+    if (i < 0) return;
+    const to = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: rows.length - 1 }[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    rows[Math.max(0, Math.min(rows.length - 1, to))].focus();
+  };
+  const onFocus = (e: React.FocusEvent<HTMLUListElement>) => {
+    const i = [...e.currentTarget.querySelectorAll<HTMLElement>(ROW)].indexOf(e.target as HTMLElement);
+    if (i >= 0) last.current = i;
+  };
+  return { ref: list, onKeyDown, onFocus };
+}
+
+/**
+ * 추천 활동 탭의 나머지 후보(가장 추천은 위 카드). 묶음 머리는 작은 제목 글자. 이 칸만 안에서 스크롤한다.
+ */
+export function RecommendList({ list, onOpen, label, modalOpen }: { list: Scored[]; onOpen: (p: Program) => void; label: string; modalOpen: boolean }) {
   const { state } = useApp();
   const basis = useBasis();
-  const top = list[0]?.p.id === primaryId ? list[0] : undefined;
-  const rest = top ? list.slice(1) : list;
-  const row = (s: Scored, isTop = false) => {
-    const n = traceNodes(s.reasons, basis.records, s.p, basis.newcomer)[0];
-    return (
-      <OppRow
-        key={s.p.id} p={s.p} week={state.week} top={isTop} onOpen={onOpen}
-        load={weekLoad(s.p, state.activities, state.week).tight ? '이번 주 빠듯' : undefined}
-        why={n ? traceLine(n) : undefined}
-      />
-    );
-  };
+  const newcomer = basis.records.length === 0;
+  const keys = useRowKeys(list.map(s => s.p.id).join(), modalOpen);
   return (
-    <section className="rec-list" data-fill aria-label={label}>
+    <section className="rec-list" data-fill aria-labelledby="rec-list-h">
       <div className="rec-list__scroll os-scroll">
-        {top && (
-          <>
-            <h2 className="rec-list__head rec-list__head--top">가장 추천</h2>
-            <ul className="rec-rows">{row(top, true)}</ul>
-          </>
-        )}
-        {rest.length > 0 && (
-          <>
-            <h2 className="rec-list__head">{top ? `대안 ${rest.length}개` : label}</h2>
-            <ul className="rec-rows">{rest.map(s => row(s))}</ul>
-          </>
-        )}
+        <h2 id="rec-list-h" className="rec-list__head">{label}</h2>
+        <ul className="rec-rows" {...keys}>
+          {list.map(s => (
+            <OppRow
+              key={s.p.id} p={s.p} week={state.week} onOpen={onOpen} prefix={CATEGORY_LABEL[categoryOf(s.p)]}
+              tight={weekLoad(s.p, state.activities, state.week).tight}
+              line={rowLine(s.p, traceNodes(s.reasons, basis.records, s.p, basis.newcomer)[0], newcomer)}
+            />
+          ))}
+        </ul>
       </div>
     </section>
   );
 }
 
 /**
- * 전체 기회 탭: 지금 열린 기회 모두. 위 한 줄은 종류 칩(개수와 함께), 목록 머리 오른쪽은 정렬 전환. 추천한 기회는 행에 '추천' 표시.
+ * 전체 기회 탭: 지금 열린 기회 모두. 위 한 줄은 종류 칩(개수와 함께)이라 행에는 분류를 또 쓰지 않는다.
+ * 추천한 기회는 이름 앞에 작은 '추천', 둘째 줄은 가장 구체적인 얻는 것.
  */
-export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen }: {
+export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen, modalOpen }: {
   open: Program[]; recommendedIds: Set<string>; cat: CategoryFilter; sort: OpenSort;
-  onCat: (c: CategoryFilter) => void; onSort: (s: OpenSort) => void; onOpen: (p: Program) => void;
+  onCat: (c: CategoryFilter) => void; onSort: (s: OpenSort) => void; onOpen: (p: Program) => void; modalOpen: boolean;
 }) {
   const { state } = useApp();
   const counts = useMemo(() => categoryCounts(open), [open]);
@@ -60,6 +81,7 @@ export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen
   const current = counts.some(c => c.id === cat) ? cat : 'all';
   const shown = useMemo(() => sortOpen(open.filter(p => inCategory(p, current)), state.week, sort), [open, current, sort, state.week]);
   const label = counts.find(c => c.id === current)?.label ?? '전체';
+  const keys = useRowKeys(shown.map(p => p.id).join(), modalOpen);
   return (
     <>
       <div className="rec-tools">
@@ -70,15 +92,16 @@ export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen
             </Chip>
           ))}
         </div>
+        <SegmentedControl label="정렬" items={(['deadline', 'new'] as const).map(id => ({ id, label: SORT_LABEL[id] }))} value={sort} onChange={onSort} />
       </div>
-      <section className="rec-list" data-fill aria-label={`${label} 기회 ${shown.length}개`}>
+      <section className="rec-list" data-fill aria-labelledby="rec-all-h">
         <div className="rec-list__scroll os-scroll">
-          <div className="rec-list__head rec-list__bar">
-            <h2>{label} {shown.length}개</h2>
-            <SegmentedControl label="정렬" items={(['deadline', 'new'] as const).map(id => ({ id, label: SORT_LABEL[id] }))} value={sort} onChange={onSort} />
-          </div>
-          <ul className="rec-rows">
-            {shown.map(p => <OppRow key={p.id} p={p} week={state.week} mark={recommendedIds.has(p.id) ? '추천' : undefined} onOpen={onOpen} />)}
+          <h2 id="rec-all-h" className="rec-list__head">{label} {shown.length}개</h2>
+          <ul className="rec-rows" {...keys}>
+            {shown.map(p => {
+              const g = keyGain(p);
+              return <OppRow key={p.id} p={p} week={state.week} prefix={recommendedIds.has(p.id) ? '추천' : undefined} line={g && { kind: 'gain', text: g.label }} onOpen={onOpen} />;
+            })}
           </ul>
         </div>
       </section>

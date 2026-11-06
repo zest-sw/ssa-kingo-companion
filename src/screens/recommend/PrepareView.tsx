@@ -118,7 +118,7 @@ export function PrepareView({ programId }: { programId: string }) {
   );
 
   if (submitted) {
-    return <div className="os">{header}<div className="os__body os__body--fill"><PrepDone when={activity?.schedule || p.when} /></div></div>;
+    return <div className="os">{header}<div className="os__body"><PrepDone when={activity?.schedule || p.when} /></div></div>;
   }
 
   const quit = <Button onClick={giveUp}>그만두기</Button>;

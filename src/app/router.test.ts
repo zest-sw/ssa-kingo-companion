@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalPath, inProfile, movedPath, NAV, navMatch, parentLink, parseHash, screenLabel, SECTION_TABS, sectionTabs } from './router';
+import { canonicalPath, inProfile, movedPath, NAV, navMatch, parentLink, parseHash, queryOf, screenLabel, SECTION_TABS, sectionTabs, withQuery } from './router';
 
 describe('메뉴 트리', () => {
   it('사이드바는 메인 4개 1단, 하위 화면 6개는 구역 탭에 (프로필은 메뉴가 아니라 학생 카드)', () => {
@@ -115,9 +115,39 @@ describe('모르는 하위 경로는 주소를 맞는 자리로 바꾼다', () =
     expect(canonicalPath(from)).toBe(to);
   });
   it('아는 경로는 그대로 둔다', () => {
-    for (const p of ['', '#/', '#/home', '#/recommend', '#/recommend/p-ai', '#/recommend/prepare/p-ai', '#/activities/schedule/board', '#/activities/records/interview',
+    for (const p of ['', '#/', '#/home', '#/recommend', '#/recommend?open=p-ai', '#/recommend/prepare/p-ai', '#/activities/schedule/board', '#/activities/records/interview',
       '#/activities/records/interview/a-1', '#/analysis/flow', '#/profile/hall', '#/settings', '#/settings/notifications', '#/_kit/detail']) {
       expect(canonicalPath(p)).toBeUndefined();
     }
+  });
+});
+
+describe('주소의 화면 안 상태(?…)', () => {
+  it('경로를 가를 때는 떼고 본다', () => {
+    expect(parseHash('#/recommend?tab=all&cat=edu')).toEqual({ name: 'recommend', sub: undefined });
+    expect(parseHash('#/recommend/prepare/p-x?tab=all')).toEqual({ name: 'recommend', sub: 'prepare/p-x' });
+    expect(canonicalPath('#/recommend?open=p-interview')).toBeUndefined();
+    expect(movedPath('#/recommend/list?tab=all')).toBe('recommend');
+  });
+  it('queryOf 는 값을 읽고 withQuery 는 빈 값을 뺀다', () => {
+    expect(queryOf('#/recommend?tab=all&open=p-x').get('open')).toBe('p-x');
+    expect(queryOf('#/recommend').toString()).toBe('');
+    expect(withQuery('recommend', { tab: 'all', cat: undefined, open: '' })).toBe('recommend?tab=all');
+    expect(withQuery('recommend', {})).toBe('recommend');
+  });
+});
+
+describe('옛 추천 모달 주소 #/recommend/<id> 는 새 주소 ?open=<id> 로 넘긴다', () => {
+  it.each([
+    ['#/recommend/p-ai', 'recommend?open=p-ai'],
+    ['#/recommend/p-ai/', 'recommend?open=p-ai'],
+    ['#/recommend/p-ai?tab=all', 'recommend?tab=all&open=p-ai']
+  ])('%s → %s', (from, to) => {
+    expect(canonicalPath(from)).toBe(to);
+  });
+  it('신청 준비와 새 주소는 그대로 둔다', () => {
+    expect(canonicalPath('#/recommend/prepare/p-ai')).toBeUndefined();
+    expect(canonicalPath('#/recommend?open=p-ai')).toBeUndefined();
+    expect(canonicalPath('#/recommend/prepare')).toBe('recommend');
   });
 });

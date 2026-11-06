@@ -12,7 +12,7 @@ import { ddayText } from '../../domain/text';
 import { REASON_LABEL } from '../../domain/vocab';
 import type { CardActions } from './actions';
 import { Fact } from './Fact';
-import { GAIN_ICON } from './OppRow';
+import { GAIN_ICON } from './gains';
 import { ReasonTrace } from './ReasonTrace';
 import { useBasis } from './useBasis';
 
@@ -20,7 +20,7 @@ import { useBasis } from './useBasis';
  * 기회 자세히(가운데 모달): 머리(종류·제목·주최·D-n), 하는 일, 사실 4칸, 얻는 것 전부, 에이전트가 확인한 것, 추천이면 왜 추천했나.
  * 행동은 아래 한 줄: 신청 준비(주) / 나중에 보기 / 관심 없음. 신청 준비는 3단계 화면으로 옮겨 간다.
  */
-export function OppModal({ programId, actions, onClose }: { programId: string; actions: CardActions; onClose: () => void }) {
+export function OppModal({ open = true, programId, actions, onClose }: { open?: boolean; programId: string; actions: CardActions; onClose: () => void }) {
   const { state, view, run } = useApp();
   const basis = useBasis();
   const p = PROGRAM_BY_ID[programId];
@@ -28,7 +28,7 @@ export function OppModal({ programId, actions, onClose }: { programId: string; a
 
   if (!p) {
     return (
-      <Modal open size="wide" title="기회를 찾지 못했어요" onClose={onClose} aside={close} actions={<Button onClick={onClose}>목록으로</Button>}>
+      <Modal open={open} size="wide" title="기회를 찾지 못했어요" onClose={onClose} aside={close} actions={<Button onClick={onClose}>목록으로</Button>}>
         <EmptyState icon="compass" message="마감됐거나 주소가 바뀌었어요. 전체 기회에서 다시 골라 주세요." />
       </Modal>
     );
@@ -51,7 +51,7 @@ export function OppModal({ programId, actions, onClose }: { programId: string; a
 
   return (
     <Modal
-      open size="wide" onClose={onClose} aside={close}
+      open={open} size="wide" onClose={onClose} aside={close}
       eyebrow={
         <>
           <Badge>{CATEGORY_LABEL[categoryOf(p)]}</Badge>

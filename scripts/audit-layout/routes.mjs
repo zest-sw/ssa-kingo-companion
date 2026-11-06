@@ -12,6 +12,13 @@ const DYNAMIC = {
   'recommend/prepare/*': ctx => ctx.top,
   'activities/records/interview/*': ctx => ctx.ended
 };
+/**
+ * '*' 를 채운 경로 대신 화면이 지금 쓰는 주소 모양. 추천 모달은 ?open=<id> 로 연다.
+ * 옛 주소 #/recommend/<id> 는 화면이 새 주소로 넘기고, 그 동작은 router·추천 도메인 테스트가 지킨다.
+ */
+const SHAPE = {
+  'recommend/*': id => `recommend?open=${id}`
+};
 /** 학생 화면이 아니라서 빼는 경로와 이유 */
 const EXCLUDE = {
   _kit: '컴포넌트 목록(개발용). 일부러 길게 스크롤한다',
@@ -64,7 +71,7 @@ export function routesFor(mods, routerFile, ctx) {
     if (DYNAMIC[pat]) {
       const id = DYNAMIC[pat](ctx);
       if (!id) { skipped.push({ path: pat, why: '이 상태에는 대상이 없어요' }); continue; }
-      path = pat.replace('*', id);
+      path = SHAPE[pat] ? SHAPE[pat](id) : pat.replace('*', id);
     }
     // 기본 하위로 넘기는 메뉴 경로(#/settings → #/settings/profile)는 넘긴 쪽만 본다.
     const fixed = mods.router.canonicalPath('#/' + path);

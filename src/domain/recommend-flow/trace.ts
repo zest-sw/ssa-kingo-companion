@@ -1,6 +1,6 @@
 import { FIELD_GROUP, fieldName, GROUP_LABEL, REASON_LABEL } from '../vocab';
 import type { FieldGroup, Interest, Program, Reason, RecordItem } from '../types';
-import { sortedReasons } from '../recommend';
+import { matchedInterest, sortedReasons } from '../recommend';
 import { josa } from '../text';
 import { confirmedStrengthsFor } from '../analysis/strengths';
 
@@ -32,7 +32,7 @@ const GOAL_WORDS: [FieldGroup, RegExp][] = [
 ];
 /** 이번 주 후보와 프로필에서 Newcomer 를 만든다 */
 export const newcomerOf = (profile: { goal: string; interests: Interest[] }, programs: Program[]): Newcomer => ({
-  goal: profile.goal, interests: profile.interests, interestOpen: programs.some(p => profile.interests.includes(FIELD_GROUP[p.field]))
+  goal: profile.goal, interests: profile.interests, interestOpen: programs.some(p => !!matchedInterest(p, profile.interests))
 });
 
 /** 목표 글이 가리키는 분야 묶음. 못 읽으면 빈 목록 */

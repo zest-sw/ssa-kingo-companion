@@ -60,7 +60,12 @@ const MOVED: Record<string, string> = {
 };
 const MOVED_KEYS = Object.keys(MOVED).sort((a, b) => b.length - a.length);
 
-const clean = (hash: string) => hash.replace(/^#?\/?/, '').replace(/\/+$/, '');
+/** 주소 뒤 '?…' 는 화면 안 상태(탭·칩·연 모달)다. 경로를 가를 때는 떼고 본다. */
+const splitQuery = (hash: string): [string, string] => {
+  const i = hash.indexOf('?');
+  return i < 0 ? [hash, ''] : [hash.slice(0, i), hash.slice(i + 1)];
+};
+const clean = (hash: string) => splitQuery(hash)[0].replace(/^#?\/?/, '').replace(/\/+$/, '');
 
 /** 옮긴 경로면 새 경로('settings/visibility'), 아니면 undefined */
 export function movedPath(hash: string): string | undefined {
@@ -92,6 +97,18 @@ function knownSub(name: RouteName, parts: string[]): boolean {
 }
 
 /**
+ * 옛 추천 모달 주소(v2.6까지 #/recommend/<기회 id>)는 v2.7 주소 #/recommend?open=<기회 id> 로 넘긴다. 주소 뒤 다른 상태는 그대로 둔다.
+ * 공유한 링크와 북마크가 같은 모달을 연다. KNOWN_SUBS 의 recommend '*' 는 이 옛 모양을 받으려고 남겨 둔다.
+ */
+function legacyModal(path: string, query: string): string | undefined {
+  const m = /^recommend\/([^/]+)$/.exec(path);
+  if (!m || m[1] === 'prepare') return undefined;
+  const q = new URLSearchParams(query);
+  q.set('open', m[1]);
+  return `recommend?${q}`;
+}
+
+/**
  * 주소를 바꿔야 하면 바꿀 경로, 맞으면 undefined. 옮긴 경로는 새 자리로, 모르는 메뉴는 홈으로,
  * 모르는 하위 경로는 그 메뉴 안에서 아는 가장 긴 앞부분(없으면 메뉴의 기본 경로)으로.
  * canonicalPath('#/settings/notify') → 'settings/profile', canonicalPath('#/activities/schedule/x') → 'activities/schedule'
@@ -100,6 +117,8 @@ export function canonicalPath(hash: string): string | undefined {
   const moved = movedPath(hash);
   const path = moved ?? clean(hash);
   if (!path) return undefined;
+  const legacy = legacyModal(path, splitQuery(hash)[1]);
+  if (legacy) return legacy;
   const [head, ...parts] = path.split('/');
   const name = parseHash(path).name;
   if (name !== head) return 'home';
@@ -157,7 +176,7 @@ export function sectionTabs(section: SectionId, current: string): { label: strin
 
 /** '#/analysis/techtree/x' → { name: 'analysis', sub: 'techtree/x' }. 모르는 경로는 홈, 옮긴 경로는 새 자리. */
 export function parseHash(hash: string): Route {
-  const [head, ...rest] = (movedPath(hash) ?? hash.replace(/^#\/?/, '')).split('/');
+  const [head, ...rest] = (movedPath(hash) ?? splitQuery(hash)[0].replace(/^#\/?/, '')).split('/');
   const name = (SCREENS as readonly string[]).includes(head) || OTHER_ROUTES.includes(head) ? (head as RouteName) : 'home';
   const sub = name === head && rest.length ? rest.filter(Boolean).join('/') || undefined : undefined;
   return { name, sub };
@@ -172,6 +191,17 @@ export function navigate(path: string, opts: { replace?: boolean } = {}) {
   } else if (location.hash !== hash) {
     location.hash = hash;
   }
+}
+
+/** 주소의 화면 안 상태. queryOf('#/recommend?tab=all') → URLSearchParams { tab: 'all' } */
+export const queryOf = (hash: string) => new URLSearchParams(splitQuery(hash)[1]);
+
+/** 경로에 화면 안 상태를 붙인다. 빈 값은 뺀다. withQuery('recommend', { tab: 'all', open: undefined }) → 'recommend?tab=all' */
+export function withQuery(path: string, params: Record<string, string | undefined>): string {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v) q.set(k, v);
+  const s = q.toString();
+  return s ? `${path}?${s}` : path;
 }
 
 /** 화면 안에서 링크로 쓸 href */
@@ -198,6 +228,11 @@ const subscribe = (cb: () => void) => {
   return () => window.removeEventListener('hashchange', cb);
 };
 const getHash = () => location.hash;
+
+/** 지금 주소의 화면 안 상태. 주소가 바뀌면 다시 그린다. */
+export function useQuery(): URLSearchParams {
+  return queryOf(useSyncExternalStore(subscribe, getHash, () => ''));
+}
 
 export function useRoute(): Route {
   const hash = useSyncExternalStore(subscribe, getHash, () => '');
