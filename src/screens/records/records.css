@@ -12,7 +12,6 @@
   --rm-dot: 10px;
   --rm-line-w: 1.5px;
   --rec-empty-max: 640px;
-  --rec-flow-w: 720px;
   --rec-xc-label: 88px;
 }
 
@@ -23,8 +22,6 @@
 
 /* 빈 상태 카드는 내용 높이. 본문이 넓어도 한쪽에 붙지 않게 최대 폭을 두고 가운데에 둔다. */
 .os > .rec-hold { flex: none; width: 100%; max-width: var(--rec-empty-max); margin: 0 auto; }
-/* 흐름 화면(회고 인터뷰·회고 목록): 페이지 머리와 본문을 같은 가운데 칸(질문 폭)에 맞춘다. 신청 준비(recommend.css)와 같은 규칙 */
-.os[data-flow] > .ui-page-head, .os[data-flow] > .rec-hold, .os[data-flow] > .rec-pending { width: 100%; max-width: var(--rec-flow-w); align-self: center; }
 .rm-card--empty { align-self: start; width: 100%; max-width: var(--rec-empty-max); margin: 0 auto; }
 .rec-card { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
 .rec-drawer .rec-card { padding: 0; border: 0; }
