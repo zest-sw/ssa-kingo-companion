@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { frameOf } from '../screens/sizes';
 import { SECTION_TABS, type Route, type SectionId } from './router';
 
 /** 이보다 빨리 화면이 오면 뼈대를 보이지 않는다. 잠깐 번쩍이는 뼈대가 기다림보다 더 거슬린다. */
@@ -20,8 +21,11 @@ export function ScreenFallback({ route }: { route: Route }) {
   const tabs = hasTabs(route) ? SECTION_TABS[route.name] : null;
   // 추천 요약은 구역 탭 대신 화면 안 보기 탭(추천·나중에 보기 등) 한 줄이 머리 아래에 있다
   const viewTabs = route.name === 'recommend' && !route.sub;
+  // 크기 규칙도 실제 화면과 같게: 넓은 화면의 최대 폭(cap), 흐름 화면의 가운데 한 칸과 위 여백(flow)
+  const frame = frameOf(route);
   return (
-    <div className="os app-skel" data-screen-loading="" data-shown={shown || undefined} aria-busy="true">
+    <div className="os app-skel" data-screen-loading="" data-shown={shown || undefined} aria-busy="true"
+      data-width={frame === 'cap' ? 'cap' : undefined} data-flow={frame === 'flow' || undefined}>
       <div className={`ui-page-head${tabs ? ' ui-page-head--tabs' : ''}`}>
         <span className="app-skel__bar app-skel__bar--title" />
       </div>
@@ -37,7 +41,7 @@ export function ScreenFallback({ route }: { route: Route }) {
       )}
       <div className="os__body app-skel__body">
         <div className="app-skel__card"><span className="app-skel__bar" /><span className="app-skel__bar app-skel__bar--short" /></div>
-        <div className="app-skel__card"><span className="app-skel__bar" /><span className="app-skel__bar app-skel__bar--short" /></div>
+        {frame !== 'flow' && <div className="app-skel__card"><span className="app-skel__bar" /><span className="app-skel__bar app-skel__bar--short" /></div>}
       </div>
       {/* 알림 칸은 처음부터 두고 글만 바꾼다(새로 붙은 알림 칸은 읽지 않는 화면 읽기 프로그램이 있다) */}
       <span className="sr-only" role="status">{shown ? '화면을 불러오고 있어요.' : ''}</span>

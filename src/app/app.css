@@ -118,4 +118,6 @@
 /* 추천 보기 탭 줄(recommend.css .rec-tabs): 버튼 높이 + 아래 1px 선, 그 아래 본문 간격 */
 .app-skel__tabs--view { flex: none; min-height: calc(var(--control-h) + 1px); margin-bottom: var(--os-gap); }
 .app-skel__body { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+/* 흐름 화면 뼈대: 카드 하나를 머리와 같은 가운데 한 칸에 */
+.app-skel[data-flow] .app-skel__body { grid-template-columns: minmax(0, var(--os-flow-w)); justify-content: center; }
 .app-skel__card { display: flex; flex-direction: column; gap: var(--space-3); min-height: calc(var(--space-12) * 6); background: var(--surface); border: var(--border); border-radius: var(--radius-lg); padding: var(--card-pad); }
