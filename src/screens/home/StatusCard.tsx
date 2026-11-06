@@ -53,13 +53,14 @@ export function StatusCard() {
     <Card className="home-band" aria-label="내 상태">
       <div className="home-me">
         <p className="home-me__who">{who.name}<span>{who.sub}</span></p>
-        <p className="home-me__title">
+        <p className="home-me__title" tabIndex={-1}>
           <span className="sr-only">칭호: </span>
           {estimated ? <AiMark variant="line">{identity.text}</AiMark> : identity.text}
         </p>
         {canAnswer && (
           <div className="home-me__ask">
-            <Button size="sm" onClick={() => setStoryAnswer(identity.text)}>맞아요</Button>
+            {/* 맞아요를 누르면 두 버튼이 사라진다. 초점을 (실선이 된) 칭호로 옮겨 자리를 잃지 않게 */}
+            <Button size="sm" onClick={e => { const title = e.currentTarget.closest('.home-me')?.querySelector<HTMLElement>('.home-me__title'); setStoryAnswer(identity.text); requestAnimationFrame(() => title?.focus({ preventScroll: true })); }}>맞아요</Button>
             <a className="home-me__alt" href={hrefOf('analysis')}>다르게 볼래요</a>
           </div>
         )}
