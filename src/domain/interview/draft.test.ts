@@ -13,11 +13,15 @@ describe('초안', () => {
     expect(fromDraft(toDraft({ ...flow, step: 'preview', energy: 'up' }))).toMatchObject({ step: 'preview', energy: 'up' });
   });
   it('옛 대화형 초안이 결과 칸에 멈췄으면 첫 빈 질문으로 간다', () => {
-    const old: InterviewDraft = { messages: [{ id: 0, from: 'agent', text: '안녕' }], interview: { card: { situation: 'a', role: 'b' }, step: 'result', followedUp: [] }, visibility: 'me', useForRecommend: true, confirmed: [] };
+    const old: InterviewDraft = { interview: { card: { situation: 'a', role: 'b' }, step: 'result' }, visibility: 'me', useForRecommend: true };
     expect(fromDraft(old).step).toBe(2);
     expect(fromDraft({ ...old, interview: { ...old.interview, card: { situation: 'a', role: 'b', action: 'c', learned: 'd' } } }).step).toBe('preview');
   });
   it('저장소에서 읽을 때 모양이 맞는 것만 남긴다', () => {
     expect(Object.keys(parseDrafts({ a: toDraft({ ...flow }), b: { x: 1 } }))).toEqual(['a']);
+  });
+  it('옛 대화형 초안(messages·confirmed·followedUp)도 읽고, 남은 칸은 버린다', () => {
+    const saved = { messages: [{ id: 0, from: 'agent', text: '안녕' }], interview: { card: { situation: 'a' }, step: 'role', followedUp: [] }, visibility: 'me', useForRecommend: true, confirmed: [] };
+    expect(parseDrafts({ a: saved })).toEqual({ a: { interview: { card: { situation: 'a' }, step: 'role' }, energy: undefined, visibility: 'me', useForRecommend: true } });
   });
 });

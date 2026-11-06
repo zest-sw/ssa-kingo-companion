@@ -18,20 +18,22 @@ export type OnbResult = {
 };
 
 const REASON_FIRST: Reason['kind'][] = ['interest', 'career'];
-function pickReason(reasons: Reason[]): string | undefined {
-  for (const k of REASON_FIRST) {
-    const r = reasons.find(x => x.kind === k);
-    if (r) return r.text;
-  }
-  return reasons[0]?.text;
+/**
+ * 기록이 없는 학생에게 이 기회를 고른 이유 한 줄. 방금 답한 것과 이어지는 이유를 먼저 고른다(관심 분야 → 목표 → 첫 이유).
+ * 가입 끝 장면과 홈 '다음 한 걸음'(story.next)이 같은 기회에 같은 문장을 쓰도록 여기 하나만 둔다.
+ */
+export function firstReason(reasons: Reason[]): string {
+  const r = REASON_FIRST.map(k => reasons.find(x => x.kind === k)).find(Boolean) ?? reasons[0];
+  // 한 줄 이유는 마침표 없이 끝낸다(홈·추천의 다른 이유와 같은 모양)
+  return (r?.text ?? '지금 신청할 수 있고 내 시간에 맞아요').replace(/\.$/, '');
 }
 
 /**
  * 가입을 마친 직후 보여 줄 한 장면. 홈·추천과 같은 후보 계산(view)에서 바로 꺼낸다(기다림 없음).
- * 이유는 방금 답한 것과 이어지는 한 줄을 먼저 고른다(관심 분야 → 목표 → 첫 이유). 막 답한 학생에게 내 답이 쓰였다는 게 보이게.
+ * 이유는 firstReason 한 줄: 막 답한 학생에게 내 답이 쓰였다는 게 보이게.
  */
 export function onboardingResult(view: Pick<CandidateView, 'primary' | 'newCount'>): OnbResult {
   const p = view.primary;
   if (!p) return { count: 0 };
-  return { count: view.newCount, top: { programId: p.p.id, title: p.p.title, reason: pickReason(p.reasons) ?? '지금 신청할 수 있고 내 시간에 맞아요.' } };
+  return { count: view.newCount, top: { programId: p.p.id, title: p.p.title, reason: firstReason(p.reasons) } };
 }

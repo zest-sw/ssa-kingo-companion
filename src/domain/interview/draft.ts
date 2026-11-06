@@ -8,13 +8,9 @@ export type InterviewState = {
   card: RecordCard;
   /** 보던 질문의 칸, 미리보기면 'review' */
   step: Step;
-  /** 옛 대화형 인터뷰가 쓰던 칸. 모양을 지키려고 빈 배열로 둔다 */
-  followedUp: Step[];
 };
 
-export type Message = { id: number; from: 'agent' | 'me'; text: string };
-// ponytail: messages·confirmed 는 옛 대화형 인터뷰(v2.2)의 칸이라 이제 비워 둔다. 공용 상태(src/app)의 초안 타입을 바꿀 때 함께 뺀다.
-export type InterviewDraft = { messages: Message[]; interview: InterviewState; energy?: Energy; visibility: RecordVisibility; useForRecommend: boolean; confirmed: Axis[] };
+export type InterviewDraft = { interview: InterviewState; energy?: Energy; visibility: RecordVisibility; useForRecommend: boolean };
 
 export type FlowDraft = { card: RecordCard; step: FlowStep; energy?: Energy; visibility: RecordVisibility; useForRecommend: boolean };
 
@@ -22,7 +18,7 @@ export const toggleAxis = (axes: Axis[], axis: Axis): Axis[] => (axes.includes(a
 
 export function toDraft(f: FlowDraft): InterviewDraft {
   const step: Step = f.step === 'preview' ? 'review' : QUESTIONS[f.step].key;
-  return { messages: [], interview: { card: f.card, step, followedUp: [] }, energy: f.energy, visibility: f.visibility, useForRecommend: f.useForRecommend, confirmed: [] };
+  return { interview: { card: f.card, step }, energy: f.energy, visibility: f.visibility, useForRecommend: f.useForRecommend };
 }
 
 /**
@@ -39,12 +35,14 @@ export function fromDraft(d: InterviewDraft): FlowDraft {
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null;
 
-/** 저장소에서 읽은 초안 묶음. 모양이 맞는 초안만 남긴다. */
+/** 저장소에서 읽은 초안 묶음. 모양이 맞는 초안만 남기고, 옛 대화형 초안(v2.2)에 남은 칸은 버린다. */
 export function parseDrafts(raw: unknown): Record<string, InterviewDraft> {
   if (!isObj(raw)) return {};
   const out: Record<string, InterviewDraft> = {};
   for (const [id, d] of Object.entries(raw)) {
-    if (isObj(d) && Array.isArray(d.messages) && isObj(d.interview) && isObj(d.interview.card) && Array.isArray(d.confirmed)) out[id] = d as InterviewDraft;
+    if (!isObj(d) || !isObj(d.interview) || !isObj(d.interview.card) || typeof d.interview.step !== 'string') continue;
+    const { interview, energy, visibility, useForRecommend } = d as InterviewDraft;
+    out[id] = { interview: { card: interview.card, step: interview.step }, energy, visibility, useForRecommend };
   }
   return out;
 }

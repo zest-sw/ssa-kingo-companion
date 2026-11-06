@@ -3,6 +3,7 @@ import { catalog, prog, profile, rec } from '../fixtures.test-util';
 import { buildCandidates } from '../candidates';
 import { buildGraph } from '../analysis/graph';
 import { buildStrengths, leadStrengths } from '../analysis/strengths';
+import { onboardingResult } from '../onboarding';
 import { FIELD_GROUP } from '../vocab';
 import { AXIS_DOING, CLUSTER_DOING, identityLine } from './phrases';
 import { buildStory, clusterDoing, storyLineFor, type StoryInput } from './story';
@@ -105,9 +106,16 @@ describe('새 학생(기록 없음)', () => {
     expect(s.identity.text).toBe('데이터 분석가를 향해 AI·데이터와 개발에서 첫걸음을 떼요');
     expect(s.proofs).toEqual([]);
     expect(s.gap).toBeUndefined();
-    expect(s.next?.why).toBe('첫 기록이 생기면 이야기가 시작돼요');
-    // 데이터가 없어 보여 주는 안내라서 AI 추정 표시를 붙이지 않는다
+    expect(s.next?.why).toMatch(/^처음에 고른 관심 ‘(AI·데이터|개발)’과 맞아요$/);
+    // 학생이 고른 답에서 나온 이유라서 AI 추정 표시를 붙이지 않는다
     expect(s.next?.guide).toBe(true);
+  });
+  it('다음 한 걸음은 가입 끝 장면과 같은 기회, 같은 이유 문장', () => {
+    const over = { records: [], profile: profile({ interests: ['ai', 'dev'], goal: '' }) };
+    const s = buildStory(input(over));
+    const end = onboardingResult({ primary: input(over).scored[0], newCount: 1 }).top;
+    expect(s.next?.programId).toBe(end?.programId);
+    expect(s.next?.why).toBe(end?.reason);
   });
   it('관심을 정하지 않았으면 넓게 둘러보는 문장', () => {
     const s = buildStory(input({ records: [], profile: profile({ interests: ['unknown'], goal: '' }) }));

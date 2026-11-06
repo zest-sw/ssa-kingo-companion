@@ -4,6 +4,7 @@ import type { EdgeAnswers } from '../analysis/map';
 import { axesOfProgram, buildStrengths, DID_DOING, leadStrengths, type Strength } from '../analysis/strengths';
 import { buildTechTree, TREE_COLUMNS, type TechTree, type TreeRow } from '../analysis/techtree';
 import { ddayOf } from '../recommend';
+import { firstReason } from '../onboarding';
 import { josa } from '../text';
 import { goalGroups } from '../recommend-flow/trace';
 import type { Activity, Axis, FieldGroup, Profile, Program, RecordItem, Scored } from '../types';
@@ -27,7 +28,7 @@ export type Proof = { kind: 'strength' | 'cluster' | 'flow' | 'depth'; title: st
 export type Identity = { text: string; alternatives: string[]; basis: string; status: 'estimate' | 'confirmed' };
 export type { Gap, GapNeed } from './gap';
 /** same: 지금 가장 추천과 같은 후보인지. 다르면 note 가 이유를 말한다 */
-/** guide: why 가 기록을 읽은 추정이 아니라 데이터가 없어 보여 주는 안내 문장이다(추정 표시를 붙이지 않는다) */
+/** guide: why 가 기록을 읽은 추정이 아니라 학생이 가입 때 고른 답에서 나온 문장이다(추정 표시를 붙이지 않는다) */
 export type NextPick = { programId: string; title: string; why: string; same: boolean; note?: string; guide?: boolean };
 export type ScreenLine = { soWhat: string; nowWhat?: string };
 export type StoryScreen = 'techtree' | 'map' | 'flow' | 'strengths' | 'recommend' | 'records';
@@ -125,7 +126,8 @@ function pickNext(scored: Scored[], lead: Strength | undefined, gap: Gap | undef
     const deep = scored.find(s => doingFor(s.p, lead.axis))?.p;
     if (deep) return pack(deep, `${DID_DOING[doingFor(deep, lead.axis)!]} ${eul(lead.label)} 한 번 더 써요`);
   }
-  if (!records.length) return { ...pack(primary, '첫 기록이 생기면 이야기가 시작돼요'), guide: true };
+  // 기록이 없으면 가입 끝 장면과 같은 이유. 학생이 고른 답에서 나온 말이라 추정 표시를 붙이지 않는다
+  if (!records.length) return { ...pack(primary, firstReason(scored[0].reasons)), guide: true };
   return pack(primary, '지금 후보 중 내 기록과 가장 잘 이어져요');
 }
 

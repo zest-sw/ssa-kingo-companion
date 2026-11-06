@@ -23,5 +23,6 @@ export { Stepper, type StepItem } from './Stepper';
 export { Switch } from './Switch';
 export { SegmentedControl, TabPanel, Tabs, type TabItem } from './Tabs';
 export { Toast, TOAST_MS, ToastProvider, useToast } from './Toast';
+export { useScrollFade } from './useScrollFade';
 export * from './diagram';
 export * from './story';

@@ -161,7 +161,7 @@ describe('처음으로 되돌리기 (reset)', () => {
 });
 
 function draft(): InterviewDraft {
-  return { messages: [{ id: 0, from: 'agent', text: '안녕하세요' }], interview: { card: { situation: '해커톤' }, step: 'role', followedUp: [] }, visibility: 'me', useForRecommend: true, confirmed: [] };
+  return { interview: { card: { situation: '해커톤' }, step: 'role' }, visibility: 'me', useForRecommend: true };
 }
 
 function written(): RecordItem {
