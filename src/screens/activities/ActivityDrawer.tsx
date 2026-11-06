@@ -6,7 +6,7 @@ import type { Activity, ActivityStatus } from '../../domain/types';
 import { STATUS_LABEL } from '../../domain/vocab';
 import { runLog } from '../../domain/recommend-flow/draft';
 import { RunLog } from '../recommend/RunLog';
-import { StatusBadge, goInterview } from './ActivityCard';
+import { goInterview } from './ActivityCard';
 import { canQuit, dueView, nextLine } from './helpers';
 
 const FLOW: ActivityStatus[] = ['preparing', 'applied', 'ongoing', 'ended', 'recorded'];
@@ -62,7 +62,6 @@ export function ActivityDrawer({ a, onClose }: { a: Activity | undefined; onClos
     <Drawer
       open={!!a}
       onClose={onClose}
-      eyebrow={a && <StatusBadge status={a.status} />}
       title={a?.title ?? ''}
       footer={a && (
         <>

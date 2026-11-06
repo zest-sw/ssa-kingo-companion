@@ -221,7 +221,7 @@
 @keyframes ui-slide-out { to { transform: translateX(var(--enter-shift)); opacity: 0; } }
 .ui-scrim[data-state='closing'] .ui-drawer { animation: ui-slide-out var(--dur-base) var(--ease-out) forwards; }
 .ui-drawer__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-4) var(--space-4) var(--space-6); border-bottom: var(--border); }
-.ui-drawer__eyebrow { font-size: var(--text-xs); color: var(--ink-muted); }
+.ui-drawer__eyebrow { font-size: var(--text-sm); color: var(--ink-muted); }
 .ui-drawer__title { font-size: var(--fs-lead); font-weight: var(--weight-heavy); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .ui-drawer__body { flex: 1; overflow-y: auto; padding: var(--space-5) var(--space-6) var(--space-6); }
 .ui-drawer__foot { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-6); border-top: var(--border); }
