@@ -8,22 +8,8 @@ import { addDays } from './timeline';
 /** 내 활동 요약 화면이 보여 줄 문장과 값. 계산만 하고 그리지 않는다. */
 
 const isTodo = (a: Activity) => a.status === 'preparing' || a.status === 'applied';
-const ENDED = (a: Activity) => a.status === 'ended';
-
-export type NextDue = { id: string; title: string; dday: number };
-
-/** 할 것 중 마감이 가까운 순 n개. 오늘 마감이 맨 앞이다. */
-export function nextDues(activities: Activity[], n = 2): NextDue[] {
-  return activities
-    .filter(a => isTodo(a) && a.due)
-    .map(a => ({ id: a.id, title: a.title, dday: a.due!.dday }))
-    .sort((x, y) => x.dday - y.dday)
-    .slice(0, n);
-}
 
 export const ongoingTitles = (activities: Activity[]) => activities.filter(a => a.status === 'ongoing').map(a => a.title);
-
-export const pendingRetros = (activities: Activity[]) => activities.filter(ENDED);
 
 /**
  * 일정 화면 머리 한 줄: '이번 달 마감 2개, 진행 중 2개'. 이번 달 = 오늘이 속한 달.

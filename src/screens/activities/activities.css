@@ -6,9 +6,10 @@
   --act-ring: 1.5px;
   --act-dot: 8px;
   --act-fact-label-w: 72px;
-  --act-sb-label-w: 56px;
-  --act-sb-n-w: 28px;
-  --act-sb-h: var(--bar-h);
+  --act-side-w: 340px;
+  --act-wk-label-w: 184px;
+  --act-wk-row-h: 52px;
+  --act-wk-row-max: 104px;
 }
 
 .act-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
@@ -84,36 +85,62 @@
   .act-card { padding: var(--space-4); }
 }
 
-/* 내 활동 요약: 위 = 지금 상태 세 칸, 아래 = 일정·기록 카드(그림이 남은 높이를 채운다) */
-.act-sum { grid-template-rows: auto; }
-.act-now { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--os-gap); align-items: stretch; }
-.act-now__pic { display: flex; flex-direction: column; gap: var(--space-3); }
-.act-now__far { margin: 0; color: var(--ink-muted); font-size: var(--text-xs); }
+/* 내 활동 한눈에: 왼쪽 주인공(이번 주)이 남은 높이를 채우고, 오른쪽 조연 열(할 일 · 회고 대기)의 아래 끝을 맞춘다 */
+.act-sum { grid-template-columns: minmax(0, 1fr) var(--act-side-w); }
+.act-side { display: flex; flex-direction: column; gap: var(--os-gap); min-height: 0; }
+.act-side > .act-retro { flex: 1; }
+.act-week .ui-card__action { gap: var(--space-2); }
+.act-week .ui-dg-legend { margin: 0; }
+.act-week__later { margin: var(--space-3) 0 0; color: var(--ink-muted); font-size: var(--text-sm); }
 
-/* 상태 막대 */
-.act-sb { display: flex; flex-direction: column; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
-.act-sb__row { display: grid; grid-template-columns: var(--act-sb-label-w) minmax(0, 1fr) var(--act-sb-n-w); align-items: center; gap: var(--space-3); font-size: var(--text-md); }
-.act-sb__label { color: var(--ink-muted); }
-.act-sb__track { height: var(--act-sb-h); border-radius: var(--radius-sm); background: var(--bg-sunken); overflow: hidden; }
-.act-sb__bar { display: block; height: 100%; min-width: var(--act-dot); border-radius: var(--radius-sm); }
-.act-sb__bar--todo { background: var(--state-todo); }
-.act-sb__bar--doing { background: var(--state-doing); }
-.act-sb__bar--done { background: var(--grey-500); }
-.act-sb__n { text-align: right; font-size: var(--text-xl); }
+/* 이번 주 그림. 요일 칸 선은 그림 아래 끝까지, 오늘은 칸 가운데 1px 주황 선 */
+.act-wk { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.act-wk__head { display: grid; grid-template-columns: var(--act-wk-label-w) repeat(7, minmax(0, 1fr)); align-items: end; padding-bottom: var(--space-2); border-bottom: var(--border); }
+.act-wk__day { display: flex; align-items: baseline; justify-content: center; gap: var(--space-1); color: var(--ink-subtle); font-size: var(--text-xs); }
+.act-wk__day b { color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.act-wk__day em { font-style: normal; }
+.act-wk__day[data-today], .act-wk__day[data-today] b { color: var(--accent-ink); }
+.act-wk__body { position: relative; flex: 1; min-height: 0; overflow-y: auto; }
+.act-wk__lanes { position: absolute; inset: 0 0 0 var(--act-wk-label-w); display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); pointer-events: none; }
+.act-wk__lanes > span { position: relative; border-left: var(--border); }
+.act-wk__lanes > span[data-today]::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; border-left: var(--rule) solid var(--dg-today); }
+.act-wk__rows { position: relative; display: flex; flex-direction: column; min-height: 100%; }
+/* 줄이 적으면 줄 높이를 키워 그림이 남은 높이를 쓴다(최대 --act-wk-row-max). 많으면 이 칸 안에서만 스크롤 */
+.act-wk__rows > li { display: flex; flex: 1 0 var(--act-wk-row-h); max-height: var(--act-wk-row-max); }
+.act-wk__empty { position: absolute; inset: 0 0 0 var(--act-wk-label-w); display: grid; align-content: start; justify-content: center; justify-items: center; gap: var(--space-3); padding: calc(var(--act-wk-row-h) * 3 + var(--space-6)) var(--space-4) var(--space-4); text-align: center; color: var(--ink-muted); font-size: var(--text-sm); }
+.act-wk__empty > p { margin: 0; padding: var(--space-1) var(--space-2); background: var(--surface); }
+.act-wk__ghost { position: absolute; inset: 0 0 0 0; display: flex; flex-direction: column; pointer-events: none; }
+.act-wk__ghost > span { flex: 0 0 var(--act-wk-row-h); border-bottom: 1px dashed var(--line); }
+.act-wk__row { all: unset; box-sizing: border-box; display: grid; grid-template-columns: var(--act-wk-label-w) minmax(0, 1fr); width: 100%; height: 100%; min-height: var(--act-wk-row-h); align-items: center; border-bottom: var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: background var(--duration) var(--ease); }
+.act-wk__row:hover { background: color-mix(in srgb, var(--surface-hover) 70%, transparent); }
+.act-wk__row:active { background: var(--surface-hover); }
+.act-wk__row:focus-visible { box-shadow: var(--focus-ring-inset); }
+.act-wk__label { display: flex; flex-direction: column; gap: 2px; padding: var(--space-2) var(--space-3) var(--space-2) 0; min-width: 0; }
+.act-wk__name { color: var(--ink); font-size: var(--text-sm); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+.act-wk__note { color: var(--ink-muted); font-size: var(--text-xs); }
+.act-wk__note[data-near] { color: var(--accent-ink); font-weight: var(--weight-bold); }
+.act-wk__track { position: relative; align-self: stretch; }
+.act-wk__bar { position: absolute; top: 50%; height: var(--bar-h); transform: translateY(-50%); border-radius: var(--radius-xs); background: color-mix(in srgb, var(--dg-c) var(--tint), var(--surface)); box-shadow: inset 0 0 0 var(--rule) var(--dg-c); }
+.act-wk__meet { position: absolute; top: 50%; width: var(--dg-dot); height: var(--dg-dot); transform: translate(-50%, -50%); border-radius: var(--radius-full); background: var(--dg-c); box-shadow: 0 0 0 2px var(--surface); }
+.act-wk__wait { position: absolute; top: 50%; border-top: var(--rule) solid var(--line-strong); }
+.act-wk__due { position: absolute; top: 50%; width: var(--dg-mark); height: var(--dg-mark); transform: translate(-50%, -50%) rotate(45deg) scale(0.8); background: var(--ink-strong); box-shadow: 0 0 0 2px var(--surface); }
+.act-wk__due[data-near] { background: var(--accent); }
 
-/* 이번 주 미니 타임라인 */
+/* 할 일: 얇은 한 줄 막대 + 쌓인 수 한 줄 */
+.act-status__tally { margin: var(--space-3) 0 0; color: var(--ink-muted); font-size: var(--text-xs); }
 
-/* 회고 대기: 수 하나만 오렌지로 강조하고 면은 칠하지 않는다(큰 색 면 금지). 수 옆에 활동마다 바로 여는 줄(Day One) */
-.act-retro__cell { display: flex; align-items: flex-start; gap: var(--space-4); }
-.act-retro__n { flex: none; padding-top: var(--space-1); color: var(--accent-ink); font-size: var(--text-3xl); font-weight: var(--weight-heavy); line-height: 1; }
-.act-retro__list { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.act-retro__item { all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: var(--hit-min); padding: 0 var(--space-2); border-radius: var(--radius-sm); cursor: pointer; }
+/* 회고 대기: 가장 오래 기다린 하나만 주 버튼, 나머지는 줄 전체 + 끝 화살표 아이콘 */
+.act-retro__first { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); padding-bottom: var(--space-4); }
+.act-retro__title { margin: var(--space-1) 0 0; font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+.act-retro__when { margin: 0 0 var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); }
+.act-retro__list { display: flex; flex-direction: column; border-top: var(--border); }
+.act-retro__item { all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: var(--hit-min); padding: var(--space-2); border-bottom: var(--border); cursor: pointer; color: var(--ink-subtle); transition: background var(--duration) var(--ease); }
 .act-retro__item:hover { background: var(--surface-hover); }
-.act-retro__item:focus-visible { box-shadow: var(--focus-ring); }
-.act-retro__name { min-width: 0; font-size: var(--text-sm); line-height: var(--leading-tight); }
-.act-retro__label { flex: none; display: inline-flex; align-items: center; gap: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-medium); }
-.act-retro__more { font-size: var(--text-sm); color: var(--ink-muted); }
-.act-retro__none { margin: 0; color: var(--ink-muted); font-size: var(--text-sm); }
+.act-retro__item:focus-visible { box-shadow: var(--focus-ring-inset); }
+.act-retro__name { display: flex; flex-direction: column; gap: 2px; min-width: 0; color: var(--ink); font-size: var(--text-sm); line-height: var(--leading-tight); }
+.act-retro__name small { color: var(--ink-muted); font-size: var(--text-xs); }
+.act-retro__more { color: var(--ink-muted); font-size: var(--text-sm); }
+.act-retro > .ui-state { flex: 1; justify-content: center; padding: var(--space-4) var(--space-2); }
 
 /* 일정 머리 한 줄. 구역 탭 줄 바로 아래라 탭 줄 아래 간격(--os-gap)을 8px 로 당긴다 */
 .act-headline { flex: none; margin: calc(var(--space-2) - var(--os-gap)) 0 var(--space-3); color: var(--ink-muted); font-size: var(--text-md); }
@@ -123,13 +150,6 @@
 /* 일정 첫 화면(이번 달): 넘친 줄이 있다는 안내 한 줄 */
 .act-more { margin: var(--space-2) 0 0; color: var(--ink-muted); font-size: var(--text-sm); }
 
-/* 첫 사용 요약: 세 칸이 같은 모양이라 칸을 줄 높이로 늘리지 않는다(회고 대기 칸이 혼자 늘어나 비던 것). */
-.act-now:has(.ui-state--pic) { align-items: start; }
-.act-now .ui-state--pic { padding: var(--space-4) var(--space-2) var(--space-2); }
-.act-now .ui-state__pic { width: 100%; }
-
-/* 이번 달 일정: 위 두 칸 아래 한 줄을 다 쓴다. 제목이 일정으로 가는 유일한 링크다 */
-.act-month { grid-column: 1 / -1; }
-.act-month__link { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); color: inherit; text-decoration: none; }
-.act-month__link:hover { text-decoration: underline; text-underline-offset: var(--space-1); }
-.act-month .ui-card__action { gap: var(--space-2); }
+@media (max-width: 1199px) {
+  :root { --act-side-w: 300px; --act-wk-label-w: 136px; }
+}

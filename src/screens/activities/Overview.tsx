@@ -1,91 +1,72 @@
 import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
-import { hrefOf, navigate, sectionTabs } from '../../app/router';
+import { navigate, sectionTabs } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
-import { Button, Card, EmptyState, GanttRows, GhostPic, Icon, Legend, PageHeader, SectionTabs, type LegendItem } from '../../components';
+import { Button, Card, Legend, PageHeader, SectionTabs, SegmentBar, type LegendItem } from '../../components';
 import { CURRENT_TERM } from '../../data/records';
 import { semesterTally } from '../../domain/recommend-flow/summary';
-import { PROTOTYPE_TODAY } from '../../domain/today';
-import { pendingRetros } from './summary';
-import { RETRO_SHOWN } from '../records/RetroBand';
-import { StatusBarsPic } from './Pictures';
+import type { BoardColumn } from '../../domain/types';
+import { setBoardFocus } from './boardFocus';
+import { RetroCard } from './RetroCard';
 import { statusBars } from './visual';
-import { clipRows, monthRange, timelineOf } from './timeline';
+import { WeekPic } from './WeekPic';
+import { retroQueue, weekOf, weekTitle } from './week';
 
-const STATUS_ROWS = ['할 것', '하는 중', '끝난 것'];
 const LEGEND: LegendItem[] = [
-  { label: '준비·대기', mark: 'hatch', tone: 'ink' }, { label: '진행', mark: 'fill', tone: 'ink' },
-  { label: '신청 마감', mark: 'diamond', tone: 'ink' }, { label: '오늘', mark: 'today' }
+  { label: '마감', mark: 'diamond', tone: 'ink' }, { label: '하는 중', mark: 'hatch', tone: 'ink' },
+  { label: '모이는 날', mark: 'dot', tone: 'ink' }, { label: '오늘', mark: 'today' }
 ];
-/** 요약에서는 이번 달 막대를 4줄까지만. 나머지는 일정 화면에서 */
-const MONTH_ROWS = 4;
 
 /**
- * 내 활동 요약: 덩어리 셋. 위 줄 할 일 상태 · 회고 대기, 아래 줄 이번 달 일정(일정 › 타임라인의 이번 달을 작게).
- * 일정으로 가는 길은 '이번 달 일정' 카드 제목 링크 하나다(사이드바 '일정'과 같은 목적지지만 내용을 펼치는 요약 카드라 허용, ia-navigation 2절 4).
+ * 내 활동 › 한눈에. 주인공은 '이번 주' 그림 하나(왼쪽, 남은 높이를 채운다). 오른쪽은 조연: 할 일 한 줄 막대, 회고 대기.
+ * 일정·기록으로 가는 길은 구역 탭이 맡는다. 여기서는 같은 목적지 링크를 두지 않고, 그림 속 항목만 그 항목 서랍·회고로 보낸다.
  */
 export function Overview() {
   const { state } = useApp();
   useOverviewState<null>('activities', null);
-  const retros = pendingRetros(state.activities);
   const empty = state.activities.length === 0;
-  const bars = statusBars(state.activities);
+  const week = weekOf(state.activities);
+  const queue = retroQueue(state.activities);
   // 연속 기록 대신 쌓이기만 하는 숫자. 줄어들거나 끊기는 장치는 두지 않는다.
   const tally = semesterTally(state.activities, state.records, CURRENT_TERM.semester);
-  const month = monthRange();
-  const clipped = clipRows(timelineOf(state.activities).rows, month, MONTH_ROWS);
-  const [, m] = month.start.split('-').map(Number);
   const tabs = <SectionTabs {...sectionTabs('activities', 'activities')} />;
-  const monthTitle = <a className="act-month__link" href={hrefOf('activities/schedule')}>{m}월 일정<Icon name="chevron" size={16} /></a>;
 
+  let hero;
   if (empty) {
-    // 첫 사용: 세 칸 모두 그림 틀 + 한 줄. 다음 행동 버튼은 첫 칸 한 곳에만 둔다.
-    return (
-      <div className="os">
-        <PageHeader title="내 활동" tabs={tabs} />
-        <div className="os__body act-sum">
-          <div className="act-now">
-            <Card className="os-card" title="할 일 상태">
-              <EmptyState pic={<GhostPic kind="bars" labels={STATUS_ROWS} />} message="신청 준비를 누르면 막대가 생겨요" action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>} />
-            </Card>
-            <Card className="os-card act-retro" title="회고 대기">
-              <EmptyState pic={<GhostPic kind="rows" labels={['']} />} message="끝난 활동이 생기면 여기서 회고를 시작해요" />
-            </Card>
-            <Card className="os-card act-month" title={monthTitle}>
-              <EmptyState pic={<GhostPic kind="timeline" labels={['1일', '8일', '15일', '22일', '29일']} />} message="신청한 활동의 날짜가 여기 막대로 생겨요" />
-            </Card>
-          </div>
-        </div>
-      </div>
+    // 첫 사용: 이번 주 축을 옅게 그리고, 화면의 유일한 주 버튼을 여기에 둔다.
+    hero = (
+      <Card className="os-card act-week" title="이번 주" data-fill>
+        <WeekPic week={week} onOpen={() => {}} empty={<><p>신청 준비를 누르면 마감과 활동 날짜가 이 주에 생겨요</p><Button variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button></>} />
+      </Card>
+    );
+  } else {
+    hero = (
+      <Card className="os-card act-week" title={weekTitle(week)} lead action={week.rows.length > 0 && <Legend items={LEGEND} />} data-fill>
+        <WeekPic week={week} onOpen={id => openEntity({ kind: 'activity', id })} empty={<p>이번 주에 걸린 마감과 모임이 없어요. 다음 일정은 일정 탭에 있어요.</p>} />
+        {week.laterDues > 0 && <p className="act-week__later">다음 주부터 마감 {week.laterDues}개가 이어져요</p>}
+      </Card>
     );
   }
+
+  const openColumn = (id: string) => { setBoardFocus(id as BoardColumn); navigate('activities/schedule/board'); };
 
   return (
     <div className="os">
       <PageHeader title="내 활동" tabs={tabs} />
-      <div className="os__body act-sum">
-        <div className="act-now">
-          <Card className="os-card" title="할 일 상태" aria-label="할 일 상태">
-            <div className="act-now__pic"><StatusBarsPic bars={bars} />{tally && <p className="act-now__far">{tally}</p>}</div>
-          </Card>
-          <Card className={`os-card act-retro${retros.length ? ' is-on' : ''}`} title="회고 대기" aria-label="회고 대기" action={<Button size="sm" variant="ghost" onClick={() => navigate('activities/records')}>기록 보기</Button>}>
-            {retros.length ? (
-              // Day One: 활동 이름을 누르면 그 활동의 회고가 바로 열린다. 넘친 것만 회고 목록으로.
-              <div className="act-retro__cell">
-                <b className="act-retro__n num" aria-label={`회고 대기 ${retros.length}개`}>{retros.length}</b>
-                <ul className="act-retro__list">
-                  {retros.slice(0, RETRO_SHOWN).map(a => (
-                    <li key={a.id}><button type="button" className="act-retro__item" aria-label={`${a.title} 회고 쓰기`} onClick={() => navigate(`activities/records/interview/${a.id}`)}><span className="act-retro__name">{a.title}</span><span className="act-retro__label" aria-hidden="true"><Icon name="chevron" size={14} /></span></button></li>
-                  ))}
-                  {retros.length > RETRO_SHOWN && <li><button type="button" className="act-retro__item act-retro__more" onClick={() => navigate('activities/records/interview')}>{retros.length - RETRO_SHOWN}개 더 보기</button></li>}
-                </ul>
-              </div>
-            ) : <p className="act-retro__none">끝난 활동이 생기면 여기서 회고를 시작해요.</p>}
-          </Card>
-          <Card className="os-card act-month" title={monthTitle} aria-label="이번 달 일정" action={<Legend items={LEGEND} />}>
-            <GanttRows label="이번 달 활동" range={month} today={PROTOTYPE_TODAY} rows={clipped.rows} onSelect={id => openEntity({ kind: 'activity', id })} empty="이번 달에 걸친 활동이 없어요. 추천에서 이번 달 활동을 골라 보세요." />
-            {clipped.hidden > 0 && <p className="act-now__far">{clipped.hidden}개 더 있어요</p>}
-          </Card>
+      <div className="os__body os__body--fill act-sum">
+        {hero}
+        <div className="act-side">
+          {!empty && (
+            <Card className="os-card act-status" title="할 일">
+              <SegmentBar
+                label="상태별 활동 수" inline
+                segments={statusBars(state.activities).map(b => ({ id: b.id, label: b.label, value: b.count, tone: b.id }))}
+                onSelect={openColumn} empty="아직 활동이 없어요"
+              />
+              {tally && <p className="act-status__tally">{tally}</p>}
+            </Card>
+          )}
+          <RetroCard queue={queue} hasActivities={!empty} />
         </div>
       </div>
     </div>

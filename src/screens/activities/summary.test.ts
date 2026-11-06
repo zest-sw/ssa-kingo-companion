@@ -1,13 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_ACTIVITIES, SEED_RECORDS } from '../../data/seed';
-import { latestRecord, nextDues, recordHeadline, scheduleHeadline } from './summary';
+import { latestRecord, recordHeadline, scheduleHeadline } from './summary';
 
 const act = (over: object) => ({ ...SEED_ACTIVITIES[0], ...over });
-
-describe('nextDues', () => {
-  it('가까운 순 두 개, 오늘 마감이 앞', () => expect(nextDues(SEED_ACTIVITIES).map(d => d.id)).toEqual(['a-tutor', 'a-swm']));
-  it('끝난 활동은 뺀다', () => expect(nextDues([act({ status: 'ended' })])).toEqual([]));
-});
 
 describe('일정 문장', () => {
   it('머리 한 줄', () => expect(scheduleHeadline(SEED_ACTIVITIES, '2026-10-13')).toBe('이번 달 마감 4개, 진행 중 3개, 결과 대기 1개'));
