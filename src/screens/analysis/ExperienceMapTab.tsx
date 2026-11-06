@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
+import { useDrawerOf } from '../../app/drawerUrl';
 import { navigate } from '../../app/router';
 import { AiMark, Badge, Button, Card, Drawer, EmptyState, GhostPic, Modal } from '../../components';
 import { buildGraph, withClusterNames, type ClusterNameAnswers, type GraphEdge, type GraphFocus, type KnowledgeGraph } from '../../domain/analysis/graph';
@@ -10,7 +11,7 @@ import { josaRo } from '../../domain/text';
 import { buildStrengths, withAnswers } from '../../domain/analysis/strengths';
 import { edgeCounts } from '../../domain/kg/build';
 import { nextStep } from '../../domain/nextStep';
-import type { Axis, RecordItem } from '../../domain/types';
+import type { RecordItem } from '../../domain/types';
 import { ClusterPanel, type NameAnswer } from './ClusterPanel';
 import { MapGraph, type GraphCamera, type GraphOpen } from './MapGraph';
 import { RecordSummary } from './RecordSummary';
@@ -37,8 +38,9 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
   const strengths = useMemo(() => buildStrengths(live), [live]);
   const [selected, setSelected] = useState<GraphFocus | null>(null);
   const [camera, setCamera] = useState<GraphCamera | null>(null);
-  const [edgeId, setEdgeId] = useState<string | null>(null);
-  const [strengthAxis, setStrengthAxis] = useState<Axis | null>(null);
+  // 서랍은 주소에 남는다(?drawer=strength:<역량>, ?drawer=edge:<선 id>). 기록은 openEntity 가 연다.
+  const strengthDrawer = useDrawerOf('strength');
+  const edgeDrawer = useDrawerOf('edge');
   const [how, setHow] = useState(false);
   const step = nextStep(state.activities);
   const rejected = Object.values(answers).filter(v => v === 'no').length;
@@ -54,8 +56,8 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
   };
   const open = (o: GraphOpen) => {
     if (o.kind === 'record') openEntity({ kind: 'record', id: o.id });
-    else if (o.kind === 'axis') setStrengthAxis(o.id as Axis);
-    else setEdgeId(o.id);
+    else if (o.kind === 'axis') strengthDrawer.open(o.id);
+    else edgeDrawer.open(o.id);
   };
   const onName = (id: string, a: NameAnswer) => setNames(prev => ({ ...prev, [id]: { ...prev[id], ...a } }));
 
@@ -85,8 +87,8 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
           <ClusterPanel graph={graph} selected={shown} onSelect={select} onOpen={open} onName={onName} onHow={() => setHow(true)} />
         </div>
       </Card>
-      <StrengthDrawer strength={strengths.find(s => s.axis === strengthAxis)} records={live} programs={programs} onClose={() => setStrengthAxis(null)} />
-      <EdgeDrawer edge={edgeId ? graph.edges.find(e => e.id === edgeId && e.kind === 'follow') : undefined} byId={byId} answers={answers} onClose={() => setEdgeId(null)} answer={(id, a) => setAnswers(prev => answerEdge(prev, id, a))} />
+      <StrengthDrawer strength={strengths.find(s => s.axis === strengthDrawer.id)} records={live} programs={programs} onClose={strengthDrawer.close} />
+      <EdgeDrawer edge={edgeDrawer.id ? graph.edges.find(e => e.id === edgeDrawer.id && e.kind === 'follow') : undefined} byId={byId} answers={answers} onClose={edgeDrawer.close} answer={(id, a) => setAnswers(prev => answerEdge(prev, id, a))} />
       <HowModal open={how} graph={graph} onClose={() => setHow(false)} />
     </>
   );

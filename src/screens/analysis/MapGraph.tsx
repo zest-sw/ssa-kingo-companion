@@ -5,6 +5,7 @@ import { GRAPH_METRICS as M, hullExit, keywordLine, layoutGraph, nameSize, textW
 import {
   centerOn, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, nodeBrief, nodeInv, pinLayout, scaleBoxes, textInv, toScreen, zoomDetail, ZOOM, type View
 } from '../../domain/analysis/graphView';
+import { usePictureKeys } from './usePictureKeys';
 
 /** 두 번 누르거나 Enter: 활동은 기록 서랍, 역량은 근거 서랍, 이어짐 선은 맞는지 답하기 */
 export type GraphOpen = { kind: 'record' | 'axis' | 'follow'; id: string };
@@ -43,7 +44,8 @@ function useBox(fallback = { w: 720, h: 480 }) {
   return [ref, box] as const;
 }
 
-const keys = (fn: (e: KeyboardEvent) => void) => ({ role: 'button' as const, tabIndex: 0, onKeyDown: fn });
+// 그림 안 칸은 모두 tabIndex -1 로 그리고, Tab 자리 하나는 usePictureKeys 가 고른다
+const keys = (fn: (e: KeyboardEvent) => void) => ({ role: 'button' as const, tabIndex: -1, onKeyDown: fn });
 const hullPath = (pts: Pt[]) => (pts.length ? `M${pts.map(p => `${p.x} ${p.y}`).join('L')}Z` : '');
 const focusOf = (nodeId: string): GraphFocus => (nodeId.startsWith('ax:') ? { kind: 'axis', id: nodeId.slice(3) } : { kind: 'node', id: nodeId });
 const openOf = (nodeId: string): GraphOpen => (nodeId.startsWith('ax:') ? { kind: 'axis', id: nodeId.slice(3) } : { kind: 'record', id: nodeId });
@@ -165,6 +167,18 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
   const dim = (id: string) => (hot && !hot.nodes.has(id) ? ' is-dim' : hot ? ' is-hot' : '');
   const rOf = (id: string) => radiusOf(id) * (id.startsWith('ax:') ? inv : dinv);
 
+  const pictureKeys = usePictureKeys(ref, { onEscape: () => { if (!selected) return false; onSelect(null); return true; } });
+  // 키보드로 화면 밖 칸(묶음 이름·이어짐 선)에 오면 그쪽으로 옮긴다. 활동·역량은 hoverOn 이 맡는다
+  const revealKey = (key: string | null | undefined) => {
+    if (!key) return;
+    const [kind, id] = [key.slice(0, key.indexOf('|')), key.slice(key.indexOf('|') + 1)];
+    const e = kind === 'follow' ? graph.edges.find(x => x.id === id) : undefined;
+    const a = e && live.current.layout.pos[e.from], b = e && live.current.layout.pos[e.to];
+    const p = kind === 'cluster' ? live.current.layout.names[id] : a && b ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : undefined;
+    const s = p && toScreen(zp.view(), p);
+    if (p && s && (s.x < 24 || s.y < 24 || s.x > frame.w - 24 || s.y > frame.h - 24)) zp.set(centerOn(zp.view(), p, live.current.frame, zp.view().k), 'animate');
+  };
+
   const hoverOn = (id: string) => ({
     onMouseEnter: () => setHover(id), onMouseLeave: () => setHover(h => (h === id ? null : h)),
     onFocus: () => {
@@ -203,7 +217,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
     const from = nodeById.get(e.from) as RecordNode | undefined;
     const to = nodeById.get(e.to) as RecordNode | undefined;
     return (
-      <g key={e.id} className={`${cls} xg-edge--press`} data-zp-id={`follow|${e.id}`} aria-label={`${from?.label}와 ${to?.label} 이어짐, ${e.confirmed ? '내가 확인' : e.origin === 'llm' ? 'AI 추정' : '공통점으로 이음'}. 왜 이어졌는지 보기`}
+      <g key={e.id} className={`${cls} xg-edge--press`} data-zp-id={`follow|${e.id}`} data-rove={`follow|${e.id}`} data-rove-weight="2" aria-label={`${from?.label}와 ${to?.label} 이어짐, ${e.confirmed ? '내가 확인' : e.origin === 'llm' ? 'AI 추정' : '공통점으로 이음'}. 왜 이어졌는지 보기`}
         {...edgeHover} {...keys(ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); onOpen({ kind: 'follow', id: e.id }); } })}>
         {hit}
         {line}
@@ -213,15 +227,17 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
 
   return (
     <div
-      ref={ref} className={`xg-stage${zp.dragging ? ' is-dragging' : ''}`} data-fill data-zoom={detail} tabIndex={0} role="group"
-      aria-label="경험 지도 그림. +, - 로 확대·축소, 0 으로 화면에 맞춤, 방향키로 이동해요."
+      ref={ref} className={`xg-stage${zp.dragging ? ' is-dragging' : ''}`} data-fill data-zoom={detail} role="group"
+      aria-label="경험 지도 그림. +, - 로 확대·축소, 0 으로 화면에 맞춤, Shift+방향키로 그림을 옮겨요."
       {...zp.handlers}
-      onKeyDown={e => { if (e.key === 'Escape' && selected && !(e.target as Element).closest('input')) { e.preventDefault(); onSelect(null); return; } zp.handlers.onKeyDown(e); }}
+      onFocus={e => { pictureKeys.onFocus(e); revealKey((e.target as Element).getAttribute?.('data-rove')); }}
+      onKeyDown={e => { if ((e.target as Element).closest('input')) return; if (pictureKeys.onKeyDown(e)) return; zp.handlers.onKeyDown(e); }}
     >
       <ZoomPanBar className="xg-tools" k={k} announce={zp.announce} onIn={() => zp.zoomBy(ZOOM.step)} onOut={() => zp.zoomBy(1 / ZOOM.step)} onFit={() => zp.fit()} onReset={reset}>
         <GraphSearch graph={graph} onPick={pickFound} />
       </ZoomPanBar>
-      <svg className="xg" width={Math.floor(box.w)} height={boxH} role="group" aria-label="경험 지도: 활동 묶음과 역량의 연결">
+      <p id={`${mk}-keys`} className="sr-only">방향키로 가까운 활동, [ 와 ] 로 묶음 사이를 옮겨요. Enter 로 열고, Esc 로 그림에서 나가요.</p>
+      <svg className="xg" width={Math.floor(box.w)} height={boxH} role="group" aria-label="경험 지도: 활동 묶음과 역량의 연결" aria-describedby={`${mk}-keys`}>
         <defs>
           {(['base', 'hot', 'yes'] as const).map(m => (
             <marker key={m} id={`${mk}-${m}`} className={`xg-arrow xg-arrow--${m}`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth={arrow} markerHeight={arrow} markerUnits="userSpaceOnUse" orient="auto-start-reverse">
@@ -261,7 +277,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
             const pillW = textWidth(c.name, size.charW) + 16;
             const why = kw ? `, 키워드 ${kw}` : isTentative(c) ? ', AI가 제안한 이름, 확인 전' : '';
             return (
-              <g key={c.id} className={`xg-name${ci === 0 ? ' xg-name--hero' : ''}${isTentative(c) ? ' xg-name--ai' : ''}${on ? ' is-picked' : ''}${hot && !on && selCluster ? ' is-dim' : ''}`} data-zp-id={`cluster|${c.id}`} aria-label={`${c.name} 묶음, 활동 ${c.recordIds.length}개${why}. 이 묶음으로 확대해서 분석 보기`} aria-pressed={on}
+              <g key={c.id} className={`xg-name${ci === 0 ? ' xg-name--hero' : ''}${isTentative(c) ? ' xg-name--ai' : ''}${on ? ' is-picked' : ''}${hot && !on && selCluster ? ' is-dim' : ''}`} data-zp-id={`cluster|${c.id}`} data-rove={`cluster|${c.id}`} data-rove-group={c.id} data-rove-head="" data-rove-start={ci === 0 ? '' : undefined} aria-label={`${c.name} 묶음, 활동 ${c.recordIds.length}개${why}. 이 묶음으로 확대해서 분석 보기`} aria-pressed={on}
                 {...keys(e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect({ kind: 'cluster', id: c.id }); goCluster(c.id); } })}>
                 <title>{kw ? `키워드 ${kw}` : isTentative(c) ? 'AI가 제안한 이름이에요. 옆 칸에서 확인해 주세요' : c.name}</title>
                 <rect x={p.x - pillW / 2} y={b.y} width={pillW} height={size.h} rx={size.h / 2} className="xg-name__bg" />
@@ -274,7 +290,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
             if (!p) return null;
             const on = isPicked(selected, n.id);
             const pin = pins[n.id] ? '. 옮겨서 고정함' : '';
-            const common = { 'data-zp-id': `node|${n.id}`, 'aria-pressed': on, 'aria-describedby': hover === n.id ? tipId : undefined, ...hoverOn(n.id), ...nodeKeys(n.id) };
+            const common = { 'data-zp-id': `node|${n.id}`, 'data-rove': `node|${n.id}`, 'data-rove-group': n.kind === 'axis' ? undefined : n.cluster, 'aria-pressed': on, 'aria-describedby': hover === n.id ? tipId : undefined, ...hoverOn(n.id), ...nodeKeys(n.id) };
             if (n.kind === 'axis') {
               return (
                 <g key={n.id} className={`xg-axis${n.evidence === 0 ? ' is-empty' : ''}${on ? ' is-picked' : ''}${dim(n.id)}`} aria-label={`역량 ${n.label}, 근거 활동 ${n.evidence}개${pin}. 누르면 선택, Enter 로 근거 보기`} {...common}>

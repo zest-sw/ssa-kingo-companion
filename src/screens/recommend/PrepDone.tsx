@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { navigate } from '../../app/router';
-import { Button, Card, Icon } from '../../components';
+import { Button, Card, Icon, useFocusOnChange } from '../../components';
 
 /**
  * 학생이 '신청했어요'를 누른 뒤의 완료 장면. 끝이 아니라 다음 경험의 시작점이다:
@@ -9,7 +9,7 @@ import { Button, Card, Icon } from '../../components';
 export function PrepDone({ when }: { when: string }) {
   const title = useRef<HTMLHeadingElement>(null);
   // 버튼이 사라진 자리에서 초점을 잃지 않게 완료 제목으로 옮긴다(화면 읽기 프로그램도 결과를 읽는다).
-  useEffect(() => { title.current?.focus(); }, []);
+  useFocusOnChange(title, null, { onMount: true, scroll: true });
   return (
     <Card className="rec-pdone" aria-labelledby="rec-pdone-title">
       <span className="rec-pdone__mark" aria-hidden="true"><Icon name="check" size={24} /></span>

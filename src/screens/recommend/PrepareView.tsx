@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate, parentLink } from '../../app/router';
 import { useStepInUrl } from '../../app/stepUrl';
-import { Badge, Button, Card, EmptyState, PageHeader, Panel, Stepper } from '../../components';
+import { Badge, Button, Card, EmptyState, PageHeader, Panel, Stepper, useFocusOnChange } from '../../components';
 import { APPLY_URL, DRAFT_DELAY } from '../../data/recommend';
 import { PROGRAM_BY_ID } from '../../data/catalog';
 import { writeDraft, type Revision } from '../../domain/recommend-flow/draft';
@@ -80,11 +80,7 @@ export function PrepareView({ programId }: { programId: string }) {
   useStepInUrl(step, STEP_IDS, s => { if (submitted) navigate('recommend', { replace: true }); else { setRevising(false); setStep(s); } });
   // 단계가 바뀌면 새 단계로 초점을 옮긴다. 누른 버튼(남은 준비 하러 가기, 단계 표시)이 사라져 초점이 body로 떨어지지 않게. 첫 그림은 앱 틀이 제목에 준다.
   const scene = useRef<HTMLDivElement>(null);
-  const firstStep = useRef(true);
-  useEffect(() => {
-    if (firstStep.current) { firstStep.current = false; return; }
-    scene.current?.focus({ preventScroll: true });
-  }, [step]);
+  useFocusOnChange(scene, step);
   const log = useMemo(() => (p ? agentLog(p, state.activities, state.week, items, firstAt, revisedAt) : []), [p, state.activities, state.week, items, firstAt, revisedAt]);
 
   if (!p || !summary) {

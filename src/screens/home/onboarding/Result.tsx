@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
+import { useMemo, useRef, type KeyboardEvent } from 'react';
 import { useApp } from '../../../app/AppState';
-import { Button, FieldTag } from '../../../components';
+import { Button, FieldTag, useFocusOnChange } from '../../../components';
 import { ONB_STEPS, onboardingResult } from '../../../domain/onboarding';
 import { ddayOf } from '../../../domain/recommend';
 import { isNearDeadline } from '../../../domain/recommend-flow/flow';
@@ -16,7 +16,7 @@ export function OnboardingResult({ onHome }: { onHome: () => void }) {
   const r = useMemo(() => onboardingResult(view), [view]);
   const head = useRef<HTMLHeadingElement>(null);
   // 질문에서 넘어온 포커스를 결과 제목으로. Enter 한 번이면 홈으로 간다.
-  useEffect(() => { head.current?.focus({ preventScroll: true }); }, []);
+  useFocusOnChange(head, null, { onMount: true });
   const program = r.top ? view.scored.find(s => s.p.id === r.top!.programId)?.p : undefined;
 
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {

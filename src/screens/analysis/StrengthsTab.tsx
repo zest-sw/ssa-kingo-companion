@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../../app/AppState';
+import { useDrawerOf } from '../../app/drawerUrl';
 import { navigate } from '../../app/router';
 import { nextStep } from '../../domain/nextStep';
 import { josa } from '../../domain/text';
@@ -41,7 +42,8 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
   const low = useLow();
   const [momentId, setMomentId] = useState('now');
   const [picked, setPicked] = useState<Axis | null>(null);
-  const [open, setOpen] = useState<Axis | null>(null);
+  // 근거 서랍은 주소에 남는다(?drawer=strength:<역량>). 뒤로 가기로 닫힌다.
+  const drawer = useDrawerOf('strength');
   const step = nextStep(state.activities);
   const programs = view.scored.map(s => s.p);
 
@@ -93,7 +95,7 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
         <Radar vertices={vertices} max={scale.max} ticks={scale.ticks} label={label} trace={trace} selected={axis} onSelect={k => setPicked(k as Axis)} radius={low ? 108 : 132} fit />
       </Card>
       {/* 오른쪽 칸은 레이더 카드와 아래 끝을 맞춘다. 늘어난 높이는 근거 목록(칸 안 스크롤)이 쓰고, 기회는 그 아래 */}
-      <Card className="os-card an-rside" title={cur.label} action={<Button size="sm" variant="ghost" aria-haspopup="dialog" onClick={() => setOpen(axis)}>근거 자세히</Button>}>
+      <Card className="os-card an-rside" title={cur.label} action={<Button size="sm" variant="ghost" aria-haspopup="dialog" onClick={() => drawer.open(axis)}>근거 자세히</Button>}>
         {/* 위계: 근거 문장(본문) > 어느 활동에서 나왔나(옅은 작은 글씨). 수는 맨 위 얇은 막대 한 줄 */}
         <div className="an-rcount"><EvidenceBar confirmed={evidence.filter(e => e.confirmed).length} total={evidence.length} /></div>
         {evidence.length === 0 ? <p className="an-muted">근거가 아직 없어요. 회고를 쓰면 여기에 모여요.</p> : (
@@ -111,7 +113,7 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
         <h3 className="an-sub an-rsub">{cur.label}{josa(cur.label, '을', '를')} {cur.confirmed > 0 ? '살릴' : '써 볼'} 기회</h3>
         <ChanceList axis={axis} label={cur.label} chances={chances} />
       </Card>
-      <StrengthDrawer strength={rows.find(r => r.axis === open)} records={live} programs={programs} onClose={() => setOpen(null)} />
+      <StrengthDrawer strength={rows.find(r => r.axis === drawer.id)} records={live} programs={programs} onClose={drawer.close} />
     </div>
   );
 }

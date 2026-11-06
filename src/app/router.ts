@@ -200,8 +200,14 @@ export const queryOf = (hash: string) => new URLSearchParams(splitQuery(hash)[1]
 export function withQuery(path: string, params: Record<string, string | undefined>): string {
   const q = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) if (v) q.set(k, v);
-  const s = q.toString();
+  // ':' 는 주소에 그대로 둔다(?drawer=record:e4 가 읽히게). 읽을 때는 같은 값이다.
+  const s = q.toString().replace(/%3A/gi, ':');
   return s ? `${path}?${s}` : path;
+}
+
+/** 지금 주소에서 화면 안 상태 하나만 바꾼 경로. withParam('#/analysis?x=1', 'drawer', 'strength:data') = 'analysis?x=1&drawer=strength:data' */
+export function withParam(hash: string, key: string, value: string | undefined): string {
+  return withQuery(splitQuery(hash)[0].replace(/^#?\/?/, ''), { ...Object.fromEntries(queryOf(hash)), [key]: value });
 }
 
 /** 화면 안에서 링크로 쓸 href */

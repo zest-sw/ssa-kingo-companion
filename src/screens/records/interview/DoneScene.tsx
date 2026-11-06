@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef } from 'react';
-import { AiMark, Button, ConfirmDot } from '../../../components';
+import { useId, useRef } from 'react';
+import { AiMark, Button, ConfirmDot, useFocusOnChange } from '../../../components';
 import type { ChangeLine } from '../../../domain/interview/outcome';
 import type { RecordCard } from '../../../domain/types';
 import { CardSheet } from './CardSheet';
@@ -22,7 +22,7 @@ type Props = {
 export function DoneScene({ title, meta, verification, card, changes, onAnalysis, next }: Props) {
   const head = useRef<HTMLHeadingElement>(null);
   const cardTitle = useId();
-  useEffect(() => { head.current?.focus({ preventScroll: true }); }, []);
+  useFocusOnChange(head, null, { onMount: true });
   return (
     <section className="iv-done" aria-labelledby="iv-done-title">
       <h2 ref={head} id="iv-done-title" tabIndex={-1} className="iv-q__ask">경험 카드 1장이 생겼어요</h2>

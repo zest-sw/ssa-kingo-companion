@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useDrawerOf } from '../../app/drawerUrl';
 import { navigate } from '../../app/router';
 import { useApp } from '../../app/AppState';
 import { Button, Card, Drawer, EmptyState, GhostPic, Icon } from '../../components';
@@ -31,8 +32,9 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   const shown = rows.slice(from, to + 1);
   const tops = topGroups(shown);
   const [playAt, setPlayAt] = useState<number | null>(null);
-  const [pick, setPick] = useState<number | null>(null);
-  const [sumOpen, setSumOpen] = useState(false);
+  // 학기 서랍(?drawer=semester:<학기>)과 비율 서랍(?drawer=ratio)은 주소에 남는다. 학기는 칸 번호가 아니라 학기 값으로 남겨 구간을 바꿔도 같은 학기다.
+  const semesterDrawer = useDrawerOf('semester');
+  const ratioDrawer = useDrawerOf('ratio');
   const step = nextStep(useApp().state.activities);
 
   // Hero's Path: 학기를 한 칸씩 채우고, 끝 학기에서 잠깐 멈춘 뒤 전체 그림으로 돌아온다.
@@ -53,6 +55,8 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
   const play = () => setPlayAt(playing ? null : 0);
   const now = playAt !== null ? shown[playAt] : undefined;
   const nowPick = now && playAt !== null ? semesterPick(now, tops[playAt], records) : undefined;
+  const found = shown.findIndex(r => r.semester === semesterDrawer.id);
+  const pick = found < 0 ? null : found;
   const picked = pick !== null ? shown[pick] : undefined;
   const summary = summarizeFlow(rows, from, to);
 
@@ -71,11 +75,11 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
           </ol>
           <span className="fl-acts">
             <Button size="sm" onClick={play} aria-pressed={playing}>{playing ? '멈추기' : '처음부터 보기'}</Button>
-            <Button size="sm" variant="ghost" icon="chevron" aria-haspopup="dialog" onClick={() => setSumOpen(true)}>분야 비율 보기</Button>
+            <Button size="sm" variant="ghost" icon="chevron" aria-haspopup="dialog" onClick={() => ratioDrawer.open()}>분야 비율 보기</Button>
           </span>
         </div>
 
-        <FlowPath rows={shown} groups={legendGroups(shown)} tops={tops} upto={playAt} onPick={setPick} />
+        <FlowPath rows={shown} groups={legendGroups(shown)} tops={tops} upto={playAt} onPick={i => semesterDrawer.open(shown[i].semester)} />
 
         <p className="fl-status" aria-live="polite">
           {now
@@ -86,13 +90,13 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
         <RangePicker axis={axis} from={from} to={to} onMove={(which, v) => { setPlayAt(null); setRange(moveRange([from, to], which, v, last)); }} />
       </Card>
 
-      <Drawer open={sumOpen} onClose={() => setSumOpen(false)} eyebrow="분야 비율" title={`${semesterLabel(axis[from])}${from !== to ? ' ~ ' + semesterLabel(axis[to]) : ''}`}>
+      <Drawer open={ratioDrawer.id !== null} onClose={ratioDrawer.close} eyebrow="분야 비율" title={`${semesterLabel(axis[from])}${from !== to ? ' ~ ' + semesterLabel(axis[to]) : ''}`}>
         {summary.total === 0
           ? <p className="an-muted">이 학기들에는 기록이 없어요. 손잡이를 옮겨 다른 학기를 골라 보세요.</p>
           : <><Ratio segments={summary.segments} /><p className="an-muted">기록 <b className="num">{summary.total}</b>개를 모았어요.</p></>}
       </Drawer>
 
-      <SemesterDrawer row={picked} top={pick !== null ? tops[pick] : null} records={records} onClose={() => setPick(null)} />
+      <SemesterDrawer row={picked} top={pick !== null ? tops[pick] : null} records={records} onClose={semesterDrawer.close} />
     </div>
   );
 }

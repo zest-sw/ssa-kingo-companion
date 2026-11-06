@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react';
-import { Button, Chip, ErrorState, Panel, ProgressBar } from '../../../components';
+import { useId, useRef, type ReactNode } from 'react';
+import { Button, Chip, ErrorState, Panel, ProgressBar, useFocusOnChange } from '../../../components';
 import { QUESTION_COUNT, type QuestionKey } from '../../../domain/interview/questions';
 import type { Energy, RecordCard, RecordVisibility } from '../../../domain/types';
 import { ENERGY } from '../../../domain/vocab';
@@ -32,7 +32,7 @@ export function PreviewStep(p: Props) {
   const hid = useId();
   const cardTitle = useId();
   const head = useRef<HTMLHeadingElement>(null);
-  useEffect(() => { head.current?.focus({ preventScroll: true }); }, []);
+  useFocusOnChange(head, null, { onMount: true });
 
   const hint = !p.canSave ? '한 칸은 채워야 경험 카드가 돼요.' : !p.energy ? '끝난 뒤 에너지를 고르면 저장돼요.' : p.saving ? '저장하는 중이에요' : '저장하면 기록에 쌓여요.';
   return (

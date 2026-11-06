@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { navigate, queryOf, useQuery, withQuery } from './router';
+import { navigate, queryOf, useQuery, withParam } from './router';
 
 /**
  * 흐름 화면(신청 준비, 회고 인터뷰)의 단계를 주소 뒤 ?step= 에 남긴다. 브라우저 뒤로 가기가 흐름을 통째로 빠져나가지 않고 앞 단계로 간다.
@@ -38,7 +38,5 @@ export function useStepInUrl<T extends string>(step: T, steps: readonly T[], onS
 
 /** 지금 주소에서 step 만 바꾼 경로. stepHref('#/recommend/prepare/p-1?x=1', 'draft') = 'recommend/prepare/p-1?x=1&step=draft' */
 export function stepHref(hash: string, step: string | undefined): string {
-  const [path] = hash.replace(/^#?\/?/, '').split('?');
-  const q = Object.fromEntries(queryOf(hash));
-  return withQuery(path, { ...q, step });
+  return withParam(hash, 'step', step);
 }
