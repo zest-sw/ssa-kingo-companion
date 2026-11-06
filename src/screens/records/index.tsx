@@ -8,6 +8,7 @@ import { Overview } from './Overview';
 import { Pending } from './Pending';
 import { Portfolio } from './Portfolio';
 import './records.css';
+import '../sizes.css';
 
 /**
  * 내 활동 › 기록. 메뉴가 아니라 내 활동 화면(screens/activities)이 그린다.
