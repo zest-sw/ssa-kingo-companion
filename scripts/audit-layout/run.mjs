@@ -150,6 +150,17 @@ async function makeState(browser, base, key) {
   return storage;
 }
 
+/**
+ * 주소가 검사한 경로 그대로인가. 경로가 같고 검사 경로에 적은 상태(?open= 등)가 남아 있으면 같다.
+ * 흐름 화면이 덧붙이는 상태(?step=draft)는 화면이 고른 것이라 주소가 바뀐 것으로 보지 않는다.
+ */
+function sameRoute(want, got) {
+  const [wp, wq = ''] = want.split('?');
+  const [gp, gq = ''] = got.split('?');
+  const g = new URLSearchParams(gq);
+  return wp === gp && [...new URLSearchParams(wq)].every(([k, v]) => g.get(k) === v);
+}
+
 // 파일 이름에 못 쓰는 글자(/ ? = &)는 _ 로 바꾼다. 'recommend?open=p-x' → 'recommend_open_p-x'
 const slug = (path, step) => path.replace(/[/?=&]/g, '_') + (step ? `@${step}` : '');
 
@@ -178,7 +189,7 @@ async function runJob(browser, base, job) {
     if (job.step) { await job.run(page); await settle(page); }
     issues = await page.evaluate(probe, { breakOnly: !!job.size.breakOnly });
     const hash = await page.evaluate(() => location.hash);
-    if (hash !== `#/${job.path}`) issues.push({ k: 'route-changed', level: 'warn', el: `${job.path} → ${hash.slice(2)}` });
+    if (!sameRoute(job.path, hash.slice(2))) issues.push({ k: 'route-changed', level: 'warn', el: `${job.path} → ${hash.slice(2)}` });
   } catch (e) {
     retries = e.retries ?? retries;
     issues.push({ k: 'run-error', level: 'fail', el: String(e.message || e).split('\n')[0].slice(0, 120) });
