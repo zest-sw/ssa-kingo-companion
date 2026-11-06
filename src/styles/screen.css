@@ -15,7 +15,8 @@
   :root { --os-head-h: 36px; --os-gap: var(--space-3); --os-head-tabs-h: 40px; }
 }
 
-.os { flex: 1 1 0; display: flex; flex-direction: column; min-height: calc(var(--app-min-h) - var(--main-pad-t) - var(--main-pad-b)); }
+/* 모든 화면이 같은 폭 틀(--os-max) 안에서 가운데. 넓은 창에서도 머리·구역 탭·본문 왼쪽 끝이 모든 화면에서 같은 x 에 온다(DESIGN.md Layout '크기별') */
+.os { flex: 1 1 0; display: flex; flex-direction: column; width: 100%; max-width: var(--os-max); margin-inline: auto; min-height: calc(var(--app-min-h) - var(--main-pad-t) - var(--main-pad-b)); }
 .os > .ui-page-head { flex: none; align-items: center; min-height: var(--os-head-h); margin-bottom: var(--os-gap); }
 /* 구역 탭이 있으면 머리 → 탭 줄 → 본문. 탭 줄은 모든 구역 화면에서 같은 자리·같은 높이다 */
 .os > .ui-page-head--tabs { height: var(--os-head-tabs-h); min-height: 0; margin-bottom: var(--space-2); }
@@ -26,6 +27,11 @@
 .os__body--fill { align-content: stretch; grid-template-rows: minmax(0, 1fr); }
 /* 흐름 화면(신청 준비·회고 인터뷰·회고 목록): 머리와 본문 카드를 같은 가운데 칸에 맞춘다. 본문 칸(.os__body)은 화면이 안쪽 폭을 정한다 */
 .os[data-flow] > :not(.os__body) { width: 100%; max-width: var(--os-flow-w); align-self: center; }
+/* 흐름 화면: 높은 창(960 이상)에서 머리+카드를 창 높이에 비례해 내린다(1080 에서 180px, 최대 192px).
+   900 이 넘는 만큼만 내려 카드가 쓸 수 있는 높이는 1440×900 보다 줄지 않는다. 가운데 정렬은 단계마다 제목이 위아래로 튀어서 하지 않는다 */
+@media (min-height: 960px) {
+  .os[data-flow] { padding-top: min(100vh - 900px, var(--space-12) * 4); }
+}
 
 /* 카드 안에서 머리는 고정하고 그림·목록 칸이 남은 높이를 쓴다 */
 .os-card { display: flex; flex-direction: column; min-height: 0; }

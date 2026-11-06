@@ -14,7 +14,7 @@ const SHOWN = 4;
 export function RetroCard({ queue, hasActivities }: { queue: Activity[]; hasActivities: boolean }) {
   if (queue.length === 0) {
     return (
-      <Card className="os-card act-retro" title="회고 대기" data-fill>
+      <Card className="os-card act-retro" title="회고 대기">
         <EmptyState pic={<GhostPic kind="rows" labels={['', '']} />} message={hasActivities ? '하는 활동이 끝나면 여기서 회고를 써요.' : '활동이 끝나면 여기서 회고를 써요.'} />
       </Card>
     );
@@ -23,7 +23,7 @@ export function RetroCard({ queue, hasActivities }: { queue: Activity[]; hasActi
   const shown = rest.slice(0, SHOWN - 1);
   const more = rest.length - shown.length;
   return (
-    <Card className="os-card act-retro" title={`회고를 기다리는 활동 ${queue.length}개`} data-fill>
+    <Card className="os-card act-retro" title={`회고를 기다리는 활동 ${queue.length}개`}>
       <div className="act-retro__first">
         <FieldTag field={first.field} />
         <p className="act-retro__title">{first.title}</p>

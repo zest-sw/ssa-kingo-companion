@@ -2,6 +2,7 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate, sectionTabs } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
+import type { CSSProperties } from 'react';
 import { Button, Card, Legend, PageHeader, SectionTabs, type LegendItem } from '../../components';
 import { CURRENT_TERM } from '../../data/records';
 import { semesterTally } from '../../domain/recommend-flow/summary';
@@ -50,7 +51,8 @@ export function Overview() {
     );
   } else {
     hero = (
-      <Card className="os-card act-week" title={weekTitle(week)} lead action={week.rows.length > 0 && <Legend items={LEGEND} />} data-fill>
+      // 줄은 남은 높이를 나눠 갖되 한 줄 최대 높이까지만. 카드도 그만큼에서 멈춰 그림 아래가 비지 않는다(1920×1080)
+      <Card className="os-card act-week" title={weekTitle(week)} lead action={week.rows.length > 0 && <Legend items={LEGEND} />} data-fill style={{ '--act-wk-rows': Math.max(week.rows.length, 1) } as CSSProperties}>
         <WeekPic week={week} onOpen={id => openEntity({ kind: 'activity', id })} empty={<p>이번 주에 걸린 마감과 모임이 없어요. 다음 일정은 일정 탭에 있어요.</p>} />
         {week.laterDues > 0 && <p className="act-week__later">다음 주부터 마감 {week.laterDues}개가 이어져요</p>}
       </Card>
@@ -60,7 +62,7 @@ export function Overview() {
   return (
     <div className="os">
       <PageHeader title="내 활동" tabs={tabs} />
-      <div className="os__body os__body--fill act-sum">
+      <div className="os__body os__body--fill act-sum" data-empty={empty || undefined}>
         {hero}
         <div className="act-side">
           {!empty && (
