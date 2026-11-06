@@ -2,19 +2,11 @@
 /* 이 화면만 쓰는 치수. 간격·글자·클릭 최소 높이는 공용 토큰(--space-*, --text-*, --hit-min)을 쓴다. */
 :root {
   --rec-hairline: 1px;
-  --rec-side-min: 320px;
-  --rec-side-max: 380px;
-  --rec-chat-min: 520px;
-  --rec-chat-max: 760px;
-  --rec-chat-offset: 280px;
   --rec-input-h: var(--control-h);
-  --rec-dot: 6px;
-  --rec-blink: 1.1s;
 
   --rec-icon-lg: 20px;
   --rec-tile-min: 280px;
   --rec-tile-h: 168px;
-  --rec-label-w: 52px;
   --rec-mark: 3px;
   --rm-label-w: 96px;
   --rm-dot: 10px;
@@ -23,42 +15,11 @@
   --rec-xc-label: 88px;
 }
 
-/* 회고 인터뷰: 왼쪽 대화, 오른쪽 기록 카드 */
-.rec-interview { grid-template-columns: minmax(0, 1fr) minmax(var(--rec-side-min), var(--rec-side-max)); }
-.rec-chat { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; padding: var(--space-4) var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); min-width: 0; }
-.rec-steps { flex: none; display: flex; flex-wrap: wrap; gap: var(--space-1); }
-@media (max-width: 1399px) { .rec-step { padding: 0 var(--space-1); font-size: var(--text-xs); } }
-.rec-step { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); padding: 0 var(--space-2); border: var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-subtle); font-size: var(--text-sm); font-weight: var(--weight-medium); }
-.rec-step[data-state='done'] { background: var(--surface); border-color: var(--green-900); color: var(--green-900); }
-.rec-step[data-state='current'] { background: var(--grey-100); border-color: var(--ink); color: var(--ink); font-weight: var(--weight-bold); }
-
-.rec-log { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--space-3); overflow-y: auto; padding: var(--space-1) 0; background: linear-gradient(var(--surface) 30%, transparent) center top / 100% var(--os-edge) no-repeat local, linear-gradient(transparent, var(--surface) 70%) center bottom / 100% var(--os-edge) no-repeat local, linear-gradient(var(--line-strong), transparent) center top / 100% var(--space-2) no-repeat scroll, linear-gradient(transparent, var(--line-strong)) center bottom / 100% var(--space-2) no-repeat scroll; }
-.rec-msg { max-width: 78%; padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); font-size: var(--text-md); line-height: var(--leading); overflow-wrap: anywhere; }
-.rec-msg--agent { align-self: flex-start; background: var(--grey-100); }
-.rec-msg--me { align-self: flex-end; background: var(--green-900); color: var(--ink-inverse); }
-.rec-typing { display: inline-flex; gap: var(--space-1); align-items: center; min-height: var(--rec-input-h); }
-.rec-typing i { width: var(--rec-dot); height: var(--rec-dot); border-radius: var(--radius-full); background: var(--ink-subtle); animation: rec-blink var(--rec-blink) infinite ease-in-out; }
-.rec-typing i:nth-child(2) { animation-delay: var(--duration); }
-.rec-typing i:nth-child(3) { animation-delay: calc(var(--duration) * 2); }
-@keyframes rec-blink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
-
-.rec-composer, .rec-review { display: flex; flex-direction: column; gap: var(--space-3); }
 .rec-quick { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.rec-input-row { display: flex; gap: var(--space-3); }
 .rec-input { width: 100%; min-height: var(--rec-input-h); padding: var(--space-3) var(--space-4); border: var(--rec-hairline) solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface); resize: vertical; }
 .rec-input::placeholder { color: var(--ink-subtle); }
 .rec-input:focus-visible { box-shadow: var(--focus-ring); border-radius: var(--radius-md); }
-.rec-review__hint { font-size: var(--text-sm); color: var(--ink-muted); text-align: center; }
 
-/* 기록 카드 */
-.rec-side { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-.rec-side > .rec-card { flex: 1; min-height: 0; padding: var(--space-4); gap: var(--space-3); }
-.rec-side .rec-field { display: grid; grid-template-columns: var(--rec-label-w) minmax(0, 1fr); gap: var(--space-2); align-items: center; padding: 0 var(--space-2); }
-.rec-side .rec-field dd { margin-top: 0; }
-.rec-side .rec-evidence { gap: var(--space-1); padding-top: var(--space-2); }
-.rec-side .rec-evidence__text { margin-bottom: 0; }
-.rec-side .rec-card__foot { padding-top: var(--space-2); gap: 0; margin-top: auto; }
-.rec-donebody { place-items: center; }
 /* 빈 상태 카드는 내용 높이. 본문이 넓어도 한쪽에 붙지 않게 최대 폭을 두고 가운데에 둔다. */
 .os > .rec-hold { flex: none; width: 100%; max-width: var(--rec-empty-max); margin: 0 auto; }
 .rm-card--empty { align-self: start; width: 100%; max-width: var(--rec-empty-max); margin: 0 auto; }
@@ -99,14 +60,8 @@
 .rec-setting__hint--left { margin-top: calc(-1 * var(--space-2)); text-align: left; }
 
 /* 완료 화면 */
+/* 신청 준비 끝 화면(recommend PrepDone)이 같은 이름을 써서 이 줄이 그쪽 여백을 정한다. 회고 인터뷰는 더 쓰지 않는다. */
 .rec-done { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); text-align: center; padding: var(--space-8) var(--space-6); }
-.rec-done__icon { display: inline-flex; color: var(--green-900); }
-.rec-done__title { font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
-.rec-done__title:focus-visible { box-shadow: none; }
-.rec-done__list { display: flex; flex-direction: column; gap: var(--space-3); text-align: left; color: var(--ink-muted); }
-.rec-done__list li { display: flex; align-items: flex-start; gap: var(--space-3); }
-.rec-done__list svg { flex: none; margin-top: var(--space-1); color: var(--green-900); }
-.rec-done__actions { display: flex; gap: var(--space-3); }
 
 /* 회고 대기 목록 */
 .rec-pending { flex: 1; display: flex; flex-direction: column; gap: var(--space-3); }
@@ -131,13 +86,7 @@
 .rec-form__warn { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--surface-alt); border: var(--rec-hairline) dashed var(--line-strong); font-size: var(--text-sm); color: var(--ink-muted); }
 
 @media (max-width: 1199px) {
-  .rec-interview { grid-template-columns: minmax(0, 1fr) var(--rec-side-min); gap: var(--space-4); }
-  .rec-chat, .rec-card { padding: var(--space-4); }
-  .rec-msg { max-width: 90%; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .rec-typing i { animation: none; opacity: 0.6; }
+  .rec-card { padding: var(--space-4); }
 }
 
 /* 기록 지도(L1): 회고 대기 띠 */
@@ -240,7 +189,4 @@
 .xc-answer__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .xc-answer__hint { font-size: var(--text-sm); color: var(--ink-muted); }
 
-
 /* 저장 전 확인 단계: 왼쪽 패널(근거·공개 범위) + 오른쪽 기록 카드 */
-.rec-confirm { min-width: 0; min-height: 0; }
-.rec-confirm__body { display: flex; flex-direction: column; gap: var(--space-3); }
