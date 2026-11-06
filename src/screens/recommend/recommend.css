@@ -51,6 +51,10 @@
 .rec-item:first-child { border-top: 0; }
 .rec-item__box { display: flex; align-items: center; gap: var(--space-3); min-height: var(--rec-box-height); cursor: pointer; }
 .rec-item__box input { flex: none; width: var(--rec-checkbox); height: var(--rec-checkbox); accent-color: var(--primary); }
+/* 지금 누를 수 없는 할 일: 체크 칸 대신 상태 아이콘(체크 칸 자리와 같은 폭) */
+.rec-item__box--static { cursor: default; }
+.rec-item__state { display: inline-flex; flex: none; width: var(--rec-checkbox); color: var(--ink-subtle); }
+.rec-item__state[data-done] { color: var(--primary); }
 .rec-item__text { display: flex; flex-direction: column; gap: var(--space-1); }
 .rec-item__label { font-size: var(--text-md); font-weight: var(--weight-bold); }
 .rec-item__hint { font-size: var(--text-sm); color: var(--ink-muted); }
