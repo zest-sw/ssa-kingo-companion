@@ -3,7 +3,7 @@ import { hrefOf, sectionTabs } from '../../app/router';
 import { useOverviewState } from '../../app/useOverviewState';
 import { Card, ErrorState, FieldTag, GapLine, Icon, LoadingState, NextStep, PageHeader, SectionTabs, StoryHero } from '../../components';
 import { ddayOf } from '../../domain/recommend';
-import { candidateHref } from '../../domain/recommend-flow/flow';
+import { candidateHref, isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import { useTriage } from '../recommend/useTriage';
 import { DiscoveryCards } from './DiscoveryCards';
@@ -43,7 +43,7 @@ export function Overview({ analysis }: { analysis: ReturnType<typeof useAnalysis
                 <NextStep
                   next={next}
                   href={hrefOf(candidateHref(program.id))}
-                  meta={<><FieldTag field={program.field} /><span className="num">{ddayText(ddayOf(program, state.week))} 마감</span></>}
+                  meta={<><FieldTag field={program.field} /><span className="ui-dday num" data-near={isNearDeadline(ddayOf(program, state.week)) || undefined}>{ddayText(ddayOf(program, state.week))} 마감</span></>}
                   onPrepare={() => actions.onPrepare(program)}
                 />
               )}

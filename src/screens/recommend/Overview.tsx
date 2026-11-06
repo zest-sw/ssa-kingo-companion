@@ -80,7 +80,7 @@ export function Overview({ sel, onSel, onOpen, onPrepare, onOpenLater }: {
       />
       <div className="rec-tabs">
         <Tabs id="rec" label="추천 보기" value={tab} onChange={t => onSel({ ...sel, tab: t })} items={[{ id: 'picks', label: '추천 활동' }, { id: 'all', label: '전체 기회', count: open.length }]} />
-        {tab === 'picks' && view.scored.length > 0 && <button type="button" className="rec-link rec-tabs__how" aria-haspopup="dialog" onClick={() => setHowOpen(true)}><Icon name="info" size={14} />어떻게 골랐나</button>}
+        {tab === 'picks' && view.scored.length > 0 && <button type="button" className="ui-link rec-tabs__how" aria-haspopup="dialog" onClick={() => setHowOpen(true)}><Icon name="info" size={14} />어떻게 골랐나</button>}
       </div>
       <TabPanel id="rec" active={tab}>
         {tab === 'picks' ? (

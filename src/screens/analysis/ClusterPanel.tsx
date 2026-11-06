@@ -41,7 +41,7 @@ export function ClusterPanel({ graph, selected, onSelect, onOpen, onName, onHow 
       {node && <NodeInsight graph={graph} focus={node} onSelect={onSelect} onOpen={onOpen} />}
       <div className="xg-side__head">
         <h3 className="xg-side__h">지도에서 찾은 것</h3>
-        <button type="button" className="xg-how" onClick={onHow}>어떻게 만들었나</button>
+        <button type="button" className="ui-link xg-how" onClick={onHow}>어떻게 만들었나</button>
       </div>
       <h4 className="xg-ka__h">활동 묶음</h4>
       <ul className="xg-cls">

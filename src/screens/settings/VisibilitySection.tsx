@@ -62,7 +62,7 @@ export function VisibilitySection() {
               {UNLOCKS.map(u => (
                 <Row key={u.title} title={<><Icon name={u.icon} />{u.title}</>} sub={u.sub}>
                   {/* 세 줄이 같은 상태면 묶음 제목이 이미 말한다. 공개 뒤에도 따로 동의가 필요한 전당만 상태를 단다 */}
-                  {u.hall && v.profilePublic && (v.hallOfFameConsent ? <Badge tone="green">올라가 있어요</Badge> : <Badge tone="dashed">동의 전</Badge>)}
+                  {u.hall && v.profilePublic && (v.hallOfFameConsent ? <Badge tone="green">올라가 있어요</Badge> : <Badge tone="neutral">동의 전</Badge>)}
                 </Row>
               ))}
             </ul>
@@ -95,7 +95,7 @@ export function VisibilitySection() {
         <ul className="st-rows">
           {SHOWN.map(x => (
             <Row key={x.title} title={x.title} sub={x.sub}>
-              {x.shown.tone === 'lock' ? <Badge tone="dashed" icon="lock">{x.shown.text}</Badge> : <Badge tone={x.shown.tone}>{x.shown.text}</Badge>}
+              {x.shown.tone === 'lock' ? <Badge tone="neutral" icon="lock">{x.shown.text}</Badge> : <Badge tone={x.shown.tone}>{x.shown.text}</Badge>}
             </Row>
           ))}
         </ul>

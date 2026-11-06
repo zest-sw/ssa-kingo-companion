@@ -199,8 +199,7 @@
 
 /* 옆 칸 '지도에서 찾은 것': 한 줄씩 */
 .xg-side__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
-.xg-how { flex: none; min-height: var(--hit-min); padding: 0 var(--space-1); border: 0; background: transparent; color: var(--ink-muted); font-size: var(--text-xs); text-decoration: underline; cursor: pointer; }
-.xg-how:hover { color: var(--ink); }
+.xg-how { flex: none; }
 .xg-src { flex: none; padding: 0 var(--space-1); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink-muted); font-size: var(--text-xs); font-weight: var(--weight-medium); }
 .xg-src--ai { border-style: dashed; }
 .xg-ka { display: flex; flex-direction: column; gap: var(--space-1); margin-top: var(--space-3); }

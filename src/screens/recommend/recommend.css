@@ -3,7 +3,6 @@
 /* 화면 전용 치수(레이아웃). 간격·글자·테두리는 tokens.css 의 토큰을 쓴다. */
 :root {
   --rec-step-w: 720px;
-  --rec-count: 20px;
   --rec-flow-label: 150px;
   --rec-flow-count: 40px;
   --rec-reason-height: 48px;
@@ -21,8 +20,9 @@
 }
 
 .rec-muted { color: var(--ink-muted); font-size: var(--text-md); }
-.rec-link { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); padding: 0; border: 0; background: none; color: var(--navy-900); font-size: var(--text-md); font-weight: var(--weight-bold); text-decoration: underline; text-underline-offset: var(--space-1); }
-.rec-count { display: inline-grid; place-items: center; min-width: var(--rec-count); height: var(--rec-count); padding: 0 var(--space-1); border-radius: var(--radius-sm); background: var(--grey-100); color: var(--ink); font-size: var(--text-sm); }
+/* 신청 준비 단계의 글 속 링크. 모양은 공용 .ui-link 와 같다(DESIGN.md 글 속 링크). 신청 준비 화면이 .ui-link 로 바꾸면 지운다 */
+.rec-link { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); padding: 0; border: 0; background: none; color: var(--text-sub); font-size: var(--fs-sub); font-weight: var(--weight-regular); text-decoration: underline; text-underline-offset: var(--space-1); transition: color var(--duration) var(--ease); }
+.rec-link:hover { color: var(--text); }
 
 /* 서랍·모달 */
 .rec-drawer__sec + .rec-drawer__sec { margin-top: var(--space-8); }
@@ -206,7 +206,7 @@
 :root { --rec-dday-w: 56px; --rec-gain-label: 120px; }
 .rec-tabs { flex: none; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); border-bottom: var(--border); }
 .rec-tabs .ui-tabs { border-bottom: 0; }
-.rec-tabs__how { margin-bottom: var(--space-1); font-weight: var(--weight-medium); color: var(--ink-muted); }
+.rec-tabs__how { margin-bottom: var(--space-1); }
 .os > .ui-tabpanel { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-top: var(--os-gap); }
 /* 목록은 내용 높이, 남은 높이를 넘으면 칸 안에서만 스크롤한다 */
 .ui-tabpanel > .rec-list { flex: 0 1 auto; min-height: 0; }
@@ -230,7 +230,8 @@
 /* 가장 추천 카드(주인공): 왼쪽 이름·이유·얻는 것, 오른쪽 D-n과 버튼 */
 .rec-top { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-6); margin-bottom: var(--os-gap); padding: var(--space-5) var(--space-6); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
 .rec-top__main { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
-.rec-top__label { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--primary); }
+/* 눈썹 한 줄: 공용 .ui-subhead 와 같은 회색. 색은 의미가 있을 때만 */
+.rec-top__label { color: var(--text-sub); font-size: var(--fs-sub); font-weight: var(--weight-bold); }
 .rec-top__title { font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
 .rec-top__why { font-size: var(--text-md); color: var(--ink-muted); }
 .rec-top__gains { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); margin-top: var(--space-1); font-size: var(--text-md); }

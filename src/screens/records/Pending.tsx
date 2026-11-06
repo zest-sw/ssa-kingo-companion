@@ -45,7 +45,7 @@ export function Pending() {
                       </h2>
                       <p className="rec-pending__sub">{endedText(a)}</p>
                     </div>
-                    {drafts.includes(a.id) && <Badge tone="dashed">쓰던 초안 있어요</Badge>}
+                    {drafts.includes(a.id) && <Badge tone="neutral">쓰던 초안 있어요</Badge>}
                     <Button variant="ghost" onClick={() => skip(a)}>기록만 남기기</Button>
                     {i === 0 ? <Button variant="primary" aria-label={`${a.title} ${verb}`} onClick={go}>{verb}</Button> : <Icon name="chevron" size={16} />}
                   </Card>
