@@ -4,6 +4,7 @@ import { AppStateProvider } from './AppState';
 import { useChallengeToasts } from './challenges';
 import { EntityProvider } from './entity';
 import { SCREEN } from './lazyScreens';
+import { usePreloadScreens } from './preload';
 import { canonicalPath, navigate, screenLabel, useRoute } from './router';
 import { ScreenFallback } from './ScreenFallback';
 import { useScrollingMark } from './scrolling';
@@ -41,6 +42,7 @@ function Shell() {
   const main = useRef<HTMLElement>(null);
   useChallengeToasts();
   useScrollingMark();
+  usePreloadScreens();
   // 화면 하나 = 메뉴 + 하위 경로 첫 토막('activities/records'). 그 아래 id 가 바뀌어도 같은 화면이 아니면 새로 그린다.
   const page = route.sub ? `${route.name}/${route.sub.split('/')[0]}` : route.name;
 
