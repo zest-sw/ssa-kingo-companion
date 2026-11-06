@@ -3,6 +3,7 @@ import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { Button, EmptyState, FieldTag } from '../../components';
 import { ddayOf } from '../../domain/recommend';
+import { isNearDeadline } from '../../domain/recommend-flow/flow';
 import { DID_DOING, type Strength, type StrengthChance, type StrengthWhen } from '../../domain/analysis/strengths';
 import { semesterShort } from '../../domain/analysis/visual';
 import { ddayText, josa } from '../../domain/text';
@@ -39,7 +40,7 @@ export function ChanceList({ axis, label, chances }: { axis: Axis; label: string
         <li key={c.program.id}>
           <button type="button" className="an-chance" data-axis={axis} onClick={() => openEntity({ kind: 'opportunity', id: c.program.id })}>
             <b className="an-chance__title">{c.program.title}</b>
-            <span className="an-chance__meta"><FieldTag field={c.program.field} /><span>{ddayText(ddayOf(c.program, state.week))}</span></span>
+            <span className="an-chance__meta"><FieldTag field={c.program.field} /><span className="ui-dday num" data-near={isNearDeadline(ddayOf(c.program, state.week)) || undefined}>{ddayText(ddayOf(c.program, state.week))}</span></span>
             <span className="an-chance__why">{DID_DOING[c.did]} {label}{josa(label, '을', '를')} 써요</span>
           </button>
         </li>

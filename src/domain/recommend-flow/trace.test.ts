@@ -82,6 +82,7 @@ describe('traceLine', () => {
     expect(traceLine({ kind: 'novelty', label: '탐색', detail: '처음 해 보는 AI·데이터' })).toBe('넓게 둘러보려고 섞은 AI·데이터 분야예요');
     expect(traceLine({ kind: 'novelty', label: '탐색', detail: '처음 해 보는 기타' })).toBe('넓게 둘러보려고 섞었어요');
     const all = (['energy', 'focus', 'career', 'strength', 'goal', 'interest', 'bridge', 'novelty'] as const).map(kind => traceLine({ kind, label: '', detail: '문장' }));
+    // avoid-ai-design-ignore: I3, CP3 (기호가 화면 문구에 없는지 확인하는 검사)
     expect(all.some(t => /✧|→| · /.test(t))).toBe(false);
   });
 });

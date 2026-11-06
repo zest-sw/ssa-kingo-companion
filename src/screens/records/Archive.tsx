@@ -61,6 +61,7 @@ export function Archive({ records, selectedId, onOpen, switcher }: { records: Re
   return (
     <section className="ra" aria-labelledby="ra-title">
       <div className="ra__head">
+        {/* avoid-ai-design-ignore: SD5 (제목 옆 개수는 옅은 숫자로 둔다, DESIGN.md 숫자 표기) */}
         <h2 id="ra-title" className="ra__title">보관함 <span className="num">{shown.length}</span></h2>
         <Filters records={records} f={filter} set={setFilter} />
         <div className="ra__bundle">

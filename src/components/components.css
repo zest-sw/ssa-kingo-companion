@@ -43,6 +43,18 @@
 /* 카드 머리 오른쪽 '더 보기' 글자 버튼은 화면마다 한 모양: 작은 크기, 보조 글자색, 끝을 카드 안쪽 선에 맞춘다 */
 .ui-card__action > .ui-btn--ghost { min-height: var(--hit-min); padding: 0 var(--space-2); margin-right: calc(-1 * var(--space-2)); font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--ink-muted); }
 
+/* 작은 묶음 제목: 카드 안 묶음 이름('신청 마감', '얻는 것')과 주인공 제목 위 눈썹 한 줄. 색을 넣지 않는다 */
+.ui-subhead { margin-bottom: var(--space-2); color: var(--text-sub); font-size: var(--fs-sub); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+/* 글 속 링크: 설명 열기('어떻게 골랐나'), 원문 링크. 버튼이든 a 든 같은 모양 */
+.ui-link {
+  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); padding: 0; border: 0; background: none;
+  color: var(--text-sub); font-size: var(--fs-sub); font-weight: var(--weight-regular); text-decoration: underline; text-underline-offset: var(--space-1);
+  cursor: pointer; transition: color var(--duration) var(--ease);
+}
+.ui-link:hover { color: var(--text); }
+/* 마감 D-n. 3일 이하(isNearDeadline)면 data-near: 주황 글자 600, 앱 전체가 같다 */
+.ui-dday[data-near] { color: var(--accent-ink); font-weight: var(--weight-bold); }
+
 /* Chip */
 .ui-chip {
   display: inline-flex; align-items: center; gap: var(--space-1);
@@ -71,6 +83,7 @@
 .ui-badge--orange { background: var(--orange-100); color: var(--accent-ink); box-shadow: none; }
 .ui-badge--lime { background: var(--lime-100); color: var(--green-900); box-shadow: none; }
 .ui-badge--solid-orange { background: var(--orange-500); color: var(--ink-inverse); box-shadow: none; }
+/* 점선 배지는 AI 추정에만(점선은 두 뜻뿐, DESIGN.md Shapes). 비공개·연결 안 함 같은 상태는 기본 회색 배지 */
 .ui-badge--dashed { background: transparent; box-shadow: none; border: 1px dashed var(--line-strong); color: var(--ink-muted); }
 
 .ui-count {
@@ -178,7 +191,7 @@
 .ui-stabs__tab:focus-visible { border-radius: var(--radius-sm); box-shadow: var(--focus-ring-inset); }
 
 /* SegmentedControl: 같은 내용을 다르게 보기 */
-.ui-seg { display: inline-flex; gap: 2px; padding: 2px; border: var(--border); border-radius: var(--radius-lg); background: var(--grey-100); }
+.ui-seg { display: inline-flex; gap: 2px; padding: 2px; border: var(--border); border-radius: var(--radius-sm); background: var(--grey-100); }
 .ui-seg__item {
   display: inline-flex; align-items: center; gap: var(--space-2);
   min-height: var(--hit-min); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm);
@@ -206,7 +219,7 @@
 .ui-scrim[data-state='closing'] .ui-drawer { animation: ui-slide-out var(--dur-base) var(--ease-out) forwards; }
 .ui-drawer__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-4) var(--space-4) var(--space-6); border-bottom: var(--border); }
 .ui-drawer__eyebrow { font-size: var(--text-xs); color: var(--ink-muted); }
-.ui-drawer__title { font-size: var(--fs-lead); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
+.ui-drawer__title { font-size: var(--fs-lead); font-weight: var(--weight-heavy); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .ui-drawer__body { flex: 1; overflow-y: auto; padding: var(--space-5) var(--space-6) var(--space-6); }
 .ui-drawer__foot { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-6); border-top: var(--border); }
 .ui-drawer__foot > * { flex: 1; }
@@ -216,7 +229,7 @@
 @keyframes ui-pop-out { to { transform: translateY(var(--enter-shift)); opacity: 0; } }
 .ui-scrim[data-state='closing'] .ui-modal { animation: ui-pop-out var(--dur-base) var(--ease-out) forwards; }
 .ui-modal__title:focus { outline: none; box-shadow: none; }
-.ui-modal__title { font-size: var(--fs-lead); font-weight: var(--weight-bold); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
+.ui-modal__title { font-size: var(--fs-lead); font-weight: var(--weight-heavy); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); }
 .ui-modal__body { margin-top: var(--space-2); color: var(--ink-muted); }
 .ui-modal__actions { display: flex; gap: var(--space-2); margin-top: var(--space-6); }
 .ui-modal__actions > * { flex: 1; }
@@ -260,8 +273,8 @@
   background: var(--surface); border: var(--border); border-radius: var(--radius-lg); color: var(--ink); text-decoration: none;
 }
 .ui-sum--link { transition: border-color var(--duration) var(--ease), background var(--duration) var(--ease); }
-.ui-sum--link:hover { border-color: var(--line-strong); background: var(--surface-alt); }
-.ui-sum--link:active { background: var(--surface-hover); }
+.ui-sum--link:hover { border-color: var(--line-strong); background: var(--surface-hover); }
+.ui-sum--link:active { background: var(--surface-press); }
 .ui-sum--link:focus-visible { border-radius: var(--radius-lg); }
 .ui-sum__head { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
 .ui-sum__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

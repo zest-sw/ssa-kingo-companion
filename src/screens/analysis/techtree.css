@@ -17,8 +17,8 @@
 .an-tree__label { font-size: var(--text-md); font-weight: var(--weight-bold); }
 .an-tree__root { justify-self: center; width: var(--an-dot-md); height: var(--an-dot-md); border-radius: var(--radius-full); background: var(--c); }
 .an-g--other .an-tree__root { background: var(--surface); border: var(--an-line-w-thin) solid var(--c); }
-.an-tree__root--unknown { display: grid; place-items: center; width: var(--an-root); height: var(--an-root); border: 1px dashed var(--line-strong); background: var(--surface); color: var(--ink-subtle); font-size: var(--text-xs); font-weight: var(--weight-bold); }
-.an-g--other .an-tree__root--unknown { border: 1px dashed var(--line-strong); }
+.an-tree__root--unknown { display: grid; place-items: center; width: var(--an-root); height: var(--an-root); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-subtle); font-size: var(--text-xs); font-weight: var(--weight-bold); }
+.an-g--other .an-tree__root--unknown { border: 1px solid var(--line-strong); }
 /* 노드가 하나도 없는 분야는 줄을 따로 만들지 않고 아래 한 줄에 모은다 */
 .an-tree__untried { display: grid; grid-template-columns: var(--label) var(--an-root) minmax(0, 1fr); column-gap: var(--gap); align-items: center; color: var(--ink-subtle); font-size: var(--text-sm); }
 .an-tree__untried b { color: var(--ink-muted); font-weight: var(--weight-medium); }
@@ -57,7 +57,8 @@
 .an-pill__dday--far { background: none; color: var(--ink-muted); }
 button.an-pill:focus-visible { border-radius: var(--radius-md); }
 /* 다른 분야로 이어진 경로를 그리는 중인 노드 */
-.an-pill.is-linked { outline: 1px dashed var(--ink-subtle); outline-offset: var(--an-ring); }
+/* 이어진 칸 강조는 실선 외곽선(점선은 AI 추정·할 수 있는 활동에만) */
+.an-pill.is-linked { outline: 1px solid var(--ink-subtle); outline-offset: var(--an-ring); }
 /* 한 단계에 다 못 그린 노드를 접은 '+n'. 누르면 그 분야·단계 노드 전체가 서랍으로 열린다 */
 .an-pill--more { min-width: var(--hit-min); border-color: var(--line-strong); background: var(--surface); color: var(--ink-muted); font-weight: var(--weight-medium); }
 .an-pill--more:hover { background: var(--surface-hover); color: var(--ink); }
@@ -97,7 +98,7 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 .an-tp__line.is-gray, .an-tp__row.is-unknown .an-tp__line { border-top: 1px solid var(--line-strong); }
 .an-tp__root { position: absolute; left: 0; top: 50%; width: var(--an-dot-sm); height: var(--an-dot-sm); border-radius: var(--radius-full); background: var(--c); transform: translate(-50%, -50%); }
 .an-g--other .an-tp__root { background: var(--surface); border: var(--an-line-w-thin) solid var(--c); }
-.an-tp__row.is-unknown .an-tp__root { display: grid; place-items: center; width: var(--an-tp-q); height: var(--an-tp-q); border: 1px dashed var(--line-strong); background: var(--surface); color: var(--ink-subtle); font-size: var(--text-xs); line-height: 1; }
+.an-tp__row.is-unknown .an-tp__root { display: grid; place-items: center; width: var(--an-tp-q); height: var(--an-tp-q); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-subtle); font-size: var(--text-xs); line-height: 1; }
 .an-tp__dot { position: absolute; top: 50%; width: var(--an-dot-md); height: var(--an-dot-md); border-radius: var(--radius-full); box-sizing: border-box; transform: translate(-50%, -50%); }
 .an-tp__dot.is-done { background: var(--fill); }
 .an-tp__dot.is-ongoing { background: var(--fill); box-shadow: 0 0 0 var(--an-gap-thin) var(--surface), 0 0 0 calc(var(--an-gap-thin) + var(--an-line-w-thin)) var(--c); }

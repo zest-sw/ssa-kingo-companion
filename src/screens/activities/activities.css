@@ -29,9 +29,10 @@
 .act-undated__label { padding-right: var(--space-3); font-size: var(--text-sm); color: var(--ink-muted); }
 .act-undated__list { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 var(--space-3); }
 .act-undated__item { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--hit-min); padding: 0 var(--space-3); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-sm); color: var(--ink); }
-.act-undated__item:hover { background: var(--surface-alt); }
+.act-undated__item:hover { background: var(--surface-hover); }
+.act-undated__item:active { background: var(--surface-press); }
 .act-undated__item:focus-visible { box-shadow: var(--focus-ring); }
-.act-undated__item[aria-pressed='true'] { background: var(--surface-alt); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.act-undated__item[aria-pressed='true'] { background: var(--surface-hover); box-shadow: inset 0 0 0 1px var(--line-strong); }
 .act-undated__dot { flex: none; width: var(--act-dot); height: var(--act-dot); border-radius: var(--radius-full); background: var(--grey-500); }
 .act-undated__dot[data-group='dev'] { background: var(--field-dev); }
 .act-undated__dot[data-group='ai'] { background: var(--field-ai); }
@@ -41,7 +42,8 @@
 .act-undated__name { max-width: 16em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .act-card { position: relative; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border: var(--border); border-radius: var(--radius-md); background: var(--surface); min-width: 0; }
-.act-card:hover { background: var(--surface-alt); }
+.act-card:hover { background: var(--surface-hover); }
+.act-card:active { background: var(--surface-press); }
 .act-card__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
 .act-card__title { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
 /* 제목 버튼이 카드 전체를 누르는 영역이 된다. */
@@ -105,10 +107,10 @@
 .act-wk__empty { position: absolute; inset: 0 0 0 var(--act-wk-label-w); display: grid; align-content: start; justify-content: center; justify-items: center; gap: var(--space-3); padding: calc(var(--act-wk-row-h) * 3 + var(--space-6)) var(--space-4) var(--space-4); text-align: center; color: var(--ink-muted); font-size: var(--text-sm); }
 .act-wk__empty > p { margin: 0; padding: var(--space-1) var(--space-2); background: var(--surface); }
 .act-wk__ghost { position: absolute; inset: 0 0 0 0; display: flex; flex-direction: column; pointer-events: none; }
-.act-wk__ghost > span { flex: 0 0 var(--act-wk-row-h); border-bottom: 1px dashed var(--line); }
+.act-wk__ghost > span { flex: 0 0 var(--act-wk-row-h); border-bottom: var(--border); }
 .act-wk__row { all: unset; box-sizing: border-box; display: grid; grid-template-columns: var(--act-wk-label-w) minmax(0, 1fr); width: 100%; height: 100%; min-height: var(--act-wk-row-h); align-items: center; border-bottom: var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: background var(--duration) var(--ease); }
-.act-wk__row:hover { background: color-mix(in srgb, var(--surface-hover) 70%, transparent); }
-.act-wk__row:active { background: var(--surface-hover); }
+.act-wk__row:hover { background: var(--surface-hover); }
+.act-wk__row:active { background: var(--surface-press); }
 .act-wk__row:focus-visible { box-shadow: var(--focus-ring-inset); }
 .act-wk__label { display: flex; flex-direction: column; gap: 2px; padding: var(--space-2) var(--space-3) var(--space-2) 0; min-width: 0; }
 .act-wk__name { color: var(--ink); font-size: var(--text-sm); font-weight: var(--weight-bold); line-height: var(--leading-tight); }

@@ -3,7 +3,7 @@ import { hrefOf } from '../../app/router';
 import { useStory } from '../../app/useStory';
 import { Card, EmptyState, FieldTag, NextStep } from '../../components';
 import { ddayOf } from '../../domain/recommend';
-import { candidateHref } from '../../domain/recommend-flow/flow';
+import { candidateHref, isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
 import { useTriage } from '../recommend/useTriage';
 
@@ -24,7 +24,7 @@ export function NextCard() {
         <NextStep
           next={next}
           href={hrefOf(candidateHref(program.id))}
-          meta={<><FieldTag field={program.field} /><span className="num">{ddayText(ddayOf(program, state.week))} 마감</span></>}
+          meta={<><FieldTag field={program.field} /><span className="ui-dday num" data-near={isNearDeadline(ddayOf(program, state.week)) || undefined}>{ddayText(ddayOf(program, state.week))} 마감</span></>}
           onPrepare={() => actions.onPrepare(program)}
         />
       ) : (

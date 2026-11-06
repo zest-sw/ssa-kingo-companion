@@ -40,7 +40,7 @@ type Props = {
 
 const SIDE = 112;
 const TOP = 52;
-/** '확인 2 · 전체 11' 처럼 ' · ' 로 이은 이름표 둘째 줄. 앞 조각(확인한 수)을 더 진하게 그린다 */
+/** '확인 2 · 전체 11' 처럼 ' · ' 로 이은 이름표 둘째 줄. 부분/전체는 앱 전체가 '확인 n / 전체 m' 이라 '/' 로 다시 잇고, 앞 조각(확인한 수)을 더 진하게 그린다 */
 const subParts = (s: string) => s.split(' · ');
 const rad = (k: number) => ((-90 + 60 * k) * Math.PI) / 180;
 
@@ -113,7 +113,7 @@ export function Radar({ vertices, max, ticks, label, trace, selected, onSelect, 
               <rect x={hitX} y={y1 - 16} width={hitW} height={44} rx={4} className="ui-radar__hit" />
               <circle cx={x} cy={y} r={sel ? 6 : 4} className="ui-radar__tip" />
               <text x={x + dx} y={y1} textAnchor={anchor} className="ui-radar__name">{v.name}</text>
-              <text x={x + dx} y={y1 + 16} textAnchor={anchor} className="ui-radar__sub">{subParts(v.sub).map((t, i) => <tspan key={i} className={i === 0 ? 'ui-radar__lead' : undefined}>{i === 0 ? t : ` · ${t}`}</tspan>)}</text>
+              <text x={x + dx} y={y1 + 16} textAnchor={anchor} className="ui-radar__sub">{subParts(v.sub).map((t, i) => <tspan key={i} className={i === 0 ? 'ui-radar__lead' : undefined}>{i === 0 ? t : ` / ${t}`}</tspan>)}</text>
             </g>
           );
         })}

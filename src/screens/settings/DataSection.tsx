@@ -43,7 +43,7 @@ export function DataSection() {
               <Button size="sm" variant="ghost" icon="chevron" onClick={() => navigate('activities/records')}>기록</Button>
             </Row>
             <Row title="발견과 역량 근거" sub="공개해도 다른 사람에게 보이지 않아요">
-              <Badge tone="dashed" icon="lock">항상 나만</Badge>
+              <Badge tone="neutral" icon="lock">항상 나만</Badge>
             </Row>
           </ul>
         </Group>
@@ -51,7 +51,7 @@ export function DataSection() {
           <ul className="st-rows">
             {SCHOOL_DATA.map(d => (
               <Row key={d.id} title={d.title} sub={`${d.from}에서 읽어요`}>
-                <Badge tone="dashed">연결 안 함</Badge>
+                <Badge tone="neutral">연결 안 함</Badge>
                 <Button size="sm" onClick={() => setSchool(d)}>동의 안내</Button>
               </Row>
             ))}

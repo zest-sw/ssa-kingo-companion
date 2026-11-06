@@ -74,12 +74,12 @@ a.ui-proof:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 .ui-pp__stage { position: relative; display: block; box-sizing: border-box; width: var(--story-stage); height: var(--story-stage); border-radius: var(--radius-full); border: 1.5px solid var(--line-strong); background: var(--surface); }
 .ui-pp__stage.is-done { border-color: var(--g); background: var(--g); }
 .ui-pp__stage.is-skipped { border-color: var(--grey-500); background: var(--grey-100); }
-.ui-pp--ghost { width: 100%; max-width: var(--story-ghost-w); height: var(--story-bar-h); border: 1px dashed var(--line-strong); border-radius: var(--radius-xs); }
+.ui-pp--ghost { width: 100%; max-width: var(--story-ghost-w); height: var(--story-bar-h); border: 1px solid var(--line-strong); border-radius: var(--radius-xs); }
 
-/* ── 비어 있는 곳 ── */
+/* ── 비어 있는 곳: 안 한 것이라 회색 실선 빈 원(회색 = 안 한 것, 점선은 쓰지 않는다) ── */
 .ui-story-gap { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-2); min-width: 0; color: var(--ink); font-size: var(--text-md); }
 .ui-story-gap b { color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
-.ui-story-gap__mark { flex: none; box-sizing: border-box; width: var(--story-mark); height: var(--story-mark); border: 1.5px dashed var(--grey-500); border-radius: var(--radius-full); }
+.ui-story-gap__mark { flex: none; box-sizing: border-box; width: var(--story-mark); height: var(--story-mark); border: 1.5px solid var(--grey-500); border-radius: var(--radius-full); }
 
 /* ── 그래서 이번 주 ── */
 .ui-story-next { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
@@ -92,13 +92,13 @@ a.ui-proof:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 .ui-story-next__meta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
 .ui-story-next__note { color: var(--ink-muted); font-size: var(--text-sm); }
 .ui-story-next__row > .ui-btn { flex: none; }
-.ui-story-next__more { align-self: flex-start; display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); color: var(--ink-muted); font-size: var(--text-sm); text-decoration: none; }
-.ui-story-next__more:hover { color: var(--ink); text-decoration: underline; }
+.ui-story-next__more { align-self: flex-start; display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--hit-min); color: var(--text-sub); font-size: var(--fs-sub); text-decoration: underline; text-underline-offset: var(--space-1); }
+.ui-story-next__more:hover { color: var(--text); }
 
 /* ── 하위 분석 화면 머리 한 줄 ── */
 .ui-story-note { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-3); min-width: 0; font-size: var(--text-md); }
 .ui-story-note__so { font-weight: var(--weight-bold); color: var(--ink); }
 .ui-story-note__now { color: var(--ink-muted); }
-.ui-story-note__now::before { content: '·'; margin-right: var(--space-3); color: var(--ink-subtle); }
+/* 두 조각은 간격(gap)으로만 나눈다. 가운뎃점을 넣지 않는다(SD4d) */
 .ui-pp--dots, .ui-pp--flow, .ui-pp__step, .ui-pp__year { flex-wrap: nowrap; white-space: nowrap; }
 .ui-story-next__meta > span { display: inline-flex; align-items: center; gap: var(--space-1); }

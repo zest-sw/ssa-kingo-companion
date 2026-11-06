@@ -6,9 +6,9 @@ export const hasBatchim = (w: string) => {
   const c = t.charCodeAt(t.length - 1);
   return c >= 0xac00 && c <= 0xd7a3 && (c - 0xac00) % 28 !== 0;
 };
-/** josa('기록', '을', '를') → '을' */
+/** josa('기록', '을', '를') = '을' */
 export const josa = (w: string, withB: string, noB: string) => (hasBatchim(w) ? withB : noB);
-/** '으로/로': 받침이 없거나 ㄹ 받침이면 '로'. josaRo('서울') → '로', josaRo('학회') → '로', josaRo('캠프') → '로', josaRo('특강') → '으로' */
+/** '으로/로': 받침이 없거나 ㄹ 받침이면 '로'. josaRo('서울') = '로', josaRo('학회') = '로', josaRo('캠프') = '로', josaRo('특강') = '으로' */
 export const josaRo = (w: string) => {
   const t = w.trim();
   const c = t.charCodeAt(t.length - 1);

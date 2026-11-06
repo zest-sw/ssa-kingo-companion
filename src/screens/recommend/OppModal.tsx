@@ -66,7 +66,7 @@ export function OppModal({ open = true, programId, actions, onClose }: { open?: 
           <Button variant="primary" disabled={closed || !p.eligible || chosen === 'preparing'} onClick={() => actions.onPrepare(p)}>{chosen === 'preparing' ? '신청 준비 중' : '신청 준비'}</Button>
           <Button onClick={() => actions.onLater(p)}>나중에 보기</Button>
           <Button onClick={() => actions.onDismiss(p)}>관심 없음</Button>
-          <a className="rec-link rec-modal__src" href={APPLY_URL} target="_blank" rel="noopener noreferrer">모집글 원문<Icon name="external" size={14} /><span className="sr-only">(새 탭)</span></a>
+          <a className="ui-link rec-modal__src" href={APPLY_URL} target="_blank" rel="noopener noreferrer">모집글 원문<Icon name="external" size={14} /><span className="sr-only">(새 탭)</span></a>
         </>
       }
       note={<><Icon name="lock" size={14} />{p.eligible ? '신청은 내가 누를 때만 나가요' : '신청 대상이 아니라서 신청 준비가 꺼져 있어요'}</>}
@@ -106,7 +106,7 @@ export function OppModal({ open = true, programId, actions, onClose }: { open?: 
                   <span className="rec-agentcheck__mark" aria-hidden="true"><Icon name={c.state === 'ok' ? 'check' : c.state === 'warn' ? 'alert' : 'friends'} size={14} /></span>
                   <b>{c.label}</b>
                   <span className="rec-agentcheck__basis">{c.basis}</span>
-                  {c.id === 'team' && <a className="rec-link rec-agentcheck__link" href={hrefOf('profile/recruit')}>팀원 모집 보기</a>}
+                  {c.id === 'team' && <a className="ui-link rec-agentcheck__link" href={hrefOf('profile/recruit')}>팀원 모집 보기</a>}
                 </li>
               ))}
             </ul>

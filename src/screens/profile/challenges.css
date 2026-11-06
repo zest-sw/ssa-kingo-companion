@@ -1,10 +1,11 @@
-:root { --ch-card-min: 232px; --ch-edge: 3px; }
+:root { --ch-card-min: 232px; }
 
 .ch-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-5); }
 
 .ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--ch-card-min), 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
 .ch-card { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; padding: var(--space-4); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
-.ch-card--done { box-shadow: inset var(--ch-edge) 0 0 var(--lime-500); }
+/* 달성: 색 띠 대신 아이콘과 달성 줄을 초록(완료)으로 */
+.ch-card--done .ch-card__icon, .ch-card--done .ch-card__foot { color: var(--green-900); }
 .ch-card__head { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
 .ch-card__icon { display: inline-flex; flex: none; color: var(--ink-muted); font-weight: var(--weight-bold); font-size: var(--text-lg); line-height: 1; }
 .ch-card__name { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); overflow-wrap: anywhere; }

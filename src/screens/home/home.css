@@ -10,8 +10,6 @@
   --home-art-h-tall: 48px;
   --home-door-h: 56px;
   --home-row-h: 40px;
-  /* 제안 카드만 살짝 띄운다. 오버레이 그림자(--shadow-overlay)보다 훨씬 옅게 */
-  --home-lift: 0 1px 2px color-mix(in srgb, var(--ink-strong) 6%, transparent), 0 4px 12px color-mix(in srgb, var(--ink-strong) 5%, transparent);
 }
 
 
@@ -39,7 +37,8 @@
 .home-hex .ui-radar__vx { cursor: default; }
 .home-hex .ui-radar__vx:hover .ui-radar__hit { fill: transparent; }
 .home-hex__empty { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); width: var(--home-hex-w); color: var(--ink-muted); font-size: var(--text-sm); text-align: center; }
-.home-hex__pic polygon { fill: none; stroke: var(--text-faint); stroke-width: 1.5; stroke-dasharray: 4 4; }
+/* 아직 없는 육각형의 자리: 옅은 실선 틀(점선은 AI 추정·할 수 있는 활동에만) */
+.home-hex__pic polygon { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
 
 .home-inv { align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding-left: var(--space-6); border-left: var(--border); }
 .home-inv__h { margin-bottom: var(--space-2); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
@@ -49,7 +48,7 @@
 .home-inv__wait { color: var(--ink-muted); }
 
 /* 제안: 다른 층처럼 보이게 얇은 외곽선 + 옅은 그림자. 색 면은 없다 */
-.home-next { box-shadow: var(--home-lift); }
+.home-next { box-shadow: var(--shadow-raise); }
 .home-next .ui-state { padding: var(--space-4); }
 /* 새 학생: 쌓인 것이 없으니 제안이 주인공. 띠의 칭호를 카드 제목 단계로 낮춰 제안 제목(카드 결론 단계)이 가장 크게 보이게 */
 .home-grid[data-new] .home-me__title { font-size: var(--fs-title); }
@@ -57,7 +56,7 @@
 /* 광장: 낮은 문 셋, 문마다 숫자 하나 */
 .home-doors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
 .home-door { display: flex; align-items: center; gap: var(--space-2); height: 100%; min-height: var(--home-door-h); padding: var(--space-2) var(--space-3); border: var(--border); border-radius: var(--radius-md); color: var(--ink); text-decoration: none; transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out); }
-.home-door:hover { border-color: var(--line-strong); background: var(--surface-alt); }
+.home-door:hover { border-color: var(--line-strong); background: var(--surface-hover); }
 .home-door:active { background: var(--surface-press); }
 .home-art { flex: none; width: var(--home-art-w); height: var(--home-art-h); fill: none; stroke: var(--ink-subtle); stroke-width: 1; stroke-linejoin: round; }
 .home-art path, .home-art rect { vector-effect: non-scaling-stroke; }
@@ -76,7 +75,7 @@
 .home-q[data-ghost] .home-q__h { color: var(--text-faint); }
 .home-q__ghost { color: var(--ink-subtle); font-size: var(--text-sm); }
 .home-q__h { display: flex; align-items: baseline; gap: var(--space-1); margin-bottom: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-bold); }
-.home-q__h span { font-weight: var(--weight-regular); }
+.home-q__h span { color: var(--text-faint); font-weight: var(--weight-regular); }
 .home-q__row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--home-row-h); padding: var(--space-2); border: 0; border-radius: var(--radius-sm); background: none; color: var(--ink); font-size: var(--text-md); text-align: left; text-decoration: none; transition: background-color var(--dur-fast) var(--ease-out); }
 .home-q__row:hover { background: var(--surface-hover); }
 .home-q__row:active { background: var(--surface-press); }
