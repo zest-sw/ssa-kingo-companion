@@ -111,7 +111,7 @@ function legacyModal(path: string, query: string): string | undefined {
 /**
  * 주소를 바꿔야 하면 바꿀 경로, 맞으면 undefined. 옮긴 경로는 새 자리로, 모르는 메뉴는 홈으로,
  * 모르는 하위 경로는 그 메뉴 안에서 아는 가장 긴 앞부분(없으면 메뉴의 기본 경로)으로.
- * canonicalPath('#/settings/notify') → 'settings/profile', canonicalPath('#/activities/schedule/x') → 'activities/schedule'
+ * canonicalPath('#/settings/notify') = 'settings/profile', canonicalPath('#/activities/schedule/x') = 'activities/schedule'
  */
 export function canonicalPath(hash: string): string | undefined {
   const moved = movedPath(hash);
@@ -196,7 +196,7 @@ export function navigate(path: string, opts: { replace?: boolean } = {}) {
 /** 주소의 화면 안 상태. queryOf('#/recommend?tab=all') → URLSearchParams { tab: 'all' } */
 export const queryOf = (hash: string) => new URLSearchParams(splitQuery(hash)[1]);
 
-/** 경로에 화면 안 상태를 붙인다. 빈 값은 뺀다. withQuery('recommend', { tab: 'all', open: undefined }) → 'recommend?tab=all' */
+/** 경로에 화면 안 상태를 붙인다. 빈 값은 뺀다. withQuery('recommend', { tab: 'all', open: undefined }) = 'recommend?tab=all' */
 export function withQuery(path: string, params: Record<string, string | undefined>): string {
   const q = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) if (v) q.set(k, v);

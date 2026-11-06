@@ -13,7 +13,7 @@ const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(pre
 type Props = { people: HallEntry[]; joined: Record<string, string>; onOpen: (h: HallEntry) => void };
 
 /**
- * 전당 무대: 오른 사람 카드가 가로로 천천히 지나간다. 마우스를 올리거나 포커스하면 멈추고, ◀ ▶ 와 방향키로 한 장씩 넘긴다.
+ * 전당 무대: 오른 사람 카드가 가로로 천천히 지나간다. 마우스를 올리거나 포커스하면 멈추고, 이전·다음 버튼과 방향키로 한 장씩 넘긴다.
  * 움직임 줄이기면 스스로 움직이지 않고 넘김만 된다. 순위·번호는 없다.
  */
 export function HallStage({ people, joined, onOpen }: Props) {

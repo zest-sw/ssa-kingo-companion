@@ -41,6 +41,7 @@ export function BoardView({ activities, onOpen }: { activities: Activity[]; onOp
         const cta = empty.cta;
         return (
           <section key={c.id} className="act-col" data-fill aria-labelledby={`col-${c.id}`}>
+            {/* avoid-ai-design-ignore: SD5 (제목 옆 개수는 옅은 숫자로 둔다, DESIGN.md 숫자 표기) */}
             <h2 id={`col-${c.id}`} className="act-col__head">
               {c.label}
               <span className="act-col__count num"><span className="sr-only">{cols[c.id].length}개</span><span aria-hidden="true">{cols[c.id].length}</span></span>

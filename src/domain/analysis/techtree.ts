@@ -84,7 +84,7 @@ function ownCells(records: RecordItem[], activities: Activity[], programs: Recor
 }
 
 /**
- * 건너뛴 단계 노드. 이름은 그 단계에서 지금 열린 기회 → 카탈로그의 같은 분야·단계 기회 → '중급 활동' 순서.
+ * 건너뛴 단계 노드. 이름은 그 단계에서 지금 열린 기회, 카탈로그의 같은 분야·단계 기회, '중급 활동' 순서로 고른다.
  * 회색 실선 노드라서 '추천'으로 읽히지 않게 마감 표시는 서랍에만 둔다.
  */
 function skippedCell(group: FieldGroup, col: number, open: TreeCell[], programs: Program[], fallbackField: Field): TreeCell {
