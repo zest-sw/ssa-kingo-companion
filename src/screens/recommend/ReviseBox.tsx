@@ -14,7 +14,8 @@ export function ReviseBox({ onRevise, onClose }: { onRevise: (r: Revision) => vo
   const send = (r: Revision) => { onRevise(r); setNote(''); };
   const submit = (e: FormEvent) => { e.preventDefault(); if (note.trim()) send({ kind: 'specific', note }); };
   return (
-    <div className="rec-revise" role="group" aria-label="무엇을 고칠까요">
+    // Esc 로 닫는다(서랍·모달과 같은 약속)
+    <div className="rec-revise" role="group" aria-label="무엇을 고칠까요" onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); onClose(); } }}>
       <div className="rec-revise__head">
         <b>무엇을 고칠까요?</b>
         <Button size="sm" variant="ghost" onClick={onClose}>닫기</Button>
@@ -23,7 +24,7 @@ export function ReviseBox({ onRevise, onClose }: { onRevise: (r: Revision) => vo
         {REVISE_OPTIONS.map(o => <Chip key={o.id} onClick={() => send({ kind: o.id, note: note.trim() || undefined })}>{o.label}</Chip>)}
       </div>
       <form className="rec-revise__form" onSubmit={submit}>
-        <input className="rec-revise__input" value={note} maxLength={60} placeholder="한 줄로 요청하기 (예: 팀장 경험을 넣어 주세요)" aria-label="고칠 점 한 줄" onChange={e => setNote(e.target.value)} />
+        <input className="rec-revise__input" name="revise-note" autoComplete="off" value={note} maxLength={60} placeholder="한 줄로 요청하기 (예: 팀장 경험을 넣어 주세요)" aria-label="고칠 점 한 줄" onChange={e => setNote(e.target.value)} />
         <Button type="submit" size="sm" disabled={!note.trim()}>보내기</Button>
       </form>
     </div>

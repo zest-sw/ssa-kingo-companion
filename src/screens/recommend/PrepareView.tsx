@@ -104,7 +104,9 @@ export function PrepareView({ programId }: { programId: string }) {
   const left = remainingItems(items);
 
   const go = (next: PrepStep) => { setRevising(false); setStep(next); };
-  const revise = (r: Revision) => { setRevisions(list => [...list, r]); setRevising(false); };
+  // 고치기 칸이 닫히면 그 안의 초점이 사라진다. 닫기는 '초안 고치기' 버튼으로, 고쳐 쓰기는(그동안 버튼이 꺼진다) 초안 자리로 돌려준다.
+  const closeRevise = () => { setRevising(false); requestAnimationFrame(() => document.querySelector<HTMLElement>('.rec-pstep button[aria-expanded]')?.focus()); };
+  const revise = (r: Revision) => { setRevisions(list => [...list, r]); setRevising(false); requestAnimationFrame(() => scene.current?.focus({ preventScroll: true })); };
 
   const giveUp = () => {
     savePrep(programId, undefined);
@@ -161,7 +163,7 @@ export function PrepareView({ programId }: { programId: string }) {
   }
   const footer = (
     <>
-      {step === 'draft' && revising && draftReady && <ReviseBox onRevise={revise} onClose={() => setRevising(false)} />}
+      {step === 'draft' && revising && draftReady && <ReviseBox onRevise={revise} onClose={closeRevise} />}
       <span className="rec-foot__note">{note}</span>
       {secondary}
       <Button variant="primary" icon={action === 'openSite' ? 'external' : undefined} disabled={blocked} aria-describedby={step === 'apply' ? 'prep-reason' : undefined} onClick={onPrimary}>
