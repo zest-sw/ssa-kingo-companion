@@ -14,7 +14,7 @@ const UNLOCKS: { icon: IconName; title: string; sub: string; hall?: true }[] = [
 type Shown = { tone: 'green' | 'neutral' | 'lock'; text: string };
 const SHOWN: { title: string; sub: string; shown: Shown }[] = [
   { title: '한 활동 목록', sub: '활동명, 분야, 시기', shown: { tone: 'green', text: '하나씩 뺄 수 있어요' } },
-  { title: '회고', sub: '활동마다 고르기', shown: { tone: 'neutral', text: '고른 것만' } },
+  { title: '경험 카드', sub: '한 장씩 고르기', shown: { tone: 'neutral', text: '고른 것만' } },
   { title: '발견, 역량 근거', sub: '분석 결과', shown: { tone: 'lock', text: '항상 나만 봐요' } },
   { title: '민감한 활동', sub: '종교·정치 동아리 등', shown: { tone: 'lock', text: '기본으로 빠져요' } }
 ];
@@ -71,7 +71,7 @@ export function VisibilitySection() {
         <div className="st-guide"><Button size="sm" variant="ghost" icon="chevron" onClick={() => setGuide(true)}>공개하면 무엇이 보이나요?</Button></div>
       </Card>
 
-      <Card className="st-card st-pick" title="보일 것 고르기" action={<SegmentedControl<Pick> label="보일 것 종류" value={pick} onChange={setPick} items={[{ id: 'activity', label: '한 활동' }, { id: 'record', label: '회고' }]} />}>
+      <Card className="st-card st-pick" title="보일 것 고르기" action={<SegmentedControl<Pick> label="보일 것 종류" value={pick} onChange={setPick} items={[{ id: 'activity', label: '한 활동' }, { id: 'record', label: '경험 카드' }]} />}>
         <p className="st-pick__hint">{v.profilePublic ? '켜진 것만 친구에게 보여요' : '미리 골라 두면 공개할 때 이것만 보여요'}</p>
         {pick === 'activity' && <Group title="">
           {candidates.length ? (
@@ -85,7 +85,7 @@ export function VisibilitySection() {
             <div className="st-chips">
               {state.records.map(r => <Chip key={r.id} selected={v.sharedRecordIds.includes(r.id)} onClick={() => set({ sharedRecordIds: toggled(v.sharedRecordIds, r.id) })}>{r.title}</Chip>)}
             </div>
-          ) : <p className="st-empty">공개할 회고가 아직 없어요. 활동이 끝나면 회고를 써 보세요</p>}
+          ) : <p className="st-empty">공개할 경험 카드가 아직 없어요. 활동이 끝나면 회고를 써 보세요</p>}
         </Group>}
       </Card>
 
@@ -107,7 +107,7 @@ export function VisibilitySection() {
         onClose={() => setAsking(false)}
         actions={<><Button onClick={() => setAsking(false)}>취소</Button><Button variant="primary" onClick={publish}>공개하기</Button></>}
       >
-        <p>가입 동의와 따로 받는 동의예요. 한 활동은 친구에게 보이고, 회고는 고른 것만 보여요. 발견과 역량 근거는 다른 사람에게 보이지 않아요.</p>
+        <p>가입 동의와 따로 받는 동의예요. 한 활동은 친구에게 보이고, 경험 카드는 고른 것만 보여요. 발견과 역량 근거는 다른 사람에게 보이지 않아요.</p>
       </Modal>
     </div>
   );
