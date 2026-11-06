@@ -19,6 +19,7 @@ import { probe } from './probe.js';
 import { writeReports } from './report.mjs';
 import { waitForScreen } from './ready.mjs';
 import { findFreePort, waitForServer, withRetry } from './retry.mjs';
+import { watchPage } from './netfail.mjs';
 import { contextOf, routesFor } from './routes.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -176,9 +177,7 @@ async function runJob(browser, base, job) {
     sessionStorage.setItem('audit:seeded', '1');
   }, job.storage);
   const page = await ctx.newPage();
-  const errors = [];
-  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-  page.on('pageerror', e => errors.push(String(e.message || e)));
+  const net = watchPage(page, base);
   let issues = [];
   let retries = 0;
   try {
@@ -196,7 +195,7 @@ async function runJob(browser, base, job) {
     retries = e.retries ?? retries;
     issues.push({ k: 'run-error', level: 'fail', el: String(e.message || e).split('\n')[0].slice(0, 120) });
   }
-  for (const e of errors) issues.push({ k: 'console-error', level: 'fail', el: e.slice(0, 120) });
+  for (const e of net.list()) issues.push({ k: e.kind, level: e.level, el: e.text.slice(0, 120) });
   const shot = join(OUT, job.state, `${job.size.w}x${job.size.h}`, `${slug(job.path, job.step)}.png`);
   mkdirSync(dirname(shot), { recursive: true });
   if (!args.clean) await page.evaluate(markIssues, issues).catch(() => {});
