@@ -223,15 +223,14 @@ export function buildStory(input: StoryInput): Story {
     });
   }
 
-  // 화면마다 해석 한 줄(soWhat)과 행동 한 줄(nowWhat). 이야기와 같은 낱말을 써서 화면을 옮겨도 같은 말을 듣게 한다.
+  // 화면마다 해석 한 줄(soWhat)과 행동 한 줄(nowWhat). soWhat 은 머리에 혼자 서므로 가운뎃점으로 둘을 잇지 않는다. 이야기와 같은 낱말을 써서 화면을 옮겨도 같은 말을 듣게 한다.
   const insight = cluster ? clusterInsight(graph, cluster.id, input.scored.map(s => s.p)) : null;
   const clusterAxis = insight?.axes[0];
   const clusterEst = insight?.axes.reduce((n, a) => n + a.estimated, 0) ?? 0;
-  const skippedRow = tree.rows.find(r => r.cells.some(c => c.kind === 'skipped'));
   const estAxis = strengths.filter(s => unconfirmed(s) > 0).sort((a, b) => unconfirmed(b) - unconfirmed(a))[0];
   const perScreen: Record<StoryScreen, ScreenLine> = {
     techtree: {
-      soWhat: depth ? `${eun(depth.label)} ${TREE_COLUMNS[depth.top]}까지 갔어요${skippedRow ? ` · ${skippedRow.label} ${eun(TREE_COLUMNS[skippedRow.cells.find(c => c.kind === 'skipped')!.col])} 비어 있어요` : ''}` : '첫 활동이 가지의 시작점이 돼요',
+      soWhat: depth ? `${eun(depth.label)} ${TREE_COLUMNS[depth.top]}까지 갔어요` : '첫 활동이 가지의 시작점이 돼요',
       nowWhat: tree.candidates.length ? `회색 점선 ${tree.candidates.length}개는 지금 신청할 수 있어요` : undefined
     },
     map: {
