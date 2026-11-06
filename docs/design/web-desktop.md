@@ -20,42 +20,10 @@
 - 라우팅은 해시(`#/home`, `#/recommend`, ...). 새로고침해도 같은 화면이 열린다.
 - 전역 상태는 한 곳(`src/app`)에서 공급하고, 화면은 필요한 조각만 읽는다. 저장소는 없다. 새로고침하면 예시 상태로 돌아가는 걸 기본으로 하되, 학생이 고른 것(프로필, 공개 범위, 데이터·알림 설정, 추천 선택과 다시 볼 날, 신청 준비로 만든 활동과 체크, 회고 초안, 분석 답)은 `localStorage` 한 키(`src/app/storage.ts`)에 둔다.
 
-## 2. 토큰 (`src/styles/tokens.css`)
+## 2. 토큰과 모양: [`DESIGN.md`](../../DESIGN.md)
 
-컴포넌트와 화면에는 값을 직접 쓰지 않고 토큰만 쓴다. 무채색이 바탕이고 색은 의미가 있을 때만 쓴다.
+색·글자 단계·간격·반경·그림자·선 모양(점선 두 뜻)·지금 위치 표시·부품 목록·움직임은 저장소 루트 `DESIGN.md` 가 기준이다(v2.9, 2026-11-06). 값의 실체는 `src/styles/tokens.css`. 여기에는 그 파일에 없는 동작만 남긴다.
 
-| 토큰 | 용도 | 값 |
-| --- | --- | --- |
-| `--green-900` (`--primary`) | 주 버튼(한 가지), 확인 점, 개발 분야 | #1e3b2e |
-| `--lime-500` | 창업·기획 분야 점·선. 넓은 면에 칠하지 않는다 | #8ba860 |
-| `--navy-900` | AI·데이터 분야, 포커스 링 | #1d2b4f |
-| `--orange-500` (`--accent`) | 오늘·마감 임박에만(멘토링 분야 점 포함) | #d4682c |
-| `--bg` / `--surface` / `--surface-hover` / `--surface-press` | 바탕·사이드바(아주 옅은 회색 한 가지) / 카드 / 호버 / 눌림 | #f8f9fa / #ffffff / #f4f5f7 / #eceef1 |
-| `--line` / `--line-strong` | 면을 나누는 1px 선 / 입력·보조 버튼 테두리 | #e6e8eb / #d3d7dc |
-| `--text` / `--text-sub` / `--text-faint` | 글자 회색 세 단계: 본문 / 보조 / 옅음. 옛 이름 `--ink`·`--ink-strong` / `--ink-muted` / `--ink-subtle` 은 이 셋에 이어 둔다 | #111418 / #5e6570 / #8a909a |
-
-- **반지름**: `--radius-sm`·`--radius-md` 4px(버튼, 입력, 칩, 배지, 탭, 행), `--radius-lg` 6px(카드, 패널, 서랍, 모달), `--radius-xs` 2px(진행 막대, 자리 표시 줄). `--radius-full`(알약)은 상태 점과 아바타에만 쓴다.
-- **면과 선**: 카드는 흰 바탕 + `--border`(1px `--line`), 안쪽 여백 20px(`--space-5`), 목록 행은 12px 안팎. 큰 색 면 대신 선으로 나눈다. 그림자(`--shadow-overlay`)는 서랍·모달·토스트에만.
-- **글자**(v2.6): Pretendard Variable(jsDelivr dynamic-subset, `index.html`), 못 불러오면 시스템 한글 글꼴. 단계는 여섯 개뿐이다.
-
-  | 역할 | 토큰 | 크기/굵기 | 높이 760 아래 |
-  | --- | --- | --- | --- |
-  | 페이지 제목 | `--fs-page` | 24 / 700 | 20 |
-  | 카드 결론(결론형 제목, 서랍·모달 제목) | `--fs-lead` | 18 / 700 | 16 |
-  | 카드 제목 | `--fs-title` | 16 / 600 | 15 |
-  | 본문 | `--fs-body` | 15 / 400 | 그대로 |
-  | 보조 | `--fs-sub` | 13 | 그대로 |
-  | 최소 | `--fs-min` | 12 | 그대로 |
-
-  굵기는 700(`--weight-heavy`) / 600(`--weight-bold`) / 400(`--weight-regular`) 세 단계(`--weight-medium` 은 400 에 이은 옛 이름). 옛 크기 이름 `--text-xs`~`--text-4xl` 은 이 여섯에 이어 두었다(20·28 없음). 제목 자간 `--tracking-tight` -0.02em. 숫자는 전역 `tabular-nums`.
-- **크기**: 버튼·입력 `--control-h` 36px, 작은 버튼·칩·클릭 대상 최소 `--hit-min` 32px, 메뉴 항목 `--nav-item-h` 38px, 개수 배지 `--count-h` 18px. 아이콘 16px·선 1.5px(`--icon`), 작은 것 14px, 큰 것 20px.
-- **움직임**(v2.6): 사용자가 만든 변화에만. `--dur-fast` 150ms(hover·눌림), `--dur-base` 220ms(열림·펼침, 탭 밑줄 이동), `--ease-out` cubic-bezier(.2,.8,.2,1), 열고 닫을 때 이동 `--enter-shift` 8px. `prefers-reduced-motion` 이면 셋 다 0. 모달·서랍은 열 때와 닫을 때 모두 투명도 + 8px 이동이고 닫힘은 움직임이 끝난 뒤 지운다(`usePresence`). 튀는 애니메이션은 쓰지 않는다.
-- **막대·띠**(v2.6): 큰 색 면 대신 얇은 막대 `--bar-h` 8px. 면이 필요하면 옅은 틴트(`--tint` 14%) 바탕 + 1px 진한 테두리(예: 일정의 준비 상태). 의미 색(분야색, D-3 이하 주황)만 남긴다. 오늘 선 같은 보조선은 `--rule` 1px.
-- **누름**: 모든 누를 것에 hover(150ms), 눌림(:active, 바탕 한 단계 진하게: `--surface-press`, 주 버튼은 `--primary-press`), focus-visible 링. 닫으면 연 자리로 초점이 돌아간다.
-- 탭(`Tabs`, `SectionTabs`)은 밑줄 탭. 밑줄은 줄에 하나이고 고른 칸으로 미끄러진다(`useIndicator`). 보기 전환(`SegmentedControl`)은 회색 홈에 흰 칸. 빈 상태 아이콘은 장식 원 없이 20px 선 아이콘만.
-- 분야 색은 의미가 고정이다: 개발=진한 그린, AI·데이터=네이비, 창업·기획=연두, 멘토링=오렌지, 글로벌=회색. 색만으로 구분하지 않고 라벨을 함께 둔다.
-- AI 추정은 옅은 점선 테두리/점선 점, 학생이 확인한 것은 채운 점. 불확실한 표현을 색이 아니라 선 모양으로 전한다. 글자에 붙는 AI 표시는 `AiMark` 하나로 한다: 글자 옆 작은 '추정' 표지(`<AiMark />`) 또는 옅은 점선 밑줄(`<AiMark variant="line">`). 반짝이·별 기호는 쓰지 않는다.
-- **카드 머리**: 제목은 이름형 16/600 하나. 카드가 한 문장을 말하면 결론형(`<Card lead>`, `<Panel lead>`, 18/700). 제목 위 작은 회색 줄(`eyebrow`, Panel·Modal·Drawer·PageHeader)은 비권장이다(쓰던 곳은 동작 유지).
 - **토스트**: 한 번에 하나, 5초 뒤 사라지고 마우스를 올리거나 버튼에 초점이 있으면 멈춘다. 되돌릴 수 있으면 동작 버튼 하나(`toast(msg, { actionLabel: '되돌리기', onAction })`). `aria-live=polite`.
 - **칸 안 스크롤 흐림**: `Panel` 몸통이 넘치면 더 있는 쪽 가장자리만 옅게 흐린다(`useScrollFade`, TDS 메뉴 레퍼런스).
 - 검사: `npm run audit:copy`(보이는 글자의 기호·금지어·가운뎃점 사슬, `.qa/copy/report.md`), `npm run audit:design`(avoid-ai-design 스캐너, 출력만).
