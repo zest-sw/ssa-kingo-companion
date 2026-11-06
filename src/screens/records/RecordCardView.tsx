@@ -64,14 +64,14 @@ type Settings = Pick<RecordCardViewProps, 'visibility' | 'onVisibility' | 'profi
 type Proof = Pick<RecordCardViewProps, 'verification' | 'evidence' | 'confirmed' | 'onToggleAxis'>;
 
 /**
- * 기록 카드. 인터뷰 왼쪽 대화 옆(채워지는 6칸만: fieldsOnly)과 보관함 서랍(전부)이 함께 쓴다. 칸은 기준 문서 '기록 카드(안)' 순서 그대로.
+ * 경험 카드. 인터뷰 왼쪽 대화 옆(채워지는 6칸만: fieldsOnly)과 보관함 서랍(전부)이 함께 쓴다. 칸은 기준 문서 '기록 카드(안)' 순서 그대로.
  * 증빙·역량 근거·공개 범위·추천 설정은 인터뷰에서는 '저장 전 확인' 단계가 따로 그린다(ProofSection, SettingsSection).
  */
 export function RecordCardView({ fieldsOnly, ...p }: RecordCardViewProps & { fieldsOnly?: boolean }) {
   return (
     <div className="rec-card">
       <header className="rec-card__head">
-        {!p.bare && <><p className="rec-card__eyebrow">기록 카드</p><h2 className="rec-card__title">{p.title}</h2></>}
+        {!p.bare && <><p className="rec-card__eyebrow">경험 카드</p><h2 className="rec-card__title">{p.title}</h2></>}
         <p className="rec-card__meta">{p.meta} <VerificationBadge v={p.verification} /></p>
       </header>
 
@@ -124,7 +124,7 @@ export function SettingsSection(p: Settings) {
           </span>
         </div>
         {!p.profilePublic && <p className="rec-setting__hint">프로필을 공개하면 열려요.</p>}
-        {/* 고려대 AI선배: 추천 근거에서 뺄 기록은 기록 카드에서 직접 고른다 */}
+        {/* 고려대 AI선배: 추천 근거에서 뺄 기록은 경험 카드에서 직접 고른다 */}
         <div className="rec-setting">
           <Switch checked={p.useForRecommend} onChange={p.onUseForRecommend} label="이 기록을 추천에 쓰기" />
         </div>
