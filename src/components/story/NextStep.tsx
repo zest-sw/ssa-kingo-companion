@@ -23,7 +23,7 @@ export function NextStep({ next, href, meta, onPrepare, more }: Props) {
       <div className="ui-story-next__row">
         <div className="ui-story-next__main">
           <a className="ui-story-next__title" href={href}>{next.title}</a>
-          <p className="ui-story-next__why"><span>{next.why}</span><AiMark /></p>
+          <p className="ui-story-next__why"><span>{next.why}</span>{!next.guide && <AiMark />}</p>
           {meta && <p className="ui-story-next__meta">{meta}</p>}
           {next.note && <p className="ui-story-next__note">{next.note}</p>}
         </div>
