@@ -1,6 +1,6 @@
 import { ddayOf } from '../../domain/recommend';
 import { isNearDeadline } from '../../domain/recommend-flow/flow';
-import type { RowLine } from '../../domain/recommend-flow/row';
+import type { RowLine } from '../../domain/recommend-flow/reasons';
 import { ddayText } from '../../domain/text';
 import type { Program } from '../../domain/types';
 

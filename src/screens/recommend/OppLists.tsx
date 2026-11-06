@@ -3,11 +3,10 @@ import { useApp } from '../../app/AppState';
 import { Chip, SegmentedControl } from '../../components';
 import { weekLoad } from '../../domain/recommend-flow/load';
 import { CATEGORY_LABEL, categoryCounts, categoryOf, inCategory, SORT_LABEL, sortOpen, type CategoryFilter, type OpenSort } from '../../domain/recommend-flow/opportunities';
-import { keyGain, rowLine } from '../../domain/recommend-flow/row';
-import { traceNodes } from '../../domain/recommend-flow/trace';
+import type { RowLine } from '../../domain/recommend-flow/reasons';
+import { keyGain } from '../../domain/recommend-flow/row';
 import type { Program, Scored } from '../../domain/types';
 import { OppRow } from './OppRow';
-import { useBasis } from './useBasis';
 
 const ROW = 'button.rec-row';
 
@@ -44,21 +43,21 @@ function useRowKeys(ids: string, modalOpen: boolean) {
 /**
  * 추천 활동 탭의 나머지 후보(가장 추천은 위 카드). 묶음 머리는 작은 제목 글자. 이 칸만 안에서 스크롤한다.
  */
-export function RecommendList({ list, onOpen, label, modalOpen }: { list: Scored[]; onOpen: (p: Program) => void; label: string; modalOpen: boolean }) {
+export function RecommendList({ list, lines, onOpen, label, modalOpen }: {
+  list: Scored[]; lines: (RowLine | undefined)[]; onOpen: (p: Program) => void; label: string; modalOpen: boolean;
+}) {
   const { state } = useApp();
-  const basis = useBasis();
-  const newcomer = basis.records.length === 0;
   const keys = useRowKeys(list.map(s => s.p.id).join(), modalOpen);
   return (
     <section className="rec-list" data-fill aria-labelledby="rec-list-h">
       <div className="rec-list__scroll os-scroll">
         <h2 id="rec-list-h" className="ui-subhead rec-list__head">{label}</h2>
         <ul className="rec-rows" {...keys}>
-          {list.map(s => (
+          {list.map((s, i) => (
             <OppRow
               key={s.p.id} p={s.p} week={state.week} onOpen={onOpen} prefix={CATEGORY_LABEL[categoryOf(s.p)]}
               tight={weekLoad(s.p, state.activities, state.week).tight}
-              line={rowLine(s.p, traceNodes(s.reasons, basis.records, s.p, basis.newcomer)[0], newcomer)}
+              line={lines[i]}
             />
           ))}
         </ul>
@@ -100,7 +99,7 @@ export function AllList({ open, recommendedIds, cat, sort, onCat, onSort, onOpen
           <ul className="rec-rows" {...keys}>
             {shown.map(p => {
               const g = keyGain(p);
-              return <OppRow key={p.id} p={p} week={state.week} prefix={recommendedIds.has(p.id) ? '추천' : undefined} line={g && { kind: 'gain', text: g.label }} onOpen={onOpen} />;
+              return <OppRow key={p.id} p={p} week={state.week} prefix={recommendedIds.has(p.id) ? '추천' : undefined} line={g && { kind: 'gain', text: g.label, source: 'gain' }} onOpen={onOpen} />;
             })}
           </ul>
         </div>

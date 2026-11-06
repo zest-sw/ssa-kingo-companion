@@ -1,30 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { CATALOG, PROGRAM_BY_ID } from '../../data/catalog';
 import { defaultLater } from './flow';
-import { keyGain, rowLine } from './row';
+import { keyGain } from './row';
 import { DEFAULT_SEL, parseRecQuery, recQuery } from './url';
 
 const p = (id: string) => PROGRAM_BY_ID[id];
 
-describe('행 둘째 줄', () => {
+describe('얻는 것 고르기', () => {
   it('얻는 것 중 숫자가 있는 구체적인 것을 먼저 고른다', () => {
     const portfolio = CATALOG.programs.find(x => (x.gains ?? []).some(g => g.label === '1:1 피드백 15분'))!;
     expect(keyGain(portfolio)?.label).toBe('1:1 피드백 15분');
     expect(keyGain(p('p-interview'))?.label).toBe('인터뷰 정리 노트');
     expect(keyGain({ ...p('p-interview'), gains: [] })).toBeUndefined();
-  });
-  it('기록에 이어진 이유가 있으면 이유, 아니면 얻는 것', () => {
-    const rec = { kind: 'energy' as const, label: '내 기록', detail: '사용성 테스트' };
-    const novelty = { kind: 'novelty' as const, label: '탐색', detail: 'AI·데이터' };
-    expect(rowLine(p('p-interview'), rec, false)).toEqual({ kind: 'why', text: '내 기록 ‘사용성 테스트’와 이어져요' });
-    expect(rowLine(p('p-interview'), novelty, false)).toEqual({ kind: 'gain', text: '인터뷰 정리 노트' });
-    expect(rowLine({ ...p('p-interview'), gains: [] }, novelty, false)?.kind).toBe('why');
-  });
-  it('새 학생은 행마다 다른 얻는 것을 보여 준다(이유가 모두 같아서)', () => {
-    const novelty = { kind: 'novelty' as const, label: '탐색', detail: '처음 해 보는 AI·데이터' };
-    const lines = CATALOG.programs.slice(0, 10).map(x => rowLine(x, novelty, true)?.text);
-    expect(new Set(lines).size).toBeGreaterThan(5);
-    expect(lines.every(t => !t?.startsWith('넓게 둘러보려고'))).toBe(true);
   });
 });
 

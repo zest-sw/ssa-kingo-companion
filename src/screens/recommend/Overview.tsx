@@ -8,9 +8,10 @@ import { emptyReason } from '../../domain/recommend-flow/flow';
 import { takeListIntent, type ListIntent } from '../../domain/recommend-flow/intent';
 import { weekLoad } from '../../domain/recommend-flow/load';
 import { openPrograms } from '../../domain/recommend-flow/opportunities';
-import { traceLine, traceNodes } from '../../domain/recommend-flow/trace';
+import { pickLines, usedSources } from '../../domain/recommend-flow/reasons';
+import { traceNodes } from '../../domain/recommend-flow/trace';
 import type { RecSel } from '../../domain/recommend-flow/url';
-import type { Field, Program } from '../../domain/types';
+import type { Field, Program, Scored } from '../../domain/types';
 import { HowPicked } from './HowPicked';
 import { AllList, RecommendList } from './OppLists';
 import { TopPick } from './TopPick';
@@ -39,6 +40,9 @@ export function Overview({ sel, onSel, onOpen, onPrepare, onOpenLater }: {
   const list = useMemo(() => (filtering ? view.scored.filter(s => matchesAsk(s.p, filter, tried)) : view.scored), [filtering, filter, tried, view.scored]);
   const top = list.find(s => s.p.id === view.primary?.p.id);
   const rest = list.filter(s => s !== top);
+  // 가장 추천과 행들의 이유를 한 번에 골라 같은 말이 두 번 나오지 않게 한다.
+  const input = (s: Scored) => ({ p: s.p, nodes: traceNodes(s.reasons, basis.records, s.p, basis.newcomer) });
+  const lines = pickLines(top && input(top), rest.map(input), { newcomer: basis.records.length === 0, records: basis.records });
 
   let picks;
   if (view.scored.length === 0) {
@@ -54,17 +58,16 @@ export function Overview({ sel, onSel, onOpen, onPrepare, onOpenLater }: {
       </Card>
     );
   } else {
-    const node = top && traceNodes(top.reasons, basis.records, top.p, basis.newcomer)[0];
     picks = (
       <>
         {top && (
           <TopPick
-            p={top.p} week={state.week} why={node && traceLine(node)} tight={weekLoad(top.p, state.activities, state.week).tight}
+            p={top.p} week={state.week} why={lines.top?.text} tight={weekLoad(top.p, state.activities, state.week).tight}
             onOpen={onOpen} onPrepare={onPrepare}
           />
         )}
         {rest.length > 0 ? (
-          <RecommendList list={rest} onOpen={onOpen} modalOpen={modalOpen} label={top ? `다른 후보 ${rest.length}개` : `맞는 추천 ${rest.length}개`} />
+          <RecommendList list={rest} lines={lines.rows} onOpen={onOpen} modalOpen={modalOpen} label={top ? `다른 후보 ${rest.length}개` : `맞는 추천 ${rest.length}개`} />
         ) : (
           <p className="rec-muted rec-rest-empty">다른 후보는 아직 없어요. 전체 기회에서 더 둘러볼 수 있어요.</p>
         )}
@@ -104,7 +107,7 @@ export function Overview({ sel, onSel, onOpen, onPrepare, onOpenLater }: {
           />
         )}
       </TabPanel>
-      <HowPicked open={howOpen} onClose={() => setHowOpen(false)} onOpen={p => { setHowOpen(false); onOpen(p); }} />
+      <HowPicked open={howOpen} reasons={usedSources(lines)} onClose={() => setHowOpen(false)} onOpen={p => { setHowOpen(false); onOpen(p); }} />
     </div>
   );
 }

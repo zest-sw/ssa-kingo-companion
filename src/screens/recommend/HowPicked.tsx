@@ -8,8 +8,11 @@ import { pickingLine } from '../../domain/recommend-flow/summary';
 import type { Program } from '../../domain/types';
 
 
-/** 어떻게 골랐나: 거르기 단계별 개수(깔때기)와, 단계를 누르면 거기서 빠진 활동. 빠진 활동을 누르면 그 기회 자세히가 열린다. */
-export function HowPicked({ open, onClose, onOpen }: { open: boolean; onClose: () => void; onOpen: (p: Program) => void }) {
+/**
+ * 어떻게 골랐나: 거르기 단계별 개수(깔때기)와, 단계를 누르면 거기서 빠진 활동. 빠진 활동을 누르면 그 기회 자세히가 열린다.
+ * reasons = 지금 목록에 실제로 쓴 이유 종류의 이름. 규칙을 다 늘어놓지 않고 쓴 것만 한 줄로 말한다.
+ */
+export function HowPicked({ open, reasons, onClose, onOpen }: { open: boolean; reasons: string[]; onClose: () => void; onOpen: (p: Program) => void }) {
   const { state, view } = useApp();
   const [sel, setSel] = useState<{ step: StepId | null }>({ step: null });
   const f = view.funnel;
@@ -25,6 +28,7 @@ export function HowPicked({ open, onClose, onOpen }: { open: boolean; onClose: (
   return (
     <Modal open={open} size="wide" eyebrow="어떻게 골랐나" title={pickingLine(f)} onClose={onClose} actions={<Button onClick={onClose}>닫기</Button>}>
       <Funnel label="추천을 고른 방법" steps={steps} selectedId={sel.step ?? undefined} onSelect={id => setSel({ step: id as StepId })} empty="이번 주에 모집 중인 활동이 아직 없어요. 다음 주에 다시 볼게요." />
+      {reasons.length > 0 && <p className="rec-muted rec-drops__hint">이유는 {reasons.join(', ')}에서 골랐어요.</p>}
       {sel.step === null ? (
         <p className="rec-muted rec-drops__hint">단계를 누르면 거기서 빠진 활동이 나와요.</p>
       ) : dropped.length === 0 ? (
