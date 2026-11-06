@@ -158,8 +158,8 @@
 .rm-card__title { font-size: var(--text-lg); font-weight: var(--weight-bold); }
 
 /* 기록 지도: 칸 선 없이 학기 흐름 위에 분야별 점·이름. 학기 이름은 위 한 줄 눈금, 같은 분야의 앞뒤 기록은 분야색 선으로 잇는다. */
-/* 분야 줄 사이는 화면이 높으면 조금 넓힌다(낮은 노트북 12px ~ 1080 높이 32px) */
-.rm { display: grid; row-gap: clamp(var(--space-3), 3vh, var(--space-8)); position: relative; }
+/* 분야 줄 사이는 화면이 높으면 조금 넓힌다(낮은 노트북 12px ~ 1080 높이 24px) */
+.rm { display: grid; row-gap: clamp(var(--space-3), calc(3vh - var(--space-2)), var(--space-6)); position: relative; }
 .rm__lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 /* 기록 없는 분야를 모은 한 줄. 분야 이름 열부터 시작한다 */
 .rm__empty { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--space-3); padding-top: var(--space-1); color: var(--ink-subtle); font-size: var(--text-sm); }
