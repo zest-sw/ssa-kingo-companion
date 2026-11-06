@@ -54,6 +54,16 @@ describe('가입 인터뷰', () => {
     expect(saved()).toContain('"interests":["unknown"]');
   });
 
+  it('끝 장면의 주 버튼은 가장 추천의 신청 준비로 바로 가고, Enter 도 같다', () => {
+    click('멘토링'); click('다음'); click('다음'); click('이번 주 활동 보기');
+    location.hash = '';
+    click('신청 준비');
+    expect(location.hash).toMatch(/^#\/recommend\/prepare\/p-/);
+    location.hash = '';
+    enter(el.querySelector('h1')!);
+    expect(location.hash).toMatch(/^#\/recommend\/prepare\/p-/);
+  });
+
   it("'아직 모르겠어요'는 다른 선택을 지우고, 4번째 분야는 고르지 않는다", () => {
     click('개발'); click('AI·데이터'); click('창업·기획'); click('멘토링');
     const on = () => [...el.querySelectorAll('.onb-field[aria-pressed="true"] b')].map(b => b.textContent);
