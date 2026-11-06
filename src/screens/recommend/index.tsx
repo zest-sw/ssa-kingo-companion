@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate, useQuery, withQuery, type ScreenProps } from '../../app/router';
 import { parseRecommendSub } from '../../domain/recommend-flow/flow';
@@ -19,7 +19,7 @@ let pushedOpen = false;
 /**
  * 하위 경로: (없음) = 목록(추천 활동·전체 기회 탭), prepare/<id> = 신청 준비 3단계.
  * 탭·종류 칩·정렬·연 모달은 주소 뒤 ?tab=all&cat=edu&sort=new&open=<기회 id> 에 남는다. 새로고침·공유·뒤로 가기가 같은 화면을 연다.
- * 모달 열기는 기록을 하나 쌓아 뒤로 가기로 닫히고, 탭·칩·정렬은 기록을 바꿔 쓴다. 옛 모달 주소 #/recommend/<id> 는 ?open=<id> 로 옮긴다.
+ * 모달 열기는 기록을 하나 쌓아 뒤로 가기로 닫히고, 탭·칩·정렬은 기록을 바꿔 쓴다. 옛 모달 주소 #/recommend/<id> 는 앱 틀이 ?open=<id> 로 옮긴다(router canonicalPath).
  */
 export default function RecommendScreen({ sub }: ScreenProps) {
   const { view, state, run } = useApp();
@@ -30,11 +30,6 @@ export default function RecommendScreen({ sub }: ScreenProps) {
   const shown = useRef(sel.open);
   if (sel.open) shown.current = sel.open;
   if (!sel.open) pushedOpen = false;
-
-  const oldDetail = route.view === 'detail' ? route.programId : undefined;
-  useEffect(() => {
-    if (oldDetail) navigate(hrefOf({ ...sel, open: oldDetail }), { replace: true });
-  }, [oldDetail]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setSel = (next: RecSel) => navigate(hrefOf(next), { replace: true });
   const openOne = (p: Program) => {
