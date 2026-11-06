@@ -10,6 +10,9 @@
   --act-wk-label-w: 184px;
   --act-wk-row-h: 52px;
   --act-wk-row-max: 104px;
+  /* 이번 주 카드에서 줄 칸을 뺀 높이(카드 여백 + 제목 + 요일 줄). 카드 최대 높이 = 이것 + 줄 수 × 줄 최대 높이 */
+  --act-wk-chrome: calc(var(--card-pad) * 2 + var(--space-12) + var(--space-4));
+  --act-wk-later-h: 32px;
 }
 
 .act-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; align-items: start; }
@@ -81,10 +84,14 @@
   .act-card { padding: var(--space-4); }
 }
 
-/* 내 활동 한눈에: 왼쪽 주인공(이번 주)이 남은 높이를 채우고, 오른쪽 조연 열(할 일 · 회고 대기)의 아래 끝을 맞춘다 */
-.act-sum { grid-template-columns: minmax(0, 1fr) var(--act-side-w); }
-.act-side { display: flex; flex-direction: column; gap: var(--os-gap); min-height: 0; }
-.act-side > .act-retro { flex: 1; }
+/* 내 활동 한눈에: 왼쪽 주인공(이번 주)이 남은 높이를 쓰되 줄 수만큼에서 멈춘다. 오른쪽 조연 열(할 일 · 회고 대기)은 내용 높이.
+   높은 창에서 남는 높이는 카드 밖 바탕으로 둔다(빈 카드로 늘리지 않는다) */
+.act-sum { grid-template-columns: minmax(0, 1fr) var(--act-side-w); align-items: start; }
+.act-sum > .act-week { align-self: stretch; max-height: calc(var(--act-wk-chrome) + var(--act-wk-rows, 1) * var(--act-wk-row-max)); }
+.act-sum > .act-week:has(.act-week__later) { max-height: calc(var(--act-wk-chrome) + var(--act-wk-later-h) + var(--act-wk-rows, 1) * var(--act-wk-row-max)); }
+/* 첫 사용: 줄이 없으니 옅은 틀 여섯 줄 높이에서 멈춘다(안내 한 줄 + 버튼이 셋째 줄 아래에 놓인다) */
+.act-sum[data-empty] > .act-week { max-height: calc(var(--act-wk-chrome) + 6 * var(--act-wk-row-h)); }
+.act-side { display: flex; flex-direction: column; gap: var(--os-gap); min-height: 0; max-height: 100%; }
 .act-week .ui-card__action { gap: var(--space-2); }
 .act-week__later { margin: var(--space-3) 0 0; color: var(--ink-muted); font-size: var(--text-sm); }
 
