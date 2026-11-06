@@ -155,9 +155,6 @@
 .an-dpic__label { fill: var(--ink); font-size: var(--text-xs); }
 .an-dpic__more { fill: var(--ink-subtle); font-size: var(--text-xs); }
 .an-dpic__name { fill: var(--ink-strong); font-size: var(--text-xs); font-weight: var(--weight-bold); }
-.an-sdots { display: inline-flex; align-items: center; gap: var(--space-2); }
-.an-sdots__set { display: inline-flex; gap: var(--space-1); }
-.an-sdots__n { color: var(--ink-muted); font-size: var(--text-sm); font-weight: var(--weight-regular); white-space: nowrap; }
 /* 기회 목록: 카드 안에 카드를 두지 않고 줄 사이 1px 선으로 나눈 행(K11) */
 .an-chances { display: flex; flex-direction: column; border-top: var(--border); }
 .an-chances > li { border-bottom: var(--border); }
@@ -172,7 +169,7 @@
 .an-sd { display: flex; flex-direction: column; gap: var(--space-2); }
 .an-sd .an-sub { margin-top: var(--space-4); }
 .an-sd section:first-child .an-sub { margin-top: 0; }
-.an-sd__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.an-sd__count { margin-bottom: var(--space-3); }
 .an-sd__list { display: flex; flex-direction: column; }
 .an-sd__ev { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: var(--space-3); padding: var(--space-3) 0; border-top: var(--border); }
 .an-sd__ev > .ui-dot { margin-top: var(--space-1); }

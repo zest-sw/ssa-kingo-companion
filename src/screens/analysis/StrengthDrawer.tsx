@@ -4,7 +4,8 @@ import { answerAxis, chancesFor, usableSentences, whenOf, type Strength } from '
 import { semesterLabel } from '../../domain/analysis/semester';
 import type { Program, RecordItem } from '../../domain/types';
 import { GROUP_LABEL } from '../../domain/vocab';
-import { ChanceList, EvidenceDots, WhenPic } from './StrengthParts';
+import { EvidenceBar } from './EvidenceBar';
+import { ChanceList, WhenPic } from './StrengthParts';
 
 type Props = { strength?: Strength; records: RecordItem[]; programs: Program[]; onClose: () => void };
 
@@ -26,7 +27,9 @@ export function StrengthDrawer({ strength, records, programs, onClose }: Props) 
       {s && (
         <div className="an-sd">
           <section aria-labelledby="an-sd-ev">
-            <h3 id="an-sd-ev" className="an-sub an-sd__head">근거가 된 기록 <EvidenceDots strength={s} /></h3>
+            <h3 id="an-sd-ev" className="an-sub">근거가 된 기록</h3>
+            {/* 수는 분석 화면과 같은 두 겹 얇은 막대(확인 / AI 추정) 한 줄. 점을 늘어놓으면 별점처럼 읽힌다 */}
+            <div className="an-rcount an-sd__count"><EvidenceBar confirmed={s.confirmed} total={s.evidence.length} /></div>
             {s.evidence.length === 0 ? <p className="an-muted">근거를 모두 뺐어요. 회고를 더 쓰면 다시 모여요.</p> : (
               <ul className="an-sd__list">
                 {s.evidence.map(e => (
