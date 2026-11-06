@@ -11,7 +11,7 @@ export function AboutSection() {
   const toast = useToast();
   const [ask, setAsk] = useState(false);
   const [askMode, setAskMode] = useState(false);
-  const reset = () => { resetAll(); setAsk(false); navigate('home'); toast('처음부터 다시 시작해요. 가입 인터뷰부터 해 볼까요?'); };
+  const reset = () => { resetAll(); setAsk(false); navigate('home'); toast('처음부터 다시 시작해요'); };
   // 지금 상태를 예시로 덮기 전에 한 번 묻는다. 무엇이 사라지는지 말한다.
   const mine = state.demo ? 0 : state.activities.length + state.records.length;
   const overwrite = state.demo
@@ -20,12 +20,12 @@ export function AboutSection() {
   const toExample = () => {
     setAskMode(false);
     run({ type: 'data/mode', demo: true });
-    toast('예시 학생으로 보고 있어요. 3년 동안 쌓인 활동·기록이에요.');
+    toast('예시 학생으로 바꿨어요. 3년 치 활동과 기록이 있어요');
   };
   return (
     <div className="st-stack">
       <Card className="st-card">
-        <Group title="킹고 컴패니언 데스크톱 웹 프로토타입">
+        <Group title="이 프로토타입은">
           <ul className="st-about">
             {ABOUT_LINES.map(line => <li key={line}>{line}</li>)}
           </ul>
@@ -37,7 +37,7 @@ export function AboutSection() {
         </Group>
         <Group title="이 브라우저에 남긴 것">
           <ul className="st-rows">
-            <Row title="예시 학생으로 보기" sub={state.demo ? '지금 예시 학생으로 보는 중이에요. 누르면 처음 예시로 돌아가요' : '소프트웨어학과 3학년 예시 학생의 3년 치 활동·기록으로 바꿔요'}>
+            <Row title="예시 학생으로 보기" sub={state.demo ? '지금 예시 학생으로 보고 있어요. 누르면 처음 예시로 돌아가요' : '소프트웨어학과 3학년 예시 학생의 3년 치 기록으로 바꿔요'}>
               <Button onClick={() => setAskMode(true)}>예시 학생으로 보기</Button>
             </Row>
             <Row title="처음부터 다시(새 학생)" sub="프로필, 고른 것, 초안, 설정을 지우고 가입 인터뷰부터 다시 해요">
@@ -48,17 +48,17 @@ export function AboutSection() {
       </Card>
       <Modal
         open={ask}
-        title="처음부터 다시 할까요?"
+        title="처음부터 다시 시작해요"
         onClose={() => setAsk(false)}
-        actions={<><Button onClick={() => setAsk(false)}>취소</Button><Button variant="primary" onClick={reset}>다시 하기</Button></>}
+        actions={<><Button onClick={() => setAsk(false)}>취소</Button><Button variant="primary" onClick={reset}>다시 시작</Button></>}
       >
-        이 브라우저에 남긴 프로필, 고른 것, 초안, 설정도 지워져요.
+        이 브라우저에 남긴 프로필, 고른 것, 초안, 설정이 지워져요.
       </Modal>
       <Modal
         open={askMode}
-        title="예시 학생으로 볼까요?"
+        title="예시 학생으로 바꿔요"
         onClose={() => setAskMode(false)}
-        actions={<><Button onClick={() => setAskMode(false)}>취소</Button><Button variant="primary" onClick={toExample}>예시 학생으로 보기</Button></>}
+        actions={<><Button onClick={() => setAskMode(false)}>취소</Button><Button variant="primary" onClick={toExample}>바꾸기</Button></>}
       >
         {overwrite}
       </Modal>
