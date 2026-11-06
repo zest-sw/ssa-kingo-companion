@@ -17,7 +17,8 @@ import { ReasonTrace } from './ReasonTrace';
 import { useBasis } from './useBasis';
 
 /**
- * 기회 자세히(가운데 모달): 머리(종류·제목·주최·D-n), 하는 일, 사실 4칸, 얻는 것 전부, 에이전트가 확인한 것, 추천이면 왜 추천했나.
+ * 기회 자세히(가운데 모달): 머리는 이름과 D-n 만. 몸통은 하는 일, 정의 목록(종류·주최, 마감, 기간, 방식, 준비물), 얻는 것 전부, 에이전트가 확인한 것, 추천이면 왜 추천했나.
+ * 분류·주최를 머리 배지 줄로 올리지 않는다(v2.9 비평 P1-7: 배지 줄은 장식처럼 읽힌다).
  * 행동은 아래 한 줄: 신청 준비(주) / 나중에 보기 / 관심 없음. 신청 준비는 3단계 화면으로 옮겨 간다.
  */
 export function OppModal({ open = true, programId, actions, onClose }: { open?: boolean; programId: string; actions: CardActions; onClose: () => void }) {
