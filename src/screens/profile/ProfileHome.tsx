@@ -40,7 +40,7 @@ export function ProfileHome() {
                 {links.map(l => (
                   <li key={l.to}>
                     <a className="pf-link" href={hrefOf(l.to)}>
-                      <Icon name={l.icon} size={18} />
+                      <Icon name={l.icon} />
                       <span className="pf-link__title">{l.title}</span>
                       <span className="pf-link__keyword num">{l.count}</span>
                       <Icon name="chevron" size={16} />

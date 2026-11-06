@@ -4,7 +4,7 @@ import { Icon, type IconName } from '../../components';
 export function Fact({ icon, label, value, sub, accent }: { icon: IconName; label: string; value: string; sub?: string; accent?: boolean }) {
   return (
     <div className="rec-fact">
-      <span className="rec-fact__icon"><Icon name={icon} size={18} /></span>
+      <span className="rec-fact__icon"><Icon name={icon} /></span>
       <dl>
         <dt>{label}</dt>
         <dd className={accent ? 'rec-fact__val rec-fact__val--near num' : 'rec-fact__val num'}>{value}</dd>

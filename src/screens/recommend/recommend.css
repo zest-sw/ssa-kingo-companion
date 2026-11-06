@@ -35,7 +35,8 @@
 .rec-dialog__sub { margin: var(--space-2) 0 var(--space-4); color: var(--ink-muted); }
 .rec-reasons { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
 .rec-reason { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); width: 100%; min-height: var(--rec-reason-height); padding: var(--space-3) var(--space-4); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-md); background: var(--surface); text-align: left; }
-.rec-reason:hover { background: var(--surface-alt); }
+.rec-reason:hover { background: var(--surface-hover); }
+.rec-reason:active { background: var(--surface-press); }
 .rec-reason span { font-size: var(--text-sm); color: var(--ink-muted); }
 .rec-later { display: flex; flex-direction: column; }
 .rec-later__item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-4) 0; border-bottom: var(--border); }
