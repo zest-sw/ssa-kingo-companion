@@ -1,17 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { frameOf } from './sizes';
+import { isFlowRoute } from './sizes';
 
-describe('frameOf', () => {
-  it('카드 화면은 최대 폭, 흐름 화면은 가운데 한 칸, 그림 화면은 전체 폭', () => {
-    expect(frameOf({ name: 'home' })).toBe('cap');
-    expect(frameOf({ name: 'recommend' })).toBe('cap');
-    expect(frameOf({ name: 'profile', sub: 'friends' })).toBe('cap');
-    expect(frameOf({ name: 'settings', sub: 'visibility' })).toBe('cap');
-    expect(frameOf({ name: 'recommend', sub: 'prepare/p-interview' })).toBe('flow');
-    expect(frameOf({ name: 'activities', sub: 'records/interview' })).toBe('flow');
-    expect(frameOf({ name: 'activities', sub: 'records/interview/a-hackathon' })).toBe('flow');
-    expect(frameOf({ name: 'activities' })).toBe('full');
-    expect(frameOf({ name: 'activities', sub: 'records' })).toBe('full');
-    expect(frameOf({ name: 'analysis', sub: 'map' })).toBe('full');
+describe('isFlowRoute', () => {
+  it('신청 준비와 회고 인터뷰만 흐름 화면', () => {
+    expect(isFlowRoute({ name: 'recommend', sub: 'prepare/p-interview' })).toBe(true);
+    expect(isFlowRoute({ name: 'activities', sub: 'records/interview' })).toBe(true);
+    expect(isFlowRoute({ name: 'activities', sub: 'records/interview/a-hackathon' })).toBe(true);
+    expect(isFlowRoute({ name: 'recommend' })).toBe(false);
+    expect(isFlowRoute({ name: 'activities', sub: 'records' })).toBe(false);
+    expect(isFlowRoute({ name: 'analysis', sub: 'map' })).toBe(false);
+    expect(isFlowRoute({ name: 'home' })).toBe(false);
   });
 });
