@@ -25,12 +25,17 @@ export function inventoryOf(records: RecordItem[], achieved: number): Inventory 
 export const WEEK_DAYS = 6;
 
 export type WeekTaskKind = 'deadline' | 'review' | 'meet';
-/** when = 줄 오른쪽 짧은 때('오늘 18:00', 'D-5', '10월 11일 끝남'), label = 줄 전체의 접근성 이름(누르면 하는 일까지) */
-export type WeekTask = { id: string; kind: WeekTaskKind; title: string; when: string; urgent?: boolean; label: string; target: TodayTarget };
+/**
+ * when = 줄 오른쪽 짧은 때('오늘 18:00', 'D-5', '10월 11일 끝남'), label = 줄 전체의 접근성 이름(누르면 하는 일까지).
+ * what = 마감 줄에서 무엇의 마감인지('사전 설문', '신청'). 활동마다 마감이 신청서만은 아니다
+ */
+export type WeekTask = { id: string; kind: WeekTaskKind; title: string; when: string; what?: string; urgent?: boolean; label: string; target: TodayTarget };
 export type WeekGroup = { kind: WeekTaskKind; tasks: WeekTask[] };
 
 const clock = (s?: string) => /(\d{1,2}:\d{2})/.exec(s ?? '')?.[1];
-const dayWord = (d: number, at?: string) => [d === 0 ? '오늘' : d === 1 ? '내일' : `${d}일 뒤`, at].filter(Boolean).join(' ');
+/** '사전 설문 마감 18:00' → '사전 설문', '신청 마감' → '신청' */
+export const dueWhat = (label: string) => label.replace(/\d{1,2}:\d{2}/, '').replace('마감', '').trim() || undefined;
+const dayWord =(d: number, at?: string) => [d === 0 ? '오늘' : d === 1 ? '내일' : `${d}일 뒤`, at].filter(Boolean).join(' ');
 
 /**
  * 오늘의 퀘스트: 이번 주 할 일을 종류별로 묶는다. 순서는 신청 마감(지나면 끝) → 회고 → 모임.
@@ -45,7 +50,7 @@ export function weekTasks(activities: Activity[], week: number): WeekGroup[] {
       const d = a.due!.dday;
       const when = d <= 1 ? dayWord(d, clock(a.due!.label)) : ddayText(d);
       return {
-        id: `due:${a.id}`, kind: 'deadline', title: a.title, when, urgent: d <= 1, label: `${a.title} 신청 준비, ${a.due!.label} ${when}`,
+        id: `due:${a.id}`, kind: 'deadline', title: a.title, when, what: dueWhat(a.due!.label), urgent: d <= 1, label: `${a.title} 신청 준비, ${a.due!.label} ${when}`,
         target: a.programId ? { path: prepareHref(a.programId) } : { kind: 'activity', id: a.id }
       };
     });
