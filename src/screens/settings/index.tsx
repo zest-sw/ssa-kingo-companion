@@ -8,6 +8,7 @@ import { NotifySection } from './NotifySection';
 import { ProfileSection } from './ProfileSection';
 import { VisibilitySection } from './VisibilitySection';
 import './settings.css';
+import '../sizes.css';
 
 const BODY: Record<SettingsSection, () => ReactNode> = {
   profile: () => <ProfileSection />,
@@ -21,7 +22,7 @@ const BODY: Record<SettingsSection, () => ReactNode> = {
 export default function SettingsScreen({ sub }: ScreenProps) {
   const current = SETTINGS_NAV.find(n => n.id === sub) ?? SETTINGS_NAV[0];
   return (
-    <div className="os">
+    <div className="os" data-width="cap">
       <PageHeader eyebrow="설정" title={current.label} />
       <div className="os__body os__body--fill st-layout">
         <nav className="st-nav" aria-label="설정 메뉴">

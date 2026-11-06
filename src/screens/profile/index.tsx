@@ -10,6 +10,7 @@ import { HallView } from './HallView';
 import { ProfileHome } from './ProfileHome';
 import { RecruitView } from './RecruitView';
 import './challenges.css';
+import '../sizes.css';
 import './friends.css';
 import './profile.css';
 
@@ -51,7 +52,7 @@ export default function ProfileScreen({ sub }: ScreenProps) {
     : <HallView />;
 
   return (
-    <div className="os">
+    <div className="os" data-width="cap">
       <PageHeader parent={current === 'hall' ? HALL_EXIT : parentLink('profile')} crumb={TITLE[current]} title={TITLE[current]} />
       <div className="os__body pf-sub">{body}</div>
     </div>

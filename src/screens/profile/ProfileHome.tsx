@@ -29,7 +29,7 @@ export function ProfileHome() {
   ];
 
   return (
-    <div className="os">
+    <div className="os" data-width="cap">
       <PageHeader title={PROFILE.label} />
       <div className="os__body pf-cols">
         <PreviewCard />

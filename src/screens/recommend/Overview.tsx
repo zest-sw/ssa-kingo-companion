@@ -78,7 +78,7 @@ export function Overview({ sel, onSel, onOpen, onPrepare, onPanel, onClosePanel 
   }
 
   return (
-    <div className="os">
+    <div className="os" data-width="cap">
       <PageHeader
         title="추천"
         actions={view.later.length > 0 ? <Button variant="ghost" onClick={() => onPanel('later')}>나중에 보기 <Badge>{view.later.length}</Badge></Button> : undefined}

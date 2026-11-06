@@ -12,6 +12,7 @@ import { Plaza } from './Plaza';
 import { StatusCard } from './StatusCard';
 import { TodayList } from './TodayList';
 import './home.css';
+import '../sizes.css';
 
 /**
  * 홈은 층 셋 + 광장. 위: 내 상태(낮은 띠). 아래 왼쪽: 제안(다음 한 걸음)과 광장. 아래 오른쪽: 할 일(오늘의 퀘스트).
@@ -41,7 +42,7 @@ export default function HomeScreen(_props: ScreenProps) {
   }
 
   return (
-    <div className="os">
+    <div className="os" data-width="cap">
       <PageHeader title="홈" />
       <div className="os__body home-grid" data-new={state.records.length === 0 || undefined}>
         <StatusCard />

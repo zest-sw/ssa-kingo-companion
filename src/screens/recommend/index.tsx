@@ -11,6 +11,7 @@ import { PrepareView } from './PrepareView';
 import { useTriage } from './useTriage';
 import './OppEntity';
 import './recommend.css';
+import '../sizes.css';
 
 const hrefOf = (sel: RecSel) => withQuery('recommend', recQuery(sel));
 // 이 화면에서 모달·서랍을 열며 기록을 하나 쌓았는지. 그랬다면 닫기는 뒤로 가기와 같다(기록이 연 수만큼 쌓이지 않게).
