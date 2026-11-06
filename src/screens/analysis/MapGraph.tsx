@@ -5,6 +5,7 @@ import { GRAPH_METRICS as M, hullExit, keywordLine, layoutGraph, nameSize, textW
 import {
   centerOn, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, nodeBrief, nodeInv, pinLayout, scaleBoxes, textInv, toScreen, zoomDetail, ZOOM, type View
 } from '../../domain/analysis/graphView';
+import { memoRecent } from '../../domain/memo';
 import { usePictureKeys } from './usePictureKeys';
 
 /** 두 번 누르거나 Enter: 활동은 기록 서랍, 역량은 근거 서랍, 이어짐 선은 맞는지 답하기 */
@@ -23,6 +24,8 @@ const FIT_PAD = 12;
 /** 묶음으로 맞출 때 확대 상한. 묶음과 그 묶음이 잇는 역량을 함께 맞추고, 그래도 너무 키우지 않는다 */
 const CLUSTER_MAX_K = 1.6;
 const NO_PINS: Record<string, Pt> = {};
+// 그래프 배치는 같은 그래프·같은 크기면 다시 하지 않는다(탭을 오가거나 다시 열 때).
+const layoutOf = memoRecent(layoutGraph);
 
 /** 칸의 폭·높이를 따라간다. 그래프 배치가 칸 크기에 맞춰 다시 계산된다. */
 function useBox(fallback = { w: 720, h: 480 }) {
@@ -59,7 +62,7 @@ const isPicked = (s: GraphFocus | null, nodeId: string) => !!s && ((s.kind === '
 export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
   const [ref, box] = useBox();
   const W = Math.max(320, Math.floor(box.w) - TOOL_W), H = Math.max(280, Math.floor(box.h));
-  const base = useMemo(() => layoutGraph(graph, W, H), [graph, W, H]);
+  const base = layoutOf(graph, W, H);
   const [pinned, setPinned] = useState<{ of: GraphLayout; pins: Record<string, Pt> }>({ of: base, pins: NO_PINS });
   const pins = pinned.of === base ? pinned.pins : NO_PINS;
   const layout = useMemo(() => pinLayout(base, graph, pins), [base, graph, pins]);
