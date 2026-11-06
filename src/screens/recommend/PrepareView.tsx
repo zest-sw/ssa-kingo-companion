@@ -55,7 +55,7 @@ export function PrepareView({ programId }: { programId: string }) {
 
   useEffect(() => {
     if (!p) return;
-    setDraft({ status: 'writing' });
+    setDraft(d => (d.status === 'ready' ? { status: 'writing', draft: d.draft } : { status: 'writing' }));
     const t = window.setTimeout(() => {
       try {
         const at = nowLabel();
@@ -173,7 +173,7 @@ export function PrepareView({ programId }: { programId: string }) {
               />
             )}
             {step === 'draft' && <DraftStep draft={draft} team={needsTeam(p)} revised={revisedAt.length > 0 || revisions.length > 0} revising={revisions.length > 0} onRetry={() => setAttempt(attempt + 1)} />}
-            {step === 'apply' && <ApplyStep title={p.title} left={left.map(i => i.label)} draftReady={draftReady} dueText={dueText} reason={reason} sent={sent} onBack={() => go('todo')} />}
+            {step === 'apply' && <ApplyStep title={p.title} left={left.map(i => i.label)} draftReady={draftReady} reason={reason} sent={sent} onBack={() => go('todo')} />}
           </div>
         </Panel>
       </div>
