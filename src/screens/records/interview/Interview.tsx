@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PageHeader } from '../../../components';
 import { navigate, parentLink } from '../../../app/router';
+import { useStepInUrl } from '../../../app/stepUrl';
 import { useApp } from '../../../app/AppState';
 import { factsOf } from '../../../data/activities';
 import { CURRENT_TERM } from '../../../data/records';
@@ -22,6 +23,10 @@ type Done = { card: RecordCard; changes: ChangeLine[]; target: 'analysis' | 'ana
 const DRAFT_MS = 400;
 /** 저장이 비동기로 보이는 시간. 버튼 글자만 바뀌고 화면 모양은 그대로다 */
 const SAVE_MS = 600;
+/** 주소에 쓰는 단계 이름: 질문은 1부터, 그다음 preview (?step=2) */
+const STEP_KEYS = [...QUESTIONS.map((_, i) => String(i + 1)), 'preview'];
+const keyOf = (s: FlowStep) => (s === 'preview' ? 'preview' : String(s + 1));
+const stepOf = (k: string): FlowStep => (k === 'preview' ? 'preview' : Number(k) - 1);
 
 /**
  * 회고 인터뷰(흐름 화면): 질문 넷을 한 화면에 하나씩 → 경험 카드 미리보기 → 저장 → 끝 장면.
@@ -61,6 +66,13 @@ export function Interview({ activity }: { activity: Activity }) {
   useEffect(() => () => { window.clearTimeout(saveTimer.current); flush(); }, []);
 
   const go = (to: FlowStep, d: 'fwd' | 'back') => { setDir(d); setStep(to); };
+  // 단계는 주소(?step=)에도 남아 뒤로 가기가 앞 질문으로 간다. 저장을 마친 뒤의 뒤로 가기는 기록 목록으로.
+  useStepInUrl(keyOf(step), STEP_KEYS, k => {
+    if (phase === 'done') { navigate('activities/records', { replace: true }); return; }
+    const to = stepOf(k);
+    setReturning(false);
+    go(to, to === 'preview' || (step !== 'preview' && to > step) ? 'fwd' : 'back');
+  });
   const next = () => {
     if (returning) { setReturning(false); go('preview', 'fwd'); return; }
     go(nextStep(step), 'fwd');
