@@ -36,7 +36,7 @@ describe('새로고침 뒤에도 남는 것', () => {
   });
 
   it('회고 대기 활동의 초안과 분석 답이 남는다', () => {
-    const draft = { messages: [], interview: { card: {}, step: 'situation' as const, followedUp: [] }, visibility: 'me' as const, useForRecommend: true, confirmed: [] };
+    const draft = { interview: { card: {}, step: 'situation' as const }, visibility: 'me' as const, useForRecommend: true };
     const s = play([
       { type: 'draft/save', activityId: 'a-hackathon', draft },
       { type: 'analysis/answers', answers: { 'e1~e2': 'yes' } }
