@@ -51,6 +51,9 @@
 .pf-track__next { display: flex; flex-direction: column; gap: 2px; }
 .pf-track__next b { font-weight: var(--weight-bold); }
 .pf-track__next span { color: var(--ink-muted); font-size: var(--text-sm); }
+/* 그다음 과제: 다음 과제보다 한 단계 물러난다(이름도 보통 굵기) */
+.pf-track__later { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-3); border-top: var(--border); }
+.pf-track__later b { font-weight: var(--weight-medium); color: var(--ink-muted); }
 
 /* 이 활동을 해 본 친구·선배: 이름을 누르면 서랍 */
 .fr-doneby__people { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-1); }
