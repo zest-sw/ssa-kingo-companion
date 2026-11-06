@@ -2,34 +2,37 @@
 :root {
   --onb-w: 720px;
   /* 질문 칸 높이: 가장 긴 질문(관심 분야 카드 세 줄)에 맞춘다. 세 화면 모두 주 버튼이 같은 자리에 오게 */
-  --onb-stage-h: 320px;
+  --onb-stage-h: 352px;
   --onb-card-h: 64px;
   --onb-seg-h: calc(var(--bar-h) / 2);
   /* 넘김 거리: 열고 닫을 때(--enter-shift)보다 조금 길게. 움직임 줄이기면 0 */
   --onb-shift: calc(var(--enter-shift) * 3);
+  /* 들어올 때 처음부터 반쯤 보이게: 내용이 먼저 보이고 움직임은 뒤따른다(토스뱅크 「방해하지 않고, 눈에 띌 수 있을까」) */
+  --onb-from-opacity: 0.4;
 }
 @media (max-height: 759px) {
-  :root { --onb-stage-h: 300px; --onb-card-h: 56px; }
+  :root { --onb-stage-h: 336px; --onb-card-h: 56px; }
 }
 
 /* 화면 가운데(가로·세로)에 한 덩어리. 위 막대 → 질문 칸(높이 고정) → 버튼 줄 */
 .home-onbwrap { align-content: center; justify-items: center; grid-template-rows: none; }
 .onb { width: 100%; max-width: var(--onb-w); display: flex; flex-direction: column; gap: var(--space-8); }
 
-.onb__bar { display: flex; align-items: center; gap: var(--space-6); }
+.onb__bar { display: flex; align-items: center; gap: var(--space-6); min-height: var(--hit-min); }
 .onb__progress { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1); }
 .onb__seg { height: var(--onb-seg-h); border-radius: var(--radius-xs); background: var(--bg-sunken); transition: background var(--dur-base) var(--ease-out); }
 .onb__seg[data-on] { background: var(--primary); }
 
-.onb__stage { min-height: var(--onb-stage-h); display: flex; flex-direction: column; }
+.onb__stage { height: var(--onb-stage-h); display: flex; flex-direction: column; }
 .onb__stage[data-dir] { animation: onb-in var(--dur-base) var(--ease-out); }
 .onb__stage[data-dir='back'] { --onb-from: calc(-1 * var(--onb-shift)); }
 /* 다음: 새 질문이 오른쪽에서 들어와 왼쪽으로 멈춘다. 이전: 반대. 빠르게 시작해 부드럽게 감속(--ease-out) */
-@keyframes onb-in { from { transform: translateX(var(--onb-from, var(--onb-shift))); opacity: 0; } }
+@keyframes onb-in { from { transform: translateX(var(--onb-from, var(--onb-shift))); opacity: var(--onb-from-opacity); } }
 
 .onb__lead { margin-bottom: var(--space-2); font-size: var(--text-sm); color: var(--ink-muted); }
 .onb__q { font-size: var(--fs-page); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
-.onb__q:focus { outline: none; }
+/* 제목은 단계가 바뀔 때 읽기 시작점으로만 포커스를 받는다(누르는 것이 아니라 링을 그리지 않는다) */
+.onb__q:focus-visible { box-shadow: none; }
 .onb__why { margin-top: var(--space-2); color: var(--ink-muted); }
 .onb__body { margin-top: var(--space-6); }
 
@@ -77,7 +80,11 @@
   padding: var(--space-5) var(--space-6); border: var(--border); border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--home-lift);
   animation: onb-rise var(--dur-base) var(--ease-out);
 }
-@keyframes onb-rise { from { transform: translateY(var(--onb-shift)); opacity: 0; } }
+@keyframes onb-rise { from { transform: translateY(var(--onb-shift)); opacity: var(--onb-from-opacity); } }
+/* 움직임 줄이기: 넘김·올라옴 없이 바로 바꾼다(빈 한 프레임도 없게) */
+@media (prefers-reduced-motion: reduce) {
+  .onb__stage[data-dir], .onb-pick { animation: none; }
+}
 .onb-pick__label { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--primary); }
 .onb-pick__title { font-size: var(--fs-lead); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
 .onb-pick__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-top: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }

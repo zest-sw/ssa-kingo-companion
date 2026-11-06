@@ -20,7 +20,7 @@ export function InterestStep({ value, onChange, labelledBy }: { value: Interest[
         return (
           <button
             key={o.id} type="button" className="onb-field" data-unknown={o.id === 'unknown' || undefined}
-            aria-pressed={on} aria-disabled={blocked || undefined} aria-describedby={`onb-f-${o.id}`}
+            aria-label={o.label} aria-pressed={on} aria-disabled={blocked || undefined} aria-describedby={`onb-f-${o.id}`}
             onClick={() => { if (!blocked) onChange(toggleInterest(value, o.id)); }}
           >
             <b>{o.label}</b>

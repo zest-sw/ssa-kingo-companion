@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
 import { useApp } from '../../../app/AppState';
 import { Button, FieldTag } from '../../../components';
-import { onboardingResult } from '../../../domain/onboarding';
+import { ONB_STEPS, onboardingResult } from '../../../domain/onboarding';
 import { ddayOf } from '../../../domain/recommend';
 import { ddayText } from '../../../domain/text';
 
@@ -26,6 +26,12 @@ export function OnboardingResult({ onHome }: { onHome: () => void }) {
 
   return (
     <div className="onb onb--done" onKeyDown={onKey}>
+      {/* 세 칸이 다 찬 막대: 끝났다는 표시이자, 버튼 자리를 질문 화면과 같게 지키는 머리 */}
+      <div className="onb__bar">
+        <div className="onb__progress" role="progressbar" aria-label="가입 인터뷰" aria-valuemin={1} aria-valuemax={ONB_STEPS.length} aria-valuenow={ONB_STEPS.length} aria-valuetext="끝났어요">
+          {ONB_STEPS.map(s => <span key={s} className="onb__seg" data-on />)}
+        </div>
+      </div>
       <section className="onb__stage" aria-labelledby="onb-done">
         <h1 id="onb-done" ref={head} tabIndex={-1} className="onb__q" data-page-title>
           {r.count > 0 ? `이번 주 추천 ${r.count}개를 골랐어요` : '이번 주에 맞는 활동을 아직 못 찾았어요'}
