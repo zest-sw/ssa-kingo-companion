@@ -48,3 +48,13 @@ it('관심 없음으로 뺀 기회는 토스트가 지난 뒤에도 모달에서
   act(() => { back.click(); });
   expect(choice).toBeUndefined();
 });
+
+it('머리에는 이름과 D-n 만 두고, 분류·주최는 정의 목록 첫 줄로 내린다', () => {
+  mount(false);
+  const head = document.querySelector('.ui-modal__head') as HTMLElement;
+  expect(head.querySelector('.ui-modal__eyebrow, .ui-badge, .ui-chip')).toBeNull();
+  const title = head.querySelector('h2')?.textContent ?? '';
+  expect(title.startsWith(p.title)).toBe(true);
+  expect(title.slice(p.title.length)).toMatch(/^D/);
+  expect(document.querySelector('.rec-dl dt')?.textContent).toBe('종류');
+});

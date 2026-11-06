@@ -5,6 +5,7 @@
  * 1) 첫 덩어리: index.html 이 처음 받는 JS·CSS 크기(gzip)
  * 2) 홈 첫 그림: 새로 연 탭에서 홈 본문(.app-main > .os)이 붙을 때까지(ms). 학생 두 상태 × 네트워크(제한 없음, Fast 3G) × runs 번 평균
  * 3) 처음 가는 화면: 사이드바로 추천 → 내 활동 → 나의 분석 → 경험 지도 → 프로필. 뼈대가 보였는지, 누른 뒤 실제 화면까지(ms)
+ * 4) --skeleton: 위 대신 경로마다 뼈대와 실제 화면 모양을 견준다(skeleton.mjs). --out 스크린샷 자리(기본 .qa/cap/skeleton)
  * 글꼴 CDN(Pretendard)은 막는다. 바깥 네트워크 흔들림이 숫자에 섞이지 않게.
  */
 import { createReadStream, existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
@@ -12,6 +13,7 @@ import { createServer } from 'node:http';
 import { extname, join, resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { chromium } from 'playwright';
+import { skeletonShapes } from './skeleton.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((o, a, i, l) => (a.startsWith('--') ? [...o, [a.slice(2), l[i + 1]]] : o), []));
 const DIST = resolve(args.dist ?? 'dist');
@@ -141,9 +143,16 @@ async function firstVisits(browser, store, net, waitIdle) {
 const avg = xs => Math.round(xs.reduce((a, b) => a + b, 0) / xs.length);
 
 async function main() {
-  const size = firstLoad();
   const server = await serve();
   const browser = await chromium.launch();
+  if ('skeleton' in args) {
+    try {
+      const stores = { new: await makeStore(browser, 'new'), example: await makeStore(browser, 'example') };
+      console.log(JSON.stringify(await skeletonShapes(browser, stores, { BASE, DIST, OUT: resolve(args.out ?? '.qa/cap/skeleton') }), null, 2));
+    } finally { await browser.close(); server.close(); }
+    return;
+  }
+  const size = firstLoad();
   const result = { label: LABEL, size, home: {}, visits: {}, errors: [] };
   try {
     const stores = { new: await makeStore(browser, 'new'), example: await makeStore(browser, 'example') };
