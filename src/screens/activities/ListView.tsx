@@ -1,4 +1,4 @@
-import { Badge, Button, Card, EmptyState, FieldTag } from '../../components';
+import { Badge, Button, EmptyState, FieldTag } from '../../components';
 import { navigate } from '../../app/router';
 import type { Activity } from '../../domain/types';
 import { StatusBadge } from './ActivityCard';
@@ -14,14 +14,14 @@ function DueCell({ due }: { due: Activity['due'] }) {
   return v.kind === 'today' ? <><Badge tone="solid-orange">오늘</Badge> {v.label}</> : <>{v.text}</>;
 }
 
-/** 목록 보기: 보드와 같은 세 칸으로 묶고 칸 안은 날짜 순. 활동이 많아도 머리 줄은 두고 표 안에서만 스크롤한다. */
+/** 목록 보기: 보드와 같은 세 칸으로 묶고 칸 안은 날짜 순. 일정 카드 안에 놓이고, 활동이 많아도 머리 줄은 두고 표 안에서만 스크롤한다. */
 export function ListView({ activities, onOpen }: { activities: Activity[]; onOpen: (id: string) => void }) {
   if (activities.length === 0) {
-    return <Card><EmptyState icon="board" message="추천에서 신청 준비를 누르면 여기에 생겨요." action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>} /></Card>;
+    return <EmptyState icon="board" message="추천에서 신청 준비를 누르면 여기에 생겨요." action={<Button size="sm" variant="primary" onClick={() => navigate('recommend')}>추천에서 활동 고르기</Button>} />;
   }
   return (
-    <Card padding="md" className="os-card">
-      <div className="os-scroll"><table className="act-table">
+    <div className="os-scroll">
+      <table className="act-table">
         <caption className="sr-only">내 활동 목록, 할 것·하는 중·끝난 것 순서, 칸 안은 날짜 순</caption>
         <thead>
           <tr>
@@ -43,7 +43,7 @@ export function ListView({ activities, onOpen }: { activities: Activity[]; onOpe
             ))}
           </tbody>
         ))}
-      </table></div>
-    </Card>
+      </table>
+    </div>
   );
 }
