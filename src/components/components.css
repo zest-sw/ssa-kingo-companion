@@ -253,7 +253,8 @@
 .ui-drawer__body :focus-visible, .ui-modal--wide .ui-modal__body :focus-visible { box-shadow: var(--focus-ring-inset); }
 
 /* Toast */
-.ui-toast-region { position: fixed; left: 50%; bottom: var(--space-6); transform: translateX(-50%); z-index: var(--z-toast); }
+/* 아래 여백은 보통 24px. 모달·서랍의 행동 줄을 가리면 --toast-over(행동 줄 높이 + 간격, toastPlace.ts)만큼 올린다 */
+.ui-toast-region { position: fixed; left: 50%; bottom: var(--toast-over, var(--space-6)); transform: translateX(-50%); z-index: var(--z-toast); transition: bottom var(--dur-base) var(--ease-out); }
 .ui-toast {
   display: flex; align-items: center; gap: var(--space-4); max-width: min(560px, calc(100vw - 2 * var(--space-6)));
   padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4); border-radius: var(--radius-lg);

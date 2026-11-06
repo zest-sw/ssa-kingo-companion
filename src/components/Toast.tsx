@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useToastPlace } from './toastPlace';
 
 /** 토스트가 떠 있는 시간. 마우스를 올리거나 초점이 토스트 안에 있는 동안은 멈춘다 */
 export const TOAST_MS = 5000;
@@ -27,6 +28,7 @@ const ToastContext = createContext<ShowToast | null>(null);
 
 /**
  * 짧은 결과 알림. 앱 전체에서 아래 가운데 한 자리에만 뜬다(화면을 바꿔도 옮겨 다니지 않는다).
+ * 모달·서랍이 열려 있고 그 자리가 행동 줄을 가리면 행동 줄 바로 위로 올라간다(toastPlace.ts).
  * 한 번에 하나만 뜨고(새 결과가 옛 결과를 바꾼다) 5초, 동작 버튼이 있으면 7초 뒤 사라진다.
  * 되돌릴 수 있는 행동이면 { actionLabel: '되돌리기', onAction } 을 넘긴다. 버튼은 하나뿐이다.
  * 결과 뒤에 말할 알림은 { after: true } 로 줄을 세운다. 그래서 결과 → 달성 순서가 늘 지켜진다.
@@ -64,12 +66,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, [put, schedule]);
   const close = useCallback(() => { put(null); schedule(); }, [put, schedule]);
   useEffect(() => () => window.clearTimeout(timer.current), []);
+  const region = useRef<HTMLDivElement>(null);
+  useToastPlace(region, !!toast);
 
   return (
     <ToastContext.Provider value={show}>
       {children}
       {/* 알림 칸은 늘 있어야 스크린 리더가 새 글을 읽는다 */}
-      <div className="ui-toast-region" role="status" aria-live="polite">
+      <div ref={region} className="ui-toast-region" role="status" aria-live="polite">
         {toast && (
           <Toast
             key={toast.id} message={toast.message} actionLabel={toast.actionLabel} timeout={toast.onAction ? TOAST_ACTION_MS : TOAST_MS} onClose={close}
