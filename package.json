@@ -14,7 +14,9 @@
     "preview": "vite preview",
     "test": "vitest",
     "audit:entries": "vitest run src/app/audit --silent=false",
-    "audit:layout": "node scripts/audit-layout/run.mjs"
+    "audit:layout": "node scripts/audit-layout/run.mjs",
+    "audit:copy": "node scripts/audit-copy/run.mjs",
+    "audit:design": "node .claude/skills/avoid-ai-design/scripts/detect.mjs src || exit 0"
   },
   "dependencies": {
     "react": "^19.0.0",

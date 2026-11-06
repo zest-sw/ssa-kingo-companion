@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import {
-  Badge, Button, Card, Chip, ConfirmDot, ConfirmLegend, CountBadge, Drawer, EmptyState, ErrorState, FieldTag, GhostPic, Icon, ICON_NAMES, IconButton,
+  AiMark, Badge, Button, Card, Chip, ConfirmDot, ConfirmLegend, CountBadge, Drawer, EmptyState, ErrorState, FieldTag, GhostPic, Icon, ICON_NAMES, IconButton,
   LoadingState, Modal, PageHeader, ProgressBar, SegmentedControl, Stat, Switch, TabPanel, Tabs, Toast, useToast
 } from '../../components';
 import type { Field } from '../../domain/types';
@@ -99,6 +99,12 @@ function KitOverview({ sub }: ScreenProps) {
         {FIELDS.map(f => <FieldTag key={f} field={f} />)}
       </Section>
 
+      <Section title="AiMark" usage="<AiMark />  ·  <AiMark variant='line'>{문장}</AiMark>  (반짝이 기호는 쓰지 않는다)">
+        <Cell label="tag: 글자 옆 '추정'"><p>사용자 리서치를 좋아하는 편이에요<AiMark /></p></Cell>
+        <Cell label="line: 옅은 점선 밑줄"><p><AiMark variant="line">사람 이야기를 듣고 서비스로 옮기는 사람</AiMark></p></Cell>
+        <Cell label="확인 뒤"><p>확인하면 표시를 뗀다</p></Cell>
+      </Section>
+
       <Section title="ConfirmDot" usage="<ConfirmDot state='estimated' />">
         <Cell label="확인"><ConfirmDot state="confirmed" /></Cell>
         <Cell label="AI 추정"><ConfirmDot state="estimated" /></Cell>
@@ -126,8 +132,10 @@ function KitOverview({ sub }: ScreenProps) {
         <SegmentedControl label="보기 방식" items={[{ id: 'board', label: '보드' }, { id: 'list', label: '목록' }]} value={seg} onChange={setSeg} />
       </Section>
 
-      <Section title="Card" usage="<Card title='역량 근거' action={<ConfirmLegend />}>">
-        <Card title="역량 근거" action={<ConfirmLegend />} className="kit-card"><p className="kit-muted">흰 바탕, 1px 선, 반지름 6, 그림자 없음.</p></Card>
+      <Section title="Card" usage="<Card title='역량 근거' action={<ConfirmLegend />}>  ·  결론형: <Card lead title='이번 주는 마감 하나만 챙기면 돼요'>">
+        <Card title="역량 근거" action={<ConfirmLegend />} className="kit-card"><p className="kit-muted">이름형 제목 16/600. 흰 바탕, 1px 선, 그림자 없음.</p></Card>
+        <Card lead title="이번 주는 마감 하나만 챙기면 돼요" className="kit-card"><p className="kit-muted">lead: 결론형 제목 18/700. 카드가 말하는 한 문장을 제목으로 둔다.</p></Card>
+        <Cell label="비권장: eyebrow"><p className="kit-muted kit-narrow">Panel·Modal·Drawer·PageHeader 의 eyebrow(제목 위 작은 회색 줄)는 새로 쓰지 않는다. 템플릿 장식처럼 읽힌다. 쓰던 곳은 그대로 보인다.</p></Cell>
         <Card tone="alt" padding="md" className="kit-card"><p className="kit-muted">tone="alt" · padding="md"</p></Card>
         <Card padding="md" className="kit-card" title={LONG}><FieldTag field="global" /></Card>
       </Section>
@@ -140,24 +148,25 @@ function KitOverview({ sub }: ScreenProps) {
         <Card padding="md" className="kit-card"><LoadingState message="신청서 초안을 쓰는 중이에요" /></Card>
       </Section>
 
-      <Section title="Drawer · Modal · Toast" usage="const toast = useToast(); run(action, { toast, undoable: true })">
+      <Section title="Drawer · Modal · Toast" usage="toast('뺐어요.', { actionLabel: '되돌리기', onAction })  ·  5초 뒤 사라지고 마우스를 올리면 멈춘다. 한 번에 하나">
         <Button onClick={() => setDrawer(true)}>서랍 열기</Button>
         <Button onClick={() => setModal(true)}>모달 열기</Button>
         <Button onClick={() => toast('일정에 담았어요.')}>토스트</Button>
+        <Button onClick={() => toast('관심 없음으로 뺐어요.', { actionLabel: '되돌리기', onAction: () => toast('다시 넣었어요.') })}>동작 버튼 토스트</Button>
         <Button onClick={() => run({ type: 'settings/toggle', key: 'career' }, { toast: state.settings.career ? '채용 공고 연결을 껐어요.' : '채용 공고 연결을 켰어요.', undoable: true })}>
           되돌리기 토스트 (채용 연결 {state.settings.career ? '켜짐' : '꺼짐'})
         </Button>
-        <Cell label="정적"><Toast message="관심 없음으로 뺐어요." onUndo={() => undefined} /></Cell>
+        <Cell label="정적"><Toast message="관심 없음으로 뺐어요." actionLabel="되돌리기" onAction={() => undefined} /></Cell>
       </Section>
 
       <Section title="Icon" usage="<Icon name='calendar' size={20} />">
         {ICON_NAMES.map(n => <span key={n} className="kit-icon" title={n}><Icon name={n} /><span>{n}</span></span>)}
       </Section>
 
-      <Drawer open={drawer} title="AI 데이터 분석 경진대회" eyebrow="모집글 원문" onClose={() => setDrawer(false)} footer={<><Button onClick={() => setDrawer(false)}>닫기</Button><Button variant="primary">신청 준비</Button></>}>
-        <p className="kit-muted readable">상세는 오른쪽 서랍(480px)에 열어요. ESC 나 바깥을 누르면 닫히고, 연 버튼으로 포커스가 돌아가요. {LONG}</p>
+      <Drawer open={drawer} title="AI 데이터 분석 경진대회" onClose={() => setDrawer(false)} footer={<><Button onClick={() => setDrawer(false)}>닫기</Button><Button variant="primary">신청 준비</Button></>}>
+        <p className="kit-muted readable">상세는 오른쪽 서랍(480px)에 열어요. 열고 닫을 때 220ms 동안 옅어지며 8px 움직여요(움직임 줄이기 설정이면 바로). ESC 나 바깥을 누르면 닫히고, 연 버튼으로 포커스가 돌아가요. {LONG}</p>
       </Drawer>
-      <Modal open={modal} title="이 기록을 지울까요?" onClose={() => setModal(false)} actions={<><Button onClick={() => setModal(false)}>취소</Button><Button variant="primary" onClick={() => { setModal(false); toast('지웠어요.', { onUndo: () => toast('되돌렸어요.') }); }}>지우기</Button></>}>
+      <Modal open={modal} title="이 기록을 지울까요?" onClose={() => setModal(false)} actions={<><Button onClick={() => setModal(false)}>취소</Button><Button variant="primary" onClick={() => { setModal(false); toast('지웠어요.', { actionLabel: '되돌리기', onAction: () => toast('되돌렸어요.') }); }}>지우기</Button></>}>
         이 기록에서 나온 발견 근거도 함께 빠져요.
       </Modal>
     </div>
