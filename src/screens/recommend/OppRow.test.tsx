@@ -14,7 +14,7 @@ const render = (node: React.ReactNode) => {
 
 it('행 하나는 이름·D-n·둘째 줄 셋만 있고, 빠듯은 빠듯할 때만 보인다', () => {
   const p = PROGRAMS[0];
-  const el = render(<OppRow p={p} week={1} line={{ kind: 'gain', text: '인터뷰 정리 노트' }} onOpen={() => {}} />);
+  const el = render(<OppRow p={p} week={1} line={{ kind: 'gain', text: '인터뷰 정리 노트', source: 'gain' }} onOpen={() => {}} />);
   const btn = el.querySelector('button')!;
   expect(btn.textContent).toContain(p.title);
   expect(el.querySelector('.rec-row__line')!.textContent).toBe('인터뷰 정리 노트');
