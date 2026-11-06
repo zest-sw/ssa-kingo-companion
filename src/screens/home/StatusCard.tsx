@@ -80,7 +80,7 @@ export function StatusCard() {
         ))}
         <li className="home-inv__cell home-inv__cell--deep">
           <Icon name="flag" size={16} />
-          <b>{inv.deepest ?? '아직 없어요'}</b>
+          <b>{inv.deepest ?? '첫 기록 뒤에 생겨요'}</b>
           <span>가장 깊이 간 분야</span>
         </li>
       </ul>

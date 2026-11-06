@@ -26,7 +26,7 @@ export function HowPicked({ open, onClose, onOpen }: { open: boolean; onClose: (
     <Modal open={open} size="wide" eyebrow="어떻게 골랐나" title={pickingLine(f)} onClose={onClose} actions={<Button onClick={onClose}>닫기</Button>}>
       <Funnel label="추천을 고른 방법" steps={steps} selectedId={sel.step ?? undefined} onSelect={id => setSel({ step: id as StepId })} empty="이번 주에 모집 중인 활동이 아직 없어요. 다음 주에 다시 볼게요." />
       {sel.step === null ? (
-        <p className="rec-muted rec-drops__hint">단계를 누르면 거기서 빠진 활동을 볼 수 있어요.</p>
+        <p className="rec-muted rec-drops__hint">단계를 누르면 거기서 빠진 활동이 나와요.</p>
       ) : dropped.length === 0 ? (
         <EmptyState message={`‘${STEP_LABEL[sel.step]}’ 단계에서 빠진 활동이 없어요. 모두 다음 단계로 갔어요.`} />
       ) : (

@@ -76,7 +76,7 @@ function newcomerNodes(reasons: Reason[], p: Program, who: Newcomer): TraceNode[
   }
   const picked = who.interests.filter((i): i is FieldGroup => i !== 'unknown');
   const names = picked.map(g => GROUP_LABEL[g]).join('·');
-  if (!who.interestOpen && picked.length) nodes.push({ kind: 'interest-miss', label: '관심', detail: `${names} 쪽은 이번 주 맞는 게 없어요`, text: `처음에 고른 관심 ‘${names}’ 쪽은 이번 주 내 시간·신청 대상에 맞는 모집이 없어서 다른 분야를 넓혀 봤어요. 전체 기회 탭에서 모두 볼 수 있어요.` });
+  if (!who.interestOpen && picked.length) nodes.push({ kind: 'interest-miss', label: '관심', detail: `${names} 쪽은 이번 주 맞는 게 없어요`, text: `처음에 고른 관심 ‘${names}’ 쪽은 이번 주 내 시간·신청 대상에 맞는 모집이 없어요. 그래서 다른 분야도 골랐어요.` });
   const at = (k: TraceNode['kind']) => { const i = NEWCOMER_ORDER.indexOf(k); return i < 0 ? NEWCOMER_ORDER.length : i; };
   return nodes.sort((a, b) => at(a.kind) - at(b.kind)).slice(0, MAX_NODES);
 }
@@ -86,3 +86,22 @@ export const BAR_DAYS = 14;
 
 /** 마감까지 남은 날 → 막대 길이 0~1(너무 짧으면 보이도록 최소 0.04) */
 export const deadlineRatio = (dday: number): number => Math.min(1, Math.max(0.04, Math.max(0, dday) / BAR_DAYS));
+
+/** 추천 행의 '왜 나에게' 한 문장. 기호 없이 학생 말로: '내 기록 ‘사용성 테스트’와 이어져요' */
+export function traceLine(n: TraceNode): string {
+  const d = n.detail;
+  switch (n.kind) {
+    case 'energy': return `내 기록 ‘${d}’${josa(d, '과', '와')} 이어져요`;
+    case 'focus': return `확인한 발견 ‘${d}’에 맞춰 골랐어요`;
+    case 'career': return `진로 공고의 ‘${d}’ 요건과 이어져요`;
+    case 'strength': return `확인한 강점 ${d.replace(/ · /g, '·')}${josa(d, '을', '를')} 써요`;
+    case 'goal': return `가입할 때 적은 목표와 같은 분야예요`;
+    case 'interest': return `처음에 고른 관심 ‘${d}’ 분야예요`;
+    case 'interest-miss': return d;
+    case 'bridge': return `지난주와 다른 분야를 섞었어요`;
+    case 'novelty': {
+      const field = d.replace(/^처음 해 보는 /, '');
+      return field === '기타' ? '아직 안 해 본 종류예요' : `아직 안 해 본 ${field} 분야예요`;
+    }
+  }
+}

@@ -3,7 +3,7 @@ import { useApp } from '../../app/AppState';
 import { Chip, SegmentedControl } from '../../components';
 import { weekLoad } from '../../domain/recommend-flow/load';
 import { categoryCounts, inCategory, SORT_LABEL, sortOpen, type CategoryFilter, type OpenSort } from '../../domain/recommend-flow/opportunities';
-import { traceNodes } from '../../domain/recommend-flow/trace';
+import { traceLine, traceNodes } from '../../domain/recommend-flow/trace';
 import type { Program, Scored } from '../../domain/types';
 import { OppRow } from './OppRow';
 import { useBasis } from './useBasis';
@@ -22,8 +22,8 @@ export function RecommendList({ list, primaryId, onOpen, label }: { list: Scored
     return (
       <OppRow
         key={s.p.id} p={s.p} week={state.week} top={isTop} onOpen={onOpen}
-        load={weekLoad(s.p, state.activities, state.week).label}
-        why={n ? `${n.label} · ${n.detail}` : undefined}
+        load={weekLoad(s.p, state.activities, state.week).tight ? '이번 주 빠듯' : undefined}
+        why={n ? traceLine(n) : undefined}
       />
     );
   };

@@ -27,7 +27,7 @@ export function useTriage(afterChoose?: () => void): { actions: CardActions; dia
   };
   const postpone = (p: Program, days: number) => {
     setPostponing(undefined);
-    run({ type: 'candidate/choose', programId: p.id, choice: 'later', until: laterUntilDay(state.week, days) }, { toast: '고른 날에 다시 보여 드릴게요.', undoable: true });
+    run({ type: 'candidate/choose', programId: p.id, choice: 'later', until: laterUntilDay(state.week, days) }, { toast: '나중에 보기에 넣었어요. 고른 날 다시 보여요.', undoable: true });
     afterChoose?.();
   };
 

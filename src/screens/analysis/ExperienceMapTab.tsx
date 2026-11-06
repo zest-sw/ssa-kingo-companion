@@ -3,9 +3,10 @@ import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
 import { navigate } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState, GhostPic, Modal } from '../../components';
-import { buildGraph, withClusterNames, type ClusterNameAnswers, type GraphEdge, type GraphFocus, type KnowledgeGraph } from '../../domain/analysis/graph';
+import { buildGraph, graphHeadline, withClusterNames, type ClusterNameAnswers, type GraphEdge, type GraphFocus, type KnowledgeGraph } from '../../domain/analysis/graph';
 import { answerEdge, clearRejected, type EdgeAnswers } from '../../domain/analysis/map';
 import { semesterLabel } from '../../domain/analysis/semester';
+import { josaRo } from '../../domain/text';
 import { buildStrengths, withAnswers } from '../../domain/analysis/strengths';
 import { edgeCounts } from '../../domain/kg/build';
 import { nextStep } from '../../domain/nextStep';
@@ -59,7 +60,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
 
   if (records.length === 0) {
     return (
-      <Card className="os-card" title="경험 지도">
+      <Card className="os-card" title="아직 지도에 놓일 활동이 없어요">
         <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 활동이 점으로 생기고, 가까운 활동끼리 묶여요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
       </Card>
     );
@@ -67,7 +68,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
 
   return (
     <>
-      <Card className="os-card xg-card" title="경험 지도" action={<GraphLegend />}>
+      <Card className="os-card xg-card" title={graphHeadline(graph)} action={<GraphLegend />}>
         <div className="xg-body">
           <div className="xg-main">
             <MapGraph graph={graph} selected={shown} camera={camera} onSelect={select} onOpen={open} />
@@ -94,14 +95,14 @@ function GraphLegend() {
     <ul className="an-legend an-legend--inline xg-legend" aria-label="그림 읽는 법">
       <li><span className="xg-key xg-key--axis" aria-hidden="true" />역량</li>
       <li><span className="xg-key xg-key--rec" aria-hidden="true" />활동</li>
-      <li><span className="an-key xg-key--line" aria-hidden="true" />규칙으로 이음</li>
+      <li><span className="an-key xg-key--line" aria-hidden="true" />공통점으로 이음</li>
       <li><span className="an-key an-key--est" aria-hidden="true" />AI 추정</li>
       <li><span className="an-key xg-key--mine" aria-hidden="true" />내가 확인</li>
     </ul>
   );
 }
 
-const ORIGIN_LABEL = { rule: '규칙', llm: 'AI', student: '내 확인' } as const;
+const ORIGIN_LABEL = { rule: '공통점', llm: 'AI 추정', student: '내 확인' } as const;
 
 type DrawerProps = { edge?: GraphEdge; byId: Record<string, RecordItem>; answers: EdgeAnswers; onClose: () => void; answer: (id: string, a: 'yes' | 'no') => void };
 
@@ -113,14 +114,14 @@ function EdgeDrawer({ edge, byId, answers, onClose, answer }: DrawerProps) {
     <Drawer open={!!(edge && a && b)} onClose={onClose} eyebrow="이어짐" title={a && b ? `${a.title} — ${b.title}` : ''}>
       {edge && a && b && (
         <>
-          <p className="an-edgewhy">{semesterLabel(a.semester)} → {semesterLabel(b.semester)}</p>
+          <p className="an-edgewhy">{a.semester === b.semester ? `둘 다 ${semesterLabel(a.semester)}` : `${semesterLabel(a.semester)}에서 ${semesterLabel(b.semester)}${josaRo(semesterLabel(b.semester))}`}</p>
           <ul className="an-edgewhy-list" aria-label="이어진 이유">
             {(edge.reasons ?? []).map((r, i) => (
               <li key={i}><span className={`xg-src${r.origin === 'llm' ? ' xg-src--ai' : ''}`}>{ORIGIN_LABEL[r.origin]}</span><span>{r.text}</span></li>
             ))}
           </ul>
           <p className="an-edgestate">
-            {edge.confirmed ? <Badge tone="green" icon="check">확인했어요</Badge> : edge.origin === 'llm' ? <Badge tone="dashed">AI 추정 · 확인 전</Badge> : <Badge>규칙으로 이음</Badge>}
+            {edge.confirmed ? <Badge tone="green" icon="check">확인했어요</Badge> : edge.origin === 'llm' ? <Badge tone="dashed">AI 추정 · 확인 전</Badge> : <Badge>공통점으로 이음</Badge>}
           </p>
           <p className="an-edgeq">두 활동이 이어진 게 맞아요?</p>
           <span className="an-answer">
@@ -143,15 +144,15 @@ function HowModal({ open, graph, onClose }: { open: boolean; graph: KnowledgeGra
     <Modal open={open} title="경험 지도를 만든 방법" onClose={onClose} actions={<Button variant="primary" onClick={onClose}>닫기</Button>}>
       <div className="xg-howto">
         <section>
-          <h3>1. 그래프 만들기</h3>
-          <p className="xg-howto__n"><span>규칙 <b className="num">{n.rule}</b></span><span>AI <b className="num">{n.llm}</b></span><span>내 확인 <b className="num">{n.student}</b></span></p>
-          <ul><li>같은 분야·확인한 역량·다음 학기 줄기·같은 시리즈·함께 나온 말은 규칙으로 이어요.</li><li>회고 문장 사이 뜻은 AI 가 잇고, 확인 전엔 점선이에요.</li></ul>
+          <h3>1. 활동 잇기</h3>
+          <p className="xg-howto__n"><span>공통점 <b className="num">{n.rule}</b></span><span>AI <b className="num">{n.llm}</b></span><span>내 확인 <b className="num">{n.student}</b></span></p>
+          <ul><li>같은 분야·확인한 역량·다음 학기 줄기·같은 시리즈·함께 나온 말이 있으면 공통점으로 이어요.</li><li>회고 문장끼리 뜻이 닿으면 AI가 잇고, 확인 전엔 점선이에요.</li></ul>
         </section>
         <section>
-          <h3>2. 그래프 읽기</h3>
+          <h3>2. 묶음 찾기</h3>
           <ul>
-            <li>많이 이어진 활동끼리 묶어요(Leiden 방식, 끊긴 묶음 없이).</li>
-            <li>{dict === graph.clusters.length ? `묶음 ${dict}개 모두 사전 키워드로 이름을 붙였어요. 맞는 게 없으면 AI 가 제안해요.` : `묶음 ${graph.clusters.length}개 중 ${dict}개는 사전 키워드로, 나머지는 AI 가 이름을 제안해요.`}</li>
+            <li>많이 이어진 활동끼리 묶어요. 한 묶음 안의 활동은 모두 이어져 있어요.</li>
+            <li>{dict === graph.clusters.length ? `묶음 ${dict}개 모두 사전 키워드로 이름을 붙였어요. 맞는 게 없으면 AI가 제안해요.` : `묶음 ${graph.clusters.length}개 중 ${dict}개는 사전 키워드로, 나머지는 AI 가 이름을 제안해요.`}</li>
             <li>가장 많이 이어진 활동, 묶음 사이를 잇는 활동, 이어질 법한 기회를 찾아요.</li>
           </ul>
         </section>

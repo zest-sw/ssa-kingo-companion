@@ -18,8 +18,8 @@ export function agentChecks(p: Program, activities: Activity[], week: number): C
   const load = weekLoad(p, activities, week);
   const rows: CheckRow[] = [
     { id: 'target', state: c.eligible ? 'ok' : 'warn', label: c.eligible ? '신청 대상이에요' : '신청 대상이 아니에요', basis: `모집 대상 ${p.target}` },
-    { id: 'schedule', state: c.overlap ? 'warn' : 'ok', label: c.overlap ? '내 일정과 겹쳐요' : '일정이 안 겹쳐요', basis: c.overlap ? p.when : `${load.why} · ${load.label}` }
+    { id: 'schedule', state: c.overlap ? 'warn' : 'ok', label: c.overlap ? '내 일정과 겹쳐요' : '일정이 안 겹쳐요', basis: c.overlap ? p.when : load.why }
   ];
-  if (c.team) rows.push({ id: 'team', state: 'info', label: '팀이 필요해요', basis: '팀원 모집에서 찾을 수 있어요' });
+  if (c.team) rows.push({ id: 'team', state: 'info', label: '팀이 필요해요', basis: '팀원 모집에서 찾아요' });
   return rows;
 }

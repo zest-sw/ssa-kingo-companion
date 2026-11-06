@@ -37,7 +37,7 @@ export function weekOf(activities: Activity[], today: string = PROTOTYPE_TODAY, 
 }
 
 /** 이번 주 마감 키워드: '이번 주 마감 2'. 없으면 없다고 말한다. */
-export const weekHeadline = (w: Week) => (w.dues.length ? `이번 주 마감 ${w.dues.length}` : '이번 주 마감 없음');
+export const weekHeadline = (w: Week) => (w.dues.length ? `이번 주 마감 ${w.dues.length}` : '이번 주 마감은 없어요');
 
 /** 회고 쓸 활동 수(끝났는데 기록으로 옮기지 않은 활동) */
 export const retroCount = (activities: Activity[]) => pendingRetros(activities).length;
@@ -70,7 +70,7 @@ export function scheduleKeyword(activities: Activity[]): string {
     [count(a => a.status === 'ongoing'), '진행 중'],
     [count(a => a.status === 'preparing' || a.status === 'applied'), '신청 준비·대기']
   ].filter(([n]) => n).map(([n, l]) => `${l} ${n}`);
-  return parts.length ? parts.join(' · ') : '지금 하는 활동 없음';
+  return parts.length ? parts.join(' · ') : '지금 하는 활동이 없어요';
 }
 
 export type RecordGrid = { semesters: { id: string; label: string }[]; rows: { group: FieldGroup; label: string; counts: number[] }[]; total: number };

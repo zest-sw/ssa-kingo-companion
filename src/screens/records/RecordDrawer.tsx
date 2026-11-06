@@ -27,7 +27,7 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
   const confirmed = r.confirmedAxes ?? [];
   const [editing, setEditing] = useState(false);
   const card = cardOf(r);
-  const meta = `${semesterLabel(r.semester)} · ${GROUP_LABEL[FIELD_GROUP[r.field]]} · ${r.kind}`;
+  const meta = `${semesterLabel(r.semester)} · ${GROUP_LABEL[FIELD_GROUP[r.field]]}`;
   // 이 기록으로 확인한 발견이 있으면, 고쳤을 때 그 확인이 풀린다고 미리 알린다.
   const usedByConfirmed = usesRecord(state.confirm, r.id);
 

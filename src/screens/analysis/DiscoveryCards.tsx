@@ -28,7 +28,7 @@ function Converge({ pic }: { pic: DiscoveryPic }) {
           </g>
         );
       })}
-      {pic.more > 0 && <text x={16} y={PAD + ROW_H * pic.evidence.length + ROW_H / 2} dominantBaseline="central" className="an-dpic__more">외 {pic.more}개</text>}
+      {pic.more > 0 && <text x={16} y={PAD + ROW_H * pic.evidence.length + ROW_H / 2} dominantBaseline="central" className="an-dpic__more">{pic.more}개 더</text>}
       <circle cx={194} cy={mid} r={8} className="an-dpic__target" />
       <text x={208} y={mid} dominantBaseline="central" className="an-dpic__name">{pic.target}</text>
     </svg>
@@ -134,7 +134,7 @@ export function DiscoveryCards() {
               {isOpen(d) && <Button variant="ghost" className="an-dq__unsure" onClick={() => unsure(d)}>잘 모르겠어요</Button>}
             </div>
           </div>
-          <Button variant="ghost" icon="chevron" onClick={() => setListing(true)}>발견 {list.length}개 모두 보기 · 추천에 쓰는 것 {used}개</Button>
+          <Button variant="ghost" icon="chevron" onClick={() => setListing(true)}>발견 {list.length}개 모두 보기</Button>
         </>
       )}
       <Drawer open={listing} onClose={() => setListing(false)} eyebrow="내가 맞다고 한 발견만 추천에 써요" title="발견 모두 보기">

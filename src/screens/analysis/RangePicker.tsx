@@ -49,7 +49,7 @@ export function RangePicker({ axis, from, to, onMove }: { axis: string[]; from: 
   // 한 줄로 둔다. 그림 높이를 아끼려고 끝 학기 이름은 막대 양옆에 붙인다.
   return (
     <div className="fl-range">
-      <p className="fl-range__head"><span>보는 구간</span><b>{semesterLabel(axis[from])}{from !== to && ` ~ ${semesterLabel(axis[to])}`}</b></p>
+      <p className="fl-range__head"><span>학기 범위</span><b>{semesterLabel(axis[from])}{from !== to && ` ~ ${semesterLabel(axis[to])}`}</b></p>
       <span className="fl-range__end" aria-hidden="true">{semesterShort(axis[0])}</span>
       <div ref={track} className="fl-range__track" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         <span className="fl-range__rail" aria-hidden="true" />

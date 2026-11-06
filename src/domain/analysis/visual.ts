@@ -27,7 +27,7 @@ function topBy<T>(list: T[], n: (t: T) => number): T | undefined {
 // 테크 트리 머리말은 난이도 규칙과 함께 techtree.ts 에 있다. 요약 화면은 여기서 가져간다.
 export { treeHeadline, treeValue } from './techtree';
 
-/** 경험 지도 머리말: 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량. '사용자 리서치 → 소통 · 근거 4' */
+/** 경험 지도 머리말: 가장 큰 묶음과 그 묶음이 가장 많이 근거가 된 역량. '사용자 리서치 활동에서 소통 근거가 4개 나왔어요' */
 export const mapHeadline = (records: RecordItem[], answers: EdgeAnswers = {}): string =>
   records.length === 0 ? '회고를 쓰면 활동 묶음이 생겨요' : graphHeadline(buildGraph(records, answers));
 

@@ -60,8 +60,8 @@ export function Schedule({ sub }: { sub?: string }) {
     body = (
       <Card className="act-overview os-card" title={sel.full ? '이번 학기' : '이번 달'} action={<><Legend items={LEGEND} />{toggle}</>}>
         <div className="os-scroll">
-        <GanttRows label={sel.full ? '이번 학기 활동' : '이번 달 활동'} range={sel.full ? SEMESTER : month} today={PROTOTYPE_TODAY} rows={rows} selectedId={sel.focus} onSelect={open} empty={sel.full ? '날짜가 있는 활동이 아직 없어요. 활동 날짜가 정해지면 막대로 보여요.' : '이번 달에 걸친 활동이 없어요. 학기 전체에서 다른 달을 볼 수 있어요.'} />
-        {!sel.full && clipped.hidden > 0 && <p className="act-more">이번 달 활동 {clipped.hidden}개가 더 있어요 · 학기 전체에서 볼 수 있어요</p>}
+        <GanttRows label={sel.full ? '이번 학기 활동' : '이번 달 활동'} range={sel.full ? SEMESTER : month} today={PROTOTYPE_TODAY} rows={rows} selectedId={sel.focus} onSelect={open} empty={sel.full ? '날짜가 있는 활동이 아직 없어요. 활동 날짜가 정해지면 막대로 보여요.' : '이번 달에 걸친 활동이 없어요. 학기 전체 보기로 다른 달을 살펴봐요.'} />
+        {!sel.full && clipped.hidden > 0 && <p className="act-more">이번 달 활동이 {clipped.hidden}개 더 있어요</p>}
         {sel.full && undated.length > 0 && (
           <div className="act-undated">
             <span className="act-undated__label">날짜 미정</span>

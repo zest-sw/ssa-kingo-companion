@@ -20,7 +20,7 @@ export function TodayList({ tasks, first, week }: { tasks: TodayTask[]; first?: 
     <Card title="오늘의 퀘스트" className="home-today">
       {tasks.length === 0 && first ? (
         <div className="home-first">
-          <p className="home-first__lead">첫 퀘스트로 이걸 받아 보세요</p>
+          <p className="home-first__lead">첫 퀘스트로 이 활동을 추천해요</p>
           <a className="home-first__row" href={hrefOf(candidateHref(first.p.id))}>
             <span className="home-first__title">{first.p.title}</span>
             <FieldTag field={first.p.field} />
@@ -28,7 +28,7 @@ export function TodayList({ tasks, first, week }: { tasks: TodayTask[]; first?: 
           </a>
         </div>
       ) : tasks.length === 0 ? (
-        <EmptyState icon="check" message="오늘은 받은 퀘스트가 없어요. 광장의 퀘스트 게시판을 둘러보세요." />
+        <EmptyState icon="check" message="오늘 챙길 일은 없어요. 퀘스트 게시판에서 다음 활동을 골라 보세요." />
       ) : (
         <ol className="home-rail">
           {shown.map(t => (
@@ -46,7 +46,7 @@ export function TodayList({ tasks, first, week }: { tasks: TodayTask[]; first?: 
           ))}
         </ol>
       )}
-      {more > 0 && <p className="home-more">외 {more}개 · 내 활동에서 볼 수 있어요</p>}
+      {more > 0 && <p className="home-more">{more}개 더 있어요</p>}
     </Card>
   );
 }

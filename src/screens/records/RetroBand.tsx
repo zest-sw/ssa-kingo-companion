@@ -21,7 +21,7 @@ export function RetroBand({ items }: { items: Activity[] }) {
             {a.title}<Icon name="chevron" size={14} />
           </button>
         ))}
-        {more > 0 && <button type="button" className="rec-band__item rec-band__more" onClick={() => navigate('activities/records/interview')}>외 {more}개</button>}
+        {more > 0 && <button type="button" className="rec-band__item rec-band__more" onClick={() => navigate('activities/records/interview')}>{more}개 더 보기</button>}
       </span>
     </div>
   );

@@ -54,13 +54,13 @@ export function leadStrengths(rows: Strength[]): LeadStrengths {
   return { rows: maxAll > 0 ? rows.filter(r => r.evidence.length === maxAll).slice(0, 2) : [], confirmed: false };
 }
 
-const names = (rs: Strength[]) => rs.map(r => r.label).join(' · ');
+const names = (rs: Strength[]) => rs.map(r => r.label).join('·');
 
 /** 머리 키워드 한 줄. 확인한 근거로만 단정한다: '협업이 가장 확실히 드러나요 · 확인 2개'. 확인한 것이 없으면 추정임을 밝힌다. estimated 면 점선 톤으로 그린다. */
 export function strengthHeadline(rows: Strength[]): { text: string; estimated: boolean } {
   const lead = leadStrengths(rows);
   if (lead.rows.length === 0) return { text: '회고를 쓰면 강점이 보여요', estimated: false };
-  if (!lead.confirmed) return { text: `AI 가 본 강점 후보: ${names(lead.rows)} · 근거를 확인해 주세요`, estimated: true };
+  if (!lead.confirmed) { const t = names(lead.rows); return { text: `AI가 본 강점 후보는 ${t}${josa(t, '이에요', '예요')}. 근거를 확인해 주세요`, estimated: true }; }
   const last = lead.rows[lead.rows.length - 1].label;
   const n = lead.rows[0].confirmed;
   return { text: `${names(lead.rows)}${josa(last, '이', '가')} 가장 확실히 드러나요 · 확인 ${lead.rows.length > 1 ? '각 ' : ''}${n}개`, estimated: false };
@@ -149,7 +149,7 @@ export function answerAxis(r: RecordItem, axis: Axis, yes: boolean): Pick<Record
 export function fewLine(few: Strength[]): string {
   const next = few.filter(f => f.evidence.length > 0).map(f => f.label);
   const none = few.filter(f => f.evidence.length === 0).map(f => f.label);
-  return [next.length ? `그다음 강점: ${next.join(' · ')}` : '', none.length ? `아직 근거가 없어요: ${none.join(' · ')}` : ''].filter(Boolean).join('. ');
+  return [next.length ? `그다음 강점은 ${next.join('·')}${josa(next[next.length - 1] ?? '', '이에요', '예요')}` : '', none.length ? `${none.join('·')}${josa(none[none.length - 1] ?? '', '은', '는')} 아직 근거가 없어요` : ''].filter(Boolean).join(' ');
 }
 
 // ── 육각형 레이더: 축 6개 = 역량 6개, 값 = 근거 기록 수(점수 아님) ──

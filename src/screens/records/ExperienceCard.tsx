@@ -34,7 +34,7 @@ export function StarFields({ card, compact }: { card: RecordCard; compact?: bool
             {g.steps.map(s => (
               <div key={s} className="xc-row">
                 <dt>{STEP_LABEL[s]}{STAR_NAME[s] && <span className="xc-row__star"> {STAR_NAME[s]}</span>}</dt>
-                <dd className={card[s] ? undefined : 'xc-row__empty'}>{card[s] ?? '고치기에서 채울 수 있어요'}</dd>
+                <dd className={card[s] ? undefined : 'xc-row__empty'}>{card[s] ?? '고치기에서 채워요'}</dd>
               </div>
             ))}
           </dl>
@@ -66,7 +66,7 @@ export function ExperienceCard({ card }: { card: RecordCard }) {
             <>
               <p className="xc-answer__text readable">{answer}</p>
               <div className="xc-answer__foot">
-                <p className="xc-answer__hint">{missing.length ? `쓴 말을 STAR 순서로 이었어요. ${josaList(missing.map(s => STEP_LABEL[s]))} 채우면 더 단단해져요.` : '쓴 말을 상황·역할·한 일·결과 순서로 이었어요.'}</p>
+                <p className="xc-answer__hint">{missing.length ? `쓴 말을 상황·역할·한 일·결과 순서로 이었어요. ${josaList(missing.map(s => STEP_LABEL[s]))} 채우면 더 단단해져요.` : '쓴 말을 상황·역할·한 일·결과 순서로 이었어요.'}</p>
                 <Button size="sm" icon="doc" onClick={() => copy(answer)}>복사</Button>
               </div>
             </>
