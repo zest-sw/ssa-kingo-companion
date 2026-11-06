@@ -161,6 +161,8 @@
   /* 막대·띠: 큰 색 면 대신 얇은 막대(8px). 면이 필요하면 옅은 틴트(--tint) 바탕 + 1px 진한 테두리 */
   --bar-h: 8px;
   --tint: 14%;
+  /* 옅게 물러난 것(지금 쓰지 않는 길 찾기, 그림의 옅은 조각)의 불투명도 */
+  --faded: 0.4;
   /* 보조선(오늘 선 등) */
   --rule: 1px;
 
@@ -177,7 +179,7 @@
   --dg-dot: 12px;
   --dg-mark: 12px;
   --dg-hatch: 6px;
-  --dg-faded: 0.4;
+  --dg-faded: var(--faded);
   --dg-funnel-h: 28px;
   --dg-segment-h: 24px;
   --dg-tile-pic-h: 112px;
