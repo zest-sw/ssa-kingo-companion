@@ -3,7 +3,7 @@ import { CATALOG } from '../data/catalog';
 import { EMPTY_PROFILE } from '../data/seed';
 import { DEFAULT_SETTINGS, NEW_STUDENT_STATE } from '../app/state';
 import { buildCandidates } from './candidates';
-import { canAdvance, onboardingResult, stepDirection } from './onboarding';
+import { canAdvance, firstReason, onboardingResult, stepDirection } from './onboarding';
 import type { Profile } from './types';
 
 const viewFor = (profile: Profile) => buildCandidates({
@@ -31,9 +31,12 @@ describe('가입을 마친 장면', () => {
     expect(r.top?.programId).toBe(view.primary?.p.id);
     expect(r.count).toBe(view.newCount);
     expect(r.count).toBeGreaterThan(0);
-    const interest = view.primary?.reasons.find(x => x.kind === 'interest');
-    if (interest) expect(r.top?.reason).toBe(interest.text);
-    else expect(r.top?.reason).toBe(view.primary?.reasons[0]?.text ?? '지금 신청할 수 있고 내 시간에 맞아요.');
+    expect(r.top?.reason).toBe('처음에 고른 관심 ‘멘토링’과 맞아요');
+  });
+  it('이유는 관심 → 목표 → 첫 이유 순서로 고르고 마침표 없이 끝낸다', () => {
+    expect(firstReason([{ kind: 'energy', text: '에너지.' }, { kind: 'career', text: '목표와 이어져요.' }])).toBe('목표와 이어져요');
+    expect(firstReason([{ kind: 'energy', text: '에너지가 올라가요.' }])).toBe('에너지가 올라가요');
+    expect(firstReason([])).toBe('지금 신청할 수 있고 내 시간에 맞아요');
   });
   it('후보가 없으면 0개로 알린다', () => {
     expect(onboardingResult({ primary: undefined, newCount: 0 })).toEqual({ count: 0 });
