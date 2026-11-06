@@ -1,7 +1,7 @@
 import { useApp } from '../../app/AppState';
-import { hrefOf } from '../../app/router';
+import { hrefOf, navigate } from '../../app/router';
 import { useStory } from '../../app/useStory';
-import { Card, EmptyState, FieldTag, NextStep } from '../../components';
+import { Button, Card, EmptyState, FieldTag, NextStep } from '../../components';
 import { ddayOf } from '../../domain/recommend';
 import { candidateHref, isNearDeadline } from '../../domain/recommend-flow/flow';
 import { ddayText } from '../../domain/text';
@@ -28,7 +28,8 @@ export function NextCard() {
           onPrepare={() => actions.onPrepare(program)}
         />
       ) : (
-        <EmptyState icon="compass" message="관심 분야나 시간을 바꾸면 다음 활동을 골라 드려요" />
+        // 비었을 때 주 버튼 자리는 조건 바꾸기 하나(설정은 홈 다른 곳에서 가지 않는 목적지다)
+        <EmptyState icon="compass" message="관심 분야나 시간을 바꾸면 다음 활동을 골라 드려요" action={<Button onClick={() => navigate('settings/profile')}>추천 조건 바꾸기</Button>} />
       )}
     </Card>
   );

@@ -79,7 +79,7 @@ export function StatusCard() {
       <section className="home-inv" aria-labelledby="home-inv-h">
         <h2 id="home-inv-h" className="ui-subhead home-inv__h">가진 것</h2>
         {nothing ? (
-          <p className="home-inv__wait">첫 경험 카드를 기다려요</p>
+          <p className="home-inv__wait">회고를 쓰면 첫 경험 카드가 생겨요</p>
         ) : (
           <ul className="home-inv__list">
             {items.map(i => (
