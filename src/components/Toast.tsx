@@ -11,16 +11,25 @@ type ToastOpts = {
   onAction?: () => void;
   /** 옛 이름. actionLabel='되돌리기' + onAction 과 같다 */
   onUndo?: () => void;
+  /**
+   * true 면 줄을 선다: 떠 있는 토스트가 닫힌 뒤에 뜬다(도전 과제 달성처럼 행동 결과에 딸려 오는 알림).
+   * 줄 선 토스트가 떠 있을 때 결과 토스트가 오면 결과가 먼저 뜨고, 밀려난 것은 줄 맨 앞으로 돌아간다.
+   */
+  after?: boolean;
 };
-type ToastItem = { id: number; message: string; actionLabel?: string; onAction?: () => void };
+type ToastItem = { id: number; message: string; actionLabel?: string; onAction?: () => void; after?: boolean };
 type ShowToast = (message: string, opts?: ToastOpts) => void;
+
+/** 앞 토스트가 닫히고 줄 선 토스트가 뜨기까지 쉬는 틈. 같은 순간에 오는 결과 토스트가 먼저 자리를 잡게 한다 */
+export const TOAST_GAP_MS = 400;
 
 const ToastContext = createContext<ShowToast | null>(null);
 
 /**
  * 짧은 결과 알림. 앱 전체에서 아래 가운데 한 자리에만 뜬다(화면을 바꿔도 옮겨 다니지 않는다).
- * 한 번에 하나만 뜨고(새 것이 옛 것을 바꾼다) 5초, 동작 버튼이 있으면 7초 뒤 사라진다.
+ * 한 번에 하나만 뜨고(새 결과가 옛 결과를 바꾼다) 5초, 동작 버튼이 있으면 7초 뒤 사라진다.
  * 되돌릴 수 있는 행동이면 { actionLabel: '되돌리기', onAction } 을 넘긴다. 버튼은 하나뿐이다.
+ * 결과 뒤에 말할 알림은 { after: true } 로 줄을 세운다. 그래서 결과 → 달성 순서가 늘 지켜진다.
  */
 export function useToast(): ShowToast {
   const show = useContext(ToastContext);
@@ -30,14 +39,31 @@ export function useToast(): ShowToast {
 
 const normalize = (id: number, message: string, opts?: ToastOpts): ToastItem => {
   const onAction = opts?.onAction ?? opts?.onUndo;
-  return { id, message, onAction, actionLabel: onAction ? (opts?.actionLabel ?? '되돌리기') : undefined };
+  return { id, message, onAction, actionLabel: onAction ? (opts?.actionLabel ?? '되돌리기') : undefined, after: opts?.after };
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastItem | null>(null);
   const seq = useRef(0);
-  const show = useCallback<ShowToast>((message, opts) => setToast(normalize(++seq.current, message, opts)), []);
-  const close = useCallback(() => setToast(null), []);
+  // 같은 이벤트 안에서 이어 부를 때도 순서를 지키려고, 렌더를 기다리지 않는 ref 로 지금 토스트를 든다
+  const current = useRef<ToastItem | null>(null);
+  const queue = useRef<ToastItem[]>([]);
+  const timer = useRef<number | undefined>(undefined);
+  const put = useCallback((item: ToastItem | null) => { current.current = item; setToast(item); }, []);
+  const schedule = useCallback(() => {
+    window.clearTimeout(timer.current);
+    if (current.current || !queue.current.length) return;
+    timer.current = window.setTimeout(() => { if (!current.current) put(queue.current.shift() ?? null); }, TOAST_GAP_MS);
+  }, [put]);
+  const show = useCallback<ShowToast>((message, opts) => {
+    const item = normalize(++seq.current, message, opts);
+    if (item.after) { queue.current.push(item); schedule(); return; }
+    if (current.current?.after) queue.current.unshift(current.current);
+    window.clearTimeout(timer.current);
+    put(item);
+  }, [put, schedule]);
+  const close = useCallback(() => { put(null); schedule(); }, [put, schedule]);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   return (
     <ToastContext.Provider value={show}>
