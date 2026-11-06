@@ -36,7 +36,7 @@ export function HallView() {
       </div>
       <HallStage people={people} joined={HALL_JOINED} onOpen={setOpen} />
 
-      <Drawer open={open !== null} title={open ? `${open.name}님이 걸어온 길` : ''} eyebrow={open && `${open.dept} · ${open.year}학년`} onClose={() => setOpen(null)}>
+      <Drawer open={open !== null} title={open ? `${open.name}님이 걸어온 길` : ''} eyebrow={open && `${open.dept} ${open.year}학년`} onClose={() => setOpen(null)}>
         {open && (
           <div className="fr-stack">
             <p className="hall-drawer__why">{open.reason}</p>

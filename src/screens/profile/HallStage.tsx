@@ -91,7 +91,7 @@ export function HallStage({ people, joined, onOpen }: Props) {
       <button type="button" className="hall-card" aria-haspopup="dialog" tabIndex={live ? 0 : -1} onClick={() => onOpen(h)}>
         <span className="hall-card__who">
           <span className="hall-card__avatar" aria-hidden="true">{h.name.slice(0, 1)}</span>
-          <span className="hall-card__name">{h.name}<span>{h.dept} · {h.year}학년</span></span>
+          <span className="hall-card__name">{h.name}<span>{h.dept} {h.year}학년</span></span>
         </span>
         <span className="hall-card__quote">“{h.retro ?? h.reason}”</span>
         <span className="hall-card__path">{pathLine(h.path)}</span>
