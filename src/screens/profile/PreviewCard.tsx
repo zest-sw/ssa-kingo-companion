@@ -7,45 +7,48 @@ import { FIELD_GROUP } from '../../domain/vocab';
 
 const toVisibility = () => navigate('settings/visibility');
 
-/** 친구가 보는 카드 그대로. ghost 면 아직 공개 전이라 회색 점선 윤곽으로 그린다. */
+/**
+ * 친구가 보는 내용 그대로. 바깥 카드 안에 또 카드를 두지 않고(K11) 한 겹으로 그린다.
+ * ghost 면 아직 공개 전이라 글자를 옅게 하고 아바타만 옅은 실선 윤곽으로 그린다.
+ */
 function FriendCard({ card, sub, interests, ghost }: { card: CardData; sub?: string; interests: string; ghost?: boolean }) {
   return (
-    <article className={`pf-card${ghost ? ' pf-card--ghost' : ''}`} aria-label={ghost ? '공개하면 친구가 보는 카드' : '친구가 보는 카드'}>
-      <header className="pf-card__head">
+    <article className={`pf-friend${ghost ? ' pf-friend--ghost' : ''}`} aria-label={ghost ? '공개하면 친구가 보는 카드' : '친구가 보는 카드'}>
+      <header className="pf-friend__head">
         <span className="fr-avatar fr-avatar--lg" aria-hidden="true">나</span>
         <div>
-          <p className="pf-card__name">나</p>
-          {sub && <p className="pf-card__sub">{sub}</p>}
+          <p className="pf-friend__name">나</p>
+          {sub && <p className="pf-friend__sub">{sub}</p>}
         </div>
       </header>
-      <dl className="pf-card__rows">
-        <div className="pf-card__row">
+      <dl className="pf-friend__rows">
+        <div className="pf-friend__row">
           <dt>관심 분야</dt>
-          <dd>{interests || <span className="pf-card__empty">고른 분야가 없어요</span>}</dd>
+          <dd>{interests || <span className="pf-friend__empty">고른 분야가 없어요</span>}</dd>
         </div>
-        <div className="pf-card__row">
+        <div className="pf-friend__row">
           <dt>한 활동</dt>
-          <dd><span className="num pf-card__num">{card.activityCount}</span>개</dd>
+          <dd><span className="num pf-friend__num">{card.activityCount}</span>개</dd>
         </div>
-        <div className="pf-card__row">
+        <div className="pf-friend__row">
           <dt>경험 카드</dt>
           <dd>
             {card.records.length ? (
-              <ul className="pf-card__records">
+              <ul className="pf-friend__records">
                 {card.records.map(r => (
                   <li key={r.id} className="fr-path">
                     <span className={`ui-field__dot ui-field__dot--${FIELD_GROUP[r.field]}`} aria-hidden="true" />
                     <span>{r.title}</span>
                   </li>
                 ))}
-                {card.moreRecords > 0 && <li className="pf-card__more num">{card.moreRecords}장 더</li>}
+                {card.moreRecords > 0 && <li className="pf-friend__more num">{card.moreRecords}장 더</li>}
               </ul>
-            ) : <span className="pf-card__empty">고른 회고가 없어요. 회고를 쓰고 공개 범위에서 고르면 보여요</span>}
+            ) : <span className="pf-friend__empty">고른 회고가 없어요. 회고를 쓰고 공개 범위에서 고르면 보여요</span>}
           </dd>
         </div>
       </dl>
-      <ul className="pf-card__hidden" aria-label="친구에게 안 보이는 것">
-        {card.hidden.map(h => <li key={h}><Icon name="lock" size={14} /><span>{h}</span><span className="pf-card__hidden-tag">숨김</span></li>)}
+      <ul className="pf-friend__hidden" aria-label="친구에게 안 보이는 것">
+        {card.hidden.map(h => <li key={h}><Icon name="lock" size={14} /><span>{h}</span><span className="pf-friend__hidden-tag">숨김</span></li>)}
       </ul>
     </article>
   );
