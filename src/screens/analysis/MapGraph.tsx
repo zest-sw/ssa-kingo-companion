@@ -213,7 +213,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
 
   return (
     <div
-      ref={ref} className={`xg-stage${zp.dragging ? ' is-dragging' : ''}`} data-fill data-zoom={detail} tabIndex={0}
+      ref={ref} className={`xg-stage${zp.dragging ? ' is-dragging' : ''}`} data-fill data-zoom={detail} tabIndex={0} role="group"
       aria-label="경험 지도 그림. +, - 로 확대·축소, 0 으로 화면에 맞춤, 방향키로 이동해요."
       {...zp.handlers}
       onKeyDown={e => { if (e.key === 'Escape' && selected && !(e.target as Element).closest('input')) { e.preventDefault(); onSelect(null); return; } zp.handlers.onKeyDown(e); }}
@@ -340,7 +340,7 @@ function GraphSearch({ graph, onPick }: { graph: KnowledgeGraph; onPick: (n: Gra
       {open && (
         <div className="xg-find__box" id={`${id}-box`}>
           <input
-            autoFocus className="xg-find__input" placeholder="활동 찾기" aria-label="활동 찾기" role="combobox" aria-expanded={hits.length > 0} aria-controls={`${id}-list`} aria-autocomplete="list"
+            autoFocus name="map-find" autoComplete="off" className="xg-find__input" placeholder="활동 찾기" aria-label="활동 찾기" role="combobox" aria-expanded={hits.length > 0} aria-controls={`${id}-list`} aria-autocomplete="list"
             aria-activedescendant={hits[at] ? `${id}-${at}` : undefined} value={q} onChange={e => { setQ(e.target.value); setAt(0); }} onKeyDown={onKey}
           />
           {q.trim() && (hits.length > 0 ? (

@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { useApp } from '../../app/AppState';
 import { openEntity } from '../../app/entity';
-import { navigate } from '../../app/router';
+import { navigate, useQuery, withQuery } from '../../app/router';
 import { Badge, Button, Card, Drawer, EmptyState, FieldTag, SegmentedControl } from '../../components';
 import { PROGRAM_BY_ID } from '../../data/catalog';
 import { LEVEL_EXAMPLES, levelReason, type Level } from '../../domain/analysis/level';
@@ -21,7 +21,9 @@ type View = 'graph' | 'list';
 const TREE_KEYS = [{ label: '한 활동', key: 'an-key an-key--done' }, { label: '지금 신청할 수 있는 활동', key: 'an-key an-key--candidate' }];
 
 export default function TechTreeTab({ records }: { records: RecordItem[] }) {
-  const [mode, setMode] = useState<View>('graph');
+  // 보기 방식은 주소 뒤 ?view=list 에 남는다(새로고침·공유가 같은 보기를 연다). 탭 전환이라 기록은 쌓지 않는다.
+  const mode: View = useQuery().get('view') === 'list' ? 'list' : 'graph';
+  const setMode = (v: View) => navigate(withQuery('analysis/techtree', { view: v === 'list' ? 'list' : undefined }), { replace: true });
   const [open, setOpen] = useState<TreeCell | null>(null);
   const [stage, setStage] = useState<{ row: TreeRow; col: number } | null>(null);
   const tree = useTechTree(records);

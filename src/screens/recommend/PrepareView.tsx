@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../../app/AppState';
 import { navigate, parentLink } from '../../app/router';
+import { useStepInUrl } from '../../app/stepUrl';
 import { Badge, Button, Card, EmptyState, PageHeader, Panel, Stepper } from '../../components';
 import { APPLY_URL, DRAFT_DELAY } from '../../data/recommend';
 import { PROGRAM_BY_ID } from '../../data/catalog';
@@ -15,6 +16,7 @@ import { loadPrep, savePrep } from './prepMemory';
 import { ReviseBox } from './ReviseBox';
 
 const nowLabel = () => clockLabel(new Date());
+const STEP_IDS = PREP_STEPS.map(s => s.id);
 
 /**
  * ③ 신청 준비: 준비할 것 → 초안 → 신청, 한 화면에 한 단계만. 주 버튼은 늘 오른쪽 아래에서 이름만 바뀐다.
@@ -74,6 +76,15 @@ export function PrepareView({ programId }: { programId: string }) {
 
   const draftReady = draft.status === 'ready';
   const summary = useMemo(() => (p ? agentSummary(p, state.activities, state.week, items) : undefined), [p, state.activities, state.week, items]);
+  // 단계는 주소(?step=)에도 남아 뒤로 가기가 앞 단계로 간다. 이미 신청한 뒤라면 추천 목록으로 돌아간다.
+  useStepInUrl(step, STEP_IDS, s => { if (submitted) navigate('recommend', { replace: true }); else { setRevising(false); setStep(s); } });
+  // 단계가 바뀌면 새 단계로 초점을 옮긴다. 누른 버튼(남은 준비 하러 가기, 단계 표시)이 사라져 초점이 body로 떨어지지 않게. 첫 그림은 앱 틀이 제목에 준다.
+  const scene = useRef<HTMLDivElement>(null);
+  const firstStep = useRef(true);
+  useEffect(() => {
+    if (firstStep.current) { firstStep.current = false; return; }
+    scene.current?.focus({ preventScroll: true });
+  }, [step]);
   const log = useMemo(() => (p ? agentLog(p, state.activities, state.week, items, firstAt, revisedAt) : []), [p, state.activities, state.week, items, firstAt, revisedAt]);
 
   if (!p || !summary) {
@@ -93,7 +104,9 @@ export function PrepareView({ programId }: { programId: string }) {
   const left = remainingItems(items);
 
   const go = (next: PrepStep) => { setRevising(false); setStep(next); };
-  const revise = (r: Revision) => { setRevisions(list => [...list, r]); setRevising(false); };
+  // 고치기 칸이 닫히면 그 안의 초점이 사라진다. 닫기는 '초안 고치기' 버튼으로, 고쳐 쓰기는(그동안 버튼이 꺼진다) 초안 자리로 돌려준다.
+  const closeRevise = () => { setRevising(false); requestAnimationFrame(() => document.querySelector<HTMLElement>('.rec-pstep button[aria-expanded]')?.focus()); };
+  const revise = (r: Revision) => { setRevisions(list => [...list, r]); setRevising(false); requestAnimationFrame(() => scene.current?.focus({ preventScroll: true })); };
 
   const giveUp = () => {
     savePrep(programId, undefined);
@@ -150,7 +163,7 @@ export function PrepareView({ programId }: { programId: string }) {
   }
   const footer = (
     <>
-      {step === 'draft' && revising && draftReady && <ReviseBox onRevise={revise} onClose={() => setRevising(false)} />}
+      {step === 'draft' && revising && draftReady && <ReviseBox onRevise={revise} onClose={closeRevise} />}
       <span className="rec-foot__note">{note}</span>
       {secondary}
       <Button variant="primary" icon={action === 'openSite' ? 'external' : undefined} disabled={blocked} aria-describedby={step === 'apply' ? 'prep-reason' : undefined} onClick={onPrimary}>
@@ -164,7 +177,7 @@ export function PrepareView({ programId }: { programId: string }) {
       {header}
       <div className="os__body os__body--fill rec-pstep">
         <Panel aria-label={PREP_STEPS.find(s => s.id === step)?.label} footer={footer}>
-          <div key={step} className="rec-pstep__scene">
+          <div key={step} ref={scene} tabIndex={-1} role="group" aria-label={PREP_STEPS.find(s => s.id === step)?.label} className="rec-pstep__scene">
             {step === 'todo' && (
               <TodoStep
                 items={items} week={state.week} enabled={!!activity} draftReady={draftReady} left={left.length} log={log} summary={summary}

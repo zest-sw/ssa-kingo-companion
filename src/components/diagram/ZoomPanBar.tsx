@@ -35,7 +35,8 @@ export function ZoomPanBar({ k, onIn, onOut, onFit, onReset, announce, children,
     </button>
   );
   return (
-    <div className={className} role="toolbar" aria-label="그림 보기" aria-orientation="vertical" data-zp-ignore>
+    // toolbar 가 아니라 group: 버튼마다 Tab 으로 가고 방향키 이동은 없다(toolbar 는 방향키를 약속한다)
+    <div className={className} role="group" aria-label="그림 보기" data-zp-ignore>
       {children}
       {btn('확대', '+', P.in, onIn, k >= ZOOM.max - 1e-3)}
       {btn('축소', '-', P.out, onOut, k <= ZOOM.min + 1e-3)}

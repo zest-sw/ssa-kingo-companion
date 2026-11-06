@@ -10,7 +10,7 @@ import { weekLoad } from '../../domain/recommend-flow/load';
 import { openPrograms } from '../../domain/recommend-flow/opportunities';
 import { pickLines, usedSources } from '../../domain/recommend-flow/reasons';
 import { traceNodes } from '../../domain/recommend-flow/trace';
-import type { RecSel } from '../../domain/recommend-flow/url';
+import type { RecPanel, RecSel } from '../../domain/recommend-flow/url';
 import type { Field, Program, Scored } from '../../domain/types';
 import { HowPicked } from './HowPicked';
 import { AllList, RecommendList } from './OppLists';
@@ -21,12 +21,14 @@ import { useBasis } from './useBasis';
  * 추천: 머리 아래 탭 두 개. [추천 활동] 가장 추천 카드 하나(주인공) + 다른 후보 목록, [전체 기회] 지금 열린 기회 모두(종류 칩·정렬).
  * 탭·칩·정렬·연 모달은 주소에 남는다(index.tsx). 홈의 질문은 추천 활동 탭의 조건 칩으로 들어온다.
  */
-export function Overview({ sel, onSel, onOpen, onPrepare, onOpenLater }: {
-  sel: RecSel; onSel: (next: RecSel) => void; onOpen: (p: Program) => void; onPrepare: (p: Program) => void; onOpenLater: () => void;
+export function Overview({ sel, onSel, onOpen, onPrepare, onPanel, onClosePanel }: {
+  sel: RecSel; onSel: (next: RecSel) => void; onOpen: (p: Program) => void; onPrepare: (p: Program) => void;
+  /** 곁 화면(어떻게 골랐나·나중에 보기) 열고 닫기. 주소에 남는다(index.tsx) */
+  onPanel: (panel: RecPanel) => void; onClosePanel: () => void;
 }) {
   const { state, view } = useApp();
   const basis = useBasis();
-  const [howOpen, setHowOpen] = useState(false);
+  const howOpen = sel.panel === 'how';
   // 홈이 넘긴 값은 처음 한 번만 읽는다.
   const [intent] = useState<ListIntent>(() => takeListIntent() ?? {});
   const [filter, setFilter] = useState<AskFilter>(intent.filter ?? {});
@@ -79,11 +81,11 @@ export function Overview({ sel, onSel, onOpen, onPrepare, onOpenLater }: {
     <div className="os">
       <PageHeader
         title="추천"
-        actions={view.later.length > 0 ? <Button variant="ghost" onClick={onOpenLater}>나중에 보기 <Badge>{view.later.length}</Badge></Button> : undefined}
+        actions={view.later.length > 0 ? <Button variant="ghost" onClick={() => onPanel('later')}>나중에 보기 <Badge>{view.later.length}</Badge></Button> : undefined}
       />
       <div className="rec-tabs">
         <Tabs id="rec" label="추천 보기" value={tab} onChange={t => onSel({ ...sel, tab: t })} items={[{ id: 'picks', label: '추천 활동' }, { id: 'all', label: '전체 기회', count: open.length }]} />
-        {tab === 'picks' && view.scored.length > 0 && <button type="button" className="ui-link rec-tabs__how" aria-haspopup="dialog" onClick={() => setHowOpen(true)}><Icon name="info" size={14} />어떻게 골랐나</button>}
+        {tab === 'picks' && view.scored.length > 0 && <button type="button" className="ui-link rec-tabs__how" aria-haspopup="dialog" onClick={() => onPanel('how')}><Icon name="info" size={14} />어떻게 골랐나</button>}
       </div>
       <TabPanel id="rec" active={tab}>
         {tab === 'picks' ? (
@@ -107,7 +109,7 @@ export function Overview({ sel, onSel, onOpen, onPrepare, onOpenLater }: {
           />
         )}
       </TabPanel>
-      <HowPicked open={howOpen} reasons={usedSources(lines)} onClose={() => setHowOpen(false)} onOpen={p => { setHowOpen(false); onOpen(p); }} />
+      <HowPicked open={howOpen} reasons={usedSources(lines)} onClose={onClosePanel} onOpen={onOpen} />
     </div>
   );
 }

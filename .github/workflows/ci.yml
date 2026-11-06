@@ -20,7 +20,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
-      - run: npm run build
+      - id: build
+        run: npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -47,10 +48,21 @@ jobs:
           done
       - run: fc-cache -f ~/.local/share/fonts >/dev/null && fc-list | grep -c "Noto Sans CJK KR"
       - run: npm run audit:layout -- --no-build
+      # 문구 검사: 보이는 글자에서 기호·금지어·가운뎃점 사슬을 찾으면 막는다(규칙: scripts/audit-copy/rules.mjs).
+      # 레이아웃 검사가 실패해도 빌드가 됐으면 문구 검사 결과까지 본다.
+      - if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: npm run audit:copy -- --no-build
       - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: layout-audit
           path: .qa/layout
+          retention-days: 7
+          if-no-files-found: ignore
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: copy-audit
+          path: .qa/copy
           retention-days: 7
           if-no-files-found: ignore

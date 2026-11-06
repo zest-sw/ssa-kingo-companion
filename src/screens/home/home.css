@@ -27,6 +27,7 @@
 .home-me__who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-2); font-size: var(--text-md); font-weight: var(--weight-bold); }
 .home-me__who span { font-size: var(--text-sm); font-weight: var(--weight-regular); color: var(--ink-muted); }
 /* 화면의 주인공 문장: 띠에서 이것 하나만 크게 */
+.home-me__title:focus-visible { box-shadow: none; }
 .home-me__title { max-width: 24em; font-size: var(--fs-lead); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); color: var(--ink-strong); }
 .home-me__ask { display: flex; align-items: center; gap: var(--space-1); margin-top: var(--space-1); }
 .home-me__alt { display: inline-flex; align-items: center; min-height: var(--hit-min); padding: 0 var(--space-2); border-radius: var(--radius-sm); color: var(--ink-muted); font-size: var(--text-sm); text-decoration: none; transition: background-color var(--dur-fast) var(--ease-out); }

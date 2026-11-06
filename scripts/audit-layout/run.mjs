@@ -40,8 +40,15 @@ const STATES = {
 const STEPS = [
   {
     match: /^recommend\/prepare\/[^/]+$/, steps: {
-      draft: async page => { await clickIf(page, '신청 준비 시작'); await click(page, '초안 보기'); await settle(page); },
-      apply: async page => { await clickIf(page, '신청 준비 시작'); await click(page, '초안 보기'); await settle(page); await click(page, '신청하러 가기'); }
+      draft: async page => { await toDraft(page); },
+      apply: async page => { await toDraft(page); await click(page, '신청하러 가기'); },
+      done: async page => { await finishPrep(page); }
+    }
+  },
+  {
+    match: /^activities\/records\/interview\/[^/]+$/, steps: {
+      preview: async page => { await toPreview(page); },
+      done: async page => { await toPreview(page); await saveRetro(page); }
     }
   }
 ];
@@ -49,7 +56,8 @@ const STEPS = [
 const ONBOARDING_STEPS = {
   '1-관심': async () => {},
   '2-시간': async page => { await chip(page, '멘토링'); await click(page, '다음'); },
-  '3-목표': async page => { await chip(page, '멘토링'); await click(page, '다음'); await click(page, '다음'); }
+  '3-목표': async page => { await chip(page, '멘토링'); await click(page, '다음'); await click(page, '다음'); },
+  '4-끝': async page => { await chip(page, '멘토링'); await finishOnboarding(page); }
 };
 
 const args = parseArgs(process.argv.slice(2));
@@ -58,6 +66,41 @@ async function chip(page, name) { await page.getByRole('button', { name, exact: 
 async function click(page, name) { await page.getByRole('button', { name, exact: true }).click(); }
 async function clickIf(page, name) { const b = page.getByRole('button', { name, exact: true }); if (await b.count()) await b.first().click(); }
 async function finishOnboarding(page) { await click(page, '다음'); await click(page, '다음'); await click(page, '이번 주 활동 보기'); }
+
+/** 신청 준비: 초안 단계까지 */
+async function toDraft(page) { await clickIf(page, '신청 준비 시작'); await click(page, '초안 보기'); await settle(page); }
+/**
+ * 신청 준비를 끝까지: 내가 할 일을 다 체크하고(밖에서 하는 일은 연 뒤 '했어요') 사이트를 연 뒤 '신청했어요'.
+ * 새 탭은 열지 않는다(window.open·target=_blank 막기). 화면 쪽 동작은 그대로다.
+ */
+async function finishPrep(page) {
+  await page.evaluate(() => {
+    window.open = () => null;
+    document.addEventListener('click', e => { if (e.target instanceof Element && e.target.closest('a[target=_blank]')) e.preventDefault(); }, true);
+  });
+  await clickIf(page, '신청 준비 시작');
+  for (const box of await page.locator('.rec-items input[type=checkbox]:not(:checked):not(:disabled)').all()) await box.check();
+  for (const link of await page.locator('.rec-items a[target=_blank]').all()) await link.click();
+  for (const b of await page.getByRole('button', { name: '했어요', exact: true }).all()) await b.click();
+  await click(page, '초안 보기'); await settle(page);
+  await click(page, '신청하러 가기');
+  await page.getByRole('button', { name: /^학교 사이트에서 신청하기/ }).click();
+  await click(page, '신청했어요');
+}
+/** 회고 인터뷰: 첫 질문에 한 줄 쓰고 나머지는 넘겨 미리보기까지. 쓰던 초안이 있으면 거기서 이어 간다. */
+async function toPreview(page) {
+  const done = page.getByRole('heading', { name: '이렇게 남아요' });
+  const field = page.locator('.iv-input');
+  if (await field.count() && !(await field.inputValue()).trim()) await field.fill('발표 자료를 같이 정리했어요');
+  for (let i = 0; i < 6 && !(await done.count()); i++) await page.locator('.iv-next').click();
+  await done.waitFor();
+}
+/** 회고 저장: 에너지를 고르고 저장, 끝 장면이 뜰 때까지 */
+async function saveRetro(page) {
+  await page.getByRole('button', { name: /^더 생겼어요/ }).click();
+  await click(page, '경험 카드 저장');
+  await page.locator('.iv-done').waitFor({ timeout: 5000 });
+}
 
 /** 분석 중·초안 쓰는 중 같은 기다림이 끝나고, 폭을 재는 그림이 자리를 잡을 때까지 */
 async function settle(page) {
@@ -107,6 +150,17 @@ async function makeState(browser, base, key) {
   return storage;
 }
 
+/**
+ * 주소가 검사한 경로 그대로인가. 경로가 같고 검사 경로에 적은 상태(?open= 등)가 남아 있으면 같다.
+ * 흐름 화면이 덧붙이는 상태(?step=draft)는 화면이 고른 것이라 주소가 바뀐 것으로 보지 않는다.
+ */
+function sameRoute(want, got) {
+  const [wp, wq = ''] = want.split('?');
+  const [gp, gq = ''] = got.split('?');
+  const g = new URLSearchParams(gq);
+  return wp === gp && [...new URLSearchParams(wq)].every(([k, v]) => g.get(k) === v);
+}
+
 // 파일 이름에 못 쓰는 글자(/ ? = &)는 _ 로 바꾼다. 'recommend?open=p-x' → 'recommend_open_p-x'
 const slug = (path, step) => path.replace(/[/?=&]/g, '_') + (step ? `@${step}` : '');
 
@@ -135,7 +189,7 @@ async function runJob(browser, base, job) {
     if (job.step) { await job.run(page); await settle(page); }
     issues = await page.evaluate(probe, { breakOnly: !!job.size.breakOnly });
     const hash = await page.evaluate(() => location.hash);
-    if (hash !== `#/${job.path}`) issues.push({ k: 'route-changed', level: 'warn', el: `${job.path} → ${hash.slice(2)}` });
+    if (!sameRoute(job.path, hash.slice(2))) issues.push({ k: 'route-changed', level: 'warn', el: `${job.path} → ${hash.slice(2)}` });
   } catch (e) {
     retries = e.retries ?? retries;
     issues.push({ k: 'run-error', level: 'fail', el: String(e.message || e).split('\n')[0].slice(0, 120) });

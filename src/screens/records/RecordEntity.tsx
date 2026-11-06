@@ -26,7 +26,8 @@ function RecordEntity({ id, onClose }: { id: string; onClose: () => void }) {
   return (
     <>
       <RecordDrawer record={deleting ? undefined : record} onClose={onClose} onDelete={setDeleting} />
-      <Modal open={!!deleting} onClose={() => { setDeleting(null); onClose(); }} title="이 기록을 지울까요?" actions={<><Button onClick={() => { setDeleting(null); onClose(); }}>취소</Button><Button variant="primary" onClick={remove}>지우기</Button></>}>
+      {/* 취소하면 보던 기록 서랍으로 돌아간다(서랍까지 닫으면 취소가 아니라 나가기가 된다) */}
+      <Modal open={!!deleting} onClose={() => setDeleting(null)} title="이 기록을 지울까요?" actions={<><Button onClick={() => setDeleting(null)}>취소</Button><Button variant="primary" onClick={remove}>지우기</Button></>}>
         지우면 추천과 분석에서도 빠져요. 지운 뒤 바로 되돌릴 수 있어요.
       </Modal>
     </>

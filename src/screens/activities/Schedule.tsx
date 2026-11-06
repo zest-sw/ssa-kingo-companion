@@ -16,6 +16,7 @@ const MONTH_ROWS = 12;
 type View = 'timeline' | 'board' | 'list';
 const VIEWS: { id: View; label: string }[] = [{ id: 'timeline', label: '일정표' }, { id: 'board', label: '보드' }, { id: 'list', label: '목록' }];
 type Sel = { view: View; focus?: string; full?: boolean };
+const viewPath = (v: View) => (v === 'timeline' ? 'activities/schedule' : `activities/schedule/${v}`);
 const isSel = (v: unknown): v is Sel => typeof v === 'object' && v !== null && VIEWS.some(x => x.id === (v as Sel).view);
 
 
@@ -28,10 +29,13 @@ const isSel = (v: unknown): v is Sel => typeof v === 'object' && v !== null && V
 export function Schedule({ sub }: { sub?: string }) {
   const { state } = useApp();
   const [sel, setSel] = useOverviewState<Sel>('activities/schedule', { view: 'timeline' }, isSel);
+  // 보기 방식은 주소가 정한다(일정표 = #/activities/schedule, 보드·목록 = 그 아래 경로). 새로고침·공유·뒤로 가기가 같은 보기를 연다.
+  // 하위 없이 열었는데 마지막에 본 보기가 보드·목록이면 주소를 그 보기로 바꿔 쓴다(기록은 쌓지 않는다).
   useEffect(() => {
     const v = VIEWS.find(x => x.id === sub);
-    if (v) setSel(s => ({ ...s, view: v.id }));
-  }, [sub, setSel]);
+    if (v) setSel(s => (s.view === v.id ? s : { ...s, view: v.id }));
+    else if (!sub && sel.view !== 'timeline') navigate(viewPath(sel.view), { replace: true });
+  }, [sub]); // eslint-disable-line react-hooks/exhaustive-deps
   const open = (id: string) => { setSel(s => ({ ...s, focus: id })); openEntity({ kind: 'activity', id }); };
   const tabs = <SectionTabs {...sectionTabs('activities', 'activities/schedule')} />;
 
@@ -53,7 +57,7 @@ export function Schedule({ sub }: { sub?: string }) {
     );
   }
 
-  const switcher = <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={v => setSel(s => ({ ...s, view: v }))} items={VIEWS} />;
+  const switcher = <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={v => { setSel(s => ({ ...s, view: v })); navigate(viewPath(v), { replace: true }); }} items={VIEWS} />;
   let body;
   let extra = null;
   if (sel.view === 'board') {

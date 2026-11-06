@@ -26,6 +26,8 @@
 /* ── 정체성 한 문장 ── */
 .ui-story-hero { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 .ui-story-hero__basis { display: flex; align-items: center; gap: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); }
+/* 버튼이 사라진 뒤 초점을 받는 제목. 페이지 제목처럼 링은 그리지 않는다 */
+.ui-story-hero__text:focus-visible { box-shadow: none; outline: none; }
 .ui-story-hero__text { margin: 0; font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); color: var(--ink-strong); }
 /* 확인 전 = AI 가설: 옅은 점선 밑줄(AiMark line). 확인 후 = 실선 */
 .ui-story-hero__text .ui-ai-line { text-decoration-thickness: var(--story-underline); text-underline-offset: var(--story-underline-gap); }

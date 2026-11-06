@@ -25,13 +25,13 @@ describe('바로 미루기', () => {
 
 describe('추천 주소 상태', () => {
   it('읽고 쓰면 그대로, 기본값은 주소에서 뺀다', () => {
-    const sel = { tab: 'all' as const, cat: 'edu' as const, sort: 'new' as const, open: 'p-interview' };
+    const sel = { tab: 'all' as const, cat: 'edu' as const, sort: 'new' as const, open: 'p-interview', panel: 'later' as const };
     const q = new URLSearchParams(Object.entries(recQuery(sel)).filter((e): e is [string, string] => !!e[1]));
     expect(parseRecQuery(q)).toEqual(sel);
     expect(recQuery(DEFAULT_SEL)).toEqual({ tab: undefined, cat: undefined, sort: undefined, open: undefined });
   });
   it('모르는 값은 기본값, 추천 활동 탭이면 칩·정렬을 주소에 안 남긴다', () => {
-    expect(parseRecQuery(new URLSearchParams('tab=x&cat=zzz&sort=y'))).toEqual({ ...DEFAULT_SEL, open: undefined });
+    expect(parseRecQuery(new URLSearchParams('tab=x&cat=zzz&sort=y&panel=zz'))).toEqual({ ...DEFAULT_SEL, open: undefined, panel: undefined });
     expect(recQuery({ tab: 'picks', cat: 'edu', sort: 'new' }).cat).toBeUndefined();
   });
 });

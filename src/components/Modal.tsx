@@ -33,7 +33,7 @@ export function Modal(props: Props) {
   const wide = size === 'wide';
   return createPortal(
     <div className="ui-scrim ui-scrim--center" data-state={phase} onAnimationEnd={onExited} onMouseDown={e => { if (open && e.target === e.currentTarget) onClose(); }}>
-      <div ref={box} className={wide ? 'ui-modal ui-modal--wide' : 'ui-modal'} role={wide ? 'dialog' : 'alertdialog'} aria-modal="true" aria-labelledby={id}>
+      <div ref={box} className={wide ? 'ui-modal ui-modal--wide' : 'ui-modal'} role={wide ? 'dialog' : 'alertdialog'} aria-modal="true" aria-labelledby={id} aria-describedby={children && !wide ? `${id}-body` : undefined}>
         <div className="ui-modal__head">
           <div className="ui-modal__heading">
             {eyebrow && <div className="ui-modal__eyebrow">{eyebrow}</div>}
@@ -41,7 +41,8 @@ export function Modal(props: Props) {
           </div>
           {aside}
         </div>
-        {children && <div className="ui-modal__body">{children}</div>}
+        {/* 짧은 질문(alertdialog)은 몸통 글을 제목과 함께 읽힌다 */}
+        {children && <div id={`${id}-body`} className="ui-modal__body">{children}</div>}
         <div className="ui-modal__actions">{actions}</div>
         {note && <p className="ui-modal__note">{note}</p>}
       </div>

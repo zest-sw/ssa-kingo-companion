@@ -32,7 +32,13 @@ export function RecruitView({ posts, onPost }: Props) {
     e.preventDefault();
     const problem = validatePost({ opportunityId: opp, slots, note });
     setError(problem);
-    if (problem) return;
+    if (problem) {
+      // 칸 옆이 아니라 폼 아래에 한 줄로 쓰므로, 틀린 칸으로 초점을 보내 그 칸이 오류 줄을 읽게 한다(aria-describedby).
+      const form = e.currentTarget as HTMLFormElement;
+      const name = problem.includes('기회') ? 'opportunity' : problem.includes('인원') ? 'slots' : 'recruit-note';
+      form.querySelector<HTMLElement>(`[name="${name}"]`)?.focus();
+      return;
+    }
     setPending(true);
     // 서버가 없어 올리는 데 걸리는 시간을 흉내 낸다.
     timer.current = window.setTimeout(() => {
@@ -52,22 +58,22 @@ export function RecruitView({ posts, onPost }: Props) {
         <form className="fr-form" onSubmit={submit} noValidate>
           <label className="fr-field">
             <span className="fr-field__label">기회</span>
-            <select value={opp} onChange={e => setOpp(e.target.value)} aria-invalid={error?.includes('기회') || undefined}>
+            <select name="opportunity" value={opp} onChange={e => setOpp(e.target.value)} aria-invalid={error?.includes('기회') || undefined} aria-describedby={error ? 'fr-error' : undefined}>
               <option value="">팀이 필요한 기회를 골라요</option>
               {TEAM_OPPORTUNITIES.map(o => <option key={o.id} value={o.id}>{o.kind} · {o.title}</option>)}
             </select>
           </label>
           <label className="fr-field">
             <span className="fr-field__label">모집 인원</span>
-            <select value={slots} onChange={e => setSlots(Number(e.target.value))}>
+            <select name="slots" value={slots} onChange={e => setSlots(Number(e.target.value))}>
               {SLOT_CHOICES.map(n => <option key={n} value={n}>{n}명</option>)}
             </select>
           </label>
           <label className="fr-field">
             <span className="fr-field__label">한 줄 <span className="num fr-field__count">{note.trim().length}/{NOTE_MAX}</span></span>
-            <input value={note} onChange={e => setNote(e.target.value)} placeholder="어떤 팀원이 좋은지 적어요" aria-invalid={Boolean(error && !error.includes('기회') && !error.includes('인원')) || undefined} />
+            <input name="recruit-note" autoComplete="off" value={note} onChange={e => setNote(e.target.value)} placeholder="어떤 팀원이 좋은지 적어요" aria-invalid={Boolean(error && !error.includes('기회') && !error.includes('인원')) || undefined} aria-describedby={error ? 'fr-error' : undefined} />
           </label>
-          {error && <p className="fr-error" role="alert">{error}</p>}
+          {error && <p id="fr-error" className="fr-error" role="alert">{error}</p>}
           <Button type="submit" variant="primary" block disabled={pending}>{pending ? '올리는 중' : '모집 글 올리기'}</Button>
         </form>
       </Card>
