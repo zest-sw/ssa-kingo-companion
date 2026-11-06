@@ -124,11 +124,11 @@
 .rec-runlog li .num { color: var(--ink-muted); }
 .rec-runlog li svg { color: var(--green-900); flex: none; }
 .rec-runlog__fail svg { color: var(--accent-ink); }
-.rec-draft__title { display: flex; align-items: center; gap: var(--space-2); padding-bottom: var(--space-3); margin-bottom: var(--space-3); border-bottom: var(--border); font-size: var(--text-2xl); font-weight: var(--weight-bold); }
+.rec-draft__title { display: flex; align-items: center; gap: var(--space-2); padding-bottom: var(--space-3); margin-bottom: var(--space-3); border-bottom: var(--border); font-size: var(--text-2xl); font-weight: var(--weight-heavy); }
 .rec-draft__body { display: flex; flex-direction: column; gap: var(--space-4); }
 .rec-draft__body section { padding-bottom: var(--space-4); border-bottom: var(--border); }
 .rec-apply { display: flex; flex-direction: column; gap: var(--space-4); }
-.rec-apply__title { font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
+.rec-apply__title { font-size: var(--text-2xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
 .rec-apply__rows { display: flex; flex-direction: column; gap: var(--space-2); }
 .rec-apply__rows li { display: flex; align-items: center; gap: var(--space-3); min-height: var(--hit-min); padding: 0 var(--space-3); border: var(--border); border-radius: var(--radius-md); font-size: var(--text-md); }
 .rec-apply__mark { display: inline-grid; place-items: center; flex: none; width: var(--space-6); height: var(--space-6); border-radius: var(--radius-full); background: var(--orange-100); color: var(--accent-ink); }
@@ -160,7 +160,7 @@
 .rec-pstep .rec-pdone { width: 100%; max-width: var(--rec-step-w); margin: 0 auto; align-self: start; display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding-block: var(--space-10); text-align: center; animation: rec-rise var(--dur-base) var(--ease-out) both; }
 .rec-pdone__mark { display: grid; place-items: center; width: var(--rec-done-mark); height: var(--rec-done-mark); border: 2px solid var(--green-900); border-radius: var(--radius-full); color: var(--green-900); animation: rec-pop var(--dur-base) var(--ease-out) both; }
 @keyframes rec-pop { from { transform: scale(0.8); } 70% { transform: scale(1.04); } }
-.rec-pdone__title { font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
+.rec-pdone__title { font-size: var(--text-2xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); }
 .rec-pdone__title:focus-visible { box-shadow: none; }
 .rec-pdone__rows { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-2); }
 .rec-pdone__rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-2); font-size: var(--text-md); color: var(--ink-muted); }
@@ -254,3 +254,6 @@
   .rec-top { grid-template-columns: minmax(0, 1fr); }
   .rec-top__side { align-items: flex-start; }
 }
+
+/* 흐름 화면(신청 준비): 페이지 머리도 본문과 같은 가운데 칸에 맞춘다. 회고 인터뷰(interview.css)와 같은 규칙 */
+.os[data-flow] > .ui-page-head { width: 100%; max-width: var(--rec-step-w); align-self: center; }

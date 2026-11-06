@@ -47,7 +47,7 @@
 .onb-field { min-height: var(--onb-card-h); }
 .onb-field b, .onb-option b { font-weight: var(--weight-bold); }
 .onb-field span, .onb-option span { font-size: var(--text-sm); color: var(--ink-muted); }
-.onb-field:hover, .onb-option:hover { background: var(--surface-alt); }
+.onb-field:hover, .onb-option:hover { background: var(--surface-hover); }
 .onb-field:active, .onb-option:active { background: var(--surface-press); }
 .onb-field[aria-pressed='true'], .onb-option[aria-pressed='true'] { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
 .onb-field[aria-pressed='true'] b, .onb-option[aria-pressed='true'] b { color: var(--primary); }
@@ -77,7 +77,7 @@
 /* 끝 장면: 가장 추천 하나만 홈의 제안 카드처럼 살짝 띄운다. 제목은 바로 보이고, 카드만 짧게 올라온다 */
 .onb-pick {
   margin-top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2);
-  padding: var(--space-5) var(--space-6); border: var(--border); border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--home-lift);
+  padding: var(--space-5) var(--space-6); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-raise);
   animation: onb-rise var(--dur-base) var(--ease-out);
 }
 @keyframes onb-rise { from { transform: translateY(var(--onb-shift)); opacity: var(--onb-from-opacity); } }
@@ -85,6 +85,10 @@
 @media (prefers-reduced-motion: reduce) {
   .onb__stage[data-dir], .onb-pick { animation: none; }
 }
-.onb-pick__label { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--primary); }
+/* 눈썹 한 줄은 공용 .ui-subhead(회색). 간격은 카드의 gap 이 맡는다 */
+.onb-pick__label { margin: 0; }
 .onb-pick__title { font-size: var(--fs-lead); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
 .onb-pick__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-top: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }
+
+/* 끝 장면은 질문 칸 높이를 고정하지 않는다: 카드 아래 빈 칸 없이 버튼 줄이 바로 붙는다 */
+.onb--done .onb__stage { height: auto; }

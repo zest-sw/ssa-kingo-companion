@@ -12,6 +12,7 @@
   --rm-dot: 10px;
   --rm-line-w: 1.5px;
   --rec-empty-max: 640px;
+  --rec-flow-w: 720px;
   --rec-xc-label: 88px;
 }
 
@@ -22,15 +23,17 @@
 
 /* 빈 상태 카드는 내용 높이. 본문이 넓어도 한쪽에 붙지 않게 최대 폭을 두고 가운데에 둔다. */
 .os > .rec-hold { flex: none; width: 100%; max-width: var(--rec-empty-max); margin: 0 auto; }
+/* 흐름 화면(회고 인터뷰·회고 목록): 페이지 머리와 본문을 같은 가운데 칸(질문 폭)에 맞춘다. 신청 준비(recommend.css)와 같은 규칙 */
+.os[data-flow] > .ui-page-head, .os[data-flow] > .rec-hold, .os[data-flow] > .rec-pending { width: 100%; max-width: var(--rec-flow-w); align-self: center; }
 .rm-card--empty { align-self: start; width: 100%; max-width: var(--rec-empty-max); margin: 0 auto; }
 .rec-card { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
 .rec-drawer .rec-card { padding: 0; border: 0; }
 .rec-card__eyebrow { font-size: var(--text-sm); color: var(--ink-muted); }
-.rec-card__title { font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+.rec-card__title { font-size: var(--text-xl); font-weight: var(--weight-heavy); line-height: var(--leading-tight); }
 .rec-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }
 .rec-fields { display: flex; flex-direction: column; }
 .rec-field { padding: var(--space-3) var(--space-2); border-top: var(--border); border-radius: var(--radius-sm); }
-.rec-field[data-current] { background: var(--surface-hover); box-shadow: inset 2px 0 0 var(--green-900); }
+.rec-field[data-current] { background: var(--surface-hover); box-shadow: inset var(--nav-mark) 0 0 var(--text); }
 .rec-field dt { font-size: var(--text-sm); color: var(--ink-muted); }
 .rec-field dd { margin-top: var(--space-1); }
 .rec-field__value { font-size: var(--text-md); font-weight: var(--weight-medium); overflow-wrap: anywhere; }
@@ -59,10 +62,6 @@
 .rec-setting .ui-switch { margin-left: calc(-1 * var(--space-1)); font-size: var(--text-md); font-weight: var(--weight-medium); }
 .rec-setting__hint--left { margin-top: calc(-1 * var(--space-2)); text-align: left; }
 
-/* 완료 화면 */
-/* 신청 준비 끝 화면(recommend PrepDone)이 같은 이름을 써서 이 줄이 그쪽 여백을 정한다. 회고 인터뷰는 더 쓰지 않는다. */
-.rec-done { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); text-align: center; padding: var(--space-8) var(--space-6); }
-
 /* 회고 대기 목록 */
 .rec-pending { flex: 1; display: flex; flex-direction: column; gap: var(--space-3); }
 .rec-pending__row.ui-card { position: relative; display: flex; align-items: center; gap: var(--space-4); }
@@ -83,7 +82,7 @@
 .rec-form { display: flex; flex-direction: column; gap: var(--space-4); color: var(--ink); }
 .rec-form__field { display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--ink-muted); }
 .rec-form__opt { font-weight: var(--weight-regular); }
-.rec-form__warn { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--surface-alt); border: var(--rec-hairline) dashed var(--line-strong); font-size: var(--text-sm); color: var(--ink-muted); }
+.rec-form__warn { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--surface-alt); border: var(--rec-hairline) solid var(--line-strong); font-size: var(--text-sm); color: var(--ink-muted); }
 
 @media (max-width: 1199px) {
   .rec-card { padding: var(--space-4); }

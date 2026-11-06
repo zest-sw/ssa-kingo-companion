@@ -25,7 +25,7 @@ export function Pending() {
   // 여기가 비면 끝난 활동이 없다는 뜻이라, 하는 활동이 있으면 일정, 없으면 추천으로 보낸다.
   const step = nextStep(state.activities);
   return (
-    <div className="os">
+    <div className="os" data-flow>
       <PageHeader parent={parentLink('activities/records')} crumb="회고 인터뷰" title="회고 쓰기" />
       <>
         {list.length === 0 ? (
