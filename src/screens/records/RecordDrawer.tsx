@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, useState } from 'react';
-import { Button, Drawer } from '../../components';
+import { useId, useRef, useState } from 'react';
+import { Button, Drawer, useFocusOnChange } from '../../components';
 import { useApp } from '../../app/AppState';
 import { editedRecord, evidenceOf, usesRecord } from '../../domain/interview/record';
 import { semesterLabel } from '../../domain/interview/archive';
@@ -28,11 +28,7 @@ function Body({ r, onClose, onDelete }: { r: RecordItem } & Pick<Props, 'onClose
   const [editing, setEditing] = useState(false);
   // 고치기 ↔ 폼은 누른 버튼이 사라지는 전환이라, 폼을 닫으면 '고치기'로 초점을 돌려준다(첫 그림 제외).
   const actions = useRef<HTMLDivElement>(null);
-  const wasEditing = useRef(false);
-  useEffect(() => {
-    if (!editing && wasEditing.current) actions.current?.querySelector<HTMLButtonElement>('button')?.focus();
-    wasEditing.current = editing;
-  }, [editing]);
+  useFocusOnChange(() => actions.current?.querySelector<HTMLButtonElement>('button'), editing, { when: !editing, scroll: true });
   const card = cardOf(r);
   const meta = `${semesterLabel(r.semester)} · ${GROUP_LABEL[FIELD_GROUP[r.field]]}`;
   // 이 기록으로 확인한 발견이 있으면, 고쳤을 때 그 확인이 풀린다고 미리 알린다.

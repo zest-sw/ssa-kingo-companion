@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
-import { AiMark, Button, Chip, Panel, ProgressBar } from '../../../components';
+import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { AiMark, Button, Chip, Panel, ProgressBar, useFocusOnChange } from '../../../components';
 import { insertChip, QUESTION_COUNT, type Question } from '../../../domain/interview/questions';
 
 type Props = {
@@ -24,12 +24,7 @@ export function QuestionStep({ index, question, value, chips, returning, dir, no
   const field = useRef<HTMLTextAreaElement>(null);
 
   // 질문이 바뀌면 입력 칸으로 초점을 옮긴다. 칸 이름이 질문이라 화면 읽기도 질문부터 읽는다.
-  useEffect(() => {
-    const el = field.current;
-    if (!el) return;
-    el.focus({ preventScroll: true });
-    el.setSelectionRange(el.value.length, el.value.length);
-  }, [index]);
+  useFocusOnChange(field, index, { onMount: true, caretEnd: true });
 
   const pick = (chip: string) => {
     onChange(insertChip(value, chip));

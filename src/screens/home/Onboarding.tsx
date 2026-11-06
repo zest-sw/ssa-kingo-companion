@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { Button } from '../../components';
+import { useRef, useState, type KeyboardEvent } from 'react';
+import { Button, useFocusOnChange } from '../../components';
 import { EMPTY_PROFILE } from '../../data/seed';
 import { canAdvance, ONB_STEPS, stepDirection } from '../../domain/onboarding';
 import { MAX_INTERESTS } from '../../domain/recommend-flow/flow';
@@ -22,13 +22,9 @@ export function Onboarding({ onDone, onExample }: { onDone: (p: Profile) => void
   const [dir, setDir] = useState<'next' | 'back' | undefined>();
   const [draft, setDraft] = useState<Profile>(EMPTY_PROFILE);
   const head = useRef<HTMLHeadingElement>(null);
-  const first = useRef(true);
 
   // 단계가 바뀌면 질문으로 포커스를 옮겨 키보드 흐름이 끊기지 않게 한다(첫 화면은 앱 틀이 옮긴다).
-  useEffect(() => {
-    if (first.current) { first.current = false; return; }
-    head.current?.focus({ preventScroll: true });
-  }, [step]);
+  useFocusOnChange(head, step);
 
   const canNext = canAdvance(step, draft);
   const go = (to: number) => { setDir(stepDirection(step, to)); setStep(to); };
