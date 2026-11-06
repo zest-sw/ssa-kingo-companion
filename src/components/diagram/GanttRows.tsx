@@ -4,7 +4,7 @@ import { clamp01, dateLabel, edgeAlign, fractionOf, inRange, type DateRange } fr
 import { Piece, toneClass, type DiagramTone } from './Piece';
 import { useWidth } from './useWidth';
 
-/** 막대 모양으로 상태를 말한다: 준비=빗금, 진행=채움, 끝=옅음. 색은 분야. */
+/** 얇은 막대 모양으로 상태를 말한다: 준비=옅은 틴트 + 테두리, 진행=채움, 끝=옅음. 색은 분야. */
 export type GanttState = 'prep' | 'active' | 'done';
 export const GANTT_STATE_LABEL: Record<GanttState, string> = { prep: '준비', active: '진행', done: '끝' };
 

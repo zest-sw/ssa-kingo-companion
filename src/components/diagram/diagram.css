@@ -45,8 +45,9 @@
 .ui-dg-mark--circle::before { width: var(--dg-mark); height: var(--dg-mark); border-radius: var(--radius-full); background: var(--surface); box-shadow: inset 0 0 0 2px var(--dg-c), 0 0 0 2px var(--surface); }
 .ui-dg-mark--fill::before { background: var(--dg-c); }
 .ui-dg-mark--faded::before { background: var(--dg-c); opacity: var(--dg-faded); }
-.ui-dg-mark--hatch::before { background: repeating-linear-gradient(135deg, var(--dg-c) 0 1.5px, transparent 1.5px var(--dg-hatch)); box-shadow: inset 0 0 0 1.5px var(--dg-c); }
-.ui-dg-mark--today::before { width: 2px; height: var(--space-3); background: var(--dg-today); }
+/* 준비: 옅은 틴트 바탕 + 1px 진한 테두리(빗금은 얇은 막대에서 읽히지 않는다) */
+.ui-dg-mark--hatch::before { background: color-mix(in srgb, var(--dg-c) var(--tint), transparent); box-shadow: inset 0 0 0 1px var(--dg-c); }
+.ui-dg-mark--today::before { width: var(--rule); height: var(--space-3); background: var(--dg-today); }
 
 /* 빈 상태 */
 .ui-dg-empty { position: absolute; inset: 0; display: grid; place-items: center; padding: 0 var(--space-4); color: var(--ink-muted); font-size: var(--text-sm); text-align: center; }
@@ -65,7 +66,7 @@
 .ui-dg-axis__tick { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; color: var(--ink-subtle); }
 .ui-dg-axis__tick[data-align='start'] { transform: none; }
 .ui-dg-axis__tick[data-align='end'] { transform: translateX(-100%); }
-.ui-dg-today { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px solid var(--dg-today); pointer-events: none; }
+.ui-dg-today { position: absolute; top: 0; bottom: 0; width: 0; border-left: var(--rule) solid var(--dg-today); pointer-events: none; }
 .ui-dg-today__label { position: absolute; bottom: 100%; left: 0; transform: translateX(-50%); padding-bottom: 2px; color: var(--accent-ink); font-weight: var(--weight-bold); white-space: nowrap; }
 .ui-dg-today[data-align='start'] .ui-dg-today__label { transform: none; }
 .ui-dg-today[data-align='end'] .ui-dg-today__label { transform: translateX(-100%); }
@@ -76,9 +77,9 @@
 .ui-dg-tl__pt { position: absolute; width: var(--hit-min); height: var(--dg-lane-h); transform: translateX(-50%); }
 /* 한 활동 묶음(마감 ◆ ~ 활동 ●)을 잇는 얇은 선. 표식 뒤에 깔린다 */
 .ui-dg-tl__link { position: absolute; height: var(--dg-lane-h); pointer-events: none; }
-.ui-dg-tl__link::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 2px solid var(--line-strong); transform: translateY(-50%); }
+.ui-dg-tl__link::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: var(--rule) solid var(--line-strong); transform: translateY(-50%); }
 .ui-dg-tl__span { position: absolute; height: var(--dg-lane-h); min-width: var(--hit-min); }
-.ui-dg-tl__span::before { justify-self: stretch; height: var(--dg-bar-h); border-radius: var(--radius-xs); background: var(--dg-c); }
+.ui-dg-tl__span::before { justify-self: stretch; height: var(--bar-h); border-radius: var(--radius-xs); background: var(--dg-c); }
 
 /* GanttRows */
 .ui-dg-gantt { display: flex; flex-direction: column; padding-top: var(--space-5); }
@@ -89,7 +90,7 @@
 .ui-dg-gantt__axis { margin: 0 var(--space-3); }
 .ui-dg-gantt__row:not(:first-of-type) .ui-dg-today__label { display: none; }
 .ui-dg-gantt__bar { position: absolute; top: 50%; transform: translateY(-50%); min-width: var(--hit-min); }
-.ui-dg-gantt__bar::before { justify-self: stretch; height: var(--dg-bar-h); border-radius: var(--radius-xs); }
+.ui-dg-gantt__bar::before { justify-self: stretch; height: var(--bar-h); border-radius: var(--radius-xs); }
 .ui-dg-gantt__mark { position: absolute; top: 50%; width: var(--hit-min); transform: translate(-50%, -50%); z-index: 1; }
 
 /* DotGrid */
@@ -106,12 +107,12 @@
 .ui-dg-funnel { display: flex; flex-direction: column; gap: 2px; }
 .ui-dg-funnel__step {
   width: 100%; display: grid; grid-template-columns: calc(var(--space-12) * 2) minmax(0, 1fr) var(--space-12); align-items: center; gap: var(--space-3);
-  min-height: calc(var(--dg-funnel-h) + var(--space-2)); padding: 0 var(--space-2); justify-items: stretch;
+  min-height: var(--hit-min); padding: 0 var(--space-2); justify-items: stretch;
 }
 .ui-dg-funnel__step::before { display: none; }
 .ui-dg-funnel__label { color: var(--ink); font-size: var(--text-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ui-dg-funnel__track { display: block; height: var(--dg-funnel-h); border-radius: var(--radius-xs); background: var(--dg-track); overflow: hidden; }
-.ui-dg-funnel__fill { display: block; height: 100%; min-width: 2px; background: var(--line-strong); border-radius: inherit; }
+.ui-dg-funnel__track { display: block; height: var(--bar-h); border-radius: var(--radius-xs); background: var(--dg-track); overflow: hidden; }
+.ui-dg-funnel__fill { display: block; height: 100%; min-width: var(--rule); background: var(--line-strong); border-radius: inherit; }
 .ui-dg-funnel__fill[data-last='true'] { background: var(--primary); }
 .ui-dg-funnel__count { justify-self: end; color: var(--ink); font-size: var(--text-md); font-weight: var(--weight-bold); white-space: nowrap; }
 .ui-dg-funnel__count small { margin-left: 2px; color: var(--ink-muted); font-size: var(--text-xs); font-weight: var(--weight-medium); }
@@ -120,14 +121,14 @@
 /* 조각이 너무 많아 최소 폭(--hit-min)이 안 들어가면 줄을 바꾼다. 누르는 칸을 줄이지 않는다 */
 .ui-dg-seg__bar { display: flex; flex-wrap: wrap; gap: 2px; }
 .ui-dg-seg__part { flex: 1 1 0; height: var(--hit-min); }
-.ui-dg-seg__part::before { justify-self: stretch; height: var(--dg-segment-h); background: var(--dg-c); }
+.ui-dg-seg__part::before { justify-self: stretch; height: var(--bar-h); background: var(--dg-c); }
 .ui-dg-seg__part:first-child::before { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
 .ui-dg-seg__part:last-child::before { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
 .ui-dg-seg__part:only-child::before { border-radius: var(--radius-sm); }
-/* 막대 안 이름·개수: 색만으로 구분하지 않는다. 옅은 톤 위에는 진한 글자 */
-.ui-dg-seg__part::before, .ui-dg-seg__text { grid-area: 1 / 1; }
-.ui-dg-seg__text { position: relative; z-index: 1; max-width: 100%; padding: 0 var(--space-2); overflow: hidden; color: var(--ink-inverse); font-size: var(--text-xs); font-weight: var(--weight-bold); white-space: nowrap; text-overflow: ellipsis; pointer-events: none; }
-.ui-dg-seg__part.ui-dg-tone--todo .ui-dg-seg__text, .ui-dg-seg__part.ui-dg-tone--done .ui-dg-seg__text { color: var(--ink); }
+/* 이름·개수(inline): 색만으로 구분하지 않는다. 얇은 막대 바로 아래에 조각마다 붙인다 */
+.ui-dg-seg--inline .ui-dg-seg__part { height: auto; min-height: var(--hit-min); grid-template-rows: var(--bar-h) auto; align-content: start; justify-items: stretch; row-gap: var(--space-1); padding-top: var(--space-1); }
+.ui-dg-seg__text { max-width: 100%; overflow: hidden; color: var(--text-sub); font-size: var(--fs-min); white-space: nowrap; text-overflow: ellipsis; text-align: left; pointer-events: none; }
+.ui-dg-seg__text b { color: var(--text); font-weight: var(--weight-bold); }
 
 /* MiniTile: 타일 전체가 링크 */
 .ui-dg-tile {
@@ -181,7 +182,7 @@
 .ui-ghost__btrack--line::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed var(--line-strong); }
 .ui-ghost__bcol { position: absolute; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; }
 .ui-ghost__bdot { position: absolute; top: 50%; width: var(--dg-dot); height: var(--dg-dot); border-radius: var(--radius-full); border: 1px dashed var(--line-strong); background: var(--surface); transform: translate(-50%, -50%); box-sizing: border-box; }
-.ui-ghost__axis { display: flex; justify-content: space-between; padding-top: var(--space-2); border-top: 2px dashed var(--line-strong); }
+.ui-ghost__axis { display: flex; justify-content: space-between; padding-top: var(--space-2); border-top: var(--rule) dashed var(--line-strong); }
 .ui-ghost__tick { position: relative; }
 .ui-ghost__tick::before { content: ''; position: absolute; left: 50%; top: calc(-1 * var(--space-2) - 2px); height: var(--space-2); border-left: 1px solid var(--line-strong); }
 .ui-ghost__net { width: 100%; height: var(--dg-ghost-net-h); }

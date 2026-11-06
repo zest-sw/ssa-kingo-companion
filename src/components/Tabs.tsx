@@ -1,5 +1,6 @@
 import { useRef, type KeyboardEvent, type ReactNode } from 'react';
 import { CountBadge } from './Badge';
+import { useIndicator } from './useIndicator';
 
 export type TabItem<T extends string> = { id: T; label: string; count?: number };
 
@@ -18,6 +19,7 @@ function moveFocus<T extends string>(e: KeyboardEvent, items: TabItem<T>[], valu
  */
 export function Tabs<T extends string>({ id, label, items, value, onChange }: { id: string; label: string; items: TabItem<T>[]; value: T; onChange: (id: T) => void }) {
   const root = useRef<HTMLDivElement>(null);
+  useIndicator(root, '[aria-selected="true"]', value);
   return (
     <div ref={root} className="ui-tabs" role="tablist" aria-label={label} onKeyDown={e => moveFocus(e, items, value, onChange, root.current)}>
       {items.map(t => (
