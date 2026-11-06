@@ -1,4 +1,4 @@
-import { clusterLabel, type GraphEdge, type KnowledgeGraph } from './graph';
+import { type GraphEdge, type KnowledgeGraph } from './graph';
 import { wrapWords } from './wrap';
 
 // 경험 지도 그래프 배치. 같은 기록이면 늘 같은 그림이 나오도록 난수 없이 힘 기반으로 계산한다.
@@ -17,7 +17,7 @@ export type GraphMetrics = {
   gap: number; pad: number;
 };
 
-export const GRAPH_METRICS: GraphMetrics = { axisR: 28, recR: 8, perLine: 9, lineH: 15, labelGap: 5, charW: 12, nameH: 20, nameCharW: 13, kwH: 15, gap: 6, pad: 14 };
+export const GRAPH_METRICS: GraphMetrics = { axisR: 26, recR: 8, perLine: 9, lineH: 15, labelGap: 5, charW: 12, nameH: 24, nameCharW: 14, kwH: 15, gap: 6, pad: 14 };
 
 export type Pt = { x: number; y: number };
 /** 상자: 왼쪽 위와 크기 */
@@ -48,7 +48,11 @@ type Item = { id: string; kind: 'axis' | 'record' | 'name'; cluster: string; w: 
 export const joinDots = (s: string) => s.replace(/\s+·\s*/g, '· ');
 
 const nameId = (c: string) => `name:${c}`;
-/** 묶음 이름 아래 키워드 줄: '인터뷰·설문·사용자'. 없으면 빈 문자열 */
+/** 묶음 이름표 크기. 가장 큰 묶음(첫 묶음)이 그림의 주인공이라 한 단계 크게 그린다 */
+export const nameSize = (hero: boolean, m: GraphMetrics = GRAPH_METRICS) =>
+  hero ? { h: m.nameH + 8, charW: m.nameCharW + 3 } : { h: m.nameH, charW: m.nameCharW };
+
+/** 묶음 키워드 한 줄: '인터뷰·설문·사용자'. 그림에는 쓰지 않고 마우스 올림·옆 칸에서만. 없으면 빈 문자열 */
 export const keywordLine = (kw: string[]) => kw.slice(0, 3).join('·');
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
 
@@ -63,12 +67,11 @@ function makeItems(g: KnowledgeGraph, m: GraphMetrics, lines: Record<string, str
       items.push({ id: n.id, kind: 'record', cluster: n.cluster, w, h: m.recR * 2 + m.labelGap + ls.length * m.lineH, top: -m.recR, x: 0, y: 0 });
     }
   }
-  // 사전에 맞은 묶음은 이름 아래에 맞은 키워드를 작은 글씨로 한 줄 둔다(이름이 왜 붙었는지)
-  for (const c of g.clusters) {
-    const kw = keywordLine(c.keywords);
-    const w = Math.max(textWidth(clusterLabel(c), m.nameCharW) + 12, kw ? textWidth(kw, m.charW) : 0);
-    items.push({ id: nameId(c.id), kind: 'name', cluster: c.id, w, h: m.nameH + (kw ? m.kwH : 0), top: -m.nameH / 2, x: 0, y: 0 });
-  }
+  // 묶음 이름은 짧은 이름 하나만. 키워드 나열은 그림을 무겁게 해서 마우스 올림과 옆 칸으로 보낸다
+  g.clusters.forEach((c, i) => {
+    const s = nameSize(i === 0, m);
+    items.push({ id: nameId(c.id), kind: 'name', cluster: c.id, w: textWidth(c.name, s.charW) + 16, h: s.h, top: -s.h / 2, x: 0, y: 0 });
+  });
   return items;
 }
 

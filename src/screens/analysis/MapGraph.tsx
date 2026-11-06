@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useZoomPan, ZoomIcon, ZoomPanBar } from '../../components';
-import { RELATION_LABEL, clusterLabel, clusterLinks, focusSet, hubTags, isTentative, type GraphEdge, type GraphFocus, type GraphNode, type KnowledgeGraph, type RecordNode } from '../../domain/analysis/graph';
-import { GRAPH_METRICS as M, hullExit, keywordLine, layoutGraph, textWidth, placeEdgeLabels, placeHubTags, radiusOf, trimSegment, type GraphLayout, type Pt } from '../../domain/analysis/graphLayout';
+import { RELATION_LABEL, clusterLinks, focusSet, hubTags, isTentative, type GraphEdge, type GraphFocus, type GraphNode, type KnowledgeGraph, type RecordNode } from '../../domain/analysis/graph';
+import { GRAPH_METRICS as M, hullExit, keywordLine, layoutGraph, nameSize, textWidth, placeEdgeLabels, placeHubTags, radiusOf, trimSegment, type GraphLayout, type Pt } from '../../domain/analysis/graphLayout';
 import {
   centerOn, clusterBounds, dotInv, findNodes, fitView, keepInView, layoutBounds, nodeBrief, nodeInv, pinLayout, scaleBoxes, textInv, toScreen, zoomDetail, ZOOM, type View
 } from '../../domain/analysis/graphView';
@@ -19,7 +19,7 @@ type Props = {
 /** 오른쪽 도구 막대 칸. 그래프 배치는 이 칸을 뺀 폭에 맞춘다(맞춤 상태에서 막대가 노드를 덮지 않게) */
 const TOOL_W = 48;
 const FIT_PAD = 12;
-/** 묶음으로 맞출 때 확대 상한. 더 키우면 묶음이 잇는 역량 허브가 화면 밖으로 나간다 */
+/** 묶음으로 맞출 때 확대 상한. 묶음과 그 묶음이 잇는 역량을 함께 맞추고, 그래도 너무 키우지 않는다 */
 const CLUSTER_MAX_K = 1.6;
 const NO_PINS: Record<string, Pt> = {};
 
@@ -45,14 +45,12 @@ function useBox(fallback = { w: 720, h: 480 }) {
 
 const keys = (fn: (e: KeyboardEvent) => void) => ({ role: 'button' as const, tabIndex: 0, onKeyDown: fn });
 const hullPath = (pts: Pt[]) => (pts.length ? `M${pts.map(p => `${p.x} ${p.y}`).join('L')}Z` : '');
-/** 요약 선 굵기: 근거 수에 비례, 1.5~7px */
-const linkWidth = (n: number) => Math.min(7, 1 + n * 0.8);
 const focusOf = (nodeId: string): GraphFocus => (nodeId.startsWith('ax:') ? { kind: 'axis', id: nodeId.slice(3) } : { kind: 'node', id: nodeId });
 const openOf = (nodeId: string): GraphOpen => (nodeId.startsWith('ax:') ? { kind: 'axis', id: nodeId.slice(3) } : { kind: 'record', id: nodeId });
 const isPicked = (s: GraphFocus | null, nodeId: string) => !!s && ((s.kind === 'node' && s.id === nodeId) || (s.kind === 'axis' && `ax:${s.id}` === nodeId));
 
 /**
- * 경험 지도 지식 그래프. 역량은 남색 큰 원(허브), 활동은 분야 색 작은 원, 묶음은 옅은 영역.
+ * 경험 지도 지식 그래프. 첫눈에는 묶음 이름(가장 큰 묶음이 주인공), 활동은 분야 색 작은 원, 역량은 옅은 원으로 물러나 있다.
  * 휠·핀치로 확대, 빈 곳을 끌어 이동, 노드를 끌어 옮기면 그 자리에 고정된다. 한 번 누르면 선택, 두 번 누르면 서랍.
  * 의미 기반 확대: 축소(far)하면 묶음 이름·역량만, 기본(mid)은 활동 이름까지, 확대(near)하면 활동마다의 근거 선과 관계 이름까지.
  */
@@ -122,7 +120,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
     onPaint: placeTip
   });
 
-  const goCluster = (id: string) => { const b = clusterBounds(live.current.layout, id); if (b) zp.set(fitView(b, live.current.frame, 32, CLUSTER_MAX_K), 'animate'); };
+  const goCluster = (id: string) => { const b = clusterBounds(live.current.layout, id, clusterLinks(graph).filter(l => l.cluster === id).map(l => l.to)); if (b) zp.set(fitView(b, live.current.frame, 32, CLUSTER_MAX_K), 'animate'); };
   const goNode = (id: string) => { const p = live.current.layout.pos[id]; if (p) zp.set(centerOn(zp.view(), p, live.current.frame, Math.max(zp.view().k, 1.25)), 'animate'); };
 
   // 처음 열 때와 칸 크기·기록이 바뀌어 배치가 새로 나오면 화면에 맞춘다
@@ -244,7 +242,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
                 const from = to && hullExit(layout.hulls[l.cluster] ?? [], to);
                 if (!to || !from) return null;
                 const s = trimSegment(from, 0, to, M.axisR * inv + 3);
-                return <line key={l.id} x1={s.a.x} y1={s.a.y} x2={s.b.x} y2={s.b.y} strokeWidth={linkWidth(l.count)} className={`xg-link${l.confirmed ? ' is-yes' : ''}`} markerEnd={`url(#${mk}-base)`} />;
+                return <line key={l.id} x1={s.a.x} y1={s.a.y} x2={s.b.x} y2={s.b.y} className={`xg-link${l.confirmed ? ' is-yes' : ''}`} />;
               })}
             </g>
           )}
@@ -254,19 +252,20 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
               <text key={e.id} x={relPos[e.id].x} y={relPos[e.id].y} dy="0.35em" textAnchor="middle" className={`xg-rel${e.confirmed ? ' is-yes' : ''}${e.kind === 'follow' && !hot ? ' xg-near-only' : ''}`}>{RELATION_LABEL[e.kind]}</text>
             ))}
           </g>
-          {graph.clusters.map(c => {
+          {graph.clusters.map((c, ci) => {
             const p = layout.names[c.id];
             const b = layout.boxes[`name:${c.id}`];
             const on = selCluster === c.id;
-            const label = clusterLabel(c), kw = keywordLine(c.keywords);
-            const pillW = textWidth(label, M.nameCharW) + 12;
+            const kw = keywordLine(c.keywords);
+            const size = nameSize(ci === 0);
+            const pillW = textWidth(c.name, size.charW) + 16;
             const why = kw ? `, 키워드 ${kw}` : isTentative(c) ? ', AI가 제안한 이름, 확인 전' : '';
             return (
-              <g key={c.id} className={`xg-name${isTentative(c) ? ' xg-name--ai' : ''}${on ? ' is-picked' : ''}${hot && !on && selCluster ? ' is-dim' : ''}`} data-zp-id={`cluster|${c.id}`} aria-label={`${c.name} 묶음, 활동 ${c.recordIds.length}개${why}. 이 묶음으로 확대해서 분석 보기`} aria-pressed={on}
+              <g key={c.id} className={`xg-name${ci === 0 ? ' xg-name--hero' : ''}${isTentative(c) ? ' xg-name--ai' : ''}${on ? ' is-picked' : ''}${hot && !on && selCluster ? ' is-dim' : ''}`} data-zp-id={`cluster|${c.id}`} aria-label={`${c.name} 묶음, 활동 ${c.recordIds.length}개${why}. 이 묶음으로 확대해서 분석 보기`} aria-pressed={on}
                 {...keys(e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect({ kind: 'cluster', id: c.id }); goCluster(c.id); } })}>
-                <rect x={p.x - pillW / 2} y={b.y} width={pillW} height={M.nameH} rx={M.nameH / 2} className="xg-name__bg" />
-                <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className="xg-name__text">{label}</text>
-                {kw && <text x={p.x} y={b.y + M.nameH + M.kwH / 2} dy="0.35em" textAnchor="middle" className="xg-name__kw">{kw}</text>}
+                <title>{kw ? `키워드 ${kw}` : isTentative(c) ? 'AI가 제안한 이름이에요. 옆 칸에서 확인해 주세요' : c.name}</title>
+                <rect x={p.x - pillW / 2} y={b.y} width={pillW} height={size.h} rx={size.h / 2} className="xg-name__bg" />
+                <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle" className="xg-name__text">{c.name}</text>
               </g>
             );
           })}
@@ -308,7 +307,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
         {brief && (
           <div className="xg-tip__in">
             <b>{brief.name}</b>
-            <span>{brief.kind === 'record' ? `활동 · ${brief.where} 묶음` : '역량'}</span>
+            <span>{brief.kind === 'record' ? `${brief.where} 묶음의 활동` : '역량'}</span>
             <span>확인 근거 <b className="num">{brief.confirmed}</b> · 추정 <b className="num">{brief.estimated}</b></span>
             <span>{brief.kind === 'record' ? '이어진 활동' : '근거 활동'} <b className="num">{brief.linked}</b>개</span>
           </div>

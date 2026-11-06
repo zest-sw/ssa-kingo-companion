@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_RECORDS } from '../../data/seed';
 import { rec } from '../fixtures.test-util';
-import { buildFlow, flowCountNote, flowStory, semesterPick, topGroups } from './flow';
+import { buildFlow, flowStory, semesterPick, topGroups } from './flow';
 import { semesterAxis } from './semester';
 
 describe('관심 흐름 · 길과 이야기', () => {
@@ -35,10 +35,9 @@ describe('관심 흐름 · 길과 이야기', () => {
     expect(flowStory(buildFlow([], ['2026-2']))).toEqual([]);
   });
 
-  it('셈 한 줄과 학기 대표 활동(에너지 오른 기록 먼저)', () => {
+  it('학기 대표 활동(에너지 오른 기록 먼저)', () => {
     const rs = [rec('a', { field: 'dev' }), rec('b', { field: 'dev', energy: 'up' }), rec('c', { field: 'ai' })];
     const [row] = buildFlow(rs, ['2026-2']);
-    expect(flowCountNote([row])).toBe('기록 3개를 학기별로 셌어요');
     expect(semesterPick(row, 'dev', rs)?.id).toBe('b');
     expect(semesterPick(buildFlow([], ['2026-2'])[0], null, rs)).toBeUndefined();
   });

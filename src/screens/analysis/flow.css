@@ -5,9 +5,11 @@
   --fl-dot: var(--an-dot-sm);
   --fl-path-w: 2.5px;
   --fl-step-ms: 240ms;
-  display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--os-gap); min-height: 0;
+  --fl-want-h: 2000px;
+  display: flex; flex-direction: column; min-height: 0;
 }
-.fl-card .ui-card__action { display: flex; align-items: center; gap: var(--space-2); }
+.fl-card { flex: 1 1 auto; min-height: 0; }
+.fl-acts { display: flex; align-items: center; gap: var(--space-2); }
 
 /* 학기 돌아보기: 해마다 한 단, 많아야 셋 */
 .fl-intro { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2) var(--space-6); margin-bottom: var(--space-4); }
@@ -15,10 +17,14 @@
 .fl-story__step { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-3); border: var(--border); border-radius: var(--radius-sm); font-size: var(--text-md); }
 .fl-story__years { color: var(--ink-muted); font-size: var(--text-sm); }
 .fl-story__arrow { display: inline-flex; color: var(--ink-subtle); }
-.fl-how { color: var(--ink-subtle); font-size: var(--text-xs); }
 
-/* 길 그림: 왼쪽 분야 이름 + 학기 칸 */
-.fl-map { display: grid; grid-template-columns: var(--an-label-w-narrow) minmax(0, 1fr); }
+/* 길 그림: 왼쪽 분야 이름 + 학기 칸. 카드 남는 높이를 채우되 줄 높이 상한(--fl-row-max)까지만 */
+.fl-map {
+  display: grid; grid-template-columns: var(--an-label-w-narrow) minmax(0, 1fr); align-items: start;
+  flex: 1 1 var(--fl-want-h);
+  min-height: calc(var(--fl-head) + var(--fl-rows) * var(--fl-row-min));
+  max-height: calc(var(--fl-head) + var(--fl-rows) * var(--fl-row-max));
+}
 .fl-groups { padding-top: var(--fl-head); }
 .fl-groups li { display: flex; align-items: center; gap: var(--space-2); height: var(--fl-row-h); color: var(--ink-muted); font-size: var(--text-sm); }
 .fl-groups__dot { width: var(--fl-dot); height: var(--fl-dot); flex: none; border-radius: var(--radius-full); background: var(--fill); box-sizing: border-box; }
@@ -48,7 +54,7 @@
 /* 다시 보기 중 지금 학기, 평소엔 읽는 법 한 줄 */
 .fl-status { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-1) var(--space-3); min-height: var(--space-6); margin-top: var(--space-3); font-size: var(--text-sm); }
 
-/* 보는 구간: 한 줄 */
+/* 학기 범위: 한 줄 */
 .fl-range { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); margin-top: var(--space-3); padding-top: var(--space-3); border-top: var(--border); }
 .fl-range__head { display: flex; align-items: baseline; gap: var(--space-3); margin-right: var(--space-3); color: var(--ink-muted); font-size: var(--text-sm); }
 .fl-range__head b { color: var(--ink); }

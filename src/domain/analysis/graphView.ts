@@ -66,11 +66,13 @@ export function boundsOf(rects: Rect[], pts: Pt[] = []): Rect {
 export const layoutBounds = (l: GraphLayout): Rect => boundsOf(Object.values(l.boxes), Object.values(l.hulls).flat());
 
 /** 묶음 하나가 차지하는 상자(영역과 이름). 그 묶음으로 확대해 맞출 때 쓴다. */
-export function clusterBounds(l: GraphLayout, clusterId: string): Rect | null {
+export function clusterBounds(l: GraphLayout, clusterId: string, withIds: string[] = []): Rect | null {
   const hull = l.hulls[clusterId];
   const name = l.boxes[`name:${clusterId}`];
   if (!hull?.length && !name) return null;
-  return boundsOf(name ? [name] : [], hull ?? []);
+  // 함께 넣을 노드(그 묶음이 근거가 된 역량 등)까지 감싸야 묶음을 골랐을 때 이어진 역량이 화면 밖으로 안 나간다
+  const extra = withIds.map(id => l.boxes[id]).filter((b): b is Rect => !!b);
+  return boundsOf([...(name ? [name] : []), ...extra], hull ?? []);
 }
 
 /**

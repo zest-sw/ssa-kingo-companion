@@ -104,3 +104,9 @@ button.an-pill:focus-visible { border-radius: var(--radius-md); }
 .an-g--other .an-tp__dot.is-done, .an-g--other .an-tp__dot.is-ongoing { background: var(--grey-500); }
 .an-tp__dot.is-skipped { background: var(--surface); border: var(--an-line-w-thin) solid var(--line-strong); }
 .an-tp__dot.is-candidate { background: var(--surface); border: var(--an-line-w-thin) dashed var(--ink-subtle); }
+
+/* 카드 머리에 보기 방식만 남아서 오른쪽에 붙인다 */
+.tt-card .ui-card__action { margin-left: auto; }
+/* 그림 아래 읽는 법 한 줄 */
+.tt-read { gap: var(--space-1) var(--space-2); }
+.tt-read > span { display: inline-flex; align-items: center; gap: var(--space-1); }

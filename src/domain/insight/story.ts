@@ -27,7 +27,8 @@ export type Proof = { kind: 'strength' | 'cluster' | 'flow' | 'depth'; title: st
 export type Identity = { text: string; alternatives: string[]; basis: string; status: 'estimate' | 'confirmed' };
 export type { Gap, GapNeed } from './gap';
 /** same: 지금 가장 추천과 같은 후보인지. 다르면 note 가 이유를 말한다 */
-export type NextPick = { programId: string; title: string; why: string; same: boolean; note?: string };
+/** guide: why 가 기록을 읽은 추정이 아니라 데이터가 없어 보여 주는 안내 문장이다(추정 표시를 붙이지 않는다) */
+export type NextPick = { programId: string; title: string; why: string; same: boolean; note?: string; guide?: boolean };
 export type ScreenLine = { soWhat: string; nowWhat?: string };
 export type StoryScreen = 'techtree' | 'map' | 'flow' | 'strengths' | 'recommend' | 'records';
 export type Story = {
@@ -124,7 +125,8 @@ function pickNext(scored: Scored[], lead: Strength | undefined, gap: Gap | undef
     const deep = scored.find(s => doingFor(s.p, lead.axis))?.p;
     if (deep) return pack(deep, `${DID_DOING[doingFor(deep, lead.axis)!]} ${eul(lead.label)} 한 번 더 써요`);
   }
-  return pack(primary, records.length ? '지금 후보 중 내 기록과 가장 잘 이어져요' : '첫 기록이 생기면 이야기가 시작돼요');
+  if (!records.length) return { ...pack(primary, '첫 기록이 생기면 이야기가 시작돼요'), guide: true };
+  return pack(primary, '지금 후보 중 내 기록과 가장 잘 이어져요');
 }
 
 /** 기록이 없는 학생: 가입할 때 고른 관심·목표에서 '시작점' 문장 */
@@ -147,7 +149,13 @@ function newStudentStory(input: StoryInput): Story {
     identity: { text: startLine(input.profile), alternatives: [], basis: '가입할 때 고른 관심·목표를 읽고', status: 'estimate' },
     proofs: [],
     next,
-    perScreen: { techtree: blank, map: blank, flow: blank, strengths: blank, records: blank, recommend: { soWhat: '관심·목표에 맞춘 첫 활동이에요', nowWhat: first } },
+    // 분석 화면 머리는 화면마다 '여기에 무엇이 생기는지' 한 줄. 같은 말을 다섯 번 듣지 않게 한다
+    perScreen: {
+      techtree: { soWhat: '점선 활동 하나가 첫 가지가 돼요', nowWhat: first },
+      map: { soWhat: '회고를 쓰면 활동이 점으로 놓여요', nowWhat: first },
+      flow: { soWhat: '학기마다 어떤 분야를 했는지 이어져요', nowWhat: first },
+      strengths: { soWhat: '회고에서 드러난 강점이 여기 모여요', nowWhat: first },
+      records: blank, recommend: { soWhat: '관심·목표에 맞춘 첫 활동이에요', nowWhat: first } },
     refs: { axes: [], goalWords: input.profile.goal.trim() }
   };
 }
@@ -223,15 +231,14 @@ export function buildStory(input: StoryInput): Story {
     });
   }
 
-  // 화면마다 해석 한 줄(soWhat)과 행동 한 줄(nowWhat). 이야기와 같은 낱말을 써서 화면을 옮겨도 같은 말을 듣게 한다.
+  // 화면마다 해석 한 줄(soWhat)과 행동 한 줄(nowWhat). soWhat 은 머리에 혼자 서므로 가운뎃점으로 둘을 잇지 않는다. 이야기와 같은 낱말을 써서 화면을 옮겨도 같은 말을 듣게 한다.
   const insight = cluster ? clusterInsight(graph, cluster.id, input.scored.map(s => s.p)) : null;
   const clusterAxis = insight?.axes[0];
   const clusterEst = insight?.axes.reduce((n, a) => n + a.estimated, 0) ?? 0;
-  const skippedRow = tree.rows.find(r => r.cells.some(c => c.kind === 'skipped'));
   const estAxis = strengths.filter(s => unconfirmed(s) > 0).sort((a, b) => unconfirmed(b) - unconfirmed(a))[0];
   const perScreen: Record<StoryScreen, ScreenLine> = {
     techtree: {
-      soWhat: depth ? `${eun(depth.label)} ${TREE_COLUMNS[depth.top]}까지 갔어요${skippedRow ? ` · ${skippedRow.label} ${eun(TREE_COLUMNS[skippedRow.cells.find(c => c.kind === 'skipped')!.col])} 비어 있어요` : ''}` : '첫 활동이 가지의 시작점이 돼요',
+      soWhat: depth ? `${eun(depth.label)} ${TREE_COLUMNS[depth.top]}까지 갔어요` : '첫 활동이 가지의 시작점이 돼요',
       nowWhat: tree.candidates.length ? `회색 점선 ${tree.candidates.length}개는 지금 신청할 수 있어요` : undefined
     },
     map: {

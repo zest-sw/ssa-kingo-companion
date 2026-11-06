@@ -21,9 +21,8 @@ export function Detail({ tab, analysis }: { tab: TabId; analysis: ReturnType<typ
   const setAnswers = (next: (prev: EdgeAnswers) => EdgeAnswers) => run({ type: 'analysis/answers', answers: next(state.edgeAnswers) });
   const label = TABS.find(t => t.id === tab)?.label ?? '';
   const story = useStory(analysis.records);
-  // 머리 한 줄: 이 화면이 이야기에서 말하는 것(그래서) + 할 일(이제). 요약으로는 구역 탭 '한눈에'로 간다.
-  // ponytail: 경험 지도는 다른 작업(v22-graph-zoom)이 고치는 중이라 아직 붙이지 않는다. story.perScreen.map 은 만들어 두었다.
-  const note = tab !== 'map' && analysis.status === 'ready' ? <StoryNote line={story.perScreen[tab]} /> : null;
+  // 머리 오른쪽은 이 화면의 결론 한 줄만. 할 일까지 가운뎃점으로 이으면 두 메시지가 되어 그림 안(빈 칸, 버튼)에 맡긴다.
+  const note = analysis.status === 'ready' ? <StoryNote line={{ soWhat: story.perScreen[tab].soWhat }} /> : null;
 
   return (
     <div className="os">

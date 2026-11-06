@@ -74,7 +74,10 @@ describe('buildStory', () => {
     const s = buildStory(input());
     expect(s.next?.programId).toBe('p-ask');
     expect(s.next?.why).toBe('질문을 짜며 문제해결을 한 번 더 써요');
+    expect(s.next?.guide).toBeUndefined();
     expect(s.perScreen.recommend.soWhat).toBe('가장 확실한 문제해결을 한 단계 깊게 써 봐요');
+    // 분석 화면 머리는 결론 한 줄: 둘을 가운뎃점으로 잇지 않는다
+    for (const k of ['techtree', 'map', 'flow', 'strengths'] as const) expect(s.perScreen[k].soWhat).not.toContain(' · ');
   });
 
   it('가장 추천과 다른 후보를 고르면 이유를 밝힌다', () => {
@@ -103,9 +106,17 @@ describe('새 학생(기록 없음)', () => {
     expect(s.proofs).toEqual([]);
     expect(s.gap).toBeUndefined();
     expect(s.next?.why).toBe('첫 기록이 생기면 이야기가 시작돼요');
+    // 데이터가 없어 보여 주는 안내라서 AI 추정 표시를 붙이지 않는다
+    expect(s.next?.guide).toBe(true);
   });
   it('관심을 정하지 않았으면 넓게 둘러보는 문장', () => {
     const s = buildStory(input({ records: [], profile: profile({ interests: ['unknown'], goal: '' }) }));
     expect(s.identity.text).toBe('넓게 둘러보며 나에게 맞는 쪽을 찾기 시작해요');
+  });
+  it('분석 화면 머리 한 줄은 화면마다 다르고 가운뎃점으로 잇지 않는다', () => {
+    const s = buildStory(input({ records: [], profile: profile({ interests: ['ai'], goal: '' }) }));
+    const lines = (['techtree', 'map', 'flow', 'strengths'] as const).map(k => s.perScreen[k].soWhat);
+    expect(new Set(lines).size).toBe(4);
+    for (const l of lines) expect(l).not.toContain(' · ');
   });
 });
