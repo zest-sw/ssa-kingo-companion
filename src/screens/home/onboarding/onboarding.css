@@ -1,0 +1,83 @@
+/* 가입 인터뷰와 끝 장면. 클래스는 onb 로 시작한다. 값은 토큰만 쓴다. */
+:root {
+  --onb-w: 720px;
+  /* 질문 칸 높이: 가장 긴 질문(관심 분야 카드 세 줄)에 맞춘다. 세 화면 모두 주 버튼이 같은 자리에 오게 */
+  --onb-stage-h: 320px;
+  --onb-card-h: 64px;
+  --onb-seg-h: calc(var(--bar-h) / 2);
+  /* 넘김 거리: 열고 닫을 때(--enter-shift)보다 조금 길게. 움직임 줄이기면 0 */
+  --onb-shift: calc(var(--enter-shift) * 3);
+}
+@media (max-height: 759px) {
+  :root { --onb-stage-h: 300px; --onb-card-h: 56px; }
+}
+
+/* 화면 가운데(가로·세로)에 한 덩어리. 위 막대 → 질문 칸(높이 고정) → 버튼 줄 */
+.home-onbwrap { align-content: center; justify-items: center; grid-template-rows: none; }
+.onb { width: 100%; max-width: var(--onb-w); display: flex; flex-direction: column; gap: var(--space-8); }
+
+.onb__bar { display: flex; align-items: center; gap: var(--space-6); }
+.onb__progress { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1); }
+.onb__seg { height: var(--onb-seg-h); border-radius: var(--radius-xs); background: var(--bg-sunken); transition: background var(--dur-base) var(--ease-out); }
+.onb__seg[data-on] { background: var(--primary); }
+
+.onb__stage { min-height: var(--onb-stage-h); display: flex; flex-direction: column; }
+.onb__stage[data-dir] { animation: onb-in var(--dur-base) var(--ease-out); }
+.onb__stage[data-dir='back'] { --onb-from: calc(-1 * var(--onb-shift)); }
+/* 다음: 새 질문이 오른쪽에서 들어와 왼쪽으로 멈춘다. 이전: 반대. 빠르게 시작해 부드럽게 감속(--ease-out) */
+@keyframes onb-in { from { transform: translateX(var(--onb-from, var(--onb-shift))); opacity: 0; } }
+
+.onb__lead { margin-bottom: var(--space-2); font-size: var(--text-sm); color: var(--ink-muted); }
+.onb__q { font-size: var(--fs-page); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
+.onb__q:focus { outline: none; }
+.onb__why { margin-top: var(--space-2); color: var(--ink-muted); }
+.onb__body { margin-top: var(--space-6); }
+
+/* 관심 분야: 낮은 카드. 고르면 면을 칠하지 않고 테두리 2px + 체크 */
+.onb-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.onb-field, .onb-option {
+  position: relative; display: flex; flex-direction: column; justify-content: center; gap: var(--space-1);
+  padding: var(--space-3) var(--space-8) var(--space-3) var(--space-4); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-sm);
+  background: var(--surface); text-align: left;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.onb-field { min-height: var(--onb-card-h); }
+.onb-field b, .onb-option b { font-weight: var(--weight-bold); }
+.onb-field span, .onb-option span { font-size: var(--text-sm); color: var(--ink-muted); }
+.onb-field:hover, .onb-option:hover { background: var(--surface-alt); }
+.onb-field:active, .onb-option:active { background: var(--surface-press); }
+.onb-field[aria-pressed='true'], .onb-option[aria-pressed='true'] { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+.onb-field[aria-pressed='true'] b, .onb-option[aria-pressed='true'] b { color: var(--primary); }
+.onb-field[aria-pressed='true']:focus-visible, .onb-option[aria-pressed='true']:focus-visible { box-shadow: inset 0 0 0 1px var(--primary), var(--focus-ring); }
+.onb-check { position: absolute; display: flex; font-style: normal; top: var(--space-3); right: var(--space-3); color: var(--primary); }
+/* 3개를 다 고르면 나머지는 옅게(누르면 아무 일도 없고, 아래 안내가 이유를 말한다) */
+.onb-field[aria-disabled='true'] { cursor: not-allowed; background: var(--surface); }
+.onb-field[aria-disabled='true'] b, .onb-field[aria-disabled='true'] span { color: var(--ink-subtle); }
+/* '아직 모르겠어요'는 배타 선택이라 한 줄 아래, 이름과 설명을 한 줄로 */
+.onb-field[data-unknown] { grid-column: 1 / -1; flex-direction: row; align-items: baseline; justify-content: flex-start; gap: var(--space-3); min-height: var(--space-12); }
+
+/* 시간·방식 */
+.onb-group + .onb-group { margin-top: var(--space-5); }
+.onb-group__label { margin-bottom: var(--space-2); font-weight: var(--weight-bold); }
+.onb-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.onb-option { min-height: var(--onb-card-h); }
+
+/* 목표 */
+.onb-goal { display: block; margin-bottom: var(--space-4); }
+.onb-goal__input { width: 100%; min-height: var(--space-12); padding: 0 var(--space-4); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: var(--text-md); }
+.onb-goal__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* 버튼 줄: 안내(왼쪽) | 이전 · 주 버튼(오른쪽 끝, 세 화면 같은 자리) */
+.onb__actions { display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-h); padding-top: var(--space-4); border-top: var(--border); }
+.onb__hint { flex: 1; min-width: 0; font-size: var(--text-sm); color: var(--ink-muted); }
+
+/* 끝 장면: 가장 추천 하나만 홈의 제안 카드처럼 살짝 띄운다. 제목은 바로 보이고, 카드만 짧게 올라온다 */
+.onb-pick {
+  margin-top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-5) var(--space-6); border: var(--border); border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--home-lift);
+  animation: onb-rise var(--dur-base) var(--ease-out);
+}
+@keyframes onb-rise { from { transform: translateY(var(--onb-shift)); opacity: 0; } }
+.onb-pick__label { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--primary); }
+.onb-pick__title { font-size: var(--fs-lead); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
+.onb-pick__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-top: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }

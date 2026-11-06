@@ -2,10 +2,6 @@
 
 /* 화면 전용 치수(레이아웃). 간격·글자·테두리는 tokens.css 의 토큰을 쓴다. */
 :root {
-  --home-onb-width: 720px;
-  --home-chip-height: 40px;
-  --home-option-height: 56px;
-  --home-input-height: var(--control-h);
   --home-inv-w: 200px;
   --home-hex-w: 320px;
   --home-art-w: 44px;
@@ -18,32 +14,6 @@
   --home-lift: 0 1px 2px color-mix(in srgb, var(--ink-strong) 6%, transparent), 0 4px 12px color-mix(in srgb, var(--ink-strong) 5%, transparent);
 }
 
-/* 가입 인터뷰 */
-.home-onbwrap { place-items: start center; }
-.home-onb { width: 100%; max-width: var(--home-onb-width); margin: var(--space-4) auto 0; display: flex; flex-direction: column; gap: var(--space-6); }
-.home-onb__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
-.home-onb__intro { color: var(--ink-muted); font-size: var(--text-md); }
-.home-onb__count { font-size: var(--text-md); color: var(--ink-muted); }
-.home-onb__q { font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
-.home-onb__sub { margin: var(--space-2) 0 var(--space-6); color: var(--ink-muted); }
-.home-onb__chips { display: flex; flex-wrap: wrap; gap: var(--space-3); }
-.home-onb__chips .ui-chip { min-height: var(--home-chip-height); padding: 0 var(--space-5); font-size: var(--text-md); }
-.home-onb__group + .home-onb__group { margin-top: var(--space-6); }
-.home-onb__label { margin-bottom: var(--space-2); font-size: var(--text-md); font-weight: var(--weight-bold); }
-.home-onb__options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
-.home-onb__option { display: flex; flex-direction: column; gap: var(--space-1); min-height: var(--home-option-height); padding: var(--space-3) var(--space-4); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-md); background: var(--surface); text-align: left; }
-.home-onb__option span { font-size: var(--text-sm); color: var(--ink-muted); }
-.home-onb__option:hover { background: var(--surface-alt); }
-.home-onb__option[aria-pressed='true'] { border-color: var(--primary); background: var(--primary-soft); }
-.home-onb__option[aria-pressed='true'] b { color: var(--primary); }
-.home-onb__field { display: block; margin-bottom: var(--space-4); }
-.home-onb__input { width: 100%; min-height: var(--home-input-height); padding: 0 var(--space-4); border: var(--border); border-color: var(--line-strong); border-radius: var(--radius-md); background: var(--surface); font-size: var(--text-md); }
-.home-onb__actions { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-2); }
-.home-onb__spacer { flex: 1; }
-.home-onb__hint { margin-top: calc(-1 * var(--space-2)); font-size: var(--text-sm); color: var(--ink-muted); text-align: right; }
-.home-onb__work { display: flex; flex-direction: column; gap: var(--space-3); }
-.home-onb__work li { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-muted); }
-.home-onb__work svg { color: var(--green-900); }
 
 /* 홈 = 층 셋 + 광장. 위 띠(내 상태)는 가로 전체, 아래 왼쪽은 제안·광장, 오른쪽은 할 일.
    아래 줄 높이는 왼쪽 열 내용이 정하고, 오늘의 퀘스트는 그 높이에 맞춰 늘어나 안에서 스크롤한다(두 열 아래 끝이 같다). */
