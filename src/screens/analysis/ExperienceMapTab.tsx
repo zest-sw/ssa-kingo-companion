@@ -11,13 +11,20 @@ import { josaRo } from '../../domain/text';
 import { buildStrengths, withAnswers } from '../../domain/analysis/strengths';
 import { edgeCounts } from '../../domain/kg/build';
 import { nextStep } from '../../domain/nextStep';
-import type { RecordItem } from '../../domain/types';
+import { memoRecent } from '../../domain/memo';
+import type { CandidateView } from '../../domain/candidates';
+import type { Program, RecordItem } from '../../domain/types';
 import { ClusterPanel, type NameAnswer } from './ClusterPanel';
 import { MapGraph, type GraphCamera, type GraphOpen } from './MapGraph';
 import { RecordSummary } from './RecordSummary';
 import { StrengthDrawer } from './StrengthDrawer';
 import { KeyLegend } from './KeyLegend';
 import './map.css';
+
+// 지식 그래프 분석은 이 화면을 열 때만, 같은 입력이면 한 번만(다른 탭에 갔다 와도). 입력이 같은 참조로 이어지게 앞 단계도 기억한다.
+const liveOf = memoRecent(withAnswers);
+const programsOf = memoRecent((scored: CandidateView['scored']) => scored.map(s => s.p));
+const graphOf = memoRecent((live: RecordItem[], answers: EdgeAnswers, programs: Program[]) => buildGraph(live, answers, programs));
 
 type Props = { records: RecordItem[]; answers: EdgeAnswers; setAnswers: (next: (prev: EdgeAnswers) => EdgeAnswers) => void };
 
@@ -29,11 +36,11 @@ type Props = { records: RecordItem[]; answers: EdgeAnswers; setAnswers: (next: (
 export default function ExperienceMapTab({ records, answers, setAnswers }: Props) {
   const { state, view } = useApp();
   // 근거 답(맞아요/아니에요)은 다시 분석하지 않고 지금 답을 덧입힌다(나의 강점과 같은 기준).
-  const live = useMemo(() => withAnswers(records, state.records), [records, state.records]);
-  const programs = useMemo(() => view.scored.map(s => s.p), [view.scored]);
+  const live = liveOf(records, state.records);
+  const programs = programsOf(view.scored);
   // ponytail: AI 제안 이름에 한 답은 이 화면 안에만 둔다(새로고침하면 사라짐), 공용 상태(AppState)에 자리가 생기면 옮긴다.
   const [names, setNames] = useState<ClusterNameAnswers>({});
-  const built = useMemo(() => buildGraph(live, answers, programs), [live, answers, programs]);
+  const built = graphOf(live, answers, programs);
   const graph = useMemo(() => withClusterNames(built, names), [built, names]);
   const strengths = useMemo(() => buildStrengths(live), [live]);
   const [selected, setSelected] = useState<GraphFocus | null>(null);

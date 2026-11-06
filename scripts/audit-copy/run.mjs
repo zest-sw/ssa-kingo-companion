@@ -14,6 +14,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { createServer, preview } from 'vite';
+import { waitForScreen } from '../audit-layout/ready.mjs';
 import { findFreePort, waitForServer, withRetry } from '../audit-layout/retry.mjs';
 import { contextOf, routesFor } from '../audit-layout/routes.mjs';
 import { findCopyIssues, KIND_LABEL } from './rules.mjs';
@@ -183,6 +184,7 @@ async function main() {
         const res = { state: key, path, issues: [] };
         try {
           await withRetry(() => page.goto(`${base}/#/${path}`));
+          await waitForScreen(page);
           await page.waitForFunction(() => !document.querySelector('.ui-loading'), null, { timeout: 8000 }).catch(() => {});
           await page.evaluate(() => document.fonts.ready);
           res.issues = issuesOf(await page.evaluate(collect));

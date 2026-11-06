@@ -1,5 +1,8 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 import { useApp } from './AppState';
+import type { AppState } from './state';
+import type { CandidateView } from '../domain/candidates';
+import { memoRecent } from '../domain/memo';
 import { PROGRAMS } from '../data/catalog';
 import { SEMESTER_FROM, SEMESTER_NOW } from '../data/analysis';
 import { semesterAxis } from '../domain/analysis/semester';
@@ -27,11 +30,15 @@ export function useStory(records?: RecordItem[]): Story {
   const { state, view } = useApp();
   const answer = useSyncExternalStore(subscribe, () => current, () => null);
   const base = records ?? state.records;
-  return useMemo(() => {
-    const live = withAnswers(base, state.records);
-    return buildStory({
-      records: live, profile: state.profile, activities: state.activities, edgeAnswers: state.edgeAnswers, scored: view.scored,
-      week: state.week, programs: PROGRAMS, semesters: semesterAxis(live, SEMESTER_FROM, SEMESTER_NOW), answer
-    });
-  }, [base, state.records, state.profile, state.activities, state.edgeAnswers, view.scored, state.week, answer]);
+  return storyOf(base, state.records, state.profile, state.activities, state.edgeAnswers, view.scored, state.week, answer);
 }
+
+// 이야기는 지식 그래프 분석까지 한다. 홈 두 카드와 나의 분석이 같은 입력으로 부르니 한 번만 계산한다(화면을 다시 열어도).
+const storyOf = memoRecent((base: RecordItem[], current: RecordItem[], profile: AppState['profile'], activities: AppState['activities'],
+  edgeAnswers: AppState['edgeAnswers'], scored: CandidateView['scored'], week: AppState['week'], answer: string | null): Story => {
+  const live = withAnswers(base, current);
+  return buildStory({
+    records: live, profile, activities, edgeAnswers, scored,
+    week, programs: PROGRAMS, semesters: semesterAxis(live, SEMESTER_FROM, SEMESTER_NOW), answer
+  });
+});
