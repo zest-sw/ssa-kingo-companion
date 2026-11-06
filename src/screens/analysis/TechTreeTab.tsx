@@ -17,6 +17,7 @@ import { useTechTree } from './useTechTree';
 import './techtree.css';
 
 type View = 'graph' | 'list';
+// 범례는 그림에 보이는 기호만: 한 활동이 없으면(새 학생) 점선 하나만
 const TREE_KEYS = [{ label: '한 활동', key: 'an-key an-key--done' }, { label: '지금 신청할 수 있는 활동', key: 'an-key an-key--candidate' }];
 
 export default function TechTreeTab({ records }: { records: RecordItem[] }) {
@@ -33,7 +34,7 @@ export default function TechTreeTab({ records }: { records: RecordItem[] }) {
     <Card
       className="os-card tt-card"
       aria-label="테크 트리"
-      action={<>{mode === 'graph' && <KeyLegend items={TREE_KEYS} />}<SegmentedControl<View> label="보기 방식" value={mode} onChange={setMode} items={[{ id: 'graph', label: '그림으로 보기' }, { id: 'list', label: '지금 신청할 수 있는 것만' }]} /></>}
+      action={<>{mode === 'graph' && <KeyLegend items={filled ? TREE_KEYS : TREE_KEYS.slice(1)} />}<SegmentedControl<View> label="보기 방식" value={mode} onChange={setMode} items={[{ id: 'graph', label: '그림으로 보기' }, { id: 'list', label: '지금 신청할 수 있는 것만' }]} /></>}
     >
       {mode === 'graph' ? (
         <>
