@@ -8,7 +8,7 @@
   --act-fact-label-w: 72px;
   --act-sb-label-w: 56px;
   --act-sb-n-w: 28px;
-  --act-sb-h: 28px;
+  --act-sb-h: var(--bar-h);
 }
 
 .act-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
