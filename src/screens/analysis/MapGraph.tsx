@@ -19,7 +19,7 @@ type Props = {
 /** 오른쪽 도구 막대 칸. 그래프 배치는 이 칸을 뺀 폭에 맞춘다(맞춤 상태에서 막대가 노드를 덮지 않게) */
 const TOOL_W = 48;
 const FIT_PAD = 12;
-/** 묶음으로 맞출 때 확대 상한. 더 키우면 묶음이 잇는 역량 허브가 화면 밖으로 나간다 */
+/** 묶음으로 맞출 때 확대 상한. 묶음과 그 묶음이 잇는 역량을 함께 맞추고, 그래도 너무 키우지 않는다 */
 const CLUSTER_MAX_K = 1.6;
 const NO_PINS: Record<string, Pt> = {};
 
@@ -120,7 +120,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
     onPaint: placeTip
   });
 
-  const goCluster = (id: string) => { const b = clusterBounds(live.current.layout, id); if (b) zp.set(fitView(b, live.current.frame, 32, CLUSTER_MAX_K), 'animate'); };
+  const goCluster = (id: string) => { const b = clusterBounds(live.current.layout, id, clusterLinks(graph).filter(l => l.cluster === id).map(l => l.to)); if (b) zp.set(fitView(b, live.current.frame, 32, CLUSTER_MAX_K), 'animate'); };
   const goNode = (id: string) => { const p = live.current.layout.pos[id]; if (p) zp.set(centerOn(zp.view(), p, live.current.frame, Math.max(zp.view().k, 1.25)), 'animate'); };
 
   // 처음 열 때와 칸 크기·기록이 바뀌어 배치가 새로 나오면 화면에 맞춘다

@@ -96,6 +96,18 @@ describe('그래프 위 계산(끌기·찾기·요약)', () => {
     expect(clusterBounds(l, 'none')).toBeNull();
   });
 
+  it('묶음 상자에 함께 넣은 역량이 들어간다', () => {
+    const id = g.clusters[0].id;
+    const axis = g.nodes.find(n => n.kind === 'axis')!.id;
+    const a = l.boxes[axis];
+    const c = clusterBounds(l, id, [axis])!;
+    expect(c.x).toBeLessThanOrEqual(a.x);
+    expect(c.y).toBeLessThanOrEqual(a.y);
+    expect(c.x + c.w).toBeGreaterThanOrEqual(a.x + a.w);
+    expect(c.y + c.h).toBeGreaterThanOrEqual(a.y + a.h);
+    expect(clusterBounds(l, id, ['ax:none'])).toEqual(clusterBounds(l, id));
+  });
+
   it('끌어 옮긴 노드는 자리·상자가 따라가고, 그 묶음 영역만 다시 감싼다', () => {
     expect(pinLayout(l, g, {})).toBe(l);
     const c = g.clusters[0];

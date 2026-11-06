@@ -60,7 +60,7 @@ export default function ExperienceMapTab({ records, answers, setAnswers }: Props
 
   if (records.length === 0) {
     return (
-      <Card className="os-card" title="아직 지도에 놓일 활동이 없어요">
+      <Card className="os-card" aria-label="경험 지도">
         <EmptyState pic={<GhostPic kind="network" />} message={`${step.lead} 활동이 점으로 생기고, 가까운 활동끼리 묶여요.`} action={<Button size="sm" variant="primary" onClick={() => navigate(step.to)}>{step.label}</Button>} />
       </Card>
     );

@@ -79,7 +79,7 @@
 .xg-edge--yes .xg-edge__line { stroke: var(--grey-500); }
 .xg-edge--est .xg-edge__line { stroke-dasharray: 4 3; }
 .xg-edge.is-hot .xg-edge__line { stroke: var(--ink-muted); stroke-width: var(--an-line-w-thin); }
-.xg-edge--yes.is-hot .xg-edge__line { stroke: var(--green-900); stroke-width: var(--xg-line-hot); }
+.xg-edge--yes.is-hot .xg-edge__line { stroke: var(--green-900); stroke-width: var(--an-line-w-thin); }
 .xg-edge.is-dim { opacity: var(--xg-dim); }
 .xg-edge__hit { stroke: transparent; stroke-width: 14; }
 /* 마우스를 올린 근거 선: 그 선에만 '근거' 이름표가 붙는다 */
