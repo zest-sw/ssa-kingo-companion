@@ -23,7 +23,7 @@
 .an-rev li > .ui-dot { margin-top: var(--space-1); }
 .an-rev li > span { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 .an-rev__text { color: var(--ink-strong); font-size: var(--text-md); line-height: var(--leading); }
-.an-rev__meta { color: var(--ink-subtle); font-size: var(--text-xs); }
+.an-rev__meta { display: flex; flex-wrap: wrap; gap: 0 var(--space-2); color: var(--ink-subtle); font-size: var(--text-xs); }
 .an-rev .is-est .an-rev__text { color: var(--ink-muted); }
 .an-rsub { margin-top: var(--space-4); font-size: var(--text-md); }
 /* 요약 판의 작은 육각형 + 키워드 */

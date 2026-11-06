@@ -100,7 +100,7 @@ export default function StrengthsTab({ records }: { records: RecordItem[] }) {
               {evidence.map(e => (
                 <li key={e.recordId} className={e.confirmed ? '' : 'is-est'}>
                   <ConfirmDot state={e.confirmed ? 'confirmed' : 'estimated'} />
-                  <span><span className="an-rev__text">{e.text}</span><span className="an-rev__meta">{e.title} · {semesterLabel(e.semester)}</span></span>
+                  <span><span className="an-rev__text">{e.text}</span><span className="an-rev__meta"><span>{e.title}</span><span>{semesterLabel(e.semester)}</span></span></span>
                 </li>
               ))}
             </ul>
