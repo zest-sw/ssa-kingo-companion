@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button, Chip, EmptyState, FieldTag, Icon } from '../../components';
 import { navigate } from '../../app/router';
 import { axesPresent, filterRecords, groupBySemester, groupsPresent, isFiltered, NO_FILTER, previewOf, semesterLabel, semestersPresent, type ArchiveFilter } from '../../domain/interview/archive';
@@ -48,7 +48,7 @@ function Filters({ records, f, set }: { records: RecordItem[]; f: ArchiveFilter;
 }
 
 /** 기록 › 보관함 보기: 학기별 카드 격자. 지도와 한 화면에 두지 않는다. 이 칸만 안에서 스크롤한다. 여기서 경험 카드 묶음을 고른다. */
-export function Archive({ records, selectedId, onOpen }: { records: RecordItem[]; selectedId?: string; onOpen: (id: string) => void }) {
+export function Archive({ records, selectedId, onOpen, switcher }: { records: RecordItem[]; selectedId?: string; onOpen: (id: string) => void; switcher?: ReactNode }) {
   const [filter, setFilter] = useState<ArchiveFilter>(NO_FILTER);
   // 묶음 화면에서 돌아오면 고르던 것을 이어서 고친다.
   const [picks, setPicks] = useState<string[]>(() => readPicks().filter(id => records.some(r => r.id === id)));
@@ -74,6 +74,7 @@ export function Archive({ records, selectedId, onOpen }: { records: RecordItem[]
             <Button size="sm" icon="doc" onClick={() => setPicking(true)}>경험 카드 묶음 만들기</Button>
           )}
         </div>
+        {switcher}
       </div>
       {picking && <p className="ra__guide">면접이나 서류에 쓸 기록을 {BUNDLE_MIN}~{BUNDLE_MAX}개 눌러 골라요.</p>}
       <div className="ra__list os-scroll">

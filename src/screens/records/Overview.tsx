@@ -22,7 +22,7 @@ type Sel = { view: View; focus?: string };
 const isSel = (v: unknown): v is Sel => typeof v === 'object' && v !== null && VIEWS.some(x => x.id === (v as Sel).view);
 
 /**
- * 내 활동 › 기록(v1.4): 한 번에 하나만. 첫 화면은 기록 지도, 머리의 세그먼트로 보관함(학기별 목록)으로 바꾼다.
+ * 내 활동 › 기록(v1.4): 한 번에 하나만. 첫 화면은 기록 지도, 카드 머리 오른쪽 세그먼트로 보관함(학기별 목록)으로 바꾼다.
  * 지도의 점이나 보관함의 줄을 누르면 기록 서랍(상세)이 열리고, 닫으면 제자리다.
  */
 export function Overview() {
@@ -47,6 +47,8 @@ export function Overview() {
   }, [setSel]);
 
   const focus = sel.focus && state.records.some(r => r.id === sel.focus) ? sel.focus : undefined;
+  // 보기 전환은 카드 머리 오른쪽 한 곳(일정과 같은 자리). 페이지 머리 아래 탭 줄은 구역 탭 하나뿐이다.
+  const switcher = state.records.length > 0 && <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={view => setSel(s => ({ ...s, view }))} items={VIEWS} />;
   const open = (id: string) => { setSel(s => ({ ...s, focus: id })); openEntity({ kind: 'record', id }); };
 
   return (
@@ -54,23 +56,19 @@ export function Overview() {
       <PageHeader
         title="기록"
         tabs={<SectionTabs {...sectionTabs('activities', 'activities/records')} />}
-        actions={
-          <>
-            {state.records.length > 0 && <SegmentedControl<View> label="보기 방식" value={sel.view} onChange={view => setSel(s => ({ ...s, view }))} items={VIEWS} />}
-            <Button icon="plus" onClick={() => setAdding(true)}>직접 기록 추가</Button>
-          </>
-        }
+        actions={<Button icon="plus" onClick={() => setAdding(true)}>직접 기록 추가</Button>}
       />
       {pending.length > 0 && <RetroBand items={pending} />}
       <div className="os__body os__body--fill rec-home">
         {sel.view === 'archive' && state.records.length > 0 ? (
-          <Archive records={state.records} selectedId={focus} onOpen={open} />
+          <Archive records={state.records} selectedId={focus} onOpen={open} switcher={switcher} />
         ) : (
           <section className={`rm-card${state.records.length === 0 ? ' rm-card--empty' : ''}`} aria-labelledby="rm-title">
             <div className="rm-card__head">
               <h2 id="rm-title" className="rm-card__title">기록 지도</h2>
               <TermNav range={cols.length ? `${cols[0].label} ~ ${cols[cols.length - 1].label}` : ''} before={win.before} after={win.after} onPrev={() => setEnd(stepWindow(win, -1))} onNext={() => setEnd(stepWindow(win, 1))} />
               <Legend items={LEGEND} />
+              {switcher}
             </div>
             {state.records.length === 0 ? (
               <EmptyState
