@@ -44,7 +44,9 @@ export function TodoStep({ items, week, enabled, draftReady, urgentLine, left, l
 /** 준비 ② 초안: 주인공은 초안 본문. 고친 뒤에는 바뀐 문장만 잠깐 옅게 강조한다. */
 export function DraftStep({ draft, team, revised, revising, onRetry }: { draft: DraftState; team: boolean; revised: boolean; revising: boolean; onRetry: () => void }) {
   return (
-    <div className="rec-draft" aria-live="polite">
+    <div className="rec-draft">
+      {/* 초안 전체를 다시 읽히지 않고 끝났다는 한 줄만 알린다. 늘 붙어 있는 칸이라야 바뀐 말이 읽힌다 */}
+      <p className="sr-only" role="status">{draft.status === 'ready' ? (revised ? '초안을 고쳤어요' : '초안을 다 썼어요') : ''}</p>
       <div className="rec-draft__title">
         <h2>에이전트가 쓴 신청서 초안</h2>
         {revised && draft.status === 'ready' && draft.prev !== draft.draft.motivation && <Badge tone="green">고친 초안</Badge>}
