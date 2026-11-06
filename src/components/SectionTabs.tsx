@@ -1,4 +1,5 @@
 import { useRef, type KeyboardEvent } from 'react';
+import { useIndicator } from './useIndicator';
 
 export type SectionTab = { href: string; label: string; current: boolean };
 
@@ -9,6 +10,7 @@ export type SectionTab = { href: string; label: string; current: boolean };
  */
 export function SectionTabs({ label, items }: { label: string; items: SectionTab[] }) {
   const root = useRef<HTMLElement>(null);
+  useIndicator(root, '[aria-current="page"]', items.find(t => t.current)?.href);
   const onKey = (e: KeyboardEvent) => {
     const links = [...(root.current?.querySelectorAll<HTMLAnchorElement>('a') ?? [])];
     const i = links.indexOf(document.activeElement as HTMLAnchorElement);
