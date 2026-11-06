@@ -1,12 +1,55 @@
-/* 프로필: 도전 과제 진행, 선배 경로 트리 */
-:root { --pt-col-when: var(--space-12); --pt-stroke: 1.5; }
+/* 프로필: 친구에게 보이는 미리보기, 도전 과제 진행, 선배 경로 트리 */
+:root { --pt-col-when: var(--space-12); --pt-stroke: 1.5; --pf-cell: var(--space-4); --pf-label-w: calc(var(--space-12) + var(--space-6)); }
 
-/* 머리: 이름·학과·학년과 공개 상태 */
-.pf-head__side { display: flex; align-items: center; gap: var(--space-2); }
+/* 첫 화면: 왼쪽 미리보기(주인공), 오른쪽 함께하기·도전 과제. 칸은 내용 높이 */
+.pf-cols { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; }
+.pf-side { display: flex; flex-direction: column; gap: var(--os-gap); min-width: 0; }
 
-/* 도전 과제 진행: 이름 | 막대 */
-.pf-next__note { color: var(--ink-subtle); font-size: var(--text-sm); }
-@media (max-width: 1100px) { .pf-next__item { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } }
+/* 미리보기: 위에 지금 공개 상태 한 줄, 아래에 남이 보는 카드 그대로 */
+.pf-preview__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
+.pf-preview__status { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: var(--weight-bold); }
+.pf-preview__status .ui-icon { color: var(--ink-muted); }
+
+.pf-card { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-5); border: var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.pf-card__head { display: flex; align-items: center; gap: var(--space-4); }
+.pf-card__name { font-size: var(--text-xl); font-weight: var(--weight-bold); }
+.pf-card__sub { color: var(--ink-muted); }
+.pf-card__rows { display: flex; flex-direction: column; gap: var(--space-3); }
+.pf-card__row { display: grid; grid-template-columns: var(--pf-label-w) minmax(0, 1fr); align-items: baseline; gap: var(--space-3); }
+.pf-card__row dt { color: var(--ink-muted); font-size: var(--text-sm); }
+.pf-card__num { font-size: var(--text-lg); font-weight: var(--weight-bold); }
+.pf-card__records { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.pf-card__more { color: var(--ink-muted); font-size: var(--text-sm); }
+.pf-card__empty { color: var(--ink-subtle); font-size: var(--text-sm); }
+
+/* 숨긴 것: 빠진 자리에 옅은 한 줄 */
+.pf-card__hidden { display: flex; flex-direction: column; gap: var(--space-1); padding-top: var(--space-3); border-top: 1px dashed var(--line-strong); }
+.pf-card__hidden li { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-subtle); font-size: var(--text-sm); }
+.pf-card__hidden .ui-icon { flex: none; }
+.pf-card__hidden-tag { margin-left: auto; font-size: var(--text-xs); }
+
+/* 전부 비공개: 상태와 버튼, 아래에 공개하면 보일 카드의 윤곽(회색 점선: 아직 안 한 것) */
+.pf-preview__closed { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+.pf-preview__sub { color: var(--ink-muted); margin-bottom: var(--space-2); }
+.pf-preview__ghost-label { margin: var(--space-5) 0 var(--space-2); color: var(--ink-subtle); font-size: var(--text-sm); }
+.pf-card--ghost { border: 1px dashed var(--line-strong); background: transparent; }
+.pf-card--ghost .pf-card__name, .pf-card--ghost dd { color: var(--ink-muted); }
+.pf-card--ghost .fr-avatar { background: transparent; border: 1px dashed var(--line-strong); color: var(--ink-subtle); }
+
+/* 함께하기 행: 숫자 하나 */
+.pf-link:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* 도전 과제 진행 그림: 달성한 칸은 채움, 다음 칸은 회색 점선(아직 안 한 것) */
+.pf-track { display: flex; flex-direction: column; gap: var(--space-3); }
+.pf-track__row { display: flex; align-items: center; gap: var(--space-3); }
+.pf-track__cells { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.pf-track__cell { width: var(--pf-cell); height: var(--pf-cell); border-radius: var(--radius-xs); }
+.pf-track__cell--done { background: var(--primary); }
+.pf-track__cell--next { border: 1px dashed var(--ink-subtle); }
+.pf-track__count { color: var(--ink-muted); font-size: var(--text-sm); }
+.pf-track__next { display: flex; flex-direction: column; gap: 2px; }
+.pf-track__next b { font-weight: var(--weight-bold); }
+.pf-track__next span { color: var(--ink-muted); font-size: var(--text-sm); }
 
 /* 이 활동을 해 본 친구·선배: 이름을 누르면 서랍 */
 .fr-doneby__people { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-1); }
@@ -31,3 +74,5 @@
 .pt__title { min-width: 0; overflow-wrap: anywhere; }
 .pt__links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .pt-link { fill: none; stroke: var(--line-strong); stroke-width: var(--pt-stroke); }
+
+@media (max-width: 1100px) { .pf-cols { grid-template-columns: minmax(0, 1fr); } }

@@ -19,11 +19,22 @@ export function nextChallenges<T extends Named>(results: ChallengeResult<T>[], l
   return [...doing, ...idle].slice(0, limit);
 }
 
-/** 도전 과제 키워드 한 줄(15자 안팎): '달성 2 · ‘세 갈래 길’ 1곳 남음'. 진행 중인 과제가 없으면 시작할 한 걸음. */
-export function progressKeyword<T extends Named>(results: ChallengeResult<T>[]): string {
+export type ChallengeTrack = {
+  /** 달성한 과제 수(숨은 과제도 달성하면 센다) */
+  done: number;
+  /** 다음 과제. 다 이뤘으면 없다 */
+  next?: { name: string; when: string };
+};
+
+/**
+ * 프로필의 도전 과제 진행 그림: 달성한 칸 + 다음 칸 하나와, 다음 과제가 언제 열리는지 한 줄.
+ * 열리는 때는 정해진 날(note)이 먼저, 진행 중이면 남은 만큼, 시작 전이면 조건이다. 점수·레벨·희귀도는 만들지 않는다.
+ */
+export function challengeTrack<T extends Named & { condition?: string; note?: string }>(results: ChallengeResult<T>[]): ChallengeTrack {
   const done = results.filter(r => r.achieved).length;
-  if (done === results.length) return `달성 ${done} · 모두 달성`;
   const near = nextChallenges(results, 1)[0];
-  if (near && near.progress.value > 0) return `달성 ${done} · ‘${near.def.name}’ ${left(near)}${UNIT[near.def.rule] ?? '번'} 남음`;
-  return done === 0 ? '회고 하나로 첫 달성' : `달성 ${done} · 다음은 ‘${near?.def.name ?? ''}’`;
+  if (!near) return { done };
+  const { def } = near;
+  const when = def.note ?? (near.progress.value > 0 ? `${left(near)}${UNIT[def.rule] ?? '번'} 더 하면 열려요` : def.condition ?? '');
+  return { done, next: { name: def.name, when } };
 }
