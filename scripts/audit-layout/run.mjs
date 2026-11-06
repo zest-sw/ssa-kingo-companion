@@ -17,6 +17,7 @@ import { chromium } from 'playwright';
 import { createServer, preview } from 'vite';
 import { probe } from './probe.js';
 import { writeReports } from './report.mjs';
+import { waitForScreen } from './ready.mjs';
 import { findFreePort, waitForServer, withRetry } from './retry.mjs';
 import { contextOf, routesFor } from './routes.mjs';
 
@@ -102,8 +103,9 @@ async function saveRetro(page) {
   await page.locator('.iv-done').waitFor({ timeout: 5000 });
 }
 
-/** 분석 중·초안 쓰는 중 같은 기다림이 끝나고, 폭을 재는 그림이 자리를 잡을 때까지 */
+/** 화면 덩어리가 오고(뼈대가 사라지고), 분석 중·초안 쓰는 중 같은 기다림이 끝나고, 폭을 재는 그림이 자리를 잡을 때까지 */
 async function settle(page) {
+  await waitForScreen(page);
   await page.waitForFunction(() => !document.querySelector('.ui-loading'), null, { timeout: 8000 }).catch(() => {});
   await page.evaluate(() => document.fonts.ready.then(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))));
   await page.waitForTimeout(150);
