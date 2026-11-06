@@ -1,15 +1,14 @@
-import { Icon, type IconName } from '../../components';
+import type { ReactNode } from 'react';
 
-/** 사실 한 칸: 아이콘 + 이름 + 큰 값 + 작은 보충. 추천 카드(3칸)와 자세히(4칸)가 같이 쓴다. */
-export function Fact({ icon, label, value, sub, accent }: { icon: IconName; label: string; value: string; sub?: string; accent?: boolean }) {
+/** 정의 목록 한 줄: 왼쪽 옅은 이름, 오른쪽 값(+ 옅은 보충). 기회 자세히의 사실과 얻는 것이 같은 모양을 쓴다. */
+export function Fact({ label, value, sub }: { label: ReactNode; value: ReactNode; sub?: string }) {
   return (
-    <div className="rec-fact">
-      <span className="rec-fact__icon"><Icon name={icon} /></span>
-      <dl>
-        <dt>{label}</dt>
-        <dd className={accent ? 'rec-fact__val rec-fact__val--near num' : 'rec-fact__val num'}>{value}</dd>
-        {sub && <dd className="rec-fact__sub" title={sub}>{sub}</dd>}
-      </dl>
+    <div className="rec-dl__row">
+      <dt>{label}</dt>
+      <dd>
+        {value}
+        {sub && <span className="rec-dl__sub">{sub}</span>}
+      </dd>
     </div>
   );
 }

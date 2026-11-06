@@ -36,7 +36,6 @@ export function OppModal({ open = true, programId, actions, onClose }: { open?: 
 
   const week = state.week;
   const pick = view.scored.find(s => s.p.id === p.id);
-  const isPrimary = view.primary?.p.id === p.id;
   const dday = ddayOf(p, week);
   const fmt = formatText(p);
   const prep = prepItemsFor(p, week, '').filter(i => i.by === 'me');
@@ -52,15 +51,7 @@ export function OppModal({ open = true, programId, actions, onClose }: { open?: 
   return (
     <Modal
       open={open} size="wide" onClose={onClose} aside={close}
-      eyebrow={
-        <>
-          <Badge>{CATEGORY_LABEL[categoryOf(p)]}</Badge>
-          {pick && <Badge tone="lime">{isPrimary ? '가장 추천' : '추천'}</Badge>}
-          <span>{plainText(p.host)}</span>
-          <span className={isNearDeadline(dday) ? 'rec-modal__dday rec-modal__dday--near num' : 'rec-modal__dday num'}>{ddayText(dday)}</span>
-        </>
-      }
-      title={p.title}
+      title={<>{p.title}<span className="ui-dday num rec-modal__dday" data-near={isNearDeadline(dday) || undefined}>{ddayText(dday)}</span></>}
       actions={
         <>
           <Button variant="primary" disabled={closed || !p.eligible || chosen === 'preparing'} onClick={() => actions.onPrepare(p)}>{chosen === 'preparing' ? '신청 준비 중' : '신청 준비'}</Button>
@@ -74,23 +65,21 @@ export function OppModal({ open = true, programId, actions, onClose }: { open?: 
       <div className="rec-modal">
         <div className="rec-modal__col">
           <p className="rec-modal__do">{p.summary}</p>
-          <div className="rec-facts rec-facts--4">
-            <Fact icon="calendar" label="마감" value={ddayText(dday)} sub={dateLabel(dday, week)} accent={isNearDeadline(dday)} />
-            <Fact icon="clock" label="기간" value={p.durationLabel} sub={p.when} />
-            <Fact icon={p.format === 'online' ? 'compass' : 'friends'} label="방식" value={fmt.main} sub={fmt.sub ?? '이동 없이 참여'} />
-            <Fact icon="doc" label="준비물" value={`${prep.length}개`} sub={prep.map(i => i.label).join(', ')} />
-          </div>
+          <dl className="rec-dl" aria-label="모집 정보">
+            <Fact label="종류" value={CATEGORY_LABEL[categoryOf(p)]} sub={plainText(p.host)} />
+            <Fact label="마감" value={dateLabel(dday, week)} />
+            <Fact label="기간" value={p.durationLabel} sub={p.when} />
+            <Fact label="방식" value={fmt.main} sub={fmt.sub ?? '이동 없이 참여'} />
+            <Fact label="준비물" value={prep.length ? prep.map(i => i.label).join(', ') : '따로 없어요'} />
+          </dl>
           <section aria-labelledby="rec-gains-h">
-            <h3 id="rec-gains-h" className="rec-modal__h">얻는 것</h3>
+            <h3 id="rec-gains-h" className="ui-subhead">얻는 것</h3>
             {gains.length === 0 ? (
               <p className="rec-muted">모집글에 적힌 것이 없어요. 원문에서 확인해 주세요.</p>
             ) : (
-              <dl className="rec-gains">
+              <dl className="rec-dl">
                 {gains.map(gr => (
-                  <div key={gr.kind} className="rec-gains__row">
-                    <dt><Icon name={GAIN_ICON[gr.kind]} size={14} />{gr.label}</dt>
-                    <dd>{gr.items.join(' · ')}</dd>
-                  </div>
+                  <Fact key={gr.kind} label={<><Icon name={GAIN_ICON[gr.kind]} size={14} />{gr.label}</>} value={gr.items.join(', ')} />
                 ))}
               </dl>
             )}
@@ -99,7 +88,7 @@ export function OppModal({ open = true, programId, actions, onClose }: { open?: 
         </div>
         <div className="rec-modal__col">
           <section className="rec-agentcheck" aria-labelledby="rec-agentcheck-h">
-            <h3 id="rec-agentcheck-h" className="rec-agentcheck__h">에이전트가 확인했어요</h3>
+            <h3 id="rec-agentcheck-h" className="ui-subhead rec-agentcheck__h">에이전트가 확인했어요</h3>
             <ul>
               {checks.map(c => (
                 <li key={c.id} className="rec-agentcheck__row" data-state={c.state}>
@@ -113,7 +102,7 @@ export function OppModal({ open = true, programId, actions, onClose }: { open?: 
           </section>
           {pick && (
             <section className="rec-why" aria-labelledby="rec-why-h">
-              <h3 id="rec-why-h" className="rec-modal__h">왜 추천했나</h3>
+              <h3 id="rec-why-h" className="ui-subhead">왜 추천했나</h3>
               <ReasonTrace nodes={nodes} title={p.title} />
               {recordReasons.length > 0 && (
                 <details className="rec-runlog">

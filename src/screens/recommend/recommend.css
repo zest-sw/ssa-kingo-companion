@@ -85,12 +85,6 @@
 .rec-detail__kind { color: var(--ink-muted); font-size: var(--text-md); }
 .rec-detail__src { margin-left: auto; font-weight: var(--weight-medium); color: var(--ink-muted); text-decoration: none; }
 .rec-detail__host { margin-top: var(--space-1); color: var(--ink-muted); font-size: var(--text-sm); }
-.rec-fact { display: flex; align-items: flex-start; gap: var(--space-2); min-width: 0; padding: var(--space-3); border: var(--border); border-radius: var(--radius-md); }
-.rec-fact__icon { display: inline-flex; flex: none; margin-top: 2px; color: var(--ink-muted); }
-.rec-fact dl { min-width: 0; }
-.rec-fact dt { font-size: var(--text-xs); color: var(--ink-muted); }
-.rec-fact__val { font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: var(--leading-tight); }
-.rec-fact__val--near { color: var(--accent-ink); }
 .rec-checks { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .rec-why__head { display: flex; align-items: center; justify-content: space-between; }
 .rec-why__head h3 { font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
@@ -122,8 +116,6 @@
 
 /* v1.4 단계 나누기: 고르기 카드 · 자세히 · 신청 준비 단계 */
 .rec-detail__title { margin-bottom: var(--space-4); font-size: var(--text-3xl); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
-.rec-facts { display: grid; gap: var(--space-3); }
-.rec-fact__sub { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: var(--text-xs); color: var(--ink-muted); }
 .rec-why { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
 .rec-pstep .ui-panel { width: 100%; max-width: var(--rec-step-w); max-height: 100%; margin: 0 auto; align-self: start; }
 .rec-pstep__lead { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); font-size: var(--text-md); }
@@ -184,7 +176,7 @@
 .rec-later__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
 /* 자세히: 에이전트가 확인한 것. 줄마다 결과 + 확인에 쓴 정보 */
 .rec-agentcheck { display: flex; flex-direction: column; gap: var(--space-2); }
-.rec-agentcheck__h { display: flex; align-items: center; gap: var(--space-1); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
+.rec-agentcheck__h { margin-bottom: 0; }
 .rec-agentcheck ul { display: flex; flex-direction: column; border: var(--border); border-radius: var(--radius-md); }
 .rec-agentcheck__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); min-height: var(--hit-min); padding: var(--space-1) var(--space-3); font-size: var(--text-md); }
 .rec-agentcheck__row + .rec-agentcheck__row { border-top: var(--border); }
@@ -204,7 +196,7 @@
 .rec-runlog[open] .rec-runlog__head > svg { transform: rotate(-90deg); }
 
 /* v2.3 추천: 탭 두 개(추천 활동 · 전체 기회) + 목록 한 칸. 행을 누르면 가운데 모달 */
-:root { --rec-dday-w: 56px; --rec-gain-label: 120px; }
+:root { --rec-dday-w: 56px; --rec-gain-label: 96px; }
 .rec-tabs { flex: none; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); border-bottom: var(--border); }
 .rec-tabs .ui-tabs { border-bottom: 0; }
 .rec-tabs__how { margin-bottom: var(--space-1); }
@@ -248,17 +240,16 @@
 .rec-modal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
 .rec-modal__col { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
 .rec-modal__do { font-size: var(--text-md); }
-.rec-modal__h { margin-bottom: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--ink-muted); }
-.rec-modal__dday { font-weight: var(--weight-bold); color: var(--ink); }
-.rec-modal__dday--near { color: var(--accent-ink); }
+.rec-modal__dday { margin-left: var(--space-3); font-size: var(--text-xl); font-weight: var(--weight-bold); color: var(--ink); white-space: nowrap; }
+/* 사실·얻는 것: 정의 목록 한 덩어리. 왼쪽 옅은 이름, 오른쪽 값. 칸 테두리 없이 줄 사이 1px 선 */
+.rec-dl { display: flex; flex-direction: column; border-top: var(--border); }
+.rec-dl__row { display: grid; grid-template-columns: var(--rec-gain-label) minmax(0, 1fr); gap: var(--space-3); align-items: baseline; padding: var(--space-2) 0; border-bottom: var(--border); font-size: var(--text-md); line-height: var(--leading-tight); }
+.rec-dl__row dt { display: flex; align-items: center; gap: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }
+.rec-dl__row dt svg { flex: none; }
+.rec-dl__row dd { min-width: 0; }
+.rec-dl__sub { margin-left: var(--space-2); font-size: var(--text-sm); color: var(--ink-muted); }
 .rec-modal__src { margin-left: auto; }
 .rec-modal__fine { margin-top: var(--space-2); font-size: var(--text-xs); color: var(--ink-subtle); }
-.rec-facts--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.rec-gains { display: flex; flex-direction: column; border: var(--border); border-radius: var(--radius-md); }
-.rec-gains__row { display: grid; grid-template-columns: var(--rec-gain-label) minmax(0, 1fr); gap: var(--space-2); align-items: baseline; padding: var(--space-2) var(--space-3); font-size: var(--text-md); }
-.rec-gains__row + .rec-gains__row { border-top: var(--border); }
-.rec-gains__row dt { display: flex; align-items: center; gap: var(--space-1); font-size: var(--text-sm); color: var(--ink-muted); }
-.rec-gains__row dd { font-weight: var(--weight-medium); }
 .rec-modal .rec-runlog { margin-top: 0; }
 
 @media (max-width: 1023px) {
