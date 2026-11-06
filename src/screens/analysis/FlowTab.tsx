@@ -20,7 +20,6 @@ import './flow.css';
 /** 다시 보기에서 학기 한 칸을 보여 주는 시간(ms) */
 const PLAY_STEP_MS = 900;
 const pct = (share: number) => `${Math.round(share * 100)}%`;
-const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export default function FlowTab({ records }: { records: RecordItem[] }) {
   const axis = useMemo(() => semesterAxis(records, SEMESTER_FROM, SEMESTER_NOW), [records]);
@@ -50,7 +49,8 @@ export default function FlowTab({ records }: { records: RecordItem[] }) {
 
   const story = flowStory(shown);
   const playing = playAt !== null;
-  const play = () => setPlayAt(playing || reducedMotion() ? null : 0);
+  // 움직임 줄이기에서도 학기를 한 칸씩 넘긴다(칸이 차오르는 움직임만 뺀다, flow.css). 버튼이 아무 일도 안 하면 고장으로 보인다.
+  const play = () => setPlayAt(playing ? null : 0);
   const now = playAt !== null ? shown[playAt] : undefined;
   const nowPick = now && playAt !== null ? semesterPick(now, tops[playAt], records) : undefined;
   const picked = pick !== null ? shown[pick] : undefined;

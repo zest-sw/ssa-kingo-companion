@@ -213,7 +213,7 @@ export function MapGraph({ graph, selected, camera, onSelect, onOpen }: Props) {
 
   return (
     <div
-      ref={ref} className={`xg-stage${zp.dragging ? ' is-dragging' : ''}`} data-fill data-zoom={detail} tabIndex={0}
+      ref={ref} className={`xg-stage${zp.dragging ? ' is-dragging' : ''}`} data-fill data-zoom={detail} tabIndex={0} role="group"
       aria-label="경험 지도 그림. +, - 로 확대·축소, 0 으로 화면에 맞춤, 방향키로 이동해요."
       {...zp.handlers}
       onKeyDown={e => { if (e.key === 'Escape' && selected && !(e.target as Element).closest('input')) { e.preventDefault(); onSelect(null); return; } zp.handlers.onKeyDown(e); }}
