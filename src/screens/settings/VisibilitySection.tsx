@@ -5,10 +5,10 @@ import { Badge, Button, Card, Chip, Drawer, Icon, Modal, SegmentedControl, type 
 import { isSensitive, publicActivities, toggled } from '../../domain/social';
 import { Group, Row } from './Row';
 
-const UNLOCKS: { icon: IconName; title: string; sub: string }[] = [
+const UNLOCKS: { icon: IconName; title: string; sub: string; hall?: true }[] = [
   { icon: 'friends', title: '친구', sub: '비슷한 학생과 서로 친구 맺기' },
   { icon: 'flag', title: '팀원 모집', sub: '대회·해커톤 팀원을 구하거나 지원하기' },
-  { icon: 'trophy', title: '명예의 전당', sub: '한 번 더 동의하면 걸어온 길이 올라가요' }
+  { icon: 'trophy', title: '명예의 전당', sub: '한 번 더 동의하면 걸어온 길이 올라가요', hall: true }
 ];
 
 type Shown = { tone: 'green' | 'neutral' | 'lock'; text: string };
@@ -61,7 +61,8 @@ export function VisibilitySection() {
             <ul className="st-rows">
               {UNLOCKS.map(u => (
                 <Row key={u.title} title={<><Icon name={u.icon} />{u.title}</>} sub={u.sub}>
-                  <Badge tone={v.profilePublic ? 'green' : 'neutral'}>{v.profilePublic ? '열림' : '공개 필요'}</Badge>
+                  {/* 세 줄이 같은 상태면 묶음 제목이 이미 말한다. 공개 뒤에도 따로 동의가 필요한 전당만 상태를 단다 */}
+                  {u.hall && v.profilePublic && (v.hallOfFameConsent ? <Badge tone="green">올라가 있어요</Badge> : <Badge tone="dashed">동의 전</Badge>)}
                 </Row>
               ))}
             </ul>
