@@ -1,6 +1,7 @@
 /**
  * 화면 문구 검사. 빌드 결과(vite preview)를 띄워 모든 경로 × 학생 상태(새 학생, 예시) × 1440×900 에서
  * 보이는 글자를 읽고 기호·금지어·가운뎃점 사슬을 찾는다(규칙: rules.mjs). 찾으면 exit 1. 모달·서랍은 열지 않는다.
+ * 콘솔 에러도 실패다. 바깥 출처(글꼴 CDN) 받기 실패만 경고로 센다(레이아웃 검사와 같은 규칙: audit-layout/netfail.mjs).
  *
  *   npm run audit:copy                    빌드 + 전체 검사
  *   npm run audit:copy -- --no-build      dist 를 그대로 쓴다
@@ -17,6 +18,7 @@ import { createServer, preview } from 'vite';
 import { waitForScreen } from '../audit-layout/ready.mjs';
 import { findFreePort, waitForServer, withRetry } from '../audit-layout/retry.mjs';
 import { contextOf, routesFor } from '../audit-layout/routes.mjs';
+import { watchPage } from '../audit-layout/netfail.mjs';
 import { findCopyIssues, KIND_LABEL } from './rules.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -135,6 +137,14 @@ function writeReports(results) {
   }
   lines.push('', '## 걸린 글자', '', '| 상태 | 경로 | 종류 | 걸린 것 | 글자 | 요소 |', '|---|---|---|---|---|---|');
   for (const r of results) for (const i of r.issues) lines.push(`| ${r.state} | ${r.path} | ${KIND_LABEL[i.kind]} | ${esc(i.hit)} | ${esc(i.text)} | \`${esc(i.sel)}\` |`);
+  if (results.some(r => r.consoleErrors.length)) {
+    lines.push('', '## 콘솔 에러', '');
+    for (const r of results) for (const e of r.consoleErrors) lines.push(`- ${r.state} ${r.path}: ${esc(e)}`);
+  }
+  if (results.some(r => r.netWarns.length)) {
+    lines.push('', '## 바깥 출처 받기 실패(경고)', '');
+    for (const r of results) for (const e of r.netWarns) lines.push(`- ${r.state} ${r.path}: ${esc(e)}`);
+  }
   if (results.some(r => r.error)) {
     lines.push('', '## 열지 못한 경로', '');
     for (const r of results.filter(r => r.error)) lines.push(`- ${r.state} ${r.path}: ${r.error}`);
@@ -144,13 +154,13 @@ function writeReports(results) {
 }
 
 function printTable(results) {
-  const rows = results.filter(r => r.issues.length || r.error);
+  const rows = results.filter(r => r.issues.length || r.error || r.consoleErrors.length);
   if (!rows.length) return;
   const w = Math.max(...rows.map(r => r.path.length), 4);
   console.log(`\n${'상태'.padEnd(8)} ${'경로'.padEnd(w)}  기호 금지어 사슬`);
   for (const r of rows) {
     const n = k => String(r.issues.filter(i => i.kind === k).length).padStart(4);
-    console.log(`${r.state.padEnd(8)} ${r.path.padEnd(w)} ${n('symbol')} ${n('banned')} ${n('dots')}${r.error ? '  (열지 못함)' : ''}`);
+    console.log(`${r.state.padEnd(8)} ${r.path.padEnd(w)} ${n('symbol')} ${n('banned')} ${n('dots')}${r.error ? '  (열지 못함)' : ''}${r.consoleErrors.length ? `  콘솔 에러 ${r.consoleErrors.length}` : ''}`);
   }
 }
 
@@ -182,6 +192,7 @@ async function main() {
       for (const path of paths.filter(p => !args.route || args.route.test(p))) {
         const page = await ctx.newPage();
         const res = { state: key, path, issues: [] };
+        const net = watchPage(page, base);
         try {
           await withRetry(() => page.goto(`${base}/#/${path}`));
           await waitForScreen(page);
@@ -189,6 +200,9 @@ async function main() {
           await page.evaluate(() => document.fonts.ready);
           res.issues = issuesOf(await page.evaluate(collect));
         } catch (e) { res.error = String(e.message || e).split('\n')[0].slice(0, 120); }
+        const seen = net.list();
+        res.consoleErrors = seen.filter(o => o.level === 'fail').map(o => o.text.slice(0, 160));
+        res.netWarns = seen.filter(o => o.level === 'warn').map(o => o.text.slice(0, 160));
         results.push(res);
         await page.close();
       }
@@ -201,8 +215,11 @@ async function main() {
   const { total, byKind } = writeReports(results);
   printTable(results);
   const kinds = Object.entries(byKind).map(([k, n]) => `${KIND_LABEL[k]} ${n}`).join(', ');
-  console.log(total ? `\n걸린 곳 ${total}건 (${kinds}). 자세한 표: .qa/copy/report.md` : `\n통과(경로 ${results.length}개). 표: .qa/copy/report.md`);
-  process.exitCode = total || results.some(r => r.error) ? 1 : 0;
+  const consoleFails = results.reduce((n, r) => n + r.consoleErrors.length, 0);
+  const warns = results.reduce((n, r) => n + r.netWarns.length, 0);
+  if (consoleFails) console.log(`\n콘솔 에러 ${consoleFails}건. 자세한 표: .qa/copy/report.md`);
+  console.log((total ? `\n걸린 곳 ${total}건 (${kinds}). 자세한 표: .qa/copy/report.md` : `\n문구 통과(경로 ${results.length}개). 표: .qa/copy/report.md`) + (warns ? ` 바깥 출처 받기 실패 경고 ${warns}건.` : ''));
+  process.exitCode = total || consoleFails || results.some(r => r.error) ? 1 : 0;
 }
 
 main().catch(e => { console.error(e.message || e); process.exit(1); });
