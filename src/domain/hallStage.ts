@@ -12,11 +12,11 @@ export function recentJoined<T extends { id: string }>(entries: T[], joined: Rec
   return byJoined(entries, joined).reverse().slice(0, n);
 }
 
-/** 걸어온 길 한 줄: 첫 활동 → 마지막 활동 · 활동 n개 */
+/** 걸어온 길 한 줄: '첫 활동에서 마지막 활동까지, 활동 n개'. 화살표·가운뎃점 사슬 대신 말로 잇는다 */
 export function pathLine(path: { title: string }[]): string {
   if (!path.length) return '아직 공개한 활동이 없어요';
   if (path.length === 1) return path[0].title;
-  return `${path[0].title} → ${path[path.length - 1].title} · 활동 ${path.length}개`;
+  return `${path[0].title}에서 ${path[path.length - 1].title}까지, 활동 ${path.length}개`;
 }
 
 /** '2026-09' → '2026년 9월에 올랐어요' */

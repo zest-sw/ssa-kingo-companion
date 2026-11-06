@@ -40,7 +40,7 @@ export function RecruitView({ posts, onPost }: Props) {
       setPending(false);
       setNote('');
       setOpp('');
-      toast('모집 글을 올렸어요. 같은 기회에 관심 있는 학생에게 먼저 보여요.');
+      toast('모집 글을 올렸어요. 관심 있는 학생이 먼저 봐요');
     }, 500);
   };
 
@@ -68,7 +68,7 @@ export function RecruitView({ posts, onPost }: Props) {
             <input value={note} onChange={e => setNote(e.target.value)} placeholder="어떤 팀원이 좋은지 적어요" aria-invalid={Boolean(error && !error.includes('기회') && !error.includes('인원')) || undefined} />
           </label>
           {error && <p className="fr-error" role="alert">{error}</p>}
-          <Button type="submit" variant="primary" block disabled={pending}>{pending ? '올리는 중이에요' : '모집 글 올리기'}</Button>
+          <Button type="submit" variant="primary" block disabled={pending}>{pending ? '올리는 중' : '모집 글 올리기'}</Button>
         </form>
       </Card>
 
@@ -92,7 +92,8 @@ export function RecruitView({ posts, onPost }: Props) {
                   </div>
                   <h3 className="fr-post__title">{o.title}</h3>
                   <p className="fr-post__note">{p.note}</p>
-                  <p className="fr-post__meta">{p.mine ? '내 글' : `${p.author}님`} · {p.slots}명 모집{p.mine && ` · 관심 표시한 공개 학생 ${o.interested}명에게 먼저 보여요`}</p>
+                  <p className="fr-post__meta">{p.mine ? '내 글' : `${p.author}님`} · {p.slots}명 모집</p>
+                  {p.mine && <p className="fr-post__meta">관심 표시한 학생 {o.interested}명이 먼저 봐요</p>}
                   <div className="fr-post__actions">
                     {p.mine ? (
                       <ul className="fr-applicants">
@@ -111,8 +112,8 @@ export function RecruitView({ posts, onPost }: Props) {
                       <>
                         <Chip selected={marked} onClick={() => setInterest(list => toggled(list, o.id))}>이 기회에 관심 있어요</Chip>
                         {applied.includes(p.id)
-                          ? <Badge tone="neutral">지원했어요 · 답을 기다려요</Badge>
-                          : <Button size="sm" onClick={() => { setApplied(a => [...a, p.id]); toast(`${p.author}님에게 지원했어요. 수락은 ${p.author}님이 정해요.`); }}>지원하기</Button>}
+                          ? <Badge tone="neutral">답을 기다려요</Badge>
+                          : <Button size="sm" onClick={() => { setApplied(a => [...a, p.id]); toast(`${p.author}님에게 지원했어요. 수락은 ${p.author}님이 정해요`); }}>지원하기</Button>}
                       </>
                     )}
                   </div>

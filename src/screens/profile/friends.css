@@ -42,7 +42,7 @@
 .fr-people--requests { margin-bottom: var(--space-2); }
 .fr-person { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; }
 .fr-person__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.fr-person__name { font-weight: var(--weight-bold); }
+.fr-person__name { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); font-weight: var(--weight-bold); }
 .fr-person__sub { color: var(--ink-muted); font-size: var(--text-sm); overflow-wrap: anywhere; }
 .fr-doneby { padding: var(--space-2) 0; }
 

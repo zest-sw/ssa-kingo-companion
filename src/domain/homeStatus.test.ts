@@ -42,7 +42,7 @@ describe('명예의 전당 장면', () => {
     expect(recentJoined(people, joined, 2).map(p => p.id)).toEqual(['a', 'c']);
   });
   it('걸어온 길 한 줄과 오른 달', () => {
-    expect(pathLine([{ title: 'A' }, { title: 'B' }, { title: 'C' }])).toBe('A → C · 활동 3개');
+    expect(pathLine([{ title: 'A' }, { title: 'B' }, { title: 'C' }])).toBe('A에서 C까지, 활동 3개');
     expect(joinedLabel('2026-09')).toBe('2026년 9월에 올랐어요');
   });
   it('행렬 위치는 한 바퀴 안으로 접힌다', () => {

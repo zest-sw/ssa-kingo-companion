@@ -55,7 +55,7 @@ export function FriendsView() {
               {incoming.map(p => (
                 <li key={p.id} className="fr-person">
                   <Avatar name={p.name} />
-                  <div className="fr-person__text"><p className="fr-person__name">{p.name}</p><p className="fr-person__sub">친구 요청 · {peerLine(p, mineCount)}</p></div>
+                  <div className="fr-person__text"><p className="fr-person__name">{p.name}<Badge tone="navy">친구 요청</Badge></p><p className="fr-person__sub">{peerLine(p, mineCount)}</p></div>
                   <Button size="sm" onClick={() => accept(p)}>수락</Button>
                   <Button size="sm" variant="ghost" onClick={() => setIncoming(list => list.filter(x => x.id !== p.id))}>다음에</Button>
                 </li>
@@ -73,7 +73,7 @@ export function FriendsView() {
                 </Button>
               )}
             </>
-          ) : <p className="fr-empty">친구 신청을 받아 주면 여기에 모여요.</p>}
+          ) : <p className="fr-empty">친구가 생기면 여기에 모여요. 아래 비슷한 친구에게 먼저 신청해도 돼요</p>}
         </Card>
 
         <Card padding="md" title="나와 비슷한 친구">
@@ -95,7 +95,7 @@ export function FriendsView() {
         <Card padding="md" title="이 활동을 해 본 친구·선배">
           {doneBy.length ? (
             <>
-              <p className="fr-empty">이름을 누르면 공개한 경로를 따라 볼 수 있어요.</p>
+              <p className="fr-empty">이름을 누르면 공개한 경로가 열려요</p>
               <ul className="fr-people">
                 {doneBy.map(d => (
                   <li key={d.activityTitle} className="fr-doneby">
@@ -107,7 +107,7 @@ export function FriendsView() {
                 ))}
               </ul>
             </>
-          ) : <p className="fr-empty">내 활동을 해 본 사람이 아직 없어요. 활동을 추가하면 찾아 줘요.</p>}
+          ) : <p className="fr-empty">같은 활동을 해 본 사람이 아직 없어요. 활동을 시작하면 찾아 줘요</p>}
         </Card>
       </div>
     </div>
