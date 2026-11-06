@@ -19,14 +19,16 @@ type Options = {
  *   useFocusOnChange(head, null, { onMount: true }) 나타날 때 한 번
  */
 export function useFocusOnChange(target: Target, key: unknown, opts: Options = {}) {
-  const first = useRef(true);
+  // 지난번에 본 key. 처음 그림인지와 같은 key 로 다시 돈 것(StrictMode 의 두 번 실행)을 가린다
+  const seen = useRef<{ key: unknown } | null>(null);
   const get = useRef(target);
   get.current = target;
   const { onMount = false, when = true, scroll = false, caretEnd = false } = opts;
   useEffect(() => {
-    const skip = first.current && !onMount;
-    first.current = false;
-    if (skip || !when) return;
+    const firstRun = seen.current === null;
+    if (!firstRun && Object.is(seen.current!.key, key)) return;
+    seen.current = { key };
+    if ((firstRun && !onMount) || !when) return;
     const t = get.current;
     const el = typeof t === 'function' ? t() : t.current;
     if (!el) return;

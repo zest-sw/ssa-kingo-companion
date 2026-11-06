@@ -69,3 +69,14 @@ describe('useFocusOnChange', () => {
     expect(t.selectionStart).toBe(t.value.length);
   });
 });
+
+describe('useFocusOnChange · StrictMode', () => {
+  it('개발 모드의 두 번 실행에도 첫 그림에서는 옮기지 않는다', async () => {
+    const { StrictMode } = await import('react');
+    render(<StrictMode><Form editing={false} /></StrictMode>);
+    expect(document.activeElement).toBe(document.body);
+    render(<StrictMode><Form editing /></StrictMode>);
+    render(<StrictMode><Form editing={false} /></StrictMode>);
+    expect(active()).toBe('고치기');
+  });
+});
