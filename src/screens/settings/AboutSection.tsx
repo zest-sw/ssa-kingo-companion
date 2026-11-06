@@ -3,15 +3,19 @@ import { useApp } from '../../app/AppState';
 import { Button, Card, Modal, useToast } from '../../components';
 import { ABOUT_LINES, PRINCIPLE_LINES } from '../../data/settings';
 import { Group, Row } from './Row';
+import { useStartOver } from './useStartOver';
 
 /**
- * 프로토타입 정보. 데이터가 예시임을 밝히는 단 한 곳이고, 예시 학생으로 보기도 여기 있다.
- * 다 지우고 가입 인터뷰부터 하는 길은 데이터·개인정보의 '내 데이터 지우기' 한 곳뿐이다(같은 일을 두 곳에 두면 어느 쪽인지 망설인다).
+ * 프로토타입 정보. 데이터가 예시임을 밝히는 단 한 곳이고, 예시 학생으로 보기와 처음부터 다시(새 학생)도 여기 있다.
+ * 처음부터 다시는 둘러보던 사람이 새 학생 흐름을 다시 보는 길이고, 지우는 일은 데이터·개인정보 '내 데이터 지우기'와 같은 함수(useStartOver)다.
  */
 export function AboutSection() {
   const { state, run } = useApp();
+  const startOver = useStartOver();
   const toast = useToast();
+  const [ask, setAsk] = useState(false);
   const [askMode, setAskMode] = useState(false);
+  const reset = () => { setAsk(false); startOver('새 학생으로 처음부터 시작해요'); };
   // 지금 상태를 예시로 덮기 전에 한 번 묻는다. 무엇이 사라지는지 말한다.
   const mine = state.demo ? 0 : state.activities.length + state.records.length;
   const overwrite = state.demo
@@ -25,11 +29,14 @@ export function AboutSection() {
   return (
     <div className="st-stack">
       <Card className="st-card">
-        {/* 이 화면에서 누를 것은 이 줄뿐이라 맨 위에 둔다. 아래 설명이 길어 낮은 화면(1280×640)에서는 칸 밖으로 밀렸다 */}
+        {/* 이 화면에서 누를 것은 이 두 줄뿐이라 맨 위에 둔다. 아래 설명이 길어 낮은 화면(1280×640)에서는 칸 밖으로 밀렸다 */}
         <Group title="이 브라우저에 남긴 것">
           <ul className="st-rows">
             <Row title="예시 학생으로 보기" sub={state.demo ? '지금 예시 학생으로 보고 있어요. 누르면 처음 예시로 돌아가요' : '소프트웨어학과 3학년 예시 학생의 3년 치 기록으로 바꿔요'}>
               <Button onClick={() => setAskMode(true)}>예시 학생으로 보기</Button>
+            </Row>
+            <Row title="처음부터 다시(새 학생)" sub="프로필, 고른 것, 초안, 설정을 지우고 가입 인터뷰부터 다시 해요">
+              <Button onClick={() => setAsk(true)}>처음부터 다시</Button>
             </Row>
           </ul>
         </Group>
@@ -44,6 +51,14 @@ export function AboutSection() {
           </ul>
         </Group>
       </Card>
+      <Modal
+        open={ask}
+        title="처음부터 다시 시작해요"
+        onClose={() => setAsk(false)}
+        actions={<><Button onClick={() => setAsk(false)}>취소</Button><Button variant="primary" onClick={reset}>다시 시작</Button></>}
+      >
+        지금 보던 상태를 지우고 새 학생으로 가입 인터뷰부터 다시 봐요. 프로필, 고른 것, 초안, 설정이 지워져요.
+      </Modal>
       <Modal
         open={askMode}
         title="예시 학생으로 바꿔요"
